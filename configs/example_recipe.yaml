@@ -1,0 +1,9 @@
+﻿name: demo
+locate: { roi: [0,0,640,480], threshold: 0.5 }
+move: { speed: 50, approach_z: 1.0, safe_z: 5.0 }
+grind: { rpm: 10000, feed: 0.1, duration: 2.0 }
+inspect: { min_score: 0.7 }
+error_policy: { retries: 2 }
+comm: { host: 127.0.0.1, port: 5000, timeout: 2.0 }
+safety: { door: true, vacuum: true, e_stop: false, homed: true, spindle_ready: true }
+coords: { work_origin: [0,0,0], tool_origin: [0,0,0] }

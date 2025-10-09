@@ -1,0 +1,9 @@
+﻿PySide6
+opencv-python
+numpy
+PyYAML
+
+fastapi
+uvicorn
+pydantic
+
