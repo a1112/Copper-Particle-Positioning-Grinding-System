@@ -1,0 +1,17 @@
+[project]
+name = "Copper-Particle-Positioning-Grinding-System"
+
+[tool.pyside6-project]
+files = [
+            "main.py",
+            "qtquickcontrols2.conf",
+            "qml/main.qml",
+            "qml/Api/ApiClient.qml",
+            "qml/Api/Http.js",
+            "qml/views/CommPanel.qml",
+            "qml/views/MotionPanel.qml",
+            "qml/views/SafetyPanel.qml",
+            "image_provider.py",
+            "highlighter.py",
+            "qml_bridge.py",
+]

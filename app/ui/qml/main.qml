@@ -1,4 +1,5 @@
-﻿import QtWebSockets 1.1
+﻿import QtQuick.Layouts 1.15
+import QtWebSockets 1.1
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
@@ -8,7 +9,7 @@ ApplicationWindow {
   id: win
 
 
-  width: 1024; height: 640
+  width: 1366; height: 820
 
 
   visible: true
@@ -74,7 +75,7 @@ ApplicationWindow {
   // API client singleton for QML
 
 
-  Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://127.0.0.1:8000'); item.setTimeout(5000) } }
+  Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://127.0.0.1:8010'); item.setTimeout(5000) } }
 
 
 
@@ -96,6 +97,7 @@ ApplicationWindow {
 
 
       Button { text: "停止"; onClicked: apiLoader.item.stopRun(function(_) {}, function(s,m){ console.log('stop err', s, m) }) }
+      Button { text: "设置"; onClicked: settingsDrawer.open() }
 
 
       Label { text: backend.status }
@@ -104,120 +106,81 @@ ApplicationWindow {
     }
 
 
-    Rectangle { anchors.horizontalCenter: parent.horizontalCenter; width: 640; height: 360; color: "#222"; radius: 4
-
-
-      Image {
-
-
-        id: video
-
-
-        anchors.fill: parent
-
-
-        fillMode: Image.PreserveAspectFit
-
-
-        cache: false
-
-
-        source: 'http://127.0.0.1:8000/image.png?ts=' + Date.now()
-
-
-      }
-
-
-      // timer to refresh http image source via query param
-
-
-      Timer { id: t; interval: 120; running: true; repeat: true; onTriggered: video.source = 'http://127.0.0.1:8000/image.png?ts=' + Date.now() }
-
-
-      Canvas {
-
-
-        id: overlay
-
-
-        anchors.fill: parent
-
-
-        onPaint: {
-
-
-          var ctx = getContext('2d');
-
-
-          ctx.clearRect(0,0,width,height);
-
-
-          // draw crosshair at center
-
-
-          ctx.strokeStyle = '#00FF00'; ctx.lineWidth = 2;
-
-
-          ctx.beginPath();
-
-
-          ctx.moveTo(width/2 - 20, height/2);
-
-
-          ctx.lineTo(width/2 + 20, height/2);
-
-
-          ctx.moveTo(width/2, height/2 - 20);
-
-
-          ctx.lineTo(width/2, height/2 + 20);
-
-
-          ctx.stroke();
-
-
-
-
-
-          // draw target result if available (coordinate assumes image pixels)
-
-
-          if (backend.targetX >= 0 && backend.targetY >= 0) {
-
-
-            var x = backend.targetX * width / 640; // naive scale, adjust if needed
-
-
-            var y = backend.targetY * height / 360;
-
-
-            ctx.strokeStyle = '#FFCC00';
-
-
-            ctx.beginPath();
-
-
-            ctx.arc(x, y, 12, 0, Math.PI*2);
-
-
-            ctx.stroke();
-
-
-            ctx.fillStyle = '#FFCC00';
-
-
-            ctx.fillText('θ=' + backend.targetTheta.toFixed(2) + ' s=' + backend.targetScore.toFixed(2), x+14, y-14);
-
-
-          }
-
-
+    RowLayout {
+      id: mainRow
+      width: parent.width
+      spacing: 8
+
+      // Left: Video area
+      Item {
+        id: videoArea
+        Layout.preferredWidth: 800
+        Layout.preferredHeight: 450
+        Rectangle { anchors.fill: parent; color: "#222"; radius: 4 }
+        Image {
+          id: video
+          anchors.fill: parent
+          fillMode: Image.PreserveAspectFit
+          cache: false
+          asynchronous: false
+          source: 'image://camera/live?ts=' + Date.now()
         }
-
-
+        Timer { id: t; interval: 120; running: true; repeat: true; onTriggered: video.source = 'image://camera/live?ts=' + Date.now() }
+        Canvas {
+          id: overlay
+          anchors.fill: parent
+          onPaint: {
+            var ctx = getContext('2d');
+            ctx.clearRect(0,0,width,height);
+            // crosshair
+            ctx.strokeStyle = '#00FF00'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(width/2 - 20, height/2);
+            ctx.lineTo(width/2 + 20, height/2);
+            ctx.moveTo(width/2, height/2 - 20);
+            ctx.lineTo(width/2, height/2 + 20);
+            ctx.stroke();
+            // target
+            if (backend.targetX >= 0 && backend.targetY >= 0) {
+              var x = backend.targetX * width / 640;
+              var y = backend.targetY * height / 360;
+              ctx.strokeStyle = '#FFCC00';
+              ctx.beginPath();
+              ctx.arc(x, y, 12, 0, Math.PI*2);
+              ctx.stroke();
+              ctx.fillStyle = '#FFCC00';
+              ctx.fillText('θ=' + backend.targetTheta.toFixed(2) + ' s=' + backend.targetScore.toFixed(2), x+14, y-14);
+            }
+          }
+        }
       }
 
-
+      // Right: Instruction editor
+      Rectangle {
+        id: editorPanel
+        Layout.fillWidth: true
+        Layout.preferredHeight: videoArea.Layout.preferredHeight
+        radius: 4
+        color: "#1e1e1e"; border.color: "#333"
+        ColumnLayout { anchors.fill: parent; anchors.margins: 8; spacing: 6
+          RowLayout { Layout.fillWidth: true
+            Label { text: "指令编辑"; font.bold: true; Layout.fillWidth: true }
+            Button { text: "运行" }
+            Button { text: "停止" }
+            Button { text: "打开" }
+            Button { text: "保存" }
+          }
+          TextArea {
+            id: editor
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            wrapMode: TextEdit.NoWrap
+            font.family: "Consolas, 'Courier New', monospace"
+            placeholderText: "在此编辑指令（支持 G/M 指令高亮；; 为注释）"
+            Component.onCompleted: { if (pyHighlighter && editor.textDocument) pyHighlighter.attach(editor.textDocument) }
+          }
+        }
+      }
     }    // WebSocket status updates and fallback polling
 
 
@@ -227,13 +190,13 @@ ApplicationWindow {
       id: ws
 
 
-      url: "ws://127.0.0.1:8000/ws"
+      url: "ws://127.0.0.1:8010/ws"
 
 
       active: true
 
 
-      onStatusChanged: {
+      onStatusChanged: function(status) {
 
 
         if (status === WebSocket.Error) {
@@ -272,7 +235,7 @@ ApplicationWindow {
           backend._status = 'State: ' + st.state + ' | X ' + Number(st.position.x||0).toFixed(2) + ' Y ' + Number(st.position.y||0).toFixed(2)
 
 
-          backend.statusChanged.emit()
+          backend.statusChanged()
 
 
         } catch(e) { console.log('WS parse error:', e) }
@@ -320,7 +283,7 @@ ApplicationWindow {
         backend._status = 'State: ' + st.state + ' | X ' + Number(st.position.x||0).toFixed(2) + ' Y ' + Number(st.position.y||0).toFixed(2)
 
 
-        backend.statusChanged.emit()
+        backend.statusChanged()
 
 
       }, function(s,m){ })
@@ -410,7 +373,7 @@ ApplicationWindow {
         backend._status = 'State: ' + st.state + ' | X ' + Number(st.position.x||0).toFixed(2) + ' Y ' + Number(st.position.y||0).toFixed(2)
 
 
-        backend.statusChanged.emit()
+        backend.statusChanged()
 
 
       }, function(s,m){ /* ignore transient errors */ })
@@ -424,8 +387,37 @@ ApplicationWindow {
 
   }
 
+  // Settings drawer (repurposed from old editor drawer)
+  Drawer {
+    id: settingsDrawer
+    edge: Qt.RightEdge
+    width: 360
+    height: parent.height
+    modal: false
+    interactive: true
+    focus: true
 
-}
+    Rectangle { anchors.fill: parent; color: "#1e1e1e"; border.color: "#333"
+      ColumnLayout { anchors.fill: parent; anchors.margins: 8; spacing: 8
+        Label { text: "设置"; font.bold: true }
+        RowLayout {
+          Label { text: "示例开关"; Layout.fillWidth: true }
+          Switch { checked: true }
+        }
+        RowLayout {
+          Label { text: "刷新间隔(ms)" }
+          SpinBox { from: 50; to: 1000; value: 120; onValueModified: t.interval = value }
+        }
+        Item { Layout.fillHeight: true }
+        Button { text: "关闭"; onClicked: settingsDrawer.close(); Layout.alignment: Qt.AlignRight }
+      }
+    }
+  }
+  }
+
+
+
+
 
 
 

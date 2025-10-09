@@ -111,6 +111,11 @@ class Backend(QObject):
         if hasattr(self.orchestrator.motion, 'set_work_origin'):
             self.orchestrator.motion.set_work_origin()
 
+    @Slot()
+    def refresh(self):
+        # Allow QML to request a UI refresh safely
+        self.statusChanged.emit()
+
     @Property(bool, notify=statusChanged)
     def lockDoor(self):
         return self._lock_door

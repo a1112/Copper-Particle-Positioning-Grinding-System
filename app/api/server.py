@@ -34,27 +34,24 @@ def create_app(provider: CameraImageProvider, orch: Orchestrator, motion: IMotio
 
     @app.get("/image.png")
     async def image_png():
+        # Encode QImage to PNG without requiring QPixmap/QGuiApplication
+        from PySide6.QtGui import QImage
+        from PySide6.QtCore import QByteArray, QBuffer
         with provider._lock:  # type: ignore[attr-defined]
             img = provider._img  # type: ignore[attr-defined]
             if img is None:
-                from PySide6.QtGui import QImage, QPixmap
-                from PySide6.QtCore import QByteArray, QBuffer
                 image = QImage(640, 360, QImage.Format_RGB888)
                 image.fill(0x202020)
-                pix = QPixmap.fromImage(image)
                 qba = QByteArray()
                 buf = QBuffer(qba)
                 buf.open(QBuffer.WriteOnly)
-                pix.save(buf, 'PNG')
+                image.save(buf, 'PNG')
                 return Response(content=bytes(qba), media_type='image/png')
             else:
-                from PySide6.QtGui import QPixmap
-                from PySide6.QtCore import QByteArray, QBuffer
-                pix = QPixmap.fromImage(img)
                 qba = QByteArray()
                 buf = QBuffer(qba)
                 buf.open(QBuffer.WriteOnly)
-                pix.save(buf, 'PNG')
+                img.save(buf, 'PNG')
                 return Response(content=bytes(qba), media_type='image/png')
 
     @app.get("/status")
@@ -117,5 +114,25 @@ def create_app(provider: CameraImageProvider, orch: Orchestrator, motion: IMotio
                 await asyncio.sleep(0.5)
         except WebSocketDisconnect:
             return
+
+    # Launch UI process on demand
+    from typing import Optional
+    import subprocess, sys, os
+    ui_proc: Optional[subprocess.Popen] = None
+
+    @app.post("/ui/start")
+    async def ui_start():
+        nonlocal ui_proc
+        with lock:
+            if ui_proc and ui_proc.poll() is None:
+                return {"ok": True, "running": True}
+            # Run the UI launcher as a separate process
+            env = os.environ.copy()
+            cmd = [sys.executable, "-m", "app.ui.main"]
+            try:
+                ui_proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return {"ok": True, "running": True}
+            except Exception as e:
+                return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
 
     return app

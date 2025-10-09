@@ -9,6 +9,7 @@ from app.devices.sim.motion_sim import MotionSim
 from app.process.orchestrator import Orchestrator
 from app.ui.qml_bridge import Backend
 from app.ui.image_provider import CameraImageProvider
+from app.ui.highlighter import HighlighterBridge
 from app.api.server import create_app
 
 
@@ -35,6 +36,7 @@ def main():
     engine = QQmlApplicationEngine()
     provider = CameraImageProvider()
     engine.addImageProvider('camera', provider)
+    engine.rootContext().setContextProperty("pyHighlighter", HighlighterBridge())
 
     backend = Backend(orch)
     # let orchestrator notify backend for vision results
@@ -43,7 +45,7 @@ def main():
     except Exception:
         pass
     engine.rootContext().setContextProperty("backend", backend)
-    engine.load("app/ui/main.qml")
+    engine.load("app/ui/qml/main.qml")
     if not engine.rootObjects():
         sys.exit(-1)
 
@@ -51,13 +53,15 @@ def main():
     try:
         import threading
         import uvicorn
+        import os
         app_api = create_app(provider, orch, motion)
         def run_api():
-            uvicorn.run(app_api, host="127.0.0.1", port=8000, log_level="warning")
+            port = int(os.getenv("COPPER_API_PORT", "8010"))
+            uvicorn.run(app_api, host="127.0.0.1", port=port, log_level="warning")
         t = threading.Thread(target=run_api, daemon=True)
         t.start()
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
 
     ret = app.exec()
     cam.stop_stream()
