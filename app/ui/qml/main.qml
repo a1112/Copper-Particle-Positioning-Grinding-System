@@ -1,4 +1,5 @@
-﻿import QtQuick.Layouts 1.15
+﻿import Qt.labs.settings 1.1
+import QtQuick.Layouts 1.15
 import QtWebSockets 1.1
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -75,8 +76,18 @@ ApplicationWindow {
   // API client singleton for QML
 
 
-  Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://' + settings.apiHost + ':' + settings.apiPort); item.setTimeout(5000) } }
-  Connections { target: settings; function onApiPortChanged() { if (apiLoader.item) apiLoader.item.setBase('http://' + settings.apiHost + ':' + settings.apiPort) } function onApiHostChanged() { if (apiLoader.item) apiLoader.item.setBase('http://' + settings.apiHost + ':' + settings.apiPort) } }
+    // UI-level settings persisted via Qt.labs.settings
+  Settings {
+    id: uiSettings
+    fileName: "ui_settings.ini"
+    property string apiHost: "127.0.0.1"
+    property int apiPort: 8010
+    property int refreshMs: 120
+  }
+
+  // API client singleton for QML
+  Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://' + uiSettings.apiHost + ':' + uiSettings.apiPort); item.setTimeout(5000) } }
+  Connections { target: uiSettings; function onApiPortChanged() { if (apiLoader.item) apiLoader.item.setBase('http://' + uiSettings.apiHost + ':' + uiSettings.apiPort) } function onApiHostChanged() { if (apiLoader.item) apiLoader.item.setBase('http://' + uiSettings.apiHost + ':' + uiSettings.apiPort) } } }
 
 
 
@@ -101,7 +112,7 @@ ApplicationWindow {
       Button { text: "设置"; onClicked: settingsDrawer.open() }
 
 
-      Rectangle { width: 10; height: 10; radius: 5; color: (ws.status===WebSocket.Open ? '#1cc88a' : (ws.status===WebSocket.Connecting ? '#f6c23e' : '#e74a3b')) }  Label { text: '连接: ' + (ws.status===WebSocket.Open ? '已连接' : (ws.status===WebSocket.Connecting ? '连接中' : '未连接')) }  Label { text: 'API: ' + settings.apiHost + ':' + settings.apiPort }
+      Rectangle { width: 10; height: 10; radius: 5; color: (ws.status===WebSocket.Open ? '#1cc88a' : (ws.status===WebSocket.Connecting ? '#f6c23e' : '#e74a3b')) }  Label { text: '连接: ' + (ws.status===WebSocket.Open ? '已连接' : (ws.status===WebSocket.Connecting ? '连接中' : '未连接')) }  Label { text: 'API: ' + uiSettings.apiHost + ':' + uiSettings.apiPort }
 
 
     }
@@ -126,7 +137,7 @@ ApplicationWindow {
           asynchronous: false
           source: 'image://camera/live?ts=' + Date.now()
         }
-        Timer { id: t; interval: 120; running: true; repeat: true; onTriggered: video.source = 'image://camera/live?ts=' + Date.now() }
+        Timer { id: t; interval: uiSettings.refreshMs; running: true; repeat: true; onTriggered: video.source = 'image://camera/live?ts=' + Date.now() }
         Canvas {
           id: overlay
           anchors.fill: parent
@@ -191,7 +202,7 @@ ApplicationWindow {
       id: ws
 
 
-      url: 'ws://' + settings.apiHost + ':' + settings.apiPort + '/ws'
+      url: 'ws://' + uiSettings.apiHost + ':' + uiSettings.apiPort + '/ws'
 
 
       active: true
@@ -406,11 +417,19 @@ ApplicationWindow {
           Switch { checked: true }
         }
         RowLayout {
-          Label { text: "刷新间隔(ms)" }
-          SpinBox { from: 50; to: 1000; value: 120; onValueModified: t.interval = value }
+          Label { text: "API 地址"; Layout.preferredWidth: 80 }
+          TextField { text: uiSettings.apiHost; onTextChanged: uiSettings.apiHost = text; placeholderText: "127.0.0.1" }
         }
         RowLayout {
-          Button { text: "保存并重启 API"; onClicked: { settings.saveAndRestart(); } }
+          Label { text: "API 端口"; Layout.preferredWidth: 80 }
+          SpinBox { from: 1; to: 65535; value: uiSettings.apiPort; onValueModified: uiSettings.apiPort = value }
+        }
+        RowLayout {
+          Label { text: "刷新间隔(ms)"; Layout.preferredWidth: 80 }
+          SpinBox { from: 50; to: 1000; value: uiSettings.refreshMs; onValueModified: uiSettings.refreshMs = value }
+        }
+        RowLayout {
+          Button { text: "保存并重启 API"; onClicked: { settings.apiHost = uiSettings.apiHost; settings.apiPort = uiSettings.apiPort; settings.saveAndRestart(); } }
           Item { Layout.fillWidth: true }
           Button { text: "关闭"; onClicked: settingsDrawer.close() }
         }
@@ -418,6 +437,13 @@ ApplicationWindow {
     }
   }
   }
+
+
+
+
+
+
+
 
 
 
