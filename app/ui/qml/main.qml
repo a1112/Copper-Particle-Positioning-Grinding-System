@@ -75,8 +75,8 @@ ApplicationWindow {
   // API client singleton for QML
 
 
-  Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://127.0.0.1:' + settings.apiPort); item.setTimeout(5000) } }
-  Connections { target: settings; function onApiPortChanged() { if (apiLoader.item) apiLoader.item.setBase('http://127.0.0.1:' + settings.apiPort) } }
+  Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://' + settings.apiHost + ':' + settings.apiPort); item.setTimeout(5000) } }
+  Connections { target: settings; function onApiPortChanged() { if (apiLoader.item) apiLoader.item.setBase('http://' + settings.apiHost + ':' + settings.apiPort) } function onApiHostChanged() { if (apiLoader.item) apiLoader.item.setBase('http://' + settings.apiHost + ':' + settings.apiPort) } }
 
 
 
@@ -101,7 +101,7 @@ ApplicationWindow {
       Button { text: "设置"; onClicked: settingsDrawer.open() }
 
 
-      Label { text: backend.status }
+      Rectangle { width: 10; height: 10; radius: 5; color: (ws.status===WebSocket.Open ? '#1cc88a' : (ws.status===WebSocket.Connecting ? '#f6c23e' : '#e74a3b')) }  Label { text: '连接: ' + (ws.status===WebSocket.Open ? '已连接' : (ws.status===WebSocket.Connecting ? '连接中' : '未连接')) }  Label { text: 'API: ' + settings.apiHost + ':' + settings.apiPort }
 
 
     }
@@ -191,7 +191,7 @@ ApplicationWindow {
       id: ws
 
 
-      url: "ws://127.0.0.1:" + settings.apiPort + "/ws"
+      url: 'ws://' + settings.apiHost + ':' + settings.apiPort + '/ws'
 
 
       active: true
@@ -418,6 +418,9 @@ ApplicationWindow {
     }
   }
   }
+
+
+
 
 
 

@@ -9,11 +9,13 @@ from PySide6.QtCore import QObject, Property, Signal, Slot
 
 class SettingsBridge(QObject):
     apiPortChanged = Signal()
+    apiHostChanged = Signal()
 
     def __init__(self, path: str | Path) -> None:
         super().__init__()
         self._path = Path(path)
         self._api_port = 8010
+        self._api_host = "127.0.0.1"
         self.load()
         self._api_ctl = None
 
@@ -22,9 +24,16 @@ class SettingsBridge(QObject):
             if self._path.exists():
                 data: dict[str, Any] = json.loads(self._path.read_text(encoding="utf-8"))
                 port = int(data.get("api_port", self._api_port))
+                host = str(data.get("api_host", self._api_host))
+                changed = False
                 if port != self._api_port:
                     self._api_port = port
                     self.apiPortChanged.emit()
+                    changed = True
+                if host and host != self._api_host:
+                    self._api_host = host
+                    self.apiHostChanged.emit()
+                    changed = True
         except Exception:
             pass
 
@@ -32,7 +41,13 @@ class SettingsBridge(QObject):
     def save(self) -> None:
         try:
             self._path.parent.mkdir(parents=True, exist_ok=True)
-            self._path.write_text(json.dumps({"api_port": int(self._api_port)}, ensure_ascii=False, indent=2), encoding="utf-8")
+            self._path.write_text(
+                json.dumps({
+                    "api_port": int(self._api_port),
+                    "api_host": str(self._api_host),
+                }, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
         except Exception:
             pass
 
@@ -57,6 +72,20 @@ class SettingsBridge(QObject):
             if v != self._api_port and 0 < v < 65536:
                 self._api_port = v
                 self.apiPortChanged.emit()
+        except Exception:
+            pass
+
+    @Property(str, notify=apiHostChanged)
+    def apiHost(self) -> str:  # type: ignore[override]
+        return str(self._api_host)
+
+    @apiHost.setter  # type: ignore[override]
+    def apiHost(self, v: str) -> None:
+        try:
+            v = str(v).strip()
+            if v and v != self._api_host:
+                self._api_host = v
+                self.apiHostChanged.emit()
         except Exception:
             pass
 
