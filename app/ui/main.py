@@ -50,6 +50,10 @@ def _run_minimal_ui() -> int:
             self.motion = _DummyMotion()
 
     app = QGuiApplication(sys.argv)
+    from PySide6.QtCore import QCoreApplication
+    QCoreApplication.setOrganizationName("CopperSystem")
+    QCoreApplication.setOrganizationDomain("example.local")
+    QCoreApplication.setApplicationName("Copper UI")
     engine = QQmlApplicationEngine()
     provider = CameraImageProvider()
     engine.addImageProvider('camera', provider)

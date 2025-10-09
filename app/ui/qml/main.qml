@@ -1,12 +1,12 @@
-﻿import Qt.labs.settings 1.1
+﻿import QtCore
 import QtQuick.Layouts 1.15
 import QtWebSockets 1.1
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-
+import QtQuick.Controls.Material
 ApplicationWindow {
 
-
+  Material.theme: Material.Dark
   id: win
 
 
@@ -29,6 +29,9 @@ ApplicationWindow {
 
 
   property string errorText: ""
+  // Connection latency tracking (ms timestamps)
+  property double lastMsgTs: 0
+  property double nowTs: 0
 
 
   function showError(msg) {
@@ -50,6 +53,9 @@ ApplicationWindow {
 
 
     title: "请求失败"
+    parent: Overlay.overlay
+    anchors.centerIn: parent
+    width: 480
 
 
     modal: true
@@ -61,7 +67,7 @@ ApplicationWindow {
     visible: false
 
 
-    contentItem: Text { text: errorText; wrapMode: Text.WordWrap; color: "white" }
+    contentItem: Text { text: errorText; wrapMode: Text.WordWrap; color: "white"; width: 420 }
 
 
     background: Rectangle { color: "#5b0000"; radius: 6 }
@@ -79,15 +85,14 @@ ApplicationWindow {
     // UI-level settings persisted via Qt.labs.settings
   Settings {
     id: uiSettings
-    fileName: "ui_settings.ini"
     property string apiHost: "127.0.0.1"
     property int apiPort: 8010
     property int refreshMs: 120
   }
 
-  // API client singleton for QML
   Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://' + uiSettings.apiHost + ':' + uiSettings.apiPort); item.setTimeout(5000) } }
-  Connections { target: uiSettings; function onApiPortChanged() { if (apiLoader.item) apiLoader.item.setBase('http://' + uiSettings.apiHost + ':' + uiSettings.apiPort) } function onApiHostChanged() { if (apiLoader.item) apiLoader.item.setBase('http://' + uiSettings.apiHost + ':' + uiSettings.apiPort) } } }
+  // Drive latency label updates
+  Timer { interval: 500; running: true; repeat: true; onTriggered: nowTs = Date.now() }
 
 
 
@@ -112,22 +117,55 @@ ApplicationWindow {
       Button { text: "设置"; onClicked: settingsDrawer.open() }
 
 
-      Rectangle { width: 10; height: 10; radius: 5; color: (ws.status===WebSocket.Open ? '#1cc88a' : (ws.status===WebSocket.Connecting ? '#f6c23e' : '#e74a3b')) }  Label { text: '连接: ' + (ws.status===WebSocket.Open ? '已连接' : (ws.status===WebSocket.Connecting ? '连接中' : '未连接')) }  Label { text: 'API: ' + uiSettings.apiHost + ':' + uiSettings.apiPort }
-
-
     }
 
 
-    RowLayout {
-      id: mainRow
+    SplitView {
+      id: mainSplit
       width: parent.width
-      spacing: 8
+      height: 460
+      orientation: Qt.Horizontal
+
+      // Far-Left: Status panel
+      Rectangle {
+        id: statusPanel
+        SplitView.minimumWidth: 220
+        SplitView.preferredWidth: 260
+        radius: 4
+        color: "#1e1e1e"; border.color: "#333"
+        ColumnLayout { anchors.fill: parent; anchors.margins: 10; spacing: 8
+          Label { text: "状态信息"; font.bold: true }
+          RowLayout { Label { text: "工作状态"; Layout.preferredWidth: 72 }; Label { text: backend.status } }
+          RowLayout { Label { text: "连接"; Layout.preferredWidth: 72 }
+            Rectangle { width: 10; height: 10; radius: 5; color: (ws.status===WebSocket.Open ? '#1cc88a' : (ws.status===WebSocket.Connecting ? '#f6c23e' : '#e74a3b')) }
+            Label { text: (ws.status===WebSocket.Open ? '已连接' : (ws.status===WebSocket.Connecting ? '连接中' : '未连接')) }
+          }
+          RowLayout { Label { text: "延迟"; Layout.preferredWidth: 72 }; Label { text: (lastMsgTs>0 ? Math.max(0, nowTs - lastMsgTs) + ' ms' : '-') } }
+          RowLayout { Label { text: "API"; Layout.preferredWidth: 72 }; Label { text: uiSettings.apiHost + ':' + uiSettings.apiPort } }
+          Rectangle { height: 1; color: '#333'; Layout.fillWidth: true }
+          RowLayout { Label { text: "位置"; Layout.preferredWidth: 72 }; Label { text: backend.posText } }
+          RowLayout { Label { text: "目标X"; Layout.preferredWidth: 72 }; Label { text: backend.targetX.toFixed(2) } }
+          RowLayout { Label { text: "目标Y"; Layout.preferredWidth: 72 }; Label { text: backend.targetY.toFixed(2) } }
+          RowLayout { Label { text: "角度θ"; Layout.preferredWidth: 72 }; Label { text: backend.targetTheta.toFixed(2) } }
+          RowLayout { Label { text: "置信度"; Layout.preferredWidth: 72 }; Label { text: backend.targetScore.toFixed(2) } }
+          Rectangle { height: 1; color: '#333'; Layout.fillWidth: true }
+          RowLayout { Label { text: "门锁"; Layout.preferredWidth: 72 }; Label { text: backend.lockDoor ? 'OK' : 'NG'; color: backend.lockDoor ? '#22c55e' : '#ef4444' } }
+          RowLayout { Label { text: "真空"; Layout.preferredWidth: 72 }; Label { text: backend.lockVacuum ? 'OK' : 'NG'; color: backend.lockVacuum ? '#22c55e' : '#ef4444' } }
+          RowLayout { Label { text: "急停"; Layout.preferredWidth: 72 }; Label { text: backend.lockEStop ? 'NG' : 'OK'; color: backend.lockEStop ? '#ef4444' : '#22c55e' } }
+          RowLayout { Label { text: "回零"; Layout.preferredWidth: 72 }; Label { text: backend.lockHomed ? 'OK' : 'NG'; color: backend.lockHomed ? '#22c55e' : '#ef4444' } }
+          RowLayout { Label { text: "主轴"; Layout.preferredWidth: 72 }; Label { text: backend.lockSpindle ? 'OK' : 'NG'; color: backend.lockSpindle ? '#22c55e' : '#ef4444' } }
+          Item { Layout.fillHeight: true }
+          RowLayout { Layout.alignment: Qt.AlignRight; Button { text: "刷新"; onClicked: backend.refresh() } }
+        }
+      }
 
       // Left: Video area
       Item {
         id: videoArea
-        Layout.preferredWidth: 800
-        Layout.preferredHeight: 450
+        implicitWidth: 800
+        implicitHeight: 450
+        SplitView.minimumWidth: 400
+        SplitView.preferredWidth: 800
         Rectangle { anchors.fill: parent; color: "#222"; radius: 4 }
         Image {
           id: video
@@ -170,26 +208,63 @@ ApplicationWindow {
       // Right: Instruction editor
       Rectangle {
         id: editorPanel
-        Layout.fillWidth: true
-        Layout.preferredHeight: videoArea.Layout.preferredHeight
+        SplitView.minimumWidth: 280
+        SplitView.preferredWidth: 420
         radius: 4
         color: "#1e1e1e"; border.color: "#333"
         ColumnLayout { anchors.fill: parent; anchors.margins: 8; spacing: 6
           RowLayout { Layout.fillWidth: true
             Label { text: "指令编辑"; font.bold: true; Layout.fillWidth: true }
+            ComboBox {
+              id: presetBox
+              model: ["模板: 通用", "模板: G 代码示例", "模板: M 代码示例"]
+              onCurrentIndexChanged: {
+                if (currentIndex === 1 && editor.text.length === 0) {
+                  editor.text = "G0 X0 Y0 Z0\nG1 X10 Y10 F100\n";
+                } else if (currentIndex === 2 && editor.text.length === 0) {
+                  editor.text = "M3 S1000\nG4 P1 ; dwell 1s\nM5\n";
+                }
+              }
+            }
             Button { text: "运行" }
             Button { text: "停止" }
             Button { text: "打开" }
             Button { text: "保存" }
           }
-          TextArea {
-            id: editor
+          // Editor with line numbers
+          RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            wrapMode: TextEdit.NoWrap
-            font.family: "Consolas, 'Courier New', monospace"
-            placeholderText: "在此编辑指令（支持 G/M 指令高亮；; 为注释）"
-            Component.onCompleted: { if (pyHighlighter && editor.textDocument) pyHighlighter.attach(editor.textDocument) }
+            spacing: 0
+            Rectangle {
+              id: gutter
+              color: "#202020"
+              width: 48
+              Layout.fillHeight: true
+              Text {
+                id: lineNums
+                anchors.right: parent.right
+                anchors.rightMargin: 6
+                y: editor.contentItem ? (editor.contentItem.y + 4) : 4
+                text: editor.text.length ? (function(){ var a = editor.text.split('\n'); var s = ''; for (var i=0;i<a.length;i++){ s += (i+1) + "\n"; } return s; })() : '1\n'
+                color: "#888"
+                font.family: "Consolas, 'Courier New', monospace"
+                font.pixelSize: 14
+                wrapMode: Text.NoWrap
+                horizontalAlignment: Text.AlignRight
+                verticalAlignment: Text.AlignTop
+              }
+            }
+            TextArea {
+              id: editor
+              Layout.fillWidth: true
+              Layout.fillHeight: true
+              wrapMode: TextEdit.NoWrap
+              font.family: "Consolas, 'Courier New', monospace"
+              placeholderText: "在此编辑指令（支持 G/M 指令高亮；; 为注释）"
+              onTextChanged: lineNums.text = (function(){ var a = editor.text.split('\n'); var s=''; for (var i=0;i<a.length;i++){ s += (i+1) + "\n"; } return s; })()
+              Component.onCompleted: { if (pyHighlighter && editor.textDocument) pyHighlighter.attach(editor.textDocument) }
+            }
           }
         }
       }
@@ -239,6 +314,7 @@ ApplicationWindow {
 
 
           var st = JSON.parse(message)
+          lastMsgTs = Date.now()
 
 
           if (!st || !st.position) return
@@ -397,6 +473,18 @@ ApplicationWindow {
     TextArea { readOnly: true; text: backend.logs; height: 160; wrapMode: Text.WordWrap }
 
 
+  }
+
+  // Bottom-right connection status and latency
+  Item {
+    anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 8
+    Row {
+      spacing: 8
+      Rectangle { width: 10; height: 10; radius: 5; color: (ws.status===WebSocket.Open ? '#1cc88a' : (ws.status===WebSocket.Connecting ? '#f6c23e' : '#e74a3b')) }
+      Label { text: '连接: ' + (ws.status===WebSocket.Open ? '已连接' : (ws.status===WebSocket.Connecting ? '连接中' : '未连接')) }
+      Label { text: '延迟: ' + (lastMsgTs>0 ? Math.max(0, nowTs - lastMsgTs) + ' ms' : '-') }
+      Label { text: 'API: ' + uiSettings.apiHost + ':' + uiSettings.apiPort }
+    }
   }
 
   // Settings drawer (repurposed from old editor drawer)

@@ -1,0 +1,156 @@
+﻿openapi: 3.0.3
+info:
+  title: CopperSystem API
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:8010
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /image.png:
+    get:
+      summary: Current frame PNG
+      responses:
+        '200':
+          description: PNG image
+          content:
+            image/png: {}
+  /status:
+    get:
+      summary: System status
+      responses:
+        '200':
+          description: Status payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                  position:
+                    type: object
+                    properties:
+                      x: { type: number }
+                      y: { type: number }
+                      z: { type: number }
+                      theta: { type: number }
+                  spindle_rpm:
+                    type: number
+  /run/start:
+    post:
+      summary: Start run (set READY)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ok' }
+  /run/stop:
+    post:
+      summary: Stop run (set IDLE)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ok' }
+  /motion/set_speed:
+    post:
+      summary: Set motion speed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MotionSpeed' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ok' }
+  /motion/jog:
+    post:
+      summary: Jog motion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JogCmd' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ok' }
+  /motion/home:
+    post:
+      summary: Home all axes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ok' }
+  /motion/set_work_origin:
+    post:
+      summary: Set work origin
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ok' }
+  /ui/start:
+    post:
+      summary: Launch UI process
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  running: { type: boolean }
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: false }
+                  error: { type: string }
+components:
+  schemas:
+    Ok:
+      type: object
+      properties:
+        ok: { type: boolean }
+    MotionSpeed:
+      type: object
+      required: [ v_fast, v_work ]
+      properties:
+        v_fast: { type: number }
+        v_work: { type: number }
+    JogCmd:
+      type: object
+      required: [ axis, direction ]
+      properties:
+        axis: { type: string, example: x }
+        direction: { type: integer, enum: [ -1, 1 ] }
+        speed: { type: number, default: 10.0 }

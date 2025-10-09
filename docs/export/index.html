@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文档索引</title>
+  <style>
+    :root{ --fg:#1f2937; --muted:#6b7280; --link:#2563eb; --bg:#ffffff; --card:#f9fafb; }
+    *{ box-sizing:border-box }
+    body{ font-family:-apple-system,Segoe UI,Roboto,PingFang SC,Microsoft YaHei,Arial,sans-serif; margin:0; color:var(--fg); background:var(--bg); }
+    header{ padding:24px 16px; background:linear-gradient(180deg,#f3f4f6,#fff); border-bottom:1px solid #e5e7eb; }
+    h1{ margin:0 0 8px; font-size:22px }
+    .muted{ color:var(--muted); font-size:14px }
+    main{ max-width:960px; margin:24px auto; padding:0 16px; }
+    section{ background:var(--card); border:1px solid #e5e7eb; border-radius:8px; padding:16px; margin-bottom:16px }
+    h2{ margin:0 0 12px; font-size:18px }
+    ul{ margin:8px 0 0 16px; padding:0 }
+    li{ margin:6px 0 }
+    a{ color:var(--link); text-decoration:none }
+    a:hover{ text-decoration:underline }
+    code{ background:#f3f4f6; padding:2px 6px; border-radius:4px }
+    footer{ text-align:center; color:var(--muted); font-size:12px; padding:24px 0 32px }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const ts = new Date();
+      const pad=n=>n.toString().padStart(2,'0');
+      const stamp = ts.getFullYear()+"-"+pad(ts.getMonth()+1)+"-"+pad(ts.getDate())+" " + pad(ts.getHours())+":"+pad(ts.getMinutes());
+      const el = document.getElementById('ts'); if (el) el.textContent = stamp;
+    });
+  </script>
+  <base href="./">
+  <meta name="color-scheme" content="light dark">
+  <style>@media (prefers-color-scheme: dark){ :root{ --fg:#e5e7eb; --muted:#9ca3af; --link:#60a5fa; --bg:#0b0f14; --card:#0f1720 } body{ background:var(--bg) } header{ background:linear-gradient(180deg,#0e1520,#0b0f14); border-bottom-color:#111827 } section{ border-color:#111827 } code{ background:#111827 } }</style>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+  <header>
+    <h1>文档索引</h1>
+    <div class="muted">生成时间：<span id="ts"></span></div>
+  </header>
+  <main>
+    <section>
+      <h2>总览</h2>
+      <ul>
+        <li><a href="API规范.md">API 规范（Markdown）</a> ・ <a href="openapi.yaml">OpenAPI (YAML)</a></li>
+      </ul>
+    </section>
+    <section>
+      <h2>原始导出</h2>
+      <ul>
+        <li>
+          开发文档：
+          <a href="铜粒子定位磨削系统软件开发文档.html">HTML</a>
+          ・ <a href="铜粒子定位磨削系统软件开发文档.md">Markdown</a>
+        </li>
+        <li>
+          使用说明书：
+          <a href="铜粒子设备软件使用说明书.html">HTML</a>
+          ・ <a href="铜粒子设备软件使用说明书.md">Markdown</a>
+        </li>
+      </ul>
+    </section>
+    <section>
+      <h2>专题提取</h2>
+      <ul>
+        <li>通信协议：<a href="通信协议.html">HTML</a> ・ <a href="通信协议.md">Markdown</a></li>
+        <li>系统架构：<a href="系统架构.html">HTML</a> ・ <a href="系统架构.md">Markdown</a></li>
+        <li>接口说明：<a href="接口说明.html">HTML</a> ・ <a href="接口说明.md">Markdown</a></li>
+      </ul>
+    </section>
+    <section>
+      <h2>使用提示</h2>
+      <ul>
+        <li>Markdown 文件适合二次编辑与版本管理；HTML 文件适合直接在浏览器阅读。</li>
+        <li>若需要保留图片/表格样式，可在导出器基础上扩展媒体与表格解析。</li>
+        <li>OpenAPI 文件可导入 Postman/Insomnia/Swagger UI 进行调试。</li>
+      </ul>
+    </section>
+  </main>
+  <footer>
+    Copper-Particle-Positioning-Grinding-System 文档导出索引
+  </footer>
+</body>
+</html>
+
