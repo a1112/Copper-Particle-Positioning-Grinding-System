@@ -26,6 +26,7 @@ def _run_minimal_ui() -> int:
     from PySide6.QtQml import QQmlApplicationEngine
     from app.ui.qml_bridge import Backend
     from app.ui.image_provider import CameraImageProvider
+    from app.ui.settings_bridge import SettingsBridge
     from app.ui.highlighter import HighlighterBridge
 
     class _DummyMotion:
@@ -52,6 +53,8 @@ def _run_minimal_ui() -> int:
     engine = QQmlApplicationEngine()
     provider = CameraImageProvider()
     engine.addImageProvider('camera', provider)
+    settings = SettingsBridge(Path(__file__).resolve().parent.joinpath('config.json'))
+    engine.rootContext().setContextProperty("settings", settings)
     backend = Backend(_DummyOrchestrator())
     engine.rootContext().setContextProperty("backend", backend)
     engine.rootContext().setContextProperty("pyHighlighter", HighlighterBridge())

@@ -75,8 +75,7 @@ ApplicationWindow {
   // API client singleton for QML
 
 
-  Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://127.0.0.1:' + settings.apiPort); item.setTimeout(5000) } }
-  Connections { target: settings; function onApiPortChanged() { if (apiLoader.item) apiLoader.item.setBase('http://127.0.0.1:' + settings.apiPort) } }
+  Loader { id: apiLoader; source: 'Api/ApiClient.qml'; onLoaded: { item.root = win; item.showError = showError; item.setBase('http://127.0.0.1:8010'); item.setTimeout(5000) } }
 
 
 
@@ -191,7 +190,7 @@ ApplicationWindow {
       id: ws
 
 
-      url: "ws://127.0.0.1:" + settings.apiPort + "/ws"
+      url: "ws://127.0.0.1:8010/ws"
 
 
       active: true

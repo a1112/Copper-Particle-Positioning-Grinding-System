@@ -9,6 +9,7 @@ from app.devices.sim.motion_sim import MotionSim
 from app.process.orchestrator import Orchestrator
 from app.ui.qml_bridge import Backend
 from app.ui.image_provider import CameraImageProvider
+from app.ui.settings_bridge import SettingsBridge
 from app.ui.highlighter import HighlighterBridge
 from app.api.server import create_app
 
@@ -36,6 +37,8 @@ def main():
     engine = QQmlApplicationEngine()
     provider = CameraImageProvider()
     engine.addImageProvider('camera', provider)
+    settings = SettingsBridge(Path(__file__).resolve().parent.joinpath('ui', 'config.json'))
+    engine.rootContext().setContextProperty("settings", settings)
     engine.rootContext().setContextProperty("pyHighlighter", HighlighterBridge())
 
     backend = Backend(orch)

@@ -13,5 +13,7 @@ files = [
             "qml/views/SafetyPanel.qml",
             "image_provider.py",
             "highlighter.py",
+            "settings_bridge.py",
+            "config.json",
             "qml_bridge.py",
 ]

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import os
 import signal
@@ -54,7 +54,7 @@ def main() -> None:
         except Exception:
             pass
 
-    port = int(os.getenv("COPPER_API_PORT", "8010"))
+    port = int(os.getenv("COPPER_API_PORT", "0") or 0)\n    if not port:\n        try:\n            from pathlib import Path; import json\n            cfg = json.loads(Path("app/ui/config.json").read_text(encoding="utf-8"))\n            port = int(cfg.get("api_port", 8010))\n        except Exception:\n            port = 8010
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
 
     # Ensure camera stops after server exits
@@ -63,4 +63,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
