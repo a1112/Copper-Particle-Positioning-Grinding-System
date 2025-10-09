@@ -15,6 +15,7 @@ class SettingsBridge(QObject):
         self._path = Path(path)
         self._api_port = 8010
         self.load()
+        self._api_ctl = None
 
     def load(self) -> None:
         try:
@@ -35,6 +36,16 @@ class SettingsBridge(QObject):
         except Exception:
             pass
 
+    @Slot()
+    def saveAndRestart(self) -> None:
+        self.save()
+        try:
+            if self._api_ctl is not None:
+                # _api_ctl expects .restart(app, port); app needs to be pre-bound.
+                self._api_ctl("restart", int(self._api_port))
+        except Exception:
+            pass
+
     @Property(int, notify=apiPortChanged)
     def apiPort(self) -> int:  # type: ignore[override]
         return int(self._api_port)
@@ -49,3 +60,11 @@ class SettingsBridge(QObject):
         except Exception:
             pass
 
+    # Attach a restart hook from the host app
+    @Slot()
+    def clearController(self) -> None:
+        self._api_ctl = None
+
+    def bindController(self, hook) -> None:
+        """Host app injects a simple callable: hook(action: str, port: int)"""
+        self._api_ctl = hook

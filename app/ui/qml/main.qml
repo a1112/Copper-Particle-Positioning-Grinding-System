@@ -409,8 +409,11 @@ ApplicationWindow {
           Label { text: "刷新间隔(ms)" }
           SpinBox { from: 50; to: 1000; value: 120; onValueModified: t.interval = value }
         }
-        Item { Layout.fillHeight: true }
-        Button { text: "关闭"; onClicked: settingsDrawer.close(); Layout.alignment: Qt.AlignRight }
+        RowLayout {
+          Button { text: "保存并重启 API"; onClicked: { settings.saveAndRestart(); } }
+          Item { Layout.fillWidth: true }
+          Button { text: "关闭"; onClicked: settingsDrawer.close() }
+        }
       }
     }
   }

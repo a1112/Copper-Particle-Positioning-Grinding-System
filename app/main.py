@@ -1,6 +1,7 @@
 ﻿import sys
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
+from pathlib import Path
 
 from app.core.events import EventBus
 from app.vision.pipeline import VisionPipeline
@@ -12,6 +13,7 @@ from app.ui.image_provider import CameraImageProvider
 from app.ui.settings_bridge import SettingsBridge
 from app.ui.highlighter import HighlighterBridge
 from app.api.server import create_app
+from app.api.launcher import ApiController
 
 
 def main():
@@ -52,19 +54,18 @@ def main():
     if not engine.rootObjects():
         sys.exit(-1)
 
-    # launch FastAPI in background thread
+    # Launch FastAPI via controllable controller
+    app_api = create_app(provider, orch, motion)
+    api_ctl = ApiController()
+    api_ctl.start(app_api, settings.apiPort)
+    # Bind restart hook into settings bridge
+    def _api_hook(action: str, port: int):
+        if action == "restart":
+            api_ctl.restart(app_api, port)
     try:
-        import threading
-        import uvicorn
-        import os
-        app_api = create_app(provider, orch, motion)
-        def run_api():
-            port = int(os.getenv("COPPER_API_PORT", "8010"))
-            uvicorn.run(app_api, host="127.0.0.1", port=port, log_level="warning")
-        t = threading.Thread(target=run_api, daemon=True)
-        t.start()
-    except Exception as e:
-        print(e)
+        settings.bindController(_api_hook)
+    except Exception:
+        pass
 
     ret = app.exec()
     cam.stop_stream()
