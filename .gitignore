@@ -2,3 +2,33 @@
 /.idea/
 /docs/铜粒子项目/
 /logs/
+/.vscode/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+*.spec
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Local config/user files
+app/ui/pyproject.toml.user*
+*.env
+*.env.*
