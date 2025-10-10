@@ -4,9 +4,12 @@ import sys
 from pathlib import Path
 
 
-
 def _ensure_project_root_on_path() -> None:
-    # Add project root to sys.path so `import app.*` works when running this file directly
+    """将项目根目录加入 sys.path（中文注释）
+
+    作用：确保从 app/ui 目录直接运行时，`import app.*` 能够成功。
+    """
+    # 将项目根目录加入 sys.path，便于相对模块导入
     here = Path(__file__).resolve()
     project_root = here.parents[2]  # .../Copper-Particle-Positioning-Grinding-System
     if str(project_root) not in sys.path:
@@ -14,20 +17,31 @@ def _ensure_project_root_on_path() -> None:
 
 
 def _run_full_app() -> int:
-    """Delegate to the main application entrypoint if available."""
+    """运行完整应用（中文注释）
+
+    通过导入并调用 app.main.main 启动包含设备仿真、API 与 UI 的完整应用。
+    返回：进程退出码（此处固定 0，真实退出码由上层控制）。
+    """
     from app.main import main as app_main  # type: ignore
     app_main()
     return 0
 
 
 def _run_minimal_ui() -> int:
-    """Fallback minimal UI launcher if full app stack isn't available."""
+    """运行最小 UI 启动器（中文注释）
+
+    当完整应用不可用或仅需界面调试时，创建纯 UI 环境：
+    - 提供 QML 引擎与图像提供者
+    - 绑定设置桥与语法高亮
+    - 不依赖设备与后端 API
+    返回：应用事件循环的退出码
+    """
     from PySide6.QtGui import QGuiApplication
     from PySide6.QtQml import QQmlApplicationEngine
-    from app.ui.qml_bridge import Backend
-    from app.ui.image_provider import CameraImageProvider
-    from app.ui.settings_bridge import SettingsBridge
-    from app.ui.highlighter import HighlighterBridge
+    from app.ui.src.qml_bridge import Backend
+    from app.ui.src.image_provider import CameraImageProvider
+    from app.ui.src.settings_bridge import SettingsBridge
+    from app.ui.src.highlighter import HighlighterBridge
 
     class _DummyMotion:
         def home(self) -> None:
@@ -62,20 +76,51 @@ def _run_minimal_ui() -> int:
     backend = Backend(_DummyOrchestrator())
     engine.rootContext().setContextProperty("backend", backend)
     engine.rootContext().setContextProperty("pyHighlighter", HighlighterBridge())
-    # Load QML from ./qml/main.qml to avoid cwd assumptions
+    # 从 ./qml/main.qml 加载 QML，避免依赖当前工作目录
     qml_path = str(Path(__file__).resolve().parent.joinpath("qml", "main.qml"))
-    engine.load(qml_path)
+    try:
+        try:
+            sys.stderr.write(f"Loading QML: {qml_path}\n")
+        except Exception:
+            pass
+        from PySide6.QtCore import QUrl
+        url = QUrl.fromLocalFile(qml_path)
+        engine.load(url)
+    except Exception as exc:
+        sys.stderr.write(f"QML load exception: {exc}\n")
+        return -1
     if not engine.rootObjects():
+        # 打印 QML 警告，帮助诊断 UI 无法显示的问题
+        try:
+            for w in engine.warnings():
+                sys.stderr.write(str(w.toString()) + "\n")
+        except Exception:
+            pass
         return -1
     return app.exec()
 
 
 def main() -> None:
+    """UI 入口函数（中文注释）
+
+    - 自动修正 sys.path，支持在 app/ui 目录直接运行
+    - 若当前工作目录为 app/ui 或传入 --minimal / --ui-only / -m，则仅启动 UI
+    - 尝试启动完整应用，失败则回退到最小 UI
+    """
     _ensure_project_root_on_path()
+    args = set(a.lower() for a in sys.argv[1:])
+    here = Path(__file__).resolve().parent
+    force_minimal = ("--minimal" in args) or ("--ui-only" in args) or ("-m" in args)
+    # If launched directly from app/ui as cwd with no flags, assume UI-only
+    if Path.cwd().resolve() == here and not force_minimal:
+        force_minimal = True
+    if force_minimal:
+        ret = _run_minimal_ui()
+        sys.exit(ret)
     try:
         sys.exit(_run_full_app())
-    except Exception:
-        # Fall back to a minimal, offline UI launcher
+    except BaseException:
+        # Fall back to a minimal, offline UI launcher (also captures SystemExit from app.main)
         ret = _run_minimal_ui()
         sys.exit(ret)
 

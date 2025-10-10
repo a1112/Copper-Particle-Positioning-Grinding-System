@@ -8,15 +8,24 @@ from app.vision.pipeline import VisionPipeline
 from app.devices.sim.camera_sim import CameraSim
 from app.devices.sim.motion_sim import MotionSim
 from app.process.orchestrator import Orchestrator
-from app.ui.qml_bridge import Backend
-from app.ui.image_provider import CameraImageProvider
-from app.ui.settings_bridge import SettingsBridge
-from app.ui.highlighter import HighlighterBridge
+from app.ui.src.qml_bridge import Backend
+from app.ui.src.image_provider import CameraImageProvider
+from app.ui.src.settings_bridge import SettingsBridge
+from app.ui.src.highlighter import HighlighterBridge
 from app.api.server import create_app
 from app.api.launcher import ApiController
 
 
 def main():
+    """应用主入口（中文注释）
+
+    职责：
+    - 初始化事件总线、运动仿真与流程编排器
+    - 打开相机仿真，推送帧到视觉流水线与 QML 图像提供者
+    - 启动 Qt 应用与加载 QML 界面
+    - 启动 FastAPI 服务（与 UI 同进程），并将 provider/编排器/运动对象注入
+    - 监听设置变更以重启 API 端口
+    """
     bus = EventBus()
     motion = MotionSim()
     orch = Orchestrator(bus, motion)
@@ -27,6 +36,10 @@ def main():
     cam.open()
     # Bridge frames into image provider
     def on_frame(frame):
+        """相机帧回调（中文注释）
+
+        将帧同时推送给视觉流水线与 UI 的图像提供者。
+        """
         vision.on_frame(frame)
         try:
             provider.set_frame(frame)

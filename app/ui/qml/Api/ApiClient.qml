@@ -1,4 +1,4 @@
-import QtQuick 2.15
+import QtQuick
 import "./Http.js" as Http
 
 QtObject {
@@ -24,4 +24,20 @@ QtObject {
   function home(onOk, onErr){ post('/motion/home', {}, onOk, onErr) }
   function setWorkOrigin(onOk, onErr){ post('/motion/set_work_origin', {}, onOk, onErr) }
   function status(onOk, onErr){ get('/status', onOk, onErr) }
+  // Test images
+  function listTestImages(onOk, onErr){ get('/test/images', onOk, onErr) }
+  function loadTestImage(name, onOk, onErr){ post('/test/load_image?name=' + encodeURIComponent(name), {}, onOk, onErr) }
+  function loadDefaultImage(onOk, onErr){ post('/test/load_default', {}, onOk, onErr) }
+
+  // Test groups
+  function listGroups(onOk, onErr){ get('/test/group/list', onOk, onErr) }
+  function listGroupImages(serial, onOk, onErr){ get('/test/group/' + encodeURIComponent(serial) + '/images', onOk, onErr) }
+  function createGroup(serial, note, onOk, onErr){ post('/test/group/create', { serial: serial, note: note }, onOk, onErr) }
+  function addImageToGroup(serial, name, onOk, onErr){ post('/test/group/' + encodeURIComponent(serial) + '/add_image?name=' + encodeURIComponent(name), {}, onOk, onErr) }
+
+  property string apiHost: coreSettings.apiHost
+  property int apiPort: coreSettings.apiPort
+  readonly property string baseUrl: 'http://' + coreSettings.apiHost + ':' + coreSettings.apiPort
+  onBaseUrlChanged: setBase(baseUrl)
+
 }

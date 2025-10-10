@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 Rectangle {
   id: root
@@ -55,7 +55,7 @@ Rectangle {
         Layout.fillHeight: true
         wrapMode: TextEdit.NoWrap
         font.family: "Consolas, 'Courier New', monospace"
-        placeholderText: "在此编辑指令（支持 G/M 指令高亮；; 为注释）"
+        placeholderText: "在此编辑指令（支持 G/M 指令高亮）"
         onTextChanged: lineNums.text = (function(){ var a = editor.text.split('\n'); var s=''; for (var i=0;i<a.length;i++){ s += (i+1) + "\n"; } return s; })()
         Component.onCompleted: { if (pyHighlighter && editor.textDocument) pyHighlighter.attach(editor.textDocument) }
       }
