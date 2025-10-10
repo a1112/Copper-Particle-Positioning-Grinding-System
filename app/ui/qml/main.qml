@@ -1,14 +1,12 @@
 ﻿import QtCore
 import QtQuick.Layouts
-
-import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick
 import QtQuick.Window
 
 
 
-import "components"
+import "pages"
 import "cores"
 import "Dialogs"
 import "Api"

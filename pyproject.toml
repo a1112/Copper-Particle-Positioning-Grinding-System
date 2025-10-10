@@ -1,0 +1,45 @@
+[
+build-system
+]
+requires = [
+  "hatchling>=1.18",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "Copper-Particle-Positioning-Grinding-System"
+version = "0.1.0"
+description = "Copper Particle Positioning Grinding System"
+readme = "README_CN.md"
+requires-python = ">=3.10"
+dependencies = [
+  "PySide6",
+  "opencv-python",
+  "numpy",
+  "PyYAML",
+  "fastapi",
+  "uvicorn",
+  "pydantic",
+  "websockets",
+  "SQLAlchemy",
+]
+
+[project.scripts]
+copper-ui = "app.ui.main:main"
+copper-api = "app.api.run_api:main"
+copper-app = "app.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.hatch.build]
+exclude = [
+  "app/**/__pycache__",
+  "app/**/*.pyc",
+  "docs/**",
+  "测试文件/**",
+  "bin/**",
+  "database/**",
+  "scripts/**",
+]
+

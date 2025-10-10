@@ -8,5 +8,5 @@ ApplicationWindow  {
   width: Screen.width*0.8
   height: Screen.height*0.8
 
-    title: core.title
+  title: core.title
 }

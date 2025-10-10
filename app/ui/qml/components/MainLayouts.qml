@@ -1,9 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "." as Components
-import "../dialogs" as Dialogs
-import QtWebSockets
+
+
 
 Item {
   id: root
@@ -19,16 +18,13 @@ Item {
   property real nowTs: 0
   property int refreshMs: 120
 
-  // Internal dialog
-  Dialogs.TestImagesDialog { id: testDialog; apiClient: root.apiClient }
-
   ColumnLayout {
     anchors.fill: parent
     spacing: 8
     anchors.margins: 8
 
     // Top bar
-    Components.TopBar {
+    TopBar {
       onStartClicked: apiClient && apiClient.startRun(function(_) {}, function(s,m){ console.log('start err', s, m) })
       onStopClicked: apiClient && apiClient.stopRun(function(_) {}, function(s,m){ console.log('stop err', s, m) })
       onOpenSettings: settingsDrawer.open()
@@ -52,7 +48,7 @@ Item {
       Layout.preferredHeight: 460
 
       // Left status
-      Components.StatusPanel {
+      StatusPanel {
         SplitView.minimumWidth: 220
         SplitView.preferredWidth: 260
         backend: root.backend
@@ -63,7 +59,7 @@ Item {
       }
 
       // Middle video
-      Components.VideoView {
+    VideoView {
         implicitWidth: 800
         implicitHeight: 450
         SplitView.minimumWidth: 400
@@ -73,7 +69,7 @@ Item {
       }
 
       // Right editor
-      Components.EditorPanel {
+      EditorPanel {
         SplitView.minimumWidth: 280
         SplitView.preferredWidth: 420
       }
