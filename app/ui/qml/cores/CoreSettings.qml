@@ -1,3 +1,4 @@
+﻿pragma Singleton
 import QtCore
 
 Settings {
@@ -6,3 +7,4 @@ Settings {
   property int apiPort: 8010
   property int refreshMs: 120
 }
+

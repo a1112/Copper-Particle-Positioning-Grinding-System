@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+import shutil
+import subprocess
+import traceback
 
 
 def _ensure_project_root_on_path() -> None:
@@ -26,6 +29,59 @@ def _run_full_app() -> int:
     app_main()
     return 0
 
+
+
+def _ensure_qrc_resources() -> None:
+    """Auto-compile and register Qt resources (.rcc) or Python .qrc modules.
+
+    Strategy:
+    1) If Qt `rcc` is available, compile qml.qrc/resource.qrc/src.qrc into
+       sibling .rcc files and register them via QResource.
+    2) Fallback to `pyside6-rcc` to generate Python resource modules and import.
+    """
+    from PySide6.QtCore import QResource
+
+    here = Path(__file__).resolve().parent
+    qrc_list = [here / 'qml.qrc', here / 'resource.qrc', here / 'src.qrc']
+    rcc = shutil.which('rcc') or shutil.which('rcc.exe')
+    pyside_rcc = (
+        shutil.which('pyside6-rcc') or shutil.which('pyrcc5') or shutil.which('pyside2-rcc')
+    )
+
+    for qrc in qrc_list:
+        if not qrc.exists():
+            continue
+        out_rcc = here / (qrc.stem + '.rcc')
+        # Try compile .rcc if rcc available
+        if rcc:
+            try:
+                if (not out_rcc.exists()) or (out_rcc.stat().st_mtime < qrc.stat().st_mtime):
+                    subprocess.run([rcc, '-binary', str(qrc), '-o', str(out_rcc)], check=True)
+            except Exception:
+                out_rcc = None  # mark as unusable
+        # Register .rcc if present
+        if out_rcc and out_rcc.exists():
+            QResource.registerResource(str(out_rcc))
+            continue
+        # Fallback: generate Python resource module
+        py_mod = here / (qrc.stem + '_rc.py')
+        if pyside_rcc:
+            try:
+                if (not py_mod.exists()) or (py_mod.stat().st_mtime < qrc.stat().st_mtime):
+                    subprocess.run([pyside_rcc, str(qrc), '-o', str(py_mod)], check=True)
+            except Exception:
+                pass
+        # Import the generated module if exists
+        if py_mod.exists():
+            try:
+                import importlib.util
+
+                spec = importlib.util.spec_from_file_location(py_mod.stem, str(py_mod))
+                if spec and spec.loader:
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+            except Exception:
+                pass
 
 def _run_minimal_ui() -> int:
     """运行最小 UI 启动器（中文注释）
@@ -69,6 +125,14 @@ def _run_minimal_ui() -> int:
     QCoreApplication.setOrganizationDomain("example.local")
     QCoreApplication.setApplicationName("Copper UI")
     engine = QQmlApplicationEngine()
+    try:
+        _ensure_qrc_resources()
+    except Exception:
+        try:
+            sys.stderr.write("[warn] qrc auto-compile/register failed\n")
+            sys.stderr.write(traceback.format_exc() + "\n")
+        except Exception:
+            pass
     provider = CameraImageProvider()
     engine.addImageProvider('camera', provider)
     settings = SettingsBridge(Path(__file__).resolve().parent.joinpath('config.json'))
@@ -127,3 +191,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+

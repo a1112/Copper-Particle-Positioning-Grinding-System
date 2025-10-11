@@ -1,0 +1,6357 @@
+# Resource object code (Python 3)
+# Created by: object code
+# Created by: The Resource Compiler for Qt version 6.10.0
+# WARNING! All changes made in this file will be lost!
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x01\xcf\
+\xef\
+\xbb\xbfimport QtQuick\
+.Controls.Materi\
+al\x0aimport QtQuic\
+k.Window\x0aimport \
+\x22cores\x22 as Cores\
+\x0a\x0aApplicationWin\
+dow  {\x0a  // Bind\
+ Material palett\
+e from coreStyle\
+\x0a  Material.them\
+e: Material.Dark\
+\x0a  Material.prim\
+ary: Cores.CoreS\
+tyle.primary\x0a  M\
+aterial.accent: \
+Cores.CoreStyle.\
+accent\x0a  Materia\
+l.background: Co\
+res.CoreStyle.ba\
+ckground\x0a  Mater\
+ial.foreground: \
+Cores.CoreStyle.\
+text\x0a\x0a  visible:\
+ true\x0a\x0a  width: \
+Screen.width*0.8\
+\x0a  height: Scree\
+n.height*0.8\x0a\x0a  \
+title: Cores.Cor\
+e.title\x0a}\x0a\x0a\x0a\x0d\x0a\
+\x00\x00\x01 \
+i\
+mport QtQuick\x0d\x0a/\
+/\xe6\x9c\xac\xe6\x96\x87\xe6\xa1\xa3\xe8\xbf\x9b\xe8\xa1\x8c\
+\xe4\xb8\x80\xe4\xba\x9b\xe5\x85\xb3\xe4\xba\x8e AI \
+\xe8\xbf\x9b\xe8\xa1\x8c QML\xe4\xbb\xa3\xe7\xa0\x81\
+\xe7\xbc\x96\xe8\xbe\x91\xe6\x97\xb6\xe7\x9a\x84\xe7\xba\xa6\xe6\
+\x9d\x9f\x0d\x0aItem {\x0d\x0a    \
+// 1: \xe6\x9c\xac\xe6\x96\x87\xe6\xa1\xa3\xe5\
+\x8f\xaa\xe5\xaf\xb9 QML \xe6\x96\x87\xe4\xbb\xb6\
+\xe8\xbf\x9b\xe8\xa1\x8c\xe7\xba\xa6\xe6\x9d\x9f\x0d\x0a  \
+  // 2: \xe5\x87\xba\xe7\x8e\xb0 /\
+/ H: \xe5\xbc\x80\xe5\xa4\xb4 \xe6\xb3\xa8\xe9\
+\x87\x8a\xe6\xa0\x87\xe8\xae\xb0\xe6\x97\xb6,\xe8\x87\xaa\xe8\
+\xa1\x8c\xe4\xbf\xae\xe6\x94\xb9\xe8\xa6\x81\xe6\xb1\x82,\xe5\
+\xae\x8c\xe6\x88\x90\xe5\x90\x8e \xe6\x94\xb9\xe7\x94\xa8 \
+// NOTE:\x0d\x0a    //\
+ H: \xe8\xaf\xb7\xe8\xa1\xa5\xe5\x85\x85\xe4\xb8\x80\
+\xe4\xba\x9b\xef\xbc\x8c\xe7\x84\xb6\xe5\x90\x8e\xe6\x88\x91\xe5\
+\x86\x8d\xe6\x94\xb9\xe6\x94\xb9\x0d\x0a\x0d\x0a}\x0d\x0a\
+\x00\x00\x02\x1f\
+i\
+mport QtQuick\x0aim\
+port QtQuick.Con\
+trols\x0aimport QtQ\
+uick.Layouts\x0a\x0aAp\
+plicationWindow \
+{\x0a  id: win\x0a  vi\
+sible: true\x0a  wi\
+dth: 800\x0a  heigh\
+t: 480\x0a  title: \
+\x22Copper UI (Fall\
+back)\x22\x0a\x0a  Column\
+Layout {\x0a    anc\
+hors.fill: paren\
+t\x0a    spacing: 1\
+2\x0a    Label { te\
+xt: \x22\xe5\xb7\xb2\xe8\xbf\x9b\xe5\x85\xa5\xe7\xae\
+\x80\xe5\x8c\x96\xe7\x95\x8c\xe9\x9d\xa2 (fall\
+back)\x22; font.pix\
+elSize: 18 }\x0a   \
+ Label { text: \x22\
+\xe4\xb8\xbb\xe7\x95\x8c\xe9\x9d\xa2 QML \xe5\x8a\
+\xa0\xe8\xbd\xbd\xe5\xa4\xb1\xe8\xb4\xa5\xe6\x88\x96\xe4\xbe\x9d\
+\xe8\xb5\x96\xe6\x9c\xaa\xe5\xb0\xb1\xe7\xbb\xaa\x22 }\x0a\
+    Label { text\
+: \x22\xe8\xaf\xb7\xe6\xa3\x80\xe6\x9f\xa5 PyS\
+ide6/QML \xe6\xa8\xa1\xe5\x9d\x97\xef\
+\xbc\x88QtWebSockets/C\
+ontrols/Layouts \
+\xe7\xad\x89\xef\xbc\x89\x22; wrapMod\
+e: Text.WordWrap\
+ }\x0a    Button { \
+text: \x22\xe9\x80\x80\xe5\x87\xba\x22; \
+onClicked: Qt.qu\
+it() }\x0a  }\x0a}\x0a\x0a\
+\x00\x00\x04R\
+\xef\
+\xbb\xbfimport QtCore\x0a\
+import QtQuick\x0ai\
+mport QtQuick.Wi\
+ndow\x0aimport QtQu\
+ick.Layouts\x0aimpo\
+rt QtQuick.Contr\
+ols.Material\x0a\x0aim\
+port \x22pages\x22\x0aimp\
+ort \x22pages/main\x22\
+\x0aimport \x22Dialogs\
+\x22\x0aimport \x22menu\x22\x0a\
+import \x22shortcut\
+s\x22 as Keys\x0aimpor\
+t \x22cores\x22 as Cor\
+es\x0aimport \x22Api\x22 \
+as Api\x0aimport \x22S\
+ockets\x22\x0a\x0a\x0aApp_Ba\
+se {\x0a  id: win\x0a\x0a\
+  // F11/F12 sho\
+rtcuts\x0a  Keys.Sh\
+ortcutManager { \
+id: keyMgr; root\
+Window: win; onO\
+penTestPage: tes\
+tPage.open() }\x0a\x0a\
+  // Init global\
+ API client\x0a  Co\
+mponent.onComple\
+ted: {\x0a    Api.A\
+piClient.root = \
+win\x0a    Api.ApiC\
+lient.showError \
+= function(msg){\
+ Cores.CoreError\
+.showError(msg) \
+}\x0a    Api.ApiCli\
+ent.setBase(U.Ur\
+ls.base())\x0a  }\x0a\x0a\
+  // Use MainLay\
+outs as the top-\
+level container\x0a\
+  MainLayouts { \
+anchors.fill: pa\
+rent }\x0a\x0a  GlobEr\
+rorDialog { id: \
+errorDialog }\x0a  \
+TestImagesDialog\
+ { id: testDialo\
+g }\x0a  SettingsDr\
+awer { id: setti\
+ngsDrawer }\x0a\x0a  /\
+/ F12 dialog for\
+ test page\x0a  Dia\
+log {\x0a    id: te\
+stPage\x0a    modal\
+: true\x0a    x: 40\
+; y: 40\x0a    widt\
+h: Math.min(pare\
+nt ? parent.widt\
+h-80 : 1200, 120\
+0)\x0a    height: M\
+ath.min(parent ?\
+ parent.height-8\
+0 : 800, 800)\x0a  \
+  contentItem: L\
+oader { source: \
+\x22pages/main/test\
+_page/TestPageVi\
+ew.qml\x22 }\x0a  }\x0a}\x0a\
+\x0a\
+\x00\x00\x01\x5c\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+import \x22head\x22\x0aim\
+port \x22main\x22\x0aimpo\
+rt \x22foot\x22\x0a\x0aColum\
+nLayout {\x0a  id: \
+root\x0a  spacing: \
+0\x0a\x0a  HeadView { \
+Layout.fillWidth\
+: true; Layout.p\
+referredHeight: \
+50 }\x0a\x0a  MainPage\
+s { Layout.fillW\
+idth: true; Layo\
+ut.fillHeight: t\
+rue }\x0a\x0a  FootVie\
+w { Layout.fillW\
+idth: true; Layo\
+ut.preferredHeig\
+ht: 25 }\x0a}\x0a\
+\x00\x00\x01I\
+\xef\
+\xbb\xbfimport QtQuick\
+.Controls\x0aimport\
+ QtQuick.Layouts\
+\x0aimport \x22../../c\
+omponents/Base\x22\x0a\
+import \x22../../co\
+res\x22 as Cores\x0a\x0aE\
+ffectLabel {\x0a  /\
+/ \xe6\xa0\x87\xe9\xa2\x98\xe9\xa2\x9c\xe8\x89\xb2\xef\xbc\
+\x8c\xe5\x8f\xaf\xe6\x8c\x89\xe9\x9c\x80\xe8\xa6\x86\xe7\x9b\x96\
+\xef\xbc\x8c\xe9\xbb\x98\xe8\xae\xa4\xe4\xbd\xbf\xe7\x94\xa8\xe4\
+\xb8\xbb\xe9\xa2\x98\xe4\xb8\xbb\xe8\x89\xb2\x0a  fo\
+nt.bold: true\x0a  \
+font.pointSize: \
+25\x0a  text: Cores\
+.Core.title\x0a  co\
+lor: Cores.CoreS\
+tyle.titleColor\x0a\
+  Layout.alignme\
+nt: Qt.AlignHCen\
+ter\x0a}\x0a\x0a\x0a\
+\x00\x00\x017\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols.Material\x0d\
+\x0a\x0d\x0aimport QtQuic\
+k.Layouts\x0d\x0aimpor\
+t \x22../../compone\
+nts/Base\x22\x0aEffect\
+Image {\x0d\x0a    id:\
+ name\x0d\x0a    heigh\
+t: parent.height\
+\x0d\x0a    width: hei\
+ght\x0d\x0a    fillMod\
+e: Image.Preserv\
+eAspectFit\x0d\x0a    \
+sourceSize: Qt.s\
+ize(height,width\
+)\x0d\x0a    horizonta\
+lOffset: 8\x0d\x0a    \
+verticalOffset: \
+8\x0d\x0a}\x0d\x0a\
+\x00\x00\x03\xf5\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls.Materia\
+l\x0aimport QtQuick\
+.Layouts\x0aimport \
+\x22../../cores\x22 as\
+ Cores\x0aimport \x22.\
+./../components/\
+Base\x22\x0aimport \x22..\
+/../components/b\
+tns\x22\x0a\x0aItem {\x0a  i\
+d: root\x0a  height\
+: 50\x0a  Layout.fi\
+llWidth: true\x0a\x0a \
+ Pane{\x0a    ancho\
+rs.fill: parent\x0a\
+    background: \
+Rectangle { colo\
+r: Cores.CoreSty\
+le.surface; bord\
+er.color: Cores.\
+CoreStyle.border\
+ }  }\x0a\x0a  RowLayo\
+ut{\x0a    anchors.\
+fill: parent\x0a   \
+ spacing: 18\x0a   \
+ Row{  // \xe5\x9b\xbe\xe6\xa0\x87\
+\xe5\x8c\xba\xe5\x9f\x9f\x0a      Ico\
+nView{\x0a        h\
+eight: root.heig\
+ht\x0a        width\
+: height*2\x0a     \
+   source: Cores\
+.CoreStyle.getIc\
+onSource(\x22share.\
+png\x22)\x0a      }\x0a  \
+    IconLabel{\x0a \
+       anchors.v\
+erticalCenter: p\
+arent.verticalCe\
+nter\x0a      }\x0a   \
+ }\x0a    ViewChang\
+eTabView{}\x0a\x0a    \
+FillItem{}\x0a\x0a    \
+TitleLabel{}\x0a\x0a  \
+  FillItem{}\x0a\x0a  \
+  DateTimeView{\x0a\
+      Layout.ali\
+gnment: Qt.Align\
+VCenter\x0a    }\x0a  \
+  SettingsButton\
+{\x0a      source: \
+Cores.CoreStyle.\
+getIconSource(\x22s\
+etting.png\x22)\x0a   \
+   height: root.\
+height\x0a      wid\
+th: height*2\x0a   \
+   onClicked:  s\
+ettingsDrawer.op\
+en()\x0a    }\x0a    I\
+tem { width: 10;\
+ height: 2 }\x0a  }\
+\x0a}\x0a\x0a\
+\x00\x00\x01\x85\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols.Material\x0d\
+\x0aimport \x22../../c\
+ores\x22 as Cores\x0d\x0a\
+TabBar {\x0d\x0a    //\
+ \xe4\xbd\xbf\xe7\x94\xa8\xe4\xb8\x8d\xe5\x90\x8c\xe7\x9a\x84\
+ Material \xe4\xb8\xbb\xe9\xa2\x98\
+\xe9\xa2\x9c\xe8\x89\xb2\x0d\x0a    curr\
+entIndex: Cores.\
+CoreState.select\
+edTabIndex\x0d\x0a    \
+onCurrentIndexCh\
+anged:  Cores.Co\
+reState.selected\
+TabIndex=current\
+Index\x0d\x0a    Repea\
+ter{\x0d\x0a        mo\
+del: Cores.CoreU\
+I.pageModels\x0d\x0a  \
+      TabButton{\
+\x0d\x0a            te\
+xt: modelData\x0d\x0a \
+       }\x0d\x0a    }\x0d\
+\x0a}\x0d\x0a\
+\x00\x00\x03v\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.La\
+youts\x0d\x0aimport Qt\
+Quick.Controls\x0d\x0a\
+Item{\x0d\x0a    prope\
+rty real padding\
+: 20\x0d\x0a    proper\
+ty string source\
+: \x22\x22\x0d\x0a    id:roo\
+t\x0d\x0a    Item{\x0d\x0a  \
+      width: par\
+ent.width*0.95\x0d\x0a\
+        height: \
+parent.height*0.\
+95\x0d\x0a    ColumnLa\
+yout{\x0d\x0a        a\
+nchors.fill: par\
+ent\x0d\x0a        spa\
+cing: 0\x0d\x0a       \
+ Item{\x0d\x0a        \
+    Layout.fillW\
+idth: true\x0d\x0a    \
+        Layout.f\
+illHeight: true\x0d\
+\x0a        Item{\x0d\x0a\
+            anch\
+ors.centerIn: pa\
+rent\x0d\x0a          \
+  width: parent.\
+width-padding*2\x0d\
+\x0a            hei\
+ght: width\x0d\x0a    \
+        ItemIcon\
+{\x0d\x0a\x0d\x0a           \
+     Behavior on\
+ scale {NumberAn\
+imation{ easing.\
+type: Easing.Out\
+Back;duration: 3\
+00}}\x0d\x0a          \
+      width: par\
+ent.width\x0d\x0a     \
+           heigh\
+t: width\x0d\x0a      \
+          fillMo\
+de: Image.Preser\
+veAspectFit\x0d\x0a   \
+             sou\
+rce:root.source\x0d\
+\x0a               \
+ sourceSize: Qt.\
+size(400,400)\x0d\x0a \
+           }\x0d\x0a  \
+      }\x0d\x0a       \
+ }\x0d\x0a    }\x0d\x0a    }\
+\x0d\x0a}\x0d\x0a\
+\x00\x00\x08\x10\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+import \x22../../co\
+res\x22 as Cores\x0a\x0a/\
+/ Digital clock \
+using DS-DIGIT.T\
+TF, with date + \
+time and color c\
+ontrols\x0aItem {\x0a \
+ id: root\x0a  impl\
+icitHeight: 30\x0a \
+ implicitWidth: \
+180\x0a\x0a  // Font a\
+nd colors\x0a  prop\
+erty int timePix\
+elSize: 26\x0a  pro\
+perty int datePi\
+xelSize: 15\x0a  pr\
+operty color tim\
+eColor: Cores.Co\
+reStyle.accent\x0a \
+ property color \
+dateColor: Cores\
+.CoreStyle.muted\
+\x0a  property colo\
+r outlineColor: \
+Cores.CoreStyle.\
+border\x0a\x0a  // For\
+mats\x0a  property \
+string timeForma\
+t: \x22HH:mm:ss\x22\x0a  \
+property string \
+dateFormat: \x22yyy\
+y-MM-dd\x22\x0a  prope\
+rty bool showDat\
+e: true\x0a\x0a  // Ex\
+posed values\x0a  p\
+roperty string c\
+urrentTime: \x22--:\
+--:--\x22\x0a  propert\
+y string current\
+Date: \x22----/--/-\
+-\x22\x0a\x0a  FontLoader\
+ { id: ds; sourc\
+e: \x22qrc:/resourc\
+e/font/DS-DIGIT.\
+TTF\x22 }\x0a\x0a  functi\
+on pad2(n){ retu\
+rn (n<10?('0'+n)\
+:(''+n)) }\x0a  fun\
+ction fmtDate(d,\
+ f){\x0a    var Y =\
+ d.getFullYear()\
+;\x0a    var M = pa\
+d2(d.getMonth()+\
+1);\x0a    var D = \
+pad2(d.getDate()\
+);\x0a    var H = p\
+ad2(d.getHours()\
+);\x0a    var m = p\
+ad2(d.getMinutes\
+());\x0a    var s =\
+ pad2(d.getSecon\
+ds());\x0a    retur\
+n f.replace('yyy\
+y', Y).replace('\
+MM', M).replace(\
+'dd', D).replace\
+('HH', H).replac\
+e('mm', m).repla\
+ce('ss', s)\x0a  }\x0a\
+\x0a  function refr\
+esh(){\x0a    var d\
+ = new Date();\x0a \
+   currentTime =\
+ fmtDate(d, time\
+Format);\x0a    cur\
+rentDate = fmtDa\
+te(d, dateFormat\
+);\x0a  }\x0a\x0a  Timer \
+{ interval: 500;\
+ running: true; \
+repeat: true; on\
+Triggered: refre\
+sh() }\x0a  Compone\
+nt.onCompleted: \
+refresh()\x0a\x0a  Row\
+ {\x0a    anchors.f\
+ill: parent\x0a    \
+spacing: 8\x0a    /\
+/ Date (left)\x0a  \
+  Text {\x0a      v\
+isible: root.sho\
+wDate\x0a      text\
+: root.currentDa\
+te\x0a      font.fa\
+mily: ds.name ||\
+ 'DS-DIGIT'\x0a    \
+  font.pixelSize\
+: root.datePixel\
+Size\x0a      color\
+: root.dateColor\
+\x0a      verticalA\
+lignment: Text.A\
+lignVCenter\x0a    \
+  style: Text.Ou\
+tline\x0a      styl\
+eColor: root.out\
+lineColor\x0a    }\x0a\
+    // Time (rig\
+ht)\x0a    Text {\x0a \
+     text: root.\
+currentTime\x0a    \
+  font.family: d\
+s.name || 'DS-DI\
+GIT'\x0a      font.\
+pixelSize: root.\
+timePixelSize\x0a  \
+    color: root.\
+timeColor\x0a      \
+verticalAlignmen\
+t: Text.AlignVCe\
+nter\x0a      style\
+: Text.Outline\x0a \
+     styleColor:\
+ root.outlineCol\
+or\x0a    }\x0a  }\x0a}\x0a\
+\x00\x00\x01[\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+\x22../../component\
+s/Base\x22\x0aimport \x22\
+../../cores\x22 as \
+Cores\x0a// Company\
+ label only (no \
+core dependency)\
+\x0aEffectLabel{\x0a  \
+id: root\x0a  font.\
+bold: true\x0a  fon\
+t.pointSize: 20\x0a\
+  text: Cores.Co\
+re.companyName\x0a \
+ horizontalAlign\
+ment: Text.Align\
+HCenter\x0a  vertic\
+alAlignment: Tex\
+t.AlignVCenter\x0a \
+ elide: Text.Eli\
+deRight\x0a}\x0a\
+\x00\x00\x01\xa1\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols\x0d\x0aimport Q\
+tQuick.Layouts\x0d\x0a\
+import \x22../../co\
+res\x22 as Cores\x0d\x0ai\
+mport \x22test_page\
+\x22\x0d\x0aimport \x22real_\
+page\x22\x0d\x0a\x0d\x0aimport \
+\x22debug_page\x22\x0d\x0aim\
+port \x22user_page\x22\
+\x0d\x0a//\xe4\xb8\xbb\xe6\x98\xbe\xe7\xa4\xba\xe5\x8c\xba\
+\xe5\x9f\x9f\x0d\x0aItem {\x0d\x0a   \
+ StackLayout{\x0d\x0a \
+       anchors.f\
+ill: parent\x0d\x0a   \
+     currentInde\
+x: Cores.CoreSta\
+te.selectedTabIn\
+dex\x0d\x0a        Rea\
+lPageView{}\x0d\x0a   \
+     UserPageVie\
+w{}\x0d\x0a        Deb\
+ugPageView{}\x0d\x0a  \
+      TestPageVi\
+ew{}\x0d\x0a    }\x0d\x0a}\x0d\x0a\
+\
+\x00\x00\x01\xb4\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols\x0d\x0aimport \x22\
+../../../views/D\
+riveInfo\x22\x0d\x0a\x0d\x0aIte\
+m {\x0d\x0a    SplitVi\
+ew{\x0d\x0a        anc\
+hors.fill: paren\
+t\x0d\x0a        orien\
+tation:Qt.Vertic\
+al\x0d\x0a        Spli\
+tView{\x0d\x0a        \
+    SplitView.fi\
+llWidth: true\x0d\x0a \
+           Split\
+View.fillHeight:\
+ true\x0d\x0a         \
+   //\xe8\xae\xbe\xe5\xa4\x87\xe7\x8a\xb6\xe6\x80\
+\x81\xe4\xbf\xa1\xe6\x81\xaf\x0d\x0a       \
+     DriveInfoVi\
+ew{\x0d\x0a           \
+ }\x0d\x0a\x0d\x0a        }\x0d\
+\x0a        SplitVi\
+ew{\x0d\x0a           \
+ SplitView.fillW\
+idth: true\x0d\x0a    \
+    }\x0d\x0a\x0d\x0a    }\x0d\x0a\
+}\x0d\x0a\
+\x00\x00\x0d\x16\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+import \x22../../he\
+ad\x22 as Widgets\x0ai\
+mport \x22../../../\
+cores\x22 as Cores\x0a\
+import \x22../../..\
+/Sockets\x22 as Soc\
+kets\x0aimport \x22../\
+../../views\x22 as \
+Views\x0a\x0a// \xe6\xb5\x8b\xe8\xaf\x95\
+\xe9\xa1\xb5\xe9\x9d\xa2\xef\xbc\x9a\xe7\x94\xa8\xe4\xba\x8e\xe5\
+\xbf\xab\xe9\x80\x9f\xe9\xaa\x8c\xe8\xaf\x81\xe4\xb8\xbb\xe9\xa2\
+\x98\xe3\x80\x81\xe6\x97\xb6\xe9\x97\xb4\xe3\x80\x81\xe5\xb0\x8f\
+\xe5\x9b\xbe\xe8\xa1\xa8\xe4\xb8\x8eAPI\xe9\x93\xbe\xe6\
+\x8e\xa5\x0aItem {\x0a  id: \
+root\x0a  anchors.f\
+ill: parent\x0a\x0a  C\
+olumnLayout {\x0a  \
+  anchors.fill: \
+parent\x0a    ancho\
+rs.margins: 12\x0a \
+   spacing: 10\x0a\x0a\
+    Label { text\
+: \x22\xe6\xb5\x8b\xe8\xaf\x95\xe9\xa1\xb5\xe9\x9d\xa2 \
+TestPage\x22; font.\
+pixelSize: 20; c\
+olor: Cores.Core\
+Style.text }\x0a\x0a  \
+  RowLayout {\x0a  \
+    spacing: 16\x0a\
+      Label { te\
+xt: \x22\xe5\xbd\x93\xe5\x89\x8d\xe4\xb8\xbb\xe9\xa2\
+\x98:\x22; color: Core\
+s.CoreStyle.mute\
+d }\x0a      Label \
+{ text: Cores.Co\
+reStyle.theme; c\
+olor: Cores.Core\
+Style.accent }\x0a \
+     Button { te\
+xt: \x22\xe5\x88\x87\xe6\x8d\xa2\xe4\xb8\xbb\xe9\xa2\
+\x98(\xe8\x93\x9d)\x22; onClick\
+ed: Cores.CoreSt\
+yle.applyTheme(\x22\
+techBlue\x22) }\x0a   \
+   Button { text\
+: \x22\xe5\x88\x87\xe6\x8d\xa2\xe4\xb8\xbb\xe9\xa2\x98(\
+\xe7\xbb\xbf)\x22; onClicked\
+: Cores.CoreStyl\
+e.applyTheme(\x22em\
+erald\x22) }\x0a      \
+Button { text: \x22\
+\xe5\x88\x87\xe6\x8d\xa2\xe4\xb8\xbb\xe9\xa2\x98(\xe7\xb4\xab\
+)\x22; onClicked: C\
+ores.CoreStyle.a\
+pplyTheme(\x22night\
+Purple\x22) }\x0a    }\
+\x0a\x0a    RowLayout \
+{\x0a      spacing:\
+ 24\x0a      Widget\
+s.DateTimeView {\
+ timePixelSize: \
+28 }\x0a      RowLa\
+yout {\x0a        s\
+pacing: 8\x0a      \
+  Label { text: \
+\x22API:\x22; color: C\
+ores.CoreStyle.m\
+uted }\x0a        T\
+ext {\x0a          \
+textFormat: Text\
+.RichText\x0a      \
+    color: Cores\
+.CoreStyle.accen\
+t\x0a          read\
+only property st\
+ring base: U.Url\
+s.base()\x0a       \
+   text: \x22<a hre\
+f='\x22 + base + \x22/\
+docs'>\x22 + Cores.\
+CoreSettings.api\
+Host + \x22:\x22 + Cor\
+es.CoreSettings.\
+apiPort + \x22/docs\
+</a>\x22\x0a          \
+onLinkActivated:\
+ function(url){ \
+Qt.openUrlExtern\
+ally(url) }\x0a    \
+    }\x0a      }\x0a  \
+  }\x0a\x0a    GroupBo\
+x {\x0a      title:\
+ \x22WS \xe6\x9c\x80\xe8\xbf\x91\xe6\xb6\x88\xe6\x81\
+\xaf\x22\x0a      Layout.\
+fillWidth: true\x0a\
+      Layout.pre\
+ferredHeight: 14\
+0\x0a      TextArea\
+ { anchors.fill:\
+ parent; readOnl\
+y: true; wrapMod\
+e: TextArea.Wrap\
+; text: JSON.str\
+ingify(Sockets.S\
+ockets.lastMessa\
+ge||{}, null, 2)\
+ }\x0a    }\x0a\x0a    Gr\
+oupBox {\x0a      t\
+itle: \x22seriesA \xe7\
+\xae\x80\xe6\x98\x93\xe6\x9b\xb2\xe7\xba\xbf\x22\x0a   \
+   Layout.fillWi\
+dth: true\x0a      \
+Layout.preferred\
+Height: 160\x0a    \
+  Canvas {\x0a     \
+   id: chart\x0a   \
+     anchors.fil\
+l: parent\x0a      \
+  onPaint: {\x0a   \
+       var ctx =\
+ getContext('2d'\
+);\x0a          ctx\
+.clearRect(0,0,w\
+idth,height);\x0a  \
+        var data\
+ = Sockets.Socke\
+ts.seriesA || []\
+;\x0a          if (\
+!data.length) re\
+turn;\x0a          \
+var n = Math.min\
+(200, data.lengt\
+h);\x0a          va\
+r arr = data.sli\
+ce(data.length -\
+ n);\x0a          v\
+ar min = Math.mi\
+n.apply(null, ar\
+r);\x0a          va\
+r max = Math.max\
+.apply(null, arr\
+);\x0a          if \
+(min===max){ min\
+ -= 1; max += 1 \
+}\x0a          ctx.\
+strokeStyle = Co\
+res.CoreStyle.ac\
+cent; ctx.lineWi\
+dth = 1.5;\x0a     \
+     ctx.beginPa\
+th();\x0a          \
+for (var i=0;i<a\
+rr.length;i++){\x0a\
+            var \
+x = i * (width/(\
+n-1));\x0a         \
+   var y = heigh\
+t - (arr[i]-min)\
+/(max-min) * hei\
+ght;\x0a           \
+ if (i===0) ctx.\
+moveTo(x,y); els\
+e ctx.lineTo(x,y\
+);\x0a          }\x0a \
+         ctx.str\
+oke();\x0a        }\
+\x0a        Connect\
+ions { target: S\
+ockets.Sockets; \
+function onMessa\
+geReceived(p){ c\
+hart.requestPain\
+t() } }\x0a      }\x0a\
+    }\x0a\x0a        G\
+roupBox {\x0a      \
+title: \x22\xe7\xbb\x84\xe4\xbb\xb6\xe9\xa2\
+\x84\xe8\xa7\x88\x22\x0a      Layo\
+ut.fillWidth: tr\
+ue\x0a      Layout.\
+fillHeight: true\
+\x0a      SplitView\
+ {\x0a        ancho\
+rs.fill: parent\x0a\
+        // \xe5\xb7\xa6\xe4\xbe\
+\xa7\xe7\x8a\xb6\xe6\x80\x81\x0a        \
+Views.StatusPane\
+l { SplitView.pr\
+eferredWidth: 26\
+0; backend: back\
+end }\x0a        //\
+ \xe4\xb8\xad\xe9\x97\xb4\xe8\xa7\x86\xe9\xa2\x91\x0a  \
+      Views.Vide\
+oView { SplitVie\
+w.preferredWidth\
+: 720; backend: \
+backend }\x0a      \
+  // \xe5\x8f\xb3\xe4\xbe\xa7\xe6\x8c\x87\xe4\xbb\
+\xa4\xe7\xbc\x96\xe8\xbe\x91\x0a        \
+Views.EditorPane\
+l { SplitView.pr\
+eferredWidth: 36\
+0 }\x0a      }\x0a    \
+}    Item { Layo\
+ut.fillHeight: t\
+rue }\x0a  }\x0a}\x0a\x0a\x0d\x0a\x0d\
+\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x00\x1f\
+i\
+mport QtQuick\x0d\x0a\x0d\
+\x0aItem {\x0d\x0a\x0d\x0a}\x0d\x0a\
+\x00\x00\x00\x1f\
+i\
+mport QtQuick\x0d\x0a\x0d\
+\x0aItem {\x0d\x0a\x0d\x0a}\x0d\x0a\
+\x00\x00\x06\xb1\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+import \x22../../So\
+ckets\x22 as Socket\
+s\x0aimport \x22../../\
+cores\x22 as Cores\x0a\
+\x0aItem {\x0a  Layout\
+.fillWidth: true\
+\x0a  height: 30\x0a\x0a \
+ Frame { anchors\
+.fill: parent }\x0a\
+\x0a  RowLayout {\x0a \
+   anchors.fill:\
+ parent\x0a    spac\
+ing: 12\x0a\x0a\x0a    It\
+em{\x0a      Layout\
+.fillWidth: true\
+\x0a      height: 1\
+\x0a    }\x0a\x0a\x0a    Row\
+Layout {\x0a      s\
+pacing: 8\x0a      \
+Rectangle { widt\
+h: 10; height: 1\
+0; radius: 5; co\
+lor: Sockets.Soc\
+kets.connected ?\
+ \x22#22c55e\x22 : \x22#e\
+f4444\x22 }\x0a      L\
+abel { text: Soc\
+kets.Sockets.con\
+nected ? \x22\xe5\xb7\xb2\xe8\xbf\x9e\
+\xe6\x8e\xa5\x22 : \x22\xe6\x9c\xaa\xe8\xbf\x9e\xe6\x8e\
+\xa5\x22; color: Cores\
+.CoreStyle.text \
+}\x0a      Label {\x0a\
+        id: late\
+ncy\x0a        colo\
+r: Cores.CoreSty\
+le.muted\x0a       \
+ text: {\x0a       \
+   var ts = Sock\
+ets.Sockets.last\
+MsgTs || 0;\x0a    \
+      if (ts<=0)\
+ return \x22\xe5\xbb\xb6\xe8\xbf\x9f:\
+ 0\x22;\x0a          v\
+ar age = Math.ma\
+x(0, Date.now() \
+- ts);\x0a         \
+ return \x22\xe5\xbb\xb6\xe8\xbf\x9f:\
+ \x22 + age + \x22 ms\x22\
+;\x0a        }\x0a    \
+  }\x0a      Label \
+{ text: \x22API:\x22; \
+color: Cores.Cor\
+eStyle.muted }\x0a \
+     Item {\x0a    \
+    // Make the \
+docs link show p\
+ointing-hand cur\
+sor on hover\x0a   \
+     id: apiLink\
+\x0a        width: \
+link.implicitWid\
+th\x0a        heigh\
+t: link.implicit\
+Height\x0a        T\
+ext {\x0a          \
+id: link\x0a       \
+   textFormat: T\
+ext.RichText\x0a   \
+       color: Co\
+res.CoreStyle.ac\
+cent\x0a          r\
+eadonly property\
+ string base: U.\
+Urls.base()\x0a    \
+      text: \x22<a \
+href='\x22 + base +\
+ \x22/docs'>\x22 + Cor\
+es.CoreSettings.\
+apiHost + \x22:\x22 + \
+Cores.CoreSettin\
+gs.apiPort + \x22/d\
+ocs</a>\x22\x0a       \
+   onLinkActivat\
+ed: function(url\
+){ Qt.openUrlExt\
+ernally(url) }\x0a \
+       }\x0a       \
+ MouseArea {\x0a   \
+       anchors.f\
+ill: parent\x0a    \
+      hoverEnabl\
+ed: true\x0a       \
+   acceptedButto\
+ns: Qt.NoButton\x0a\
+          cursor\
+Shape: Qt.Pointi\
+ngHandCursor\x0a   \
+     }\x0a      }\x0a \
+   }\x0a    Item{\x0a \
+     width: 15\x0a \
+     height: 1\x0a \
+   }\x0a\x0a  }\x0a}\x0a\x0d\x0a\x0d\x0a\
+\
+\x00\x00\x02.\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Window\x0a\x0aItem {\x0a \
+ id: manager\x0a  /\
+/ Root window re\
+ference for togg\
+ling full screen\
+\x0a  property var \
+rootWindow\x0a  sig\
+nal openTestPage\
+()\x0a\x0a  // F11: to\
+ggle fullscreen\x0a\
+  Shortcut {\x0a   \
+ sequence: \x22F11\x22\
+\x0a    onActivated\
+: {\x0a      if (!m\
+anager.rootWindo\
+w) return;\x0a     \
+ var vis = manag\
+er.rootWindow.vi\
+sibility;\x0a      \
+manager.rootWind\
+ow.visibility = \
+(vis === Window.\
+FullScreen) ? Wi\
+ndow.Windowed : \
+Window.FullScree\
+n;\x0a    }\x0a  }\x0a  /\
+/ F12: open test\
+ page dialog\x0a  S\
+hortcut {\x0a    se\
+quence: \x22F12\x22\x0a  \
+  onActivated: m\
+anager.openTestP\
+age()\x0a  }\x0a}\x0d\x0a\
+\x00\x00\x07\x83\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtQuic\
+k\x0aimport \x22../cor\
+es\x22 as Cores\x0aimp\
+ort QtWebSockets\
+\x0aimport \x22../Api\x22\
+ as Api\x0a\x0a// Glob\
+al Sockets singl\
+eton: status, me\
+ssages, basic ch\
+art buffers\x0aItem\
+ {\x0a  id: root\x0a  \
+// Connection st\
+ate\x0a  readonly p\
+roperty int stat\
+us: ws.status\x0a  \
+readonly propert\
+y bool connected\
+: (ws.status===W\
+ebSocket.Open)\x0a \
+ property int la\
+stMsgTs: Date.no\
+w()\x0a\x0a  // Charts\
+/data buffers (a\
+ppend JSON frame\
+s here)\x0a  proper\
+ty var lastMessa\
+ge: ({});\x0a  prop\
+erty var seriesA\
+: []    // examp\
+le buffer\x0a  prop\
+erty var seriesB\
+: []\x0a  signal me\
+ssageReceived(va\
+r payload)\x0a\x0a  //\
+ Control helpers\
+\x0a  function reco\
+nnect(){ ws.acti\
+ve = false; reco\
+nnectTimer.resta\
+rt() }\x0a  functio\
+n close(){ ws.ac\
+tive = false }\x0a \
+ function clearS\
+eries(){ seriesA\
+ = []; seriesB =\
+ [] }\x0a\x0a  WebSock\
+et {\x0a    id: ws\x0a\
+    url: Api.Url\
+s.ws()\x0a    activ\
+e: true\x0a    onSt\
+atusChanged: fun\
+ction(status) {\x0a\
+      if (status\
+ === WebSocket.E\
+rror) {\x0a        \
+Cores.CoreError.\
+showError(\x22WS \xe8\xbf\
+\x9e\xe6\x8e\xa5\xe9\x94\x99\xe8\xaf\xaf: \x22 + \
+errorString)\x0a   \
+     ws.active =\
+ false; reconnec\
+tTimer.restart()\
+\x0a      } else if\
+ (status === Web\
+Socket.Closed) {\
+\x0a        ws.acti\
+ve = false; reco\
+nnectTimer.resta\
+rt()\x0a      }\x0a   \
+ }\x0a    onTextMes\
+sageReceived: fu\
+nction(message) \
+{\x0a      try {\x0a  \
+      var payloa\
+d = JSON.parse(m\
+essage)\x0a        \
+root.lastMsgTs =\
+ Date.now()\x0a    \
+    root.lastMes\
+sage = payload\x0a \
+       root.mess\
+ageReceived(payl\
+oad)\x0a        // \
+example: push va\
+lues to series b\
+uffers if presen\
+t\x0a        if (pa\
+yload && payload\
+.seriesA !== und\
+efined) {\x0a      \
+    root.seriesA\
+.push(payload.se\
+riesA)\x0a         \
+ if (root.series\
+A.length > 1000)\
+ root.seriesA.sh\
+ift()\x0a        }\x0a\
+        if (payl\
+oad && payload.s\
+eriesB !== undef\
+ined) {\x0a        \
+  root.seriesB.p\
+ush(payload.seri\
+esB)\x0a          i\
+f (root.seriesB.\
+length > 1000) r\
+oot.seriesB.shif\
+t()\x0a        }\x0a  \
+    } catch(e) {\
+ console.log('WS\
+ parse error:', \
+e) }\x0a    }\x0a  }\x0a\x0a\
+  Timer { id: re\
+connectTimer; in\
+terval: 2000; ru\
+nning: false; re\
+peat: false; onT\
+riggered: ws.act\
+ive = true }\x0a}\x0a\x0a\
+\x0a\x0a\
+\x00\x00\x00&\
+\xef\
+\xbb\xbfsingleton Sock\
+ets 1.0 Sockets.\
+qml\x0d\x0a\
+\x00\x00\x08\xe1\
+i\
+mport QtQuick\x0aim\
+port QtQuick.Con\
+trols\x0aimport QtQ\
+uick.Layouts\x0a\x0aRe\
+ctangle {\x0a  id: \
+root\x0a  radius: 4\
+\x0a  color: \x22#1e1e\
+1e\x22; border.colo\
+r: \x22#333\x22\x0a\x0a  Col\
+umnLayout { anch\
+ors.fill: parent\
+; anchors.margin\
+s: 8; spacing: 6\
+\x0a    RowLayout {\
+ Layout.fillWidt\
+h: true\x0a      La\
+bel { text: \x22\xe6\x8c\x87\
+\xe4\xbb\xa4\xe7\xbc\x96\xe8\xbe\x91\x22; font\
+.bold: true; Lay\
+out.fillWidth: t\
+rue }\x0a      Comb\
+oBox {\x0a        i\
+d: presetBox\x0a   \
+     model: [\x22\xe6\xa8\
+\xa1\xe6\x9d\xbf: \xe9\x80\x9a\xe7\x94\xa8\x22, \x22\
+\xe6\xa8\xa1\xe6\x9d\xbf: G \xe4\xbb\xa3\xe7\xa0\x81\
+\xe7\xa4\xba\xe4\xbe\x8b\x22, \x22\xe6\xa8\xa1\xe6\x9d\xbf\
+: M \xe4\xbb\xa3\xe7\xa0\x81\xe7\xa4\xba\xe4\xbe\x8b\
+\x22]\x0a        onCur\
+rentIndexChanged\
+: {\x0a          if\
+ (currentIndex =\
+== 1 && editor.t\
+ext.length === 0\
+) {\x0a            \
+editor.text = \x22G\
+0 X0 Y0 Z0\x5cnG1 X\
+10 Y10 F100\x5cn\x22;\x0a\
+          } else\
+ if (currentInde\
+x === 2 && edito\
+r.text.length ==\
+= 0) {\x0a         \
+   editor.text =\
+ \x22M3 S1000\x5cnG4 P\
+1 ; dwell 1s\x5cnM5\
+\x5cn\x22;\x0a          }\
+\x0a        }\x0a     \
+ }\x0a      Button \
+{ text: \x22\xe8\xbf\x90\xe8\xa1\x8c\x22\
+ }\x0a      Button \
+{ text: \x22\xe5\x81\x9c\xe6\xad\xa2\x22\
+ }\x0a      Button \
+{ text: \x22\xe6\x89\x93\xe5\xbc\x80\x22\
+ }\x0a      Button \
+{ text: \x22\xe4\xbf\x9d\xe5\xad\x98\x22\
+ }\x0a    }\x0a    Row\
+Layout {\x0a      L\
+ayout.fillWidth:\
+ true\x0a      Layo\
+ut.fillHeight: t\
+rue\x0a      spacin\
+g: 0\x0a      Recta\
+ngle {\x0a        i\
+d: gutter\x0a      \
+  color: \x22#20202\
+0\x22\x0a        width\
+: 48\x0a        Lay\
+out.fillHeight: \
+true\x0a        Tex\
+t {\x0a          id\
+: lineNums\x0a     \
+     anchors.rig\
+ht: parent.right\
+\x0a          ancho\
+rs.rightMargin: \
+6\x0a          y: e\
+ditor.contentIte\
+m ? (editor.cont\
+entItem.y + 4) :\
+ 4\x0a          tex\
+t: editor.text.l\
+ength ? (functio\
+n(){ var a = edi\
+tor.text.split('\
+\x5cn'); var s = ''\
+; for (var i=0;i\
+<a.length;i++){ \
+s += (i+1) + \x22\x5cn\
+\x22; } return s; }\
+)() : '1\x5cn'\x0a    \
+      color: \x22#8\
+88\x22\x0a          fo\
+nt.family: \x22Cons\
+olas, 'Courier N\
+ew', monospace\x22\x0a\
+          font.p\
+ixelSize: 14\x0a   \
+       wrapMode:\
+ Text.NoWrap\x0a   \
+       horizonta\
+lAlignment: Text\
+.AlignRight\x0a    \
+      verticalAl\
+ignment: Text.Al\
+ignTop\x0a        }\
+\x0a      }\x0a      T\
+extArea {\x0a      \
+  id: editor\x0a   \
+     Layout.fill\
+Width: true\x0a    \
+    Layout.fillH\
+eight: true\x0a    \
+    wrapMode: Te\
+xtEdit.NoWrap\x0a  \
+      font.famil\
+y: \x22Consolas, 'C\
+ourier New', mon\
+ospace\x22\x0a        \
+placeholderText:\
+ \x22\xe5\x9c\xa8\xe6\xad\xa4\xe7\xbc\x96\xe8\xbe\x91\xe6\x8c\
+\x87\xe4\xbb\xa4\xef\xbc\x88\xe6\x94\xaf\xe6\x8c\x81 G/\
+M \xe6\x8c\x87\xe4\xbb\xa4\xe9\xab\x98\xe4\xba\xae\xef\xbc\
+\x89\x22\x0a        onTex\
+tChanged: lineNu\
+ms.text = (funct\
+ion(){ var a = e\
+ditor.text.split\
+('\x5cn'); var s=''\
+; for (var i=0;i\
+<a.length;i++){ \
+s += (i+1) + \x22\x5cn\
+\x22; } return s; }\
+)()\x0a        Comp\
+onent.onComplete\
+d: { if (pyHighl\
+ighter && editor\
+.textDocument) p\
+yHighlighter.att\
+ach(editor.textD\
+ocument) }\x0a     \
+ }\x0a    }\x0a  }\x0a}\x0a\x0a\
+\
+\x00\x00\x01\xd9\
+i\
+mport QtQuick\x0aim\
+port QtQuick.Con\
+trols\x0aimport QtQ\
+uick.Layouts\x0a\x0aRo\
+wLayout {\x0a  id: \
+root\x0a  signal st\
+artClicked()\x0a  s\
+ignal stopClicke\
+d()\x0a  signal ope\
+nSettings()\x0a  si\
+gnal openTestIma\
+ges()\x0a\x0a  spacing\
+: 8\x0a  Layout.fil\
+lWidth: true\x0a\x0a  \
+Button { text: \x22\
+\xe5\xbc\x80\xe5\xa7\x8b\x22; onClick\
+ed: root.startCl\
+icked() }\x0a  Butt\
+on { text: \x22\xe5\x81\x9c\xe6\
+\xad\xa2\x22; onClicked: \
+root.stopClicked\
+() }\x0a  Button { \
+text: \x22\xe8\xae\xbe\xe7\xbd\xae\x22; \
+onClicked: root.\
+openSettings() }\
+\x0a  Button { text\
+: \x22\xe6\xb5\x8b\xe8\xaf\x95\xe5\x9b\xbe\xe7\x89\x87\x22\
+; onClicked: roo\
+t.openTestImages\
+() }\x0a}\x0a\x0a\
+\x00\x00\x10\xf4\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols\x0d\x0aimport Q\
+tQuick.Layouts\x0d\x0a\
+\x0d\x0a\x0d\x0a\x0d\x0aItem {\x0d\x0a  \
+id: root\x0d\x0a  anch\
+ors.fill: parent\
+\x0d\x0a\x0d\x0a  // Inputs \
+from main.qml\x0d\x0a \
+ property var ba\
+ckend\x0d\x0a  propert\
+y var apiClient\x0d\
+\x0a  property var \
+uiSettings\x0d\x0a  //\
+ Pass in from pa\
+rent; do not ass\
+ume WebSocket he\
+re\x0d\x0a  property i\
+nt wsStatus: 0\x0d\x0a\
+  property real \
+lastMsgTs: -1\x0d\x0a \
+ property real n\
+owTs: 0\x0d\x0a  prope\
+rty int refreshM\
+s: 120\x0d\x0a\x0d\x0a  Colu\
+mnLayout {\x0d\x0a    \
+anchors.fill: pa\
+rent\x0d\x0a    spacin\
+g: 8\x0d\x0a    anchor\
+s.margins: 8\x0d\x0a\x0d\x0a\
+    // Top bar\x0d\x0a\
+    TopBar {\x0d\x0a  \
+    onStartClick\
+ed: apiClient &&\
+ apiClient.start\
+Run(function(_) \
+{}, function(s,m\
+){ console.log('\
+start err', s, m\
+) })\x0d\x0a      onSt\
+opClicked: apiCl\
+ient && apiClien\
+t.stopRun(functi\
+on(_) {}, functi\
+on(s,m){ console\
+.log('stop err',\
+ s, m) })\x0d\x0a     \
+ onOpenSettings:\
+ settingsDrawer.\
+open()\x0d\x0a      on\
+OpenTestImages: \
+testDialog.openA\
+ndRefresh()\x0d\x0a   \
+ }\x0d\x0a\x0d\x0a    // Res\
+ponsive hint\x0d\x0a  \
+  Label {\x0d\x0a     \
+ Layout.fillWidt\
+h: true\x0d\x0a      h\
+orizontalAlignme\
+nt: Text.AlignRi\
+ght\x0d\x0a      opaci\
+ty: 0.6\x0d\x0a      f\
+ont.pixelSize: 1\
+1\x0d\x0a      text: '\
+Size: ' + root.w\
+idth + 'x' + roo\
+t.height\x0d\x0a    }\x0d\
+\x0a\x0d\x0a    // Main s\
+plit view\x0d\x0a    S\
+plitView {\x0d\x0a    \
+  id: mainSplit\x0d\
+\x0a      Layout.fi\
+llWidth: true\x0d\x0a \
+     Layout.fill\
+Height: true\x0d\x0a  \
+    Layout.prefe\
+rredHeight: 460\x0d\
+\x0a\x0d\x0a      // Left\
+ status\x0d\x0a      S\
+tatusPanel {\x0d\x0a  \
+      SplitView.\
+minimumWidth: 22\
+0\x0d\x0a        Split\
+View.preferredWi\
+dth: 260\x0d\x0a      \
+  backend: root.\
+backend\x0d\x0a       \
+ wsStatus: root.\
+wsStatus\x0d\x0a      \
+  latency: (root\
+.lastMsgTs>0 ? M\
+ath.max(0, root.\
+nowTs - root.las\
+tMsgTs) : -1)\x0d\x0a \
+       apiHost: \
+uiSettings ? uiS\
+ettings.apiHost \
+: '127.0.0.1'\x0d\x0a \
+       apiPort: \
+uiSettings ? uiS\
+ettings.apiPort \
+: 8010\x0d\x0a      }\x0d\
+\x0a\x0d\x0a      // Midd\
+le video\x0d\x0a    Vi\
+deoView {\x0d\x0a     \
+   implicitWidth\
+: 800\x0d\x0a        i\
+mplicitHeight: 4\
+50\x0d\x0a        Spli\
+tView.minimumWid\
+th: 400\x0d\x0a       \
+ SplitView.prefe\
+rredWidth: 800\x0d\x0a\
+        refreshM\
+s: root.refreshM\
+s\x0d\x0a        backe\
+nd: root.backend\
+\x0d\x0a      }\x0d\x0a\x0d\x0a   \
+   // Right edit\
+or\x0d\x0a      Editor\
+Panel {\x0d\x0a       \
+ SplitView.minim\
+umWidth: 280\x0d\x0a  \
+      SplitView.\
+preferredWidth: \
+420\x0d\x0a      }\x0d\x0a  \
+  }\x0d\x0a\x0d\x0a    // Bo\
+ttom-right conne\
+ction status\x0d\x0a  \
+  Item {\x0d\x0a      \
+Layout.fillWidth\
+: true\x0d\x0a      an\
+chors.right: par\
+ent.right\x0d\x0a     \
+ Row {\x0d\x0a        \
+spacing: 8\x0d\x0a    \
+    Rectangle { \
+width: 10; heigh\
+t: 10; radius: 5\
+; color: (root.w\
+sStatus===WebSoc\
+ket.Open ? '#1cc\
+88a' : (root.wsS\
+tatus===WebSocke\
+t.Connecting ? '\
+#f6c23e' : '#e74\
+a3b')) }\x0d\x0a      \
+  Label { text: \
+'\xe8\xbf\x9e\xe6\x8e\xa5: ' + (ro\
+ot.wsStatus===We\
+bSocket.Open ? '\
+\xe5\xb7\xb2\xe8\xbf\x9e\xe6\x8e\xa5' : (ro\
+ot.wsStatus===We\
+bSocket.Connecti\
+ng ? '\xe8\xbf\x9e\xe6\x8e\xa5\xe4\xb8\xad'\
+ : '\xe6\x9c\xaa\xe8\xbf\x9e\xe6\x8e\xa5'))\
+ }\x0d\x0a        Labe\
+l { text: '\xe5\xbb\xb6\xe8\xbf\
+\x9f: ' + (root.las\
+tMsgTs>0 ? Math.\
+max(0, root.nowT\
+s - root.lastMsg\
+Ts) + ' ms' : '-\
+') }\x0d\x0a        La\
+bel { text: 'API\
+: ' + (uiSetting\
+s ? (uiSettings.\
+apiHost + ':' + \
+uiSettings.apiPo\
+rt) : '-') }\x0d\x0a  \
+    }\x0d\x0a    }\x0d\x0a  \
+}\x0d\x0a\x0d\x0a  // Settin\
+gs drawer\x0d\x0a  Dra\
+wer {\x0d\x0a    id: s\
+ettingsDrawer\x0d\x0a \
+   edge: Qt.Righ\
+tEdge\x0d\x0a    width\
+: 360\x0d\x0a    heigh\
+t: parent.height\
+\x0d\x0a    modal: fal\
+se\x0d\x0a    interact\
+ive: true\x0d\x0a    f\
+ocus: true\x0d\x0a\x0d\x0a  \
+  Rectangle { an\
+chors.fill: pare\
+nt; color: \x22#1e1\
+e1e\x22; border.col\
+or: \x22#333\x22\x0d\x0a    \
+  ColumnLayout {\
+ anchors.fill: p\
+arent; anchors.m\
+argins: 8; spaci\
+ng: 8\x0d\x0a        L\
+abel { text: \x22\xe8\xae\
+\xbe\xe7\xbd\xae\x22; font.bold\
+: true }\x0d\x0a      \
+  RowLayout {\x0d\x0a \
+         Label {\
+ text: \x22\xe7\xa4\xba\xe4\xbe\x8b\xe5\xbc\
+\x80\xe5\x85\xb3\x22; Layout.fi\
+llWidth: true }\x0d\
+\x0a          Switc\
+h { checked: tru\
+e }\x0d\x0a        }\x0d\x0a\
+        RowLayou\
+t {\x0d\x0a          L\
+abel { text: \x22AP\
+I \xe5\x9c\xb0\xe5\x9d\x80\x22; Layou\
+t.preferredWidth\
+: 80 }\x0d\x0a        \
+  TextField { te\
+xt: uiSettings ?\
+ uiSettings.apiH\
+ost : ''; onText\
+Changed: if(uiSe\
+ttings) uiSettin\
+gs.apiHost = tex\
+t; placeholderTe\
+xt: \x22127.0.0.1\x22 \
+}\x0d\x0a        }\x0d\x0a  \
+      RowLayout \
+{\x0d\x0a          Lab\
+el { text: \x22API \
+\xe7\xab\xaf\xe5\x8f\xa3\x22; Layout.\
+preferredWidth: \
+80 }\x0d\x0a          \
+SpinBox { from: \
+1; to: 65535; va\
+lue: uiSettings \
+? uiSettings.api\
+Port : 8010; onV\
+alueModified: if\
+(uiSettings) uiS\
+ettings.apiPort \
+= value }\x0d\x0a     \
+   }\x0d\x0a        Ro\
+wLayout {\x0d\x0a     \
+     Label { tex\
+t: \x22\xe5\x88\xb7\xe6\x96\xb0\xe9\x97\xb4\xe9\x9a\x94\
+(ms)\x22; Layout.pr\
+eferredWidth: 80\
+ }\x0d\x0a          Sp\
+inBox { from: 50\
+; to: 1000; valu\
+e: root.refreshM\
+s; onValueModifi\
+ed: root.refresh\
+Ms = value }\x0d\x0a  \
+      }\x0d\x0a       \
+ RowLayout {\x0d\x0a  \
+        Button {\
+ text: \x22\xe4\xbf\x9d\xe5\xad\x98\xe5\xb9\
+\xb6\xe9\x87\x8d\xe5\x90\xaf API\x22; on\
+Clicked: { if(ui\
+Settings){ setti\
+ngs.apiHost = ui\
+Settings.apiHost\
+; settings.apiPo\
+rt = uiSettings.\
+apiPort; setting\
+s.saveAndRestart\
+(); } } }\x0d\x0a     \
+     Item { Layo\
+ut.fillWidth: tr\
+ue }\x0d\x0a          \
+Button { text: \x22\
+\xe5\x85\xb3\xe9\x97\xad\x22; onClick\
+ed: settingsDraw\
+er.close() }\x0d\x0a  \
+      }\x0d\x0a      }\
+\x0d\x0a    }\x0d\x0a  }\x0d\x0a}\x0d\
+\x0a\x0d\x0a\
+\x00\x00\x03d\
+\x00\
+\x00\x0c\x89x\xda\xb5WkK\xdbP\x18\xfe\xde_q\
+h\xc1\xb4\x0cC/:%\xa5\x1b\xae\xbb(\x93y\xa9\
+L\xfdx\x9a\x9c\xb6\xc14'\x9c\x9cLE\x04\xfd\xb4\
+1\xd8>\x8c\xb1}\xb0\xe8\xf6\xc1\xdd`n\x8c\xa1\xa2\
+\x14\xff\xc1~E[\xeb\xbf\xd8\x9b4\xcd\xe2\xb5\xb5f\
+-\x94\xe4\x9c\xf7=\xcf\xf3\xbc\xb7\xa4j\xd9\xa0\x8c\xa3\
+)>e\xa9\xf2BH=u+f\xa9\xce\x19\xd5\xcc\
+\xb3\xeb\xe3x\x99Z\xdc\xb7<K\xf29*/\x10X\
+\x0bM\x13\x99c\xbd\xa8\x11\xb4\x12BHU$\xc4(\
+\xe5pi0j\x10\xc6\x97\xd13\xccP\x1e\x83\xb9\xae\
+\xf8\x97U\x9d\xa3E3\xc71\xb7L\x09yG\x8aY\
+\x8d\x9a\xe4\x94%#XC\x1a\xe6D\x97\x97%\xd4\x9f\
+\xf0\xef\x99\x9c\xa9z\x11aC\x1d\xa5&\x97P8\x91\
+\x1c\x12\xe3\xf0M\x84\xcf\x82\x81\xcd$\xf0\x97\xd0p<\
+\x11\x0f\xc1.\xc3\x8ajc\x0f\xc0\xb5L5\xca\xc0=\
+\x92 \xf67\x9cFy\xca\x14\xc2Do#\x95J\x85\
+m\xaf,\xd5\xac\xb2\xde\x8a\x09ZAX\x97K\x94\x99\
+bA\xd54\x09\x19\x98\x11\x9d\xa7\xbd\xd52fEU\
+\x07\x8cD<\x8dL\x03\xcb@\x16\x08\xc01\x08\x8d\xe3\
+<\xd1\xe0\x04N\x96l\xe2\xc7/w\x1bk\xeb\xb5\xa3\
+\x8f\x8d\xf5\x1f\x00_\x80d\x88y\xaaA@9\xb3\x08\
+Zu|\xa6\xe9\xa2\x87|\xc6\xbf\xbe\xb7]\xabVZ\
+\xa7\x80\x7f\xcbL4\x18)\x10\xc6\x882\xab*\xbc$\
+\xa1\xa1\xa4{\xd2Y|7C\xe8n\xfbJ4\x9d\xd4\
+ \x09\x09\x82\xebs\x8e\xc3\x85'\x85\x9bG\x9b\x8d\xd7\
+\xdb]q\xf0U\x0fZl\xed\xda\x91*\x11\xb5X\xe2\
+\xad\xebv\x96\x06\xd3\xae\x8f\x97\xach\xbb|2\x99\xcc\
+\xbf\xfa\x990\x88\x0e*\x84HB\x96\x87\x87\xb1\x80.\
+3\x84r\xd7\x01\xde.\x1f\xdb\xbcp[N\xa6\x88m\
+.D\xc8\xd0\x00N\xe5\x85X\xec\x92`]\x8d\x5c\xdf\
+\xfb\xd5\x0aA\xb7\xd8-\xeb\xda\xfew\x07\xbdQ\xf9\xe6\
+\xba{\xf8\x9d\x93\x7f\xb8\xdb<\xda\xea!\xedQ\xb7\xaf\
+\xeed\xe2\xc0\xc4\xbd\x119}\xa8.\x11%\x1a\x8f\xa1\
+[H@e\xd3!\xd6/t\xcdgdr\xac\x072\
+n\x17\xdb\x98\x92\x00\xbfn\xc7\x9e\x06\xf5U\x8cW&\
+\xe9vI\x08v\x9b\x0a\x1e\xb2\xdd\x94.hwMT\
+\xab\xbe:\xae\xee\x04\xd2>\x065g`\xeb\xca\xfe9\
+7\x036v\x1a\x1f\x9e\xcf\x05\x82\xcfa\xf4\x10>\xe7\
+\xe52\x19\xeb\x81\xca|\x80T\xe6{\xa5\xd2\xfc\xfc\xa6\
+~\xf0\xe9\xcf~\x80\x5cfJ\x84\xe3\x9eCS\xdd\x81\
+1\x0d\x94\x02$\x94\x93)#W\x13\xfa\xaf\x85\x7f\xf2\
+\xfe\xcb\xc9\xdb\x9b<7\xfa\xfa<E\x1a\xcc\xb8\xfb\x94\
+2{\xb4M<vF\xc7\x93G\x82G\xb5\x83G$\
+\x99\x94\x07\x07\xdb\x83\xb80\x00\x9f\xee3S\xd9:\xfe\
+z\x10\x9c\x8a\xa7X\xb6\xac\xf2\xf5t\xfc\xf3\xb9\x89\x92\
+\xc6\xdav}\xbd\x12\x9c\x92\x079N\x0d\x9b\x14(\xb0\
+\xf9\x80\x9eNB<\x17\x8f\xbb\xe4\xd3\xd4\xed\x83ic\
+\xf3dc78\x1d\xa3\xb4L\x94\xeb%\xc4s\xb9I\
+>j\xfb\x87\xcd\xea\xef\xe0t\xe4\x0cUW\xa0\x97\xaf\
+\xa5\xc4\xe7\xd4Q\xcb\x18'eG\x867\x0fF\xdd\xa1\
+q\xe9@p,\xb1\xa6\x16\xf52\xbc\xc4J\xf0\xa2/\
+\x8e\xd8w\xd3\xb6_\x1a\xdd\xb38\xa7\xba/\xb5/\xf6\
+\x1a\xef~BH\xa8\x9e\xd5\xe0\x7f\x02Q.$\x0e\x81\
+b\xc4,E\xe1\xdd\xc1A]\x0d\xad\x86B\x7f\x01c\
+\x0a\x14\xb2\
+\x00\x00\x05H\
+i\
+mport QtQuick\x0aim\
+port QtQuick.Con\
+trols\x0a\x0aItem {\x0a  \
+id: root\x0a  prope\
+rty int refreshM\
+s: 120\x0a  propert\
+y var backend\x0a\x0a \
+ Rectangle { anc\
+hors.fill: paren\
+t; color: \x22#222\x22\
+; radius: 4 }\x0a  \
+Image {\x0a    id: \
+video\x0a    anchor\
+s.fill: parent\x0a \
+   fillMode: Ima\
+ge.PreserveAspec\
+tFit\x0a    cache: \
+false\x0a    asynch\
+ronous: false\x0a  \
+  source: 'image\
+://camera/live?t\
+s=' + Date.now()\
+\x0a  }\x0a  Timer { i\
+nterval: refresh\
+Ms; running: tru\
+e; repeat: true;\
+ onTriggered: vi\
+deo.source = 'im\
+age://camera/liv\
+e?ts=' + Date.no\
+w() }\x0a  Canvas {\
+\x0a    id: overlay\
+\x0a    anchors.fil\
+l: parent\x0a    on\
+Paint: {\x0a      v\
+ar ctx = getCont\
+ext('2d');\x0a     \
+ ctx.clearRect(0\
+,0,width,height)\
+;\x0a      ctx.stro\
+keStyle = '#00FF\
+00'; ctx.lineWid\
+th = 2;\x0a      ct\
+x.beginPath();\x0a \
+     ctx.moveTo(\
+width/2 - 20, he\
+ight/2);\x0a      c\
+tx.lineTo(width/\
+2 + 20, height/2\
+);\x0a      ctx.mov\
+eTo(width/2, hei\
+ght/2 - 20);\x0a   \
+   ctx.lineTo(wi\
+dth/2, height/2 \
++ 20);\x0a      ctx\
+.stroke();\x0a     \
+ if (backend && \
+backend.targetX \
+>= 0 && backend.\
+targetY >= 0) {\x0a\
+        var x = \
+backend.targetX \
+* width / 640;\x0a \
+       var y = b\
+ackend.targetY *\
+ height / 360;\x0a \
+       ctx.strok\
+eStyle = '#FFCC0\
+0';\x0a        ctx.\
+beginPath();\x0a   \
+     ctx.arc(x, \
+y, 12, 0, Math.P\
+I*2);\x0a        ct\
+x.stroke();\x0a    \
+    ctx.fillStyl\
+e = '#FFCC00';\x0a \
+       ctx.fillT\
+ext('\xce\xb8=' + back\
+end.targetTheta.\
+toFixed(2) + ' s\
+=' + backend.tar\
+getScore.toFixed\
+(2), x+14, y-14)\
+;\x0a      }\x0a    }\x0a\
+  }\x0a}\x0a\x0a\
+\x00\x00\x02\x17\
+i\
+mport QtQuick\x0aim\
+port QtQuick.Con\
+trols\x0a\x0d\x0aItem {\x0d\x0a\
+  id: root\x0d\x0a  Co\
+lumn {\x0d\x0a    spac\
+ing: 4\x0d\x0a    Labe\
+l { text: \x22\xe5\xae\x89\xe5\x85\
+\xa8\xe4\xba\x92\xe9\x94\x81\x22; font.b\
+old: true }\x0d\x0a   \
+ Row { spacing: \
+12\x0d\x0a      Label \
+{ text: \x22\xe9\x97\xa8\xe7\xa6\x81:\
+\x22 + (backend.loc\
+kDoor ? 'OK' : '\
+NG') }\x0d\x0a      La\
+bel { text: \x22\xe7\x9c\x9f\
+\xe7\xa9\xba:\x22 + (backend\
+.lockVacuum ? 'O\
+K' : 'NG') }\x0d\x0a  \
+    Label { text\
+: \x22\xe6\x80\xa5\xe5\x81\x9c:\x22 + (b\
+ackend.lockEStop\
+ ? 'OK' : 'NG') \
+}\x0d\x0a      Label {\
+ text: \x22\xe5\x9b\x9e\xe9\x9b\xb6:\x22\
+ + (backend.lock\
+Homed ? 'OK' : '\
+NG') }\x0d\x0a      La\
+bel { text: \x22\xe4\xb8\xbb\
+\xe8\xbd\xb4\xe5\xb0\xb1\xe7\xbb\xaa:\x22 + (b\
+ackend.lockSpind\
+le ? 'OK' : 'NG'\
+) }\x0d\x0a    }\x0d\x0a  }\x0d\
+\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x06;\
+\xef\
+\xbb\xbfimport QtQuick\
+\x5cnimport QtQuick\
+.Controls\x5cnimpor\
+t \x22../Api\x22 as Ap\
+i\x5cn\x5cnimport QtQu\
+ick.Controls\x0aimp\
+ort QtQuick.Layo\
+uts\x0a\x0aItem {\x0a  id\
+: root\x0a  // api \
+client injected \
+by parent loader\
+ (ApiClient.qml \
+instance)\x0a    Co\
+lumn {\x0a    spaci\
+ng: 6\x0a    Row { \
+spacing: 6\x0a     \
+ Label { text: \x22\
+\xe5\xbf\xab\xe7\xa7\xbb(mm/s)\x22 }\x0a\
+      SpinBox { \
+id: vFast; from:\
+ 1; to: 500; val\
+ue: 100; stepSiz\
+e: 1 }\x0a      Lab\
+el { text: \x22\xe5\xb7\xa5\xe8\
+\xbf\x9b(mm/s)\x22 }\x0a    \
+  SpinBox { id: \
+vWork; from: 0; \
+to: 100; value: \
+10; stepSize: 1 \
+}\x0a      Button {\
+ text: \x22\xe8\xae\xbe\xe7\xbd\xae\xe9\x80\
+\x9f\xe5\xba\xa6\x22; onClicked\
+: Api.ApiClient.\
+setSpeed(vFast.v\
+alue, vWork.valu\
+e, function(_){}\
+, function(s,m){\
+ console.log('se\
+t_speed err', s,\
+ m) }) }\x0a    }\x0a \
+   GridLayout { \
+columns: 4\x0a     \
+ Button { text: \
+\x22X-\x22; onClicked:\
+ Api.ApiClient.j\
+og('x', -1, vFas\
+t.value, functio\
+n(_){}, function\
+(s,m){ console.l\
+og('jog err', s,\
+ m) }) }\x0a      B\
+utton { text: \x22Y\
++\x22; onClicked: A\
+pi.ApiClient.jog\
+('y', 1, vFast.v\
+alue, function(_\
+){}, function(s,\
+m){ console.log(\
+'jog err', s, m)\
+ }) }\x0a      Butt\
+on { text: \x22X+\x22;\
+ onClicked: Api.\
+ApiClient.jog('x\
+', 1, vFast.valu\
+e, function(_){}\
+, function(s,m){\
+ console.log('jo\
+g err', s, m) })\
+ }\x0a      Button \
+{ text: \x22Y-\x22; on\
+Clicked: Api.Api\
+Client.jog('y', \
+-1, vFast.value,\
+ function(_){}, \
+function(s,m){ c\
+onsole.log('jog \
+err', s, m) }) }\
+\x0a    }\x0a    Row {\
+ spacing: 6\x0a    \
+  Button { text:\
+ \x22\xe5\x9b\x9e\xe9\x9b\xb6\x22; onCli\
+cked: Api.ApiCli\
+ent.home(functio\
+n(_){}, function\
+(s,m){ console.l\
+og('home err', s\
+, m) }) }\x0a      \
+Button { text: \x22\
+\xe8\xae\xbe\xe5\xb7\xa5\xe4\xbb\xb6\xe5\x8e\x9f\xe7\x82\xb9\x22\
+; onClicked: Api\
+.ApiClient.setWo\
+rkOrigin(functio\
+n(_){}, function\
+(s,m){ console.l\
+og('set_work_ori\
+gin err', s, m) \
+}) }\x0a      Label\
+ { text: backend\
+.posText }\x0a    }\
+\x0a  }\x0a}\x0a\x0a\x0d\x0a\
+\x00\x00\x03\x05\
+i\
+mport QtQuick\x0aim\
+port QtQuick.Con\
+trols\x0a\x0d\x0aItem {\x0d\x0a\
+  id: root\x0d\x0a  //\
+ api can be inje\
+cted if needed l\
+ater\x0d\x0a  property\
+ var api\x0d\x0a  prop\
+erty alias host:\
+ hostField.text\x0d\
+\x0a  property alia\
+s port: portFiel\
+d.text\x0d\x0a  Column\
+ {\x0d\x0a    spacing:\
+ 6\x0d\x0a    Row { sp\
+acing: 6\x0d\x0a      \
+Label { text: \x22\xe4\
+\xb8\xbb\xe6\x9c\xba\x22 }\x0d\x0a      \
+TextField { id: \
+hostField; place\
+holderText: \x22127\
+.0.0.1\x22; width: \
+150 }\x0d\x0a      Lab\
+el { text: \x22\xe7\xab\xaf\xe5\
+\x8f\xa3\x22 }\x0d\x0a      Tex\
+tField { id: por\
+tField; placehol\
+derText: \x225000\x22;\
+ width: 80 }\x0d\x0a  \
+    Button { tex\
+t: backend.commC\
+onnected ? \x22\xe6\x96\xad\xe5\
+\xbc\x80\x22 : \x22\xe8\xbf\x9e\xe6\x8e\xa5\x22; \
+onClicked: backe\
+nd.toggleComm(ho\
+stField.text, pa\
+rseInt(portField\
+.text)) }\x0d\x0a     \
+ Label { text: b\
+ackend.commConne\
+cted ? \x22\xe5\xb7\xb2\xe8\xbf\x9e\xe6\x8e\
+\xa5\x22 : \x22\xe6\x9c\xaa\xe8\xbf\x9e\xe6\x8e\xa5\x22\
+ }\x0d\x0a    }\x0d\x0a    T\
+extArea { readOn\
+ly: true; text: \
+backend.commLog;\
+ width: 400; hei\
+ght: 120 }\x0d\x0a  }\x0d\
+\x0a}\x0d\x0a\
+\x00\x00\x00\xef\
+i\
+mport QtQuick\x0d\x0ai\
+mport \x22../../Api\
+\x22 as Api\x0d\x0a//\xe6\x98\xbe\xe7\
+\xa4\xba\xe5\x9b\xbe\xe5\x83\x8f\x0d\x0aItem {\
+\x0d\x0a    Image {\x0d\x0a \
+       anchors.f\
+ill: parent\x0d\x0a   \
+     fillMode: I\
+mage.PreserveAsp\
+ectFit\x0d\x0a        \
+cache: false\x0d\x0a  \
+      asynchrono\
+us: false\x0d\x0a     \
+   source: Api\x0d\x0a\
+    }\x0d\x0a\x0d\x0a\x0d\x0a}\x0d\x0a\
+\x00\x00\x00\x5c\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols\x0d\x0aimport Q\
+tQuick.Layouts\x0d\x0a\
+\x0d\x0aColumnLayout {\
+\x0d\x0a\x0d\x0a\x0d\x0a\x0d\x0a}\x0d\x0a\
+\x00\x00\x0cb\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+import \x22../cores\
+\x22 as Cores\x0a\x0a// R\
+ight-side settin\
+gs drawer\x0aDrawer\
+ {\x0a  id: setting\
+sDrawer\x0a  edge: \
+Qt.RightEdge\x0a  w\
+idth: Math.min(3\
+80, parent ? par\
+ent.width * 0.36\
+ : 380)\x0a  height\
+: parent ? paren\
+t.height : 600\x0a \
+ modal: false\x0a  \
+interactive: tru\
+e\x0a  focus: true\x0a\
+  dim:true\x0a  // \
+Basic panel cont\
+ent\x0a\x0a    ColumnL\
+ayout {\x0a      an\
+chors.fill: pare\
+nt\x0a      anchors\
+.margins: 12\x0a   \
+   spacing: 10\x0a \
+     Label {\x0a   \
+     text: \x22\xe8\xae\xbe\xe7\
+\xbd\xae\x22;\x0a        fon\
+t.bold: true;\x0a  \
+      font.pixel\
+Size: 25\x0a       \
+ Layout.alignmen\
+t: Qt.AlignHCent\
+er\x0a\x0a      }\x0a\x0a   \
+   // API host\x0a \
+     RowLayout {\
+\x0a        Label {\
+ text: \x22API \xe5\x9c\xb0\xe5\
+\x9d\x80\x22; Layout.pref\
+erredWidth: 90 }\
+\x0a        TextFie\
+ld {\x0a          L\
+ayout.fillWidth:\
+ true\x0a          \
+text: Cores.Core\
+Settings ? Cores\
+.CoreSettings.ap\
+iHost : \x22\x22\x0a     \
+     onTextChang\
+ed: if (Cores.Co\
+reSettings) Core\
+s.CoreSettings.a\
+piHost = text\x0a  \
+        placehol\
+derText: \x22127.0.\
+0.1\x22\x0a        }\x0a \
+     }\x0a\x0a      //\
+ API port\x0a      \
+RowLayout {\x0a    \
+    Label { text\
+: \x22API \xe7\xab\xaf\xe5\x8f\xa3\x22; \
+Layout.preferred\
+Width: 90 }\x0a    \
+    SpinBox {\x0a  \
+        from: 1;\
+ to: 65535\x0a     \
+     value: Core\
+s.CoreSettings ?\
+ Cores.CoreSetti\
+ngs.apiPort : 80\
+10\x0a          onV\
+alueModified: if\
+ (Cores.CoreSett\
+ings) Cores.Core\
+Settings.apiPort\
+ = value\x0a       \
+ }\x0a      }\x0a\x0a    \
+  // Theme switc\
+hing\x0a      Group\
+Box {\x0a        ti\
+tle: \x22\xe4\xb8\xbb\xe9\xa2\x98\x22\x0a  \
+      Layout.fil\
+lWidth: true\x0a   \
+     ColumnLayou\
+t {\x0a          sp\
+acing: 6\x0a       \
+   RowLayout {\x0a \
+           spaci\
+ng: 10\x0a         \
+   Label { text:\
+ \x22\xe5\xbd\x93\xe5\x89\x8d:\x22; colo\
+r: Cores.CoreSty\
+le.muted }\x0a     \
+       Label { t\
+ext: Cores.CoreS\
+tyle.theme; colo\
+r: Cores.CoreSty\
+le.accent }\x0a    \
+        Rectangl\
+e { width: 14; h\
+eight: 14; radiu\
+s: 3; color: Cor\
+es.CoreStyle.pri\
+mary }\x0a         \
+   Rectangle { w\
+idth: 14; height\
+: 14; radius: 3;\
+ color: Cores.Co\
+reStyle.accent }\
+\x0a          }\x0a   \
+                \
+ RowLayout {\x0a   \
+         spacing\
+: 8\x0a            \
+Repeater {\x0a     \
+         model: \
+[\x0a              \
+  { key: \x22techBl\
+ue\x22, label: \x22\xe8\x93\x9d\
+\x22, color: \x22#2563\
+eb\x22 },\x0a         \
+       { key: \x22e\
+merald\x22, label: \
+\x22\xe7\xbb\xbf\x22, color: \x22#\
+10b981\x22 },\x0a     \
+           { key\
+: \x22amber\x22, label\
+: \x22\xe6\xa9\x99\x22, color: \
+\x22#f59e0b\x22 },\x0a   \
+             { k\
+ey: \x22nightPurple\
+\x22, label: \x22\xe7\xb4\xab\x22,\
+ color: \x22#8b5cf6\
+\x22 },\x0a           \
+     { key: \x22gra\
+phite\x22, label: \x22\
+\xe7\x81\xb0\x22, color: \x22#6\
+4748b\x22 }\x0a       \
+       ]\x0a       \
+       delegate:\
+ Rectangle {\x0a   \
+             wid\
+th: 56; height: \
+28; radius: 4\x0a  \
+              co\
+lor: modelData.c\
+olor\x0a           \
+     border.colo\
+r: Cores.CoreSty\
+le.border\x0a      \
+          border\
+.width: (Cores.C\
+oreStyle.theme==\
+=modelData.key ?\
+ 2 : 1)\x0a        \
+        opacity:\
+ 0.95\x0a          \
+      Text { anc\
+hors.centerIn: p\
+arent; text: mod\
+elData.label; co\
+lor: \x22#ffffff\x22; \
+font.pixelSize: \
+12 }\x0a           \
+     MouseArea {\
+\x0a               \
+   anchors.fill:\
+ parent\x0a        \
+          hoverE\
+nabled: true\x0a   \
+               c\
+ursorShape: Qt.P\
+ointingHandCurso\
+r\x0a              \
+    onClicked: C\
+ores.CoreStyle.a\
+pplyTheme(modelD\
+ata.key)\x0a       \
+         }\x0a     \
+         }\x0a     \
+       }\x0a       \
+   }\x0a          }\
+\x0a        }\x0a     \
+ }\x0a\x0a      Item {\
+ Layout.fillHeig\
+ht: true }\x0a\x0a    \
+  RowLayout {\x0a  \
+      Button { t\
+ext: \x22\xe5\x85\xb3\xe9\x97\xad\x22; o\
+nClicked: settin\
+gsDrawer.close()\
+ }\x0a        Item \
+{ Layout.fillWid\
+th: true }\x0a     \
+ }\x0a    }\x0a\x0a\x0a\x0a\x0a\x0a\x0a\x0a\
+\x0a\
+\x00\x00\x0f\xff\
+i\
+mport QtQuick\x0aim\
+port QtQuick.Con\
+trols\x0aimport QtQ\
+uick.Layouts\x0a\x0aDi\
+alog {\x0a  id: tes\
+tDialog\x0a  proper\
+ty var apiClient\
+\x0a\x0a  title: \x22\xe6\xb5\x8b\xe8\
+\xaf\x95\xe5\x9b\xbe\xe7\x89\x87\xe9\x80\x89\xe6\x8b\xa9\x22\x0a\
+  parent: Overla\
+y.overlay\x0a  moda\
+l: true\x0a  width:\
+ Math.min(920, p\
+arent ? parent.w\
+idth - 80 : 920)\
+\x0a  height: Math.\
+min(600, parent \
+? parent.height \
+- 80 : 600)\x0a  st\
+andardButtons: D\
+ialog.Close\x0a\x0a  f\
+unction openAndR\
+efresh(){ open()\
+; refreshGroups(\
+) }\x0a\x0a  function \
+refreshGroups(){\
+\x0a    groupsModel\
+.clear(); images\
+Model.clear(); s\
+electedSerial=''\
+; selectedImage=\
+'';\x0a    if (!api\
+Client) return;\x0a\
+    apiClient.li\
+stGroups(functio\
+n(resp){\x0a      i\
+f (resp && resp.\
+groups) {\x0a      \
+  for (var i=0;i\
+<resp.groups.len\
+gth;i++) {\x0a     \
+     var g = res\
+p.groups[i];\x0a   \
+       groupsMod\
+el.append({ seri\
+al: g.serial, no\
+te: g.note||'', \
+created_at: g.cr\
+eated_at||'' });\
+\x0a        }\x0a     \
+ }\x0a    }, functi\
+on(s,m){ console\
+.log('list group\
+s err', s, m); }\
+)\x0a  }\x0a\x0a  functio\
+n refreshImages(\
+serial){\x0a    ima\
+gesModel.clear()\
+; selectedSerial\
+ = serial; selec\
+tedImage='';\x0a   \
+ if (!apiClient \
+|| !serial) retu\
+rn;\x0a    apiClien\
+t.listGroupImage\
+s(serial, functi\
+on(resp){\x0a      \
+if (resp && resp\
+.files) {\x0a      \
+  for (var i=0;i\
+<resp.files.leng\
+th;i++) {\x0a      \
+    imagesModel.\
+append({ name: r\
+esp.files[i] });\
+\x0a        }\x0a     \
+ }\x0a    }, functi\
+on(s,m){ console\
+.log('list image\
+s err', s, m); }\
+)\x0a  }\x0a\x0a  propert\
+y string selecte\
+dSerial: ''\x0a  pr\
+operty string se\
+lectedImage: ''\x0a\
+\x0a  contentItem: \
+Rectangle {\x0a    \
+color: \x22#1a1a1a\x22\
+\x0a    anchors.fil\
+l: parent\x0a    Co\
+lumnLayout {\x0a   \
+   anchors.fill:\
+ parent\x0a      sp\
+acing: 8\x0a      a\
+nchors.margins: \
+8\x0a      RowLayou\
+t {\x0a        Layo\
+ut.fillWidth: tr\
+ue\x0a        Label\
+ { text: \x22\xe6\xb5\x8b\xe8\xaf\x95\
+\xe7\xbb\x84\x22; font.bold:\
+ true }\x0a        \
+Button { text: \x22\
+\xe5\x88\xb7\xe6\x96\xb0\x22; onClick\
+ed: testDialog.r\
+efreshGroups() }\
+\x0a        Item { \
+Layout.fillWidth\
+: true }\x0a       \
+ TextField { id:\
+ tfSerial; place\
+holderText: \x22\xe6\x96\xb0\
+\xe5\xbb\xba\xe7\xbb\x84\xe6\xb5\x81\xe6\xb0\xb4\xe5\x8f\xb7\x22\
+; width: 200 }\x0a \
+       TextField\
+ { id: tfNote; p\
+laceholderText: \
+\x22\xe8\xaf\xb4\xe6\x98\x8e(\xe5\x8f\xaf\xe9\x80\x89)\x22\
+; width: 240 }\x0a \
+       Button { \
+text: \x22\xe5\x88\x9b\xe5\xbb\xba\x22; \
+onClicked: {\x0a   \
+         if (!tf\
+Serial.text || t\
+fSerial.text.len\
+gth===0) return;\
+\x0a            api\
+Client && apiCli\
+ent.createGroup(\
+tfSerial.text, t\
+fNote.text, func\
+tion(_){ testDia\
+log.refreshGroup\
+s(); }, function\
+(s,m){ console.l\
+og('create group\
+ err', s, m); })\
+\x0a          } }\x0a \
+     }\x0a      Spl\
+itView {\x0a       \
+ Layout.fillWidt\
+h: true\x0a        \
+Layout.fillHeigh\
+t: true\x0a        \
+ListView {\x0a     \
+     id: lvGroup\
+s\x0a          Spli\
+tView.preferredW\
+idth: 320\x0a      \
+    model: ListM\
+odel { id: group\
+sModel }\x0a       \
+   clip: true\x0a  \
+        delegate\
+: Rectangle {\x0a  \
+          width:\
+ lvGroups.width;\
+ height: 36; col\
+or: (ListView.is\
+CurrentItem? '#2\
+a2a2a':'transpar\
+ent')\x0a          \
+  RowLayout { an\
+chors.fill: pare\
+nt; anchors.marg\
+ins: 6\x0a         \
+     Label { tex\
+t: serial; Layou\
+t.fillWidth: tru\
+e }\x0a            \
+  Label { text: \
+note; color: '#8\
+88' }\x0a          \
+  }\x0a            \
+MouseArea { anch\
+ors.fill: parent\
+; onClicked: { l\
+vGroups.currentI\
+ndex=index; test\
+Dialog.refreshIm\
+ages(serial) } }\
+\x0a          }\x0a   \
+     }\x0a        L\
+istView {\x0a      \
+    id: lvImages\
+\x0a          Split\
+View.preferredWi\
+dth: 420\x0a       \
+   model: ListMo\
+del { id: images\
+Model }\x0a        \
+  clip: true\x0a   \
+       delegate:\
+ Rectangle {\x0a   \
+         width: \
+lvImages.width; \
+height: 32; colo\
+r: (ListView.isC\
+urrentItem? '#2a\
+2a2a':'transpare\
+nt')\x0a           \
+ RowLayout { anc\
+hors.fill: paren\
+t; anchors.margi\
+ns: 6\x0a          \
+    Label { text\
+: name; Layout.f\
+illWidth: true }\
+\x0a            }\x0a \
+           Mouse\
+Area { anchors.f\
+ill: parent; onC\
+licked: { lvImag\
+es.currentIndex=\
+index; testDialo\
+g.selectedImage=\
+name } }\x0a       \
+   }\x0a        }\x0a \
+     }\x0a      Row\
+Layout {\x0a       \
+ Layout.fillWidt\
+h: true\x0a        \
+Button { text: \x22\
+\xe5\x8a\xa0\xe8\xbd\xbd\xe9\xbb\x98\xe8\xae\xa4\x22; o\
+nClicked: apiCli\
+ent && apiClient\
+.loadDefaultImag\
+e(function(_){},\
+ function(s,m){}\
+) }\x0a        Butt\
+on { text: \x22\xe5\x8a\xa0\xe8\
+\xbd\xbd\xe6\x89\x80\xe9\x80\x89\x22; enabl\
+ed: (testDialog.\
+selectedSerial &\
+& testDialog.sel\
+ectedImage); onC\
+licked: {\x0a      \
+      var rel = \
+testDialog.selec\
+tedSerial + '/' \
++ testDialog.sel\
+ectedImage;\x0a    \
+        apiClien\
+t && apiClient.l\
+oadTestImage(rel\
+, function(_){},\
+ function(s,m){}\
+)\x0a          } }\x0a\
+        Item { L\
+ayout.fillWidth:\
+ true }\x0a        \
+Button { text: \x22\
+\xe5\x85\xb3\xe9\x97\xad\x22; onClick\
+ed: testDialog.c\
+lose() }\x0a      }\
+\x0a    }\x0a  }\x0a}\x0a\x0a\
+\x00\x00\x02\x8b\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtCore\x0ai\
+mport QtQuick.La\
+youts\x0aimport QtQ\
+uick.Controls\x0aim\
+port QtQuick.Con\
+trols.Material\x0ai\
+mport QtQuick.Wi\
+ndow\x0aimport \x22../\
+cores\x22 as Cores\x0a\
+\x0aDialog {\x0a  id: \
+errorDialog\x0a  ti\
+tle: \x22\xe8\xaf\xb7\xe6\xb1\x82\xe5\xa4\xb1\xe8\
+\xb4\xa5\x22\x0a  parent: Ov\
+erlay.overlay\x0a  \
+anchors.centerIn\
+: parent\x0a  width\
+: 480\x0a  modal: t\
+rue\x0a  standardBu\
+ttons: Dialog.Ok\
+\x0a  visible: Core\
+s.CoreError.glob\
+ErrorVisible\x0a  c\
+ontentItem: Text\
+ { text: Cores.C\
+oreError.globErr\
+orText; wrapMode\
+: Text.WordWrap;\
+ color: \x22white\x22;\
+ width: 420 }\x0a  \
+background: Rect\
+angle { color: \x22\
+#5b0000\x22; radius\
+: 10 }\x0a\x0a  onAcce\
+pted: Cores.Core\
+Error.globErrorV\
+isible = false\x0a \
+ onRejected: Cor\
+es.CoreError.glo\
+bErrorVisible = \
+false\x0a}\x0a\x0a\x0a\
+\x00\x00\x0a\x80\
+\xef\
+\xbb\xbf// Lightweight\
+ HTTP helpers wi\
+th timeout and e\
+rror popup callb\
+ack\x0d\x0a.pragma lib\
+rary\x0d\x0a\x0d\x0avar base\
+ = \x22http://127.0\
+.0.1:8010\x22\x0d\x0avar \
+timeoutMs = 5000\
+\x0d\x0a\x0d\x0afunction _ma\
+keTimer(root, ms\
+, onTimeout){\x0d\x0a \
+ var t = Qt.crea\
+teQmlObject('imp\
+ort QtQuick 2.15\
+; Timer { interv\
+al: '+ms+'; repe\
+at: false }', ro\
+ot)\x0d\x0a  t.trigger\
+ed.connect(funct\
+ion(){ try{ onTi\
+meout&&onTimeout\
+() } finally { t\
+.destroy() } })\x0d\
+\x0a  t.start()\x0d\x0a  \
+return t\x0d\x0a}\x0d\x0a\x0d\x0af\
+unction get(root\
+, path, onOk, on\
+Err, showError){\
+\x0d\x0a  var xhr = ne\
+w XMLHttpRequest\
+()\x0d\x0a  var timedO\
+ut = false\x0d\x0a  va\
+r to = _makeTime\
+r(root, timeoutM\
+s, function(){\x0d\x0a\
+    timedOut = t\
+rue\x0d\x0a    try{ xh\
+r.abort() }catch\
+(e){}\x0d\x0a    var m\
+sg = 'GET ' + pa\
+th + ' \xe8\xb6\x85\xe6\x97\xb6(' \
++ timeoutMs + 'm\
+s)'\x0a    showErro\
+r && showError(m\
+sg)\x0d\x0a    onErr &\
+& onErr(408, msg\
+)\x0d\x0a  })\x0d\x0a  xhr.o\
+pen('GET', base \
++ path)\x0d\x0a  xhr.o\
+nreadystatechang\
+e = function(){\x0d\
+\x0a    if (xhr.rea\
+dyState === XMLH\
+ttpRequest.DONE)\
+{\x0d\x0a      try{ to\
+.stop(); to.dest\
+roy() }catch(e){\
+}\x0d\x0a      if (tim\
+edOut) return\x0d\x0a \
+     if (xhr.sta\
+tus>=200 && xhr.\
+status<300){\x0d\x0a  \
+      try{ onOk \
+&& onOk(JSON.par\
+se(xhr.responseT\
+ext)) }catch(e){\
+ onOk && onOk({}\
+) }\x0d\x0a      }else\
+{\x0d\x0a        var m\
+sg = 'GET ' + pa\
+th + ' \xe5\xa4\xb1\xe8\xb4\xa5: '\
+ + xhr.status + \
+' ' + xhr.respon\
+seText\x0a        s\
+howError && show\
+Error(msg)\x0d\x0a    \
+    onErr && onE\
+rr(xhr.status, x\
+hr.responseText)\
+\x0d\x0a      }\x0d\x0a    }\
+\x0d\x0a  }\x0d\x0a  try{ xh\
+r.send() }catch(\
+e){\x0d\x0a    try{ to\
+.stop(); to.dest\
+roy() }catch(e2)\
+{}\x0d\x0a    var msg \
+= 'GET ' + path \
++ ' \xe5\xbc\x82\xe5\xb8\xb8: ' + \
+e\x0a    showError \
+&& showError(msg\
+)\x0d\x0a    onErr && \
+onErr(-1, String\
+(e))\x0d\x0a  }\x0d\x0a}\x0d\x0a\x0d\x0a\
+function postJso\
+n(root, path, ob\
+j, onOk, onErr, \
+showError){\x0d\x0a  v\
+ar xhr = new XML\
+HttpRequest()\x0d\x0a \
+ var timedOut = \
+false\x0d\x0a  var to \
+= _makeTimer(roo\
+t, timeoutMs, fu\
+nction(){\x0d\x0a    t\
+imedOut = true\x0d\x0a\
+    try{ xhr.abo\
+rt() }catch(e){}\
+\x0d\x0a    var msg = \
+'POST ' + path +\
+ ' \xe8\xb6\x85\xe6\x97\xb6(' + ti\
+meoutMs + 'ms)'\x0a\
+    showError &&\
+ showError(msg)\x0d\
+\x0a    onErr && on\
+Err(408, msg)\x0d\x0a \
+ })\x0d\x0a  xhr.open(\
+'POST', base + p\
+ath)\x0d\x0a  xhr.setR\
+equestHeader('Co\
+ntent-Type', 'ap\
+plication/json')\
+\x0d\x0a  xhr.onreadys\
+tatechange = fun\
+ction(){\x0d\x0a    if\
+ (xhr.readyState\
+ === XMLHttpRequ\
+est.DONE){\x0d\x0a    \
+  try{ to.stop()\
+; to.destroy() }\
+catch(e){}\x0d\x0a    \
+  if (timedOut) \
+return\x0d\x0a      if\
+ (xhr.status>=20\
+0 && xhr.status<\
+300){\x0d\x0a        t\
+ry{ onOk && onOk\
+(JSON.parse(xhr.\
+responseText)) }\
+catch(e){ onOk &\
+& onOk({}) }\x0d\x0a  \
+    }else{\x0d\x0a    \
+    var msg = 'P\
+OST ' + path + '\
+ \xe5\xa4\xb1\xe8\xb4\xa5: ' + xhr\
+.status + ' ' + \
+xhr.responseText\
+\x0a        showErr\
+or && showError(\
+msg)\x0d\x0a        on\
+Err && onErr(xhr\
+.status, xhr.res\
+ponseText)\x0d\x0a    \
+  }\x0d\x0a    }\x0d\x0a  }\x0d\
+\x0a  try{ xhr.send\
+(JSON.stringify(\
+obj)) }catch(e){\
+\x0d\x0a    try{ to.st\
+op(); to.destroy\
+() }catch(e2){}\x0d\
+\x0a    var msg = '\
+POST ' + path + \
+' \xe5\xbc\x82\xe5\xb8\xb8: ' + e\x0a\
+    showError &&\
+ showError(msg)\x0a\
+    onErr && onE\
+rr(-1, String(e)\
+)\x0d\x0a  }\x0d\x0a}\x0d\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x00G\
+\xef\
+\xbb\xbfsingleton ApiC\
+lient 1.0 ApiCli\
+ent.qml\x0d\x0asinglet\
+on Urls 1.0 Urls\
+.qml\x0d\x0a\
+\x00\x00\x07\xb4\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtQuic\
+k\x0aimport \x22./Http\
+.js\x22 as Http\x0a\x0aQt\
+Object {\x0a  id: a\
+piClient\x0a  // Ro\
+ot window for ti\
+mers and dialogs\
+\x0a  property var \
+root\x0a  // Error \
+popup hook provi\
+ded by root\x0a  pr\
+operty var showE\
+rror\x0a\x0a  function\
+ setBase(url){ H\
+ttp.base = url }\
+\x0a  function setT\
+imeout(ms){ Http\
+.timeoutMs = ms \
+}\x0a\x0a  // GET\x0a  fu\
+nction get(path,\
+ onOk, onErr){ H\
+ttp.get(root, pa\
+th, onOk, onErr,\
+ showError) }\x0a  \
+// POST JSON\x0a  f\
+unction post(pat\
+h, body, onOk, o\
+nErr){ Http.post\
+Json(root, path,\
+ body, onOk, onE\
+rr, showError) }\
+\x0a\x0a  // Convenien\
+ce APIs\x0a  functi\
+on startRun(onOk\
+, onErr){ post('\
+/run/start', {},\
+ onOk, onErr) }\x0a\
+  function stopR\
+un(onOk, onErr){\
+ post('/run/stop\
+', {}, onOk, onE\
+rr) }\x0a  function\
+ setSpeed(vFast,\
+ vWork, onOk, on\
+Err){ post('/mot\
+ion/set_speed', \
+{ v_fast: vFast,\
+ v_work: vWork }\
+, onOk, onErr) }\
+\x0a  function jog(\
+axis, dir, speed\
+, onOk, onErr){ \
+post('/motion/jo\
+g', { axis: axis\
+, direction: dir\
+, speed: speed }\
+, onOk, onErr) }\
+\x0a  function home\
+(onOk, onErr){ p\
+ost('/motion/hom\
+e', {}, onOk, on\
+Err) }\x0a  functio\
+n setWorkOrigin(\
+onOk, onErr){ po\
+st('/motion/set_\
+work_origin', {}\
+, onOk, onErr) }\
+\x0a  function stat\
+us(onOk, onErr){\
+ get('/status', \
+onOk, onErr) }\x0a \
+ // Test images\x0a\
+  function listT\
+estImages(onOk, \
+onErr){ get('/te\
+st/images', onOk\
+, onErr) }\x0a  fun\
+ction loadTestIm\
+age(name, onOk, \
+onErr){ post('/t\
+est/load_image?n\
+ame=' + encodeUR\
+IComponent(name)\
+, {}, onOk, onEr\
+r) }\x0a  function \
+loadDefaultImage\
+(onOk, onErr){ p\
+ost('/test/load_\
+default', {}, on\
+Ok, onErr) }\x0a\x0a  \
+// Test groups\x0a \
+ function listGr\
+oups(onOk, onErr\
+){ get('/test/gr\
+oup/list', onOk,\
+ onErr) }\x0a  func\
+tion listGroupIm\
+ages(serial, onO\
+k, onErr){ get('\
+/test/group/' + \
+encodeURICompone\
+nt(serial) + '/i\
+mages', onOk, on\
+Err) }\x0a  functio\
+n createGroup(se\
+rial, note, onOk\
+, onErr){ post('\
+/test/group/crea\
+te', { serial: s\
+erial, note: not\
+e }, onOk, onErr\
+) }\x0a  function a\
+ddImageToGroup(s\
+erial, name, onO\
+k, onErr){ post(\
+'/test/group/' +\
+ encodeURICompon\
+ent(serial) + '/\
+add_image?name='\
+ + encodeURIComp\
+onent(name), {},\
+ onOk, onErr) }\x0a\
+}\x0d\x0a\
+\x00\x00\x02}\
+p\
+ragma Singleton\x0d\
+\x0aimport QtQuick\x0d\
+\x0aimport \x22../core\
+s\x22 as Cores\x0d\x0a\x0d\x0aQ\
+tObject {\x0d\x0a  // \
+Host and port fr\
+om CoreSettings\x0d\
+\x0a  property stri\
+ng host: Cores.C\
+oreSettings.apiH\
+ost\x0d\x0a  property \
+int port: Cores.\
+CoreSettings.api\
+Port\x0d\x0a\x0d\x0a  functi\
+on base() {\x0d\x0a   \
+ return 'http://\
+' + Cores.CoreSe\
+ttings.apiHost +\
+ ':' + Cores.Cor\
+eSettings.apiPor\
+t\x0d\x0a  }\x0d\x0a  functi\
+on api(path) {\x0d\x0a\
+    if (!path) p\
+ath = ''\x0d\x0a    if\
+ (path.length>0 \
+&& path[0] !== '\
+/') path = '/' +\
+ path\x0d\x0a    retur\
+n base() + path\x0d\
+\x0a  }\x0d\x0a  function\
+ ws() {\x0d\x0a    ret\
+urn 'ws://' + Co\
+res.CoreSettings\
+.apiHost + ':' +\
+ Cores.CoreSetti\
+ngs.apiPort + '/\
+ws'\x0d\x0a  }\x0d\x0a  func\
+tion docs() { re\
+turn base() + '/\
+docs' }\x0d\x0a}\x0d\x0a\
+\x00\x00\x00i\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aListVie\
+w{\x0d\x0a\x0d\x0a    Scroll\
+Bar.vertical: Sc\
+rollBar{\x0d\x0a\x0d\x0a    \
+}\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00i\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Layouts\x0aItem {\x0a \
+   Layout.fillWi\
+dth: true\x0a    La\
+yout.fillHeight:\
+ true\x0a}\x0a\
+\x00\x00\x00_\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aMenuIte\
+m {\x0d\x0afont: fontC\
+onfig.menuFontIn\
+fo.font\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00>\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aScrollB\
+ar {\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x02^\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aItem{\x0d\x0a\
+    height: pare\
+nt.height\x0d\x0a    w\
+idth: height\x0d\x0a  \
+  id: root\x0d\x0a    \
+property string \
+toolText:\x22\x22\x0d\x0a   \
+ ToolTip.text: t\
+oolText\x0d\x0a    Too\
+lTip.visible: to\
+olText!=\x22\x22&&hove\
+red\x0d\x0a    propert\
+y alias hovered:\
+ itDe.hovered\x0d\x0a \
+   property alia\
+s source: icon.s\
+ource\x0d\x0a    signa\
+l clicked()\x0d\x0aIte\
+mDelegate{\x0d\x0a    \
+id:itDe\x0d\x0a    anc\
+hors.fill: paren\
+t\x0d\x0a    onClicked\
+: root.clicked()\
+\x0d\x0a}\x0d\x0aEffectImage\
+{\x0d\x0a    id:icon\x0d\x0a\
+    width: itDe.\
+hovered? parent.\
+width*0.9:parent\
+.width*0.7\x0d\x0a    \
+Behavior on widt\
+h {NumberAnimati\
+on{duration: 300\
+}}\x0d\x0a    height: \
+width\x0d\x0a    ancho\
+rs.centerIn: par\
+ent\x0d\x0a}\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x01\x1f\
+/\
+* \xe5\xa4\x96 \xe9\x98\xb4\xe5\xbd\xb1 \xe5\x9f\xba\
+\xe7\xa1\x80\xe7\xb1\xbb \xe6\x96\xb9\xe4\xbe\xbf\xe7\xbb\x9f\
+\xe4\xb8\x80\xe9\x98\xb4\xe5\xbd\xb1\xe6\xa0\xb7\xe5\xbc\x8f\x0d\
+\x0a*/\x0d\x0aimport QtQu\
+ick\x0d\x0aimport QtQu\
+ick.Controls\x0d\x0aim\
+port QtQuick.Lay\
+outs\x0d\x0aimport Qt5\
+Compat.Graphical\
+Effects\x0d\x0a\x0d\x0aDropS\
+hadow{\x0d\x0a     vis\
+ible:true\x0d\x0a    h\
+orizontalOffset:\
+ 3\x0d\x0a     vertica\
+lOffset: 3\x0d\x0a    \
+ radius: 8.0\x0d\x0a  \
+   color: \x22#8000\
+0000\x22\x0d\x0a    }\x0d\x0a\
+\x00\x00\x01R\
+\x00\
+\x00\x04lx\xda}\x93Mn\x830\x10\x85\xf7H\xdc\
+\xc1\xe2\x00\xce\x9ee\xbb\xaa\xd4M\x94\x13\x18p\x22\x0b\
+\xe3A\xc6DM\xab\x9e\xa0\xcb\xde\xa3\x17\xa8\xaa^\xa6\
+]\xf7\x0a\xf5\x0f?6q\x8c\x90`\x1e\xef\xcd\x8c\xf4\
+\x99\xbf\xcfo\xd6\xf5 \x15\xda\xab\xfd\xc8\xea6\x0bK\
+|\x0fBI\xe0C\xf6\xa0h\x87^\xf2\x0c\xe9\x8b5\
+\xa5\x04P\xae\xe8%\xf4T\xaa\x0b\x22\x9c\x91\x01\xd5D\
+\xd1\x13\xc8K\x89\x06\xaa\x14\x9e\xcb\xa8\xf7\xa8\x9b\x97\x88\
+\x93\x0a\x9b\xb7\x8deP\x92\x89\x13\x12\xa4\xa3eQ\xb8\
+\x8f\x8f\xa4\xa2|ZbZD\xa7\xd7\xda\xb4\xc1G\xd2\
+1\xae\xe7\x17\xbf\x1fo?_\xefS\xf4u\xd3\xbe\x02\
+\xe0\xa8\xa5R\xe8!\xeb\x0exR\xe2\xebN\x8d\x17\xb3\
+\x13\xa2\xde\x0ax\xe39M\x19\xf51\xa5\x9f\xb5\xe7t\
+B\xd4;\x8a\x86J\xce\x04\xf5\xec\x8b\x16M\xf4\xc0\x84\
+:\xb0g?\xb1hy\xb6\xdb\xc52\xec\x89\xf2mf\
+\xd6\xa2S\xe0|\xb5\xd6,E\xfd\x86lKa\xf4\xd8\
+\xe3Es\x89\x83>;\x1a\xc3pG\x06\x1a\xf26\xa7\
+j\x15n\x102\xa73\xa0\x13\xf1.\xec\xad9\xe0~\
+\x93\xa7\xb5\xae,\x13<\xad\xd3g\x99\xe6i\xed\x1b\x96\
+i\x9e6q\xc52\xcd\xd3eB\x96I\x9e6\x10\xb2\
+L\xf3\xb4\x81\x0dK\xfd\xe7\xe9;\xcf\xfe\x01w\xf9u\
+\x95\
+\x00\x00\x00q\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Layouts\x0a// \xe5\xa1\xab\xe5\x85\
+\x85\x0d\x0aItem {\x0d\x0aLayou\
+t.fillWidth: tru\
+e\x0d\x0aLayout.fillHe\
+ight:true\x0d\x0a}\x0d\x0a\x0d\x0a\
+\
+\x00\x00\x00D\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aApplica\
+tionWindow {\x0d\x0a}\x0d\
+\x0a\x0d\x0a\
+\x00\x00\x03\x82\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+SelectRectangle{\
+\x0d\x0a// \xe5\x8c\xba\xe5\x9f\x9f\xe9\x80\x89\xe6\x8b\
+\xa9\xe7\x9a\x84\xe5\x9f\xba\xe7\xa1\x80\xe7\x9f\xa9\xe5\xbd\xa2\
+\x0d\x0aproperty real \
+startX: 0\x0d\x0aprope\
+rty real startY:\
+ 0\x0d\x0aproperty rea\
+l endX: 0\x0d\x0aprope\
+rty real endY: 0\
+\x0d\x0aproperty real \
+minX: Math.min(s\
+tartX,endX)\x0d\x0apro\
+perty real maxX:\
+ Math.max(startX\
+,endX)\x0d\x0aproperty\
+ real minY:Math.\
+min(startY,endY)\
+\x0d\x0aproperty real \
+maxY: Math.max(s\
+tartY,endY)\x0d\x0awid\
+th: Math.abs( en\
+dX-startX)\x0d\x0ax:Ma\
+th.min(startX,en\
+dX)\x0d\x0aheight:Math\
+.abs( endY-start\
+Y)\x0d\x0ay:Math.min(s\
+tartY,endY)\x0d\x0a//p\
+roperty real abs\
+X: endX-startX\x0d\x0a\
+//property real \
+absY: endY-start\
+Y\x0d\x0a//function re\
+freshX (){\x0d\x0a//wi\
+dth= Math.abs( e\
+ndX-startX)\x0d\x0a//x\
+=Math.min(startX\
+,endX)\x0d\x0a//}\x0d\x0a//f\
+unction refreshY\
+ (){\x0d\x0a//    heig\
+ht= Math.abs( en\
+dY-startY)\x0d\x0a//  \
+  y=Math.min(sta\
+rtY,endY)\x0d\x0a//}\x0d\x0a\
+//onEndXChanged:\
+ refreshX()\x0d\x0a//o\
+nEndYChanged: re\
+freshY()\x0d\x0a}\x0d\x0a\x0d\x0a/\
+*##^##\x0d\x0aDesigner\
+ {\x0d\x0a    D{i:0;au\
+toSize:true;heig\
+ht:480;width:640\
+}\x0d\x0a}\x0d\x0a##^##*/\x0d\x0a\x0d\
+\x0a\
+\x00\x00\x00`\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aRectangle{\x0d\x0abor\
+der.width: 1\x0d\x0abo\
+rder.color: \x22#00\
+78D7\x22\x0d\x0acolor:\x22#4\
+30078D7\x22\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x01u\
+\x00\
+\x00\x05\xd4x\xda\xe5\x93\xbfN\xc30\x10\xc6\xf7H}\
+\x07\xab\x130\xa4\x056/\xa8\x94\x85\x81\xa1\xf0\x00\x95\
+\x9b\x5c\x13\x0b\xc7\x17]\xaeE\x10\xf5\xc9\x18x$^\
+\x01'N\x9a\xfeE\x95`\x82$\x8a\xee\xb3\xef|\xfe\
+~N>\xdf?t\x96#\xb1\x98\xf0d\xa1\xa3\xe7`\
+[\x86c\xb4Lh\x8a\xf0A1\x90V\xe6XBp\
+\xcf\x90\x95\xbd@\xd9(E*\xc2\xb96F\x8a\x5c\x11\
+X\xee\x05\xc2]:\x96\x84\xd8\x88\x9c0\x07\xe2W\x11\
+\xa1A\x123\xa4xZ\x87\xb2O\x10\xf7\x07\x03qW\
+\xcb\x90\x94\x8d\xc7Utv\xbeSI\xa0\x8c\xd0\xae\xeb\
+\xf4E\xc7\x9cJq\xb5\x930C4\x82\x16V\xdbD\
+\x8a\xb92\x05\x1cZ!^\x90b\x8dV\x8a\xeb\xe1\xf0\
+P\x82\x01\x9bp:-\x22e@\x8a\xcb\xb0Iz\x84\
+\x88\x95M\x0c\x94^WWk\x9e1o\xbdWq\x97\
+\x90\x82NR\x96\x1b\xdb\xee\xe6\xbc\xfd\x0d\x14\xddTc\
+\xd0{\xb9i\x16\xae\x07/\xb6v7\xecJn!U\
+K\xed\xd0\xa2\xf5\xe5\xa2|\xca\x1c\xfe\x14\xe2\x91\xd5Y\
+m\xb9\xec\xbcW'\x13\xb6r\xb5\xda\xb7\xe4^\xfa\xcd\
+\x9d\xb52c\xd7\x1ch\xedow\xc2\x97\xae\x8eC\xfa\
+\xc6g\xdbl\x86\xcc\x98\xad[xy\x1a\xc5\xff\x86\xca\
+\xc0\x9c\xd7\x0d*\xb1\x87\xe2\x10\xa5\x86`C\xa9v\xe4\
+\x87N\x82\xe4S\x7fHi\xe9\xfe0\x1d\xed1\xda\x1e\
+\xfe\x0dB\xe4?\x96zCu\xfc7\x09\xb9\xc7\xdf_\
+r\x11\xe3\xf5\
+\x00\x00\x00=\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Layouts\x0aRowLayou\
+t {\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00c\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aItemDel\
+egate {\x0d\x0afont: f\
+ontConfig.baseFo\
+ntInfo.font\x0d\x0a}\x0d\x0a\
+\x0d\x0a\
+\x00\x00\x009\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols\x0d\x0a\x0d\x0a\x0d\x0aLabe\
+l {\x0d\x0a}\x0d\x0a\
+\x00\x00\x0c\x8e\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+import QtGraphic\
+alEffects\x0aimport\
+ QtQuick.Control\
+s.impl\x0aimport Qt\
+Quick.Controls.M\
+aterial\x0aimport Q\
+tQuick.Controls.\
+Material.impl\x0aim\
+port \x22../Label\x22\x0d\
+\x0aRectangle{\x0d\x0a   \
+ id:root\x0d\x0a    he\
+ight: 30\x0d\x0a    ra\
+dius: height/2\x0d\x0a\
+    width: maxWi\
+dth!=-1? lab.con\
+tentWidth+leftPa\
+dding+rightPaddi\
+ng:maxWidth\x0d\x0a   \
+ property real r\
+ightPadding: 10\x0d\
+\x0a    property re\
+al leftPadding: \
+10\x0d\x0a    property\
+ bool dragable :\
+ true//\xe5\x8f\xaf\xe6\x8b\x96\xe6\x8b\xbd\
+\xef\xbc\x9f\x0d\x0a    propert\
+y string text: \x22\
+\x22\x0d\x0a    property \
+alias _text_: la\
+b.text\x0d\x0a    prop\
+erty real maxWid\
+th: 150\x0d\x0a    pro\
+perty alias font\
+: lab.font\x0d\x0a    \
+property alias f\
+ontColor: lab.co\
+lor\x0d\x0a    propert\
+y bool checked: \
+false\x0d\x0a    prope\
+rty alias hovere\
+d:  mourse.conta\
+insMouse\x0d\x0a    pr\
+operty alias con\
+tainsMouse: mour\
+se.containsMouse\
+\x0d\x0a    property a\
+lias lab_rotatio\
+n: lab.rotation\x0d\
+\x0a    property al\
+ias label: textM\
+etrics\x0d\x0a    prop\
+erty bool effect\
+: true // \xe5\xa4\x96\xe9\x98\xb4\
+\xe5\xbd\xb1\x0d\x0a    propert\
+y alias pressed_\
+: mourse.pressed\
+\x0d\x0a    property a\
+lias hoverEnable\
+d: mourse.hoverE\
+nabled\x0d\x0a    prop\
+erty bool enable\
+d:true\x0d\x0a    prop\
+erty alias accep\
+tedButtons: mour\
+se.acceptedButto\
+ns\x0d\x0a    signal c\
+licked(var mouse\
+)\x0d\x0a    signal cl\
+ick(var mouse)\x0d\x0a\
+    signal cance\
+led()\x0d\x0a    signa\
+l doubleClicked(\
+var mouse)\x0d\x0a    \
+signal entered()\
+\x0d\x0a    signal exi\
+ted()\x0d\x0a    signa\
+l pressed(var mo\
+use)\x0d\x0a    signal\
+ released(var mo\
+use)\x0d\x0a    signal\
+ positionChanged\
+(var mouse)\x0d\x0a   \
+ Rectangle{\x0d\x0a   \
+     color:!root\
+.enabled?\x22transp\
+arent\x22:mourse.co\
+ntainsMouse ? Ma\
+terial.listHighl\
+ightColor :\x22tran\
+sparent\x22\x0d\x0a      \
+  Behavior on co\
+lor {ColorAnimat\
+ion{duration: 40\
+0}}\x0d\x0a        anc\
+hors.fill: paren\
+t\x0d\x0a        radiu\
+s: root.radius\x0d\x0a\
+        clip: tr\
+ue\x0d\x0a        id:b\
+g\x0d\x0a        Rippl\
+e {\x0d\x0a           \
+ clipRadius: roo\
+t.radius\x0d\x0a      \
+      id:rip\x0d\x0a  \
+          width:\
+ parent.width\x0d\x0a \
+           heigh\
+t: parent.height\
+\x0d\x0a            cl\
+ip: visible\x0d\x0a   \
+         pressed\
+: mourse.pressed\
+|checked\x0d\x0a      \
+      anchor: bg\
+\x0d\x0a            ac\
+tive:mourse.pres\
+sed|checked\x0d\x0a   \
+         color: \
+Material.rippleC\
+olor\x0d\x0a        }\x0d\
+\x0a        TextMet\
+rics{\x0d\x0a         \
+   id: textMetri\
+cs\x0d\x0a            \
+font:lab.font\x0d\x0a \
+           elide\
+: Text.ElideRigh\
+t\x0d\x0a            e\
+lideWidth: maxWi\
+dth-rightPadding\
+-leftPadding\x0d\x0a  \
+          text:r\
+oot.text\x0d\x0a      \
+  }\x0d\x0a        Bas\
+eLabel{\x0d\x0a       \
+     id:lab\x0d\x0a   \
+         text: t\
+extMetrics.elide\
+dText\x0d\x0a         \
+   color: root.e\
+nabled ? root.Ma\
+terial.foregroun\
+d : root.Materia\
+l.hintTextColor\x0d\
+\x0a            anc\
+hors.horizontalC\
+enterOffset: roo\
+t.leftPadding-ro\
+ot.rightPadding\x0d\
+\x0a            anc\
+hors.centerIn: p\
+arent\x0d\x0a         \
+   Behavior on c\
+olor {\x0d\x0a        \
+        ColorAni\
+mation {\x0d\x0a      \
+              du\
+ration: 300\x0d\x0a   \
+             }}\x0d\
+\x0a        }\x0d\x0a    \
+    MouseArea{\x0d\x0a\
+            anch\
+ors.fill: parent\
+\x0d\x0a            ho\
+verEnabled: enab\
+led\x0d\x0a           \
+ enabled: root.e\
+nabled\x0d\x0a        \
+   onPressed:roo\
+t.pressed(mouse)\
+\x0d\x0a           onR\
+eleased:root.rel\
+eased(mouse)\x0d\x0a  \
+          id:mou\
+rse\x0d\x0a           \
+ onClicked:{ roo\
+t.clicked(mouse)\
+;root.click(mous\
+e)}\x0d\x0a           \
+ onCanceled: roo\
+t.canceled()\x0d\x0a  \
+          onDoub\
+leClicked: root.\
+doubleClicked(mo\
+use)\x0d\x0a          \
+  onPositionChan\
+ged:root.positio\
+nChanged(mouse)\x0d\
+\x0a        }\x0d\x0a    \
+}\x0d\x0a    layer.ena\
+bled: true\x0d\x0a    \
+layer.effect: Dr\
+opShadowBase{\x0d\x0a \
+       visible: \
+effect\x0d\x0a        \
+enabled: effect\x0d\
+\x0a    }\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\x87\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aRadioDe\
+legate {\x0d\x0alayer.\
+enabled: true\x0d\x0ah\
+eight: 30\x0d\x0alayer\
+.effect: DropSha\
+dowBase{\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\
+\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x02p\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aDateTime{\x0d\x0a    \
+//   \xe5\x88\xb7\xe6\x96\xb0 \xe6\x97\xb6\xe9\
+\x97\xb4\x0d\x0a        prop\
+erty alias inter\
+val: timer.inter\
+val\x0d\x0a    Timer{\x0d\
+\x0a        id:time\
+r\x0d\x0a        trigg\
+eredOnStart:true\
+\x0d\x0a        repeat\
+: true\x0d\x0a        \
+running: true\x0d\x0a \
+       interval:\
+ 1000\x0d\x0a        o\
+nTriggered: {\x0d\x0a \
+           let n\
+owDate= new Date\
+()\x0d\x0a            \
+fullYear=nowDate\
+.getFullYear()\x0d\x0a\
+            year\
+=fullYear%100\x0d\x0a \
+           month\
+=nowDate.getMont\
+h()+1\x0d\x0a         \
+   day=nowDate.g\
+etDate()\x0d\x0a      \
+      week=nowDa\
+te.getDay()\x0d\x0a   \
+         hours=n\
+owDate.getHours(\
+)\x0d\x0a            m\
+inutes=nowDate.g\
+etMinutes()\x0d\x0a   \
+         second=\
+nowDate.getSecon\
+ds()\x0d\x0a        }\x0d\
+\x0a\x0d\x0a    }\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xfc\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aRectang\
+le{\x0d\x0a    layer.e\
+ffect: DropShado\
+wBase{\x0d\x0a        \
+horizontalOffset\
+: 5\x0d\x0a        ver\
+ticalOffset: 5\x0d\x0a\
+        radius: \
+8.0\x0d\x0a        sam\
+ples: 17\x0d\x0a      \
+  color: \x22#52000\
+000\x22\x0d\x0a    }\x0d\x0a   \
+ layer.enabled: \
+true\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x09\xd5\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aItemDelegateBas\
+e {\x0d\x0a    id: roo\
+t\x0d\x0a    property \
+Item homeTarget:\
+parent\x0d\x0a    prop\
+erty Item dropIt\
+em\x0d\x0a    property\
+ int elementInde\
+x: index\x0d\x0a    pr\
+operty string th\
+eName\x0d\x0a    prope\
+rty int numer\x0d\x0a \
+   property alia\
+s dropArea: drop\
+Area\x0d\x0a    proper\
+ty alias active \
+: dragHandler.ac\
+tive\x0d\x0a    width:\
+ dragRectangle.w\
+idth\x0d\x0a    height\
+: dragRectangle.\
+height\x0d\x0a    prop\
+erty bool is_gri\
+d: false\x0d\x0a\x0d\x0a    \
+property bool yA\
+xis_enabled: is_\
+grid?true:!orien\
+tation\x0d\x0a    prop\
+erty bool xAxis_\
+enabled: is_grid\
+?true:orientatio\
+n\x0d\x0a    signal re\
+order(int to, in\
+t from)\x0d\x0a    Ite\
+m{\x0d\x0a        id: \
+dragRectangle\x0d\x0a \
+       anchors.t\
+op: parent.top\x0d\x0a\
+        anchors.\
+left: parent.lef\
+t\x0d\x0a        Drag.\
+source:root\x0d\x0a   \
+     Drag.active\
+: dragHandler.ac\
+tive\x0d\x0a        Dr\
+ag.imageSource: \
+\x22\x22\x0d\x0a    DragHand\
+ler{\x0d\x0a        id\
+:dragHandler\x0d\x0a  \
+  yAxis.enabled:\
+ yAxis_enabled\x0d\x0a\
+    xAxis.enable\
+d: xAxis_enabled\
+\x0d\x0a    }\x0d\x0a    Com\
+ponent.onComplet\
+ed: {\x0d\x0a        d\
+ropItem.parent=d\
+ragRectangle\x0d\x0a  \
+      dragRectan\
+gle.width=dropIt\
+em.width\x0d\x0a      \
+  dragRectangle.\
+height=dropItem.\
+height\x0d\x0a        \
+dragRectangle.wi\
+dth=Qt.binding((\
+)=>dropItem.widt\
+h)\x0d\x0a        drag\
+Rectangle.height\
+=Qt.binding(()=>\
+dropItem.height)\
+\x0d\x0a    }\x0d\x0a    }\x0d\x0a\
+    Item{\x0d\x0a     \
+   x: width * - \
+0.5\x0d\x0a        y: \
+height * - 0.5\x0d\x0a\
+                \
+anchors.fill: ro\
+ot\x0d\x0a//          \
+      color: \x22re\
+d\x22\x0d\x0a    DropArea\
+ {\x0d\x0a        x: w\
+idth * - 0.5\x0d\x0a  \
+      y: height \
+* - 0.5\x0d\x0a       \
+ id: dropArea\x0d\x0a \
+       width: pa\
+rent.width\x0d\x0a    \
+    height: pare\
+nt.height\x0d\x0a     \
+   property real\
+ drag_x: 0\x0d\x0a    \
+    property rea\
+l drag_y: 0\x0d\x0a   \
+     onEntered: \
+{\x0d\x0a            i\
+f (drag.source.e\
+lementIndex !== \
+elementIndex) {\x0d\
+\x0a               \
+ root.reorder(dr\
+ag.source.elemen\
+tIndex, elementI\
+ndex)\x0d\x0a         \
+       drag.acce\
+pt(Qt.MoveAction\
+)\x0d\x0a            }\
+\x0d\x0a        }\x0d\x0a// \
+       onDropped\
+: {\x0d\x0a//         \
+   if (drag.sour\
+ce.elementIndex \
+!== elementIndex\
+) {\x0d\x0a//         \
+       root.reor\
+der(drag.source.\
+elementIndex, el\
+ementIndex)\x0d\x0a// \
+               d\
+rag.accept(Qt.Mo\
+veAction)\x0d\x0a//   \
+         }\x0d\x0a//  \
+      }\x0d\x0a    }\x0d\x0a\
+    }\x0d\x0a    state\
+s: [\x0d\x0a        St\
+ate {\x0d\x0a         \
+   name: \x22draggi\
+ng\x22\x0d\x0a           \
+ when: dragHandl\
+er.active\x0d\x0a     \
+       ParentCha\
+nge { target: dr\
+agRectangle; par\
+ent: root.homeTa\
+rget }\x0d\x0a        \
+    AnchorChange\
+s { target: drag\
+Rectangle; ancho\
+rs.top: undefine\
+d; anchors.right\
+: undefined; anc\
+hors.bottom: und\
+efined; anchors.\
+left: undefined \
+}\x0d\x0a        }\x0d\x0a  \
+  ]\x0d\x0a    transit\
+ions: [\x0d\x0a       \
+ Transition {\x0d\x0a \
+           from:\
+ \x22dragging\x22\x0d\x0a   \
+         to: \x22*\x22\
+\x0d\x0aAnchorAnimatio\
+n{duration: 20;e\
+asing.type: Easi\
+ng.OutBack}\x0d\x0a   \
+     }\x0d\x0a    ]\x0d\x0a}\
+\x0d\x0a\x0d\x0a\
+\x00\x00\x0d\x8f\
+\xef\
+\xbb\xbf/*************\
+****************\
+****************\
+****************\
+***************\x0d\
+\x0a**\x0d\x0a** Copyrigh\
+t (C) 2018 The Q\
+t Company Ltd.\x0d\x0a\
+** Contact: http\
+://www.qt.io/lic\
+ensing/\x0d\x0a**\x0d\x0a** \
+This file is par\
+t of the Qt Quic\
+k Controls 2 mod\
+ule of the Qt To\
+olkit.\x0d\x0a**\x0d\x0a** $\
+QT_BEGIN_LICENSE\
+:LGPL3$\x0d\x0a** Comm\
+ercial License U\
+sage\x0d\x0a** License\
+es holding valid\
+ commercial Qt l\
+icenses may use \
+this file in\x0d\x0a**\
+ accordance with\
+ the commercial \
+license agreemen\
+t provided with \
+the\x0d\x0a** Software\
+ or, alternative\
+ly, in accordanc\
+e with the terms\
+ contained in\x0d\x0a*\
+* a written agre\
+ement between yo\
+u and The Qt Com\
+pany. For licens\
+ing terms\x0d\x0a** an\
+d conditions see\
+ http://www.qt.i\
+o/terms-conditio\
+ns. For further\x0d\
+\x0a** information \
+use the contact \
+form at http://w\
+ww.qt.io/contact\
+-us.\x0d\x0a**\x0d\x0a** GNU\
+ Lesser General \
+Public License U\
+sage\x0d\x0a** Alterna\
+tively, this fil\
+e may be used un\
+der the terms of\
+ the GNU Lesser\x0d\
+\x0a** General Publ\
+ic License versi\
+on 3 as publishe\
+d by the Free So\
+ftware\x0d\x0a** Found\
+ation and appear\
+ing in the file \
+LICENSE.LGPLv3 i\
+ncluded in the\x0d\x0a\
+** packaging of \
+this file. Pleas\
+e review the fol\
+lowing informati\
+on to\x0d\x0a** ensure\
+ the GNU Lesser \
+General Public L\
+icense version 3\
+ requirements\x0d\x0a*\
+* will be met: h\
+ttps://www.gnu.o\
+rg/licenses/lgpl\
+.html.\x0d\x0a**\x0d\x0a** G\
+NU General Publi\
+c License Usage\x0d\
+\x0a** Alternativel\
+y, this file may\
+ be used under t\
+he terms of the \
+GNU\x0d\x0a** General \
+Public License v\
+ersion 2.0 or la\
+ter as published\
+ by the Free\x0d\x0a**\
+ Software Founda\
+tion and appeari\
+ng in the file L\
+ICENSE.GPL inclu\
+ded in\x0d\x0a** the p\
+ackaging of this\
+ file. Please re\
+view the followi\
+ng information t\
+o\x0d\x0a** ensure the\
+ GNU General Pub\
+lic License vers\
+ion 2.0 requirem\
+ents will be\x0d\x0a**\
+ met: http://www\
+.gnu.org/license\
+s/gpl-2.0.html.\x0d\
+\x0a**\x0d\x0a** $QT_END_\
+LICENSE$\x0d\x0a**\x0d\x0a**\
+****************\
+****************\
+****************\
+****************\
+**********/\x0d\x0aimp\
+ort QtQuick\x0aimpo\
+rt QtQuick.Templ\
+ates as T\x0aimport\
+ QtQuick.Control\
+s\x0aimport QtQuick\
+.Controls.impl\x0ai\
+mport QtQuick.Co\
+ntrols.Material\x0a\
+T.SplitView {\x0d\x0a \
+   id: control\x0d\x0a\
+    implicitWidt\
+h: Math.max(impl\
+icitBackgroundWi\
+dth + leftInset \
++ rightInset,\x0d\x0a \
+                \
+           impli\
+citContentWidth \
++ leftPadding + \
+rightPadding)\x0d\x0a \
+   implicitHeigh\
+t: Math.max(impl\
+icitBackgroundHe\
+ight + topInset \
++ bottomInset,\x0d\x0a\
+                \
+             imp\
+licitContentHeig\
+ht + topPadding \
++ bottomPadding)\
+\x0d\x0a\x0d\x0a    handle: \
+Rectangle {\x0d\x0a   \
+     implicitWid\
+th: control.orie\
+ntation === Qt.H\
+orizontal ? 6 : \
+control.width\x0d\x0a \
+       implicitH\
+eight: control.o\
+rientation === Q\
+t.Horizontal ? c\
+ontrol.height : \
+6\x0d\x0a//        col\
+or: \x22#00000000\x22\x0d\
+\x0a        Rectang\
+le{\x0d\x0a        anc\
+hors.fill: paren\
+t\x0d\x0a//        col\
+or: \x22#82eeeeee\x22\x0d\
+\x0a        layer.e\
+ffect: DropShado\
+wBase{\x0d\x0a        \
+    horizontalOf\
+fset: 3\x0d\x0a       \
+     verticalOff\
+set: 2\x0d\x0a        \
+}\x0d\x0a        layer\
+.enabled: true\x0d\x0a\
+\x0d\x0a        }\x0d\x0a   \
+     Rectangle {\
+\x0d\x0a            co\
+lor: control.Mat\
+erial.secondaryT\
+extColor\x0d\x0a      \
+      width: con\
+trol.orientation\
+ === Qt.Horizont\
+al ? thickness :\
+ length\x0d\x0a       \
+     height: con\
+trol.orientation\
+ === Qt.Horizont\
+al ? length : th\
+ickness\x0d\x0a       \
+     radius: thi\
+ckness\x0d\x0a        \
+    x: (parent.w\
+idth - width) / \
+2\x0d\x0a            y\
+: (parent.height\
+ - height) / 2\x0d\x0a\
+\x0d\x0a            pr\
+operty int lengt\
+h: parent.T.Spli\
+tHandle.pressed \
+? 3 : 8\x0d\x0a       \
+     readonly pr\
+operty int thick\
+ness: parent.T.S\
+plitHandle.press\
+ed ? 3 : 1\x0d\x0a\x0d\x0a  \
+          Behavi\
+or on length {\x0d\x0a\
+                \
+NumberAnimation \
+{\x0d\x0a             \
+       duration:\
+ 100\x0d\x0a          \
+      }\x0d\x0a       \
+     }\x0d\x0a        \
+    layer.enable\
+d: true\x0d\x0a       \
+     layer.effec\
+t: DropShadowBas\
+e{}\x0d\x0a        }\x0d\x0a\
+    }\x0d\x0a}\x0d\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x00u\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aRectang\
+le {\x0d\x0alayer.enab\
+led: true\x0d\x0alayer\
+.effect: DropSha\
+dowBase{\x0d\x0a\x0d\x0a}\x0d\x0a}\
+\x0d\x0a\x0d\x0a\
+\x00\x00\x01\xfb\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols\x0d\x0aimport Q\
+tQuick.Layouts\x0d\x0a\
+\x0d\x0aBaseImage{\x0d\x0a  \
+  id:root\x0d\x0a    l\
+ayer.enabled: tr\
+ue\x0d\x0a    property\
+ bool effect: tr\
+ue\x0d\x0a    property\
+ real horizontal\
+Offset: 5\x0d\x0a    p\
+roperty real ver\
+ticalOffset: 5\x0d\x0a\
+    fillMode: Im\
+age.PreserveAspe\
+ctFit\x0d\x0a    layer\
+.effect: DropSha\
+dowBase{\x0d\x0a      \
+  id:drapShadow\x0d\
+\x0a        horizon\
+talOffset:root.h\
+orizontalOffset\x0d\
+\x0a        vertica\
+lOffset:root.ver\
+ticalOffset\x0d\x0a   \
+     visible: ef\
+fect\x0d\x0a    }\x0d\x0a   \
+ Behavior on sca\
+le {SmoothedAnim\
+ation{duration: \
+300}}\x0d\x0a}\x0d\x0a\
+\x00\x00\x00m\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aFlickab\
+leBase {\x0d\x0a\x0d\x0a\x0d\x0a  \
+  ScrollBar.vert\
+ical: ScrollBarB\
+ase{}\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00z\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aTabBar \
+{\x0d\x0alayer.enabled\
+: true\x0d\x0aheight: \
+25\x0d\x0alayer.effect\
+: DropShadowBase\
+{}\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00#\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aImage{\x0d\x0a\x0d\x0a\x0d\x0a}\x0d\x0a\
+\x0d\x0a\
+\x00\x00\x00\xa9\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aCheckDe\
+legate{\x0d\x0a      f\
+ont:fontConfig.b\
+aseFontInfo.font\
+\x0d\x0a      layer.en\
+abled: true\x0d\x0a   \
+   layer.effect:\
+ DropShadowBase{\
+}\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00>\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aFlickab\
+le {\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x03E\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Layouts\x0aimport \x22\
+../Label\x22\x0d\x0aimpor\
+t \x22../Buttons\x22\x0d\x0a\
+\x0d\x0aColumn {\x0d\x0a    \
+width: parent.wi\
+dth\x0d\x0a    id:root\
+\x0d\x0a    spacing: 1\
+5\x0d\x0a    property \
+alias title: tit\
+leL.text\x0d\x0a    si\
+gnal close\x0d\x0a    \
+RowLayout{\x0d\x0a    \
+width: parent.wi\
+dth\x0d\x0a        Ite\
+m{\x0d\x0a        Layo\
+ut.fillWidth: tr\
+ue\x0d\x0a        heig\
+ht: 1\x0d\x0a        }\
+\x0d\x0a    TitleLabel\
+{\x0d\x0a        id:ti\
+tleL\x0d\x0a        La\
+yout.alignment: \
+Qt.AlignHCenter\x0d\
+\x0a        text: q\
+sTr(\x22\xe8\xae\xbe\xe7\xbd\xae\x22)\x0d\x0a \
+       font.bold\
+: true\x0d\x0a    }\x0d\x0a \
+   Item{\x0d\x0a    La\
+yout.fillWidth: \
+true\x0d\x0a    height\
+: 1\x0d\x0a    }\x0d\x0a    \
+Item{\x0d\x0a        w\
+idth: height\x0d\x0a  \
+      height: 50\
+\x0d\x0a    CloseButto\
+n{\x0d\x0a        onCl\
+icked: root.clos\
+e()\x0d\x0a    }\x0d\x0a    \
+}\x0d\x0a}\x0d\x0a    EfRect\
+angle{\x0d\x0a        \
+width:root.paren\
+t.visible?root.p\
+arent.width-40:0\
+\x0d\x0a        height\
+: 3\x0d\x0a        col\
+or: \x22teal\x22\x0d\x0a    \
+    Behavior on \
+width {NumberAni\
+mation{duration:\
+ 600}}\x0d\x0a    }\x0d\x0a}\
+\x0d\x0a\x0d\x0a\
+\x00\x00\x00<\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aSpinBox\
+ {\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x01\x13\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Controls\
+.Material\x0aButton\
+{\x0d\x0ahighlighted: \
+true\x0d\x0a//Material\
+.background: Mat\
+erial.Teal\x0d\x0a//ic\
+on.source: \x22qrc:\
+///qml/resource/\
+icon/export.png\x22\
+\x0d\x0a//font.bold: t\
+rue\x0d\x0a//font.poin\
+tSize: 13\x0d\x0afont:\
+fontConfig.butto\
+nLabel.font\x0d\x0a}\x0d\x0a\
+\x0d\x0a\
+\x00\x00\x00]\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aMouseArea {\x0d\x0aan\
+chors.fill: pare\
+nt\x0d\x0aacceptedButt\
+ons: Qt.RightBut\
+ton\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x03a\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport DPlugs a\
+s DP\x0aItem{\x0d\x0a    \
+id:root\x0d\x0a    pro\
+perty alias inte\
+rval: t_d.interv\
+al\x0d\x0a    property\
+ alias repeat: t\
+_d.repeat\x0d\x0a    p\
+roperty alias ur\
+l: t_d.url\x0d\x0a    \
+signal started()\
+\x0d\x0a    signal fin\
+ished(var api_da\
+ta)\x0d\x0a    functio\
+n start(){\x0d\x0a    \
+return t_d.start\
+()\x0d\x0a    }\x0d\x0a    f\
+unction quit(){\x0d\
+\x0a    return t_d.\
+quit()\x0d\x0a    }\x0d\x0a \
+   property bool\
+ runing: false\x0d\x0a\
+    onRuningChan\
+ged: {\x0d\x0a        \
+if(runing)\x0d\x0a    \
+    {\x0d\x0a         \
+   start()\x0d\x0a    \
+    }\x0d\x0a        e\
+lse{\x0d\x0a          \
+  quit()\x0d\x0a      \
+  }\x0d\x0a    }\x0d\x0a    \
+function restart\
+(){\x0d\x0a    return \
+t_d.restart()\x0d\x0a \
+   }\x0d\x0a    DP.Api\
+ThreadGet{\x0d\x0a    \
+    id:t_d\x0d\x0a    \
+    interval:100\
+00\x0d\x0a        repe\
+at:false\x0d\x0a      \
+  onStarted:{\x0d\x0a \
+           root.\
+started()\x0d\x0a     \
+   }\x0d\x0a\x0d\x0a}\x0d\x0a    C\
+onnections{\x0d\x0a   \
+     target: t_d\
+\x0d\x0a        functi\
+on onFinish(data\
+){// \xe6\x89\xa7\xe8\xa1\x8c\xe5\xae\x8c\xe6\x88\
+\x90\x0d\x0a             \
+   finished(data\
+)\x0d\x0a        }\x0d\x0a  \
+  }\x0d\x0a    }\x0d\x0a\x0d\x0a\x0d\x0a\
+\
+\x00\x00\x00\xdb\
+\xef\
+\xbb\xbf/*\x0d\x0a\xe4\xbf\x9d\xe6\x8c\x81\xe7\x8a\xb6\xe6\
+\x80\x81\xe4\xbf\xa1\xe6\x81\xaf\x0d\x0a*/\x0d\x0aim\
+port Qt.labs.set\
+tings\x0a//  \xe4\xbf\x9d\xe5\xad\x98\
+\xe6\x9c\xac\xe5\x9c\xb0\xe6\x95\xb0\xe6\x8d\xae\xe7\x9a\x84\xe5\
+\x9f\xba\xe6\x9c\xac\xe7\xb1\xbb\x0d\x0aSettin\
+gs{\x0d\x0a    fileNam\
+e:rootConfig.set\
+tingFile//\x22State\
+.ini\x22 //Qt.resol\
+vedUrl(\x22../confi\
+g/status.ini\x22)\x0d\x0a\
+    category:\x22Ba\
+se\x22\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00u\
+i\
+mport QtQuick\x0d\x0ai\
+mport \x22../Base\x22\x0d\
+\x0a\x0d\x0aBaseBaseLabel\
+ {\x0d\x0a    layer.ef\
+fect: DropShadow\
+Base{}\x0d\x0a    laye\
+r.enabled: true\x0d\
+\x0a}\x0d\x0a\
+\x00\x00\x00\xe7\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+Popup {\x0d\x0a    pro\
+perty string vie\
+wName:\x22\x22\x0d\x0a    sp\
+acing: 0\x0d\x0a    pa\
+dding: 0\x0d\x0a    Co\
+mponent.onComple\
+ted: {\x0d\x0a    if(v\
+iewName)\x0d\x0a      \
+  runTime[viewNa\
+me]=this\x0d\x0a    }\x0d\
+\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xfa\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aItem{\x0d\x0a    // \xe6\
+\x97\xa5\xe6\x9c\x9f \xe6\x97\xb6\xe9\x97\xb4\x0d\x0a  \
+  property int f\
+ullYear\x0d\x0a    pro\
+perty int year\x0d\x0a\
+    property int\
+ month\x0d\x0a    prop\
+erty int week\x0d\x0a \
+   property int \
+day\x0d\x0a\x0d\x0a    prope\
+rty int hours\x0d\x0a \
+   property int \
+minutes\x0d\x0a    pro\
+perty int second\
+\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x03D\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aItem {\x0d\x0a\x0d\x0a    e\
+num Enum_ViewMod\
+el{\x0d\x0a    SearchM\
+odel=0,  // \xe6\x9f\xa5\xe8\
+\xaf\xa2\xe6\xa8\xa1\xe5\xbc\x8f\x0d\x0a    De\
+fectModel=1,  //\
+ \xe7\xbc\xba\xe9\x99\xb7\xe6\xa8\xa1\xe5\xbc\x8f \xe8\xb7\
+\xaf\xe5\xbe\x84\xe6\xa8\xa1\xe5\xbc\x8f\x0d\x0a    \
+CimgModel=2  ,  \
+ // \xe5\x9b\xbe\xe5\x83\x8f\xe6\xa8\xa1\xe5\xbc\x8f\
+ \xe8\xb7\xaf\xe5\xbe\x84\xe6\xa8\xa1\xe5\xbc\x8f\x0d\x0a \
+   RealTimeDefec\
+tModel=3, // \xe5\xae\x9e\
+\xe6\x97\xb6\xe7\xbc\xba\xe9\x99\xb7\xe6\xa8\xa1\xe5\xbc\x8f\x0d\
+\x0a    RealTimeSte\
+elModel=4  //  \xe9\
+\x92\xa2\xe6\x9d\xbf \xe5\xae\x9e\xe6\x97\xb6\xe6\xa8\xa1\xe5\
+\xbc\x8f\x0d\x0a        /*\x0d\x0a\
+        \xe5\x9b\xbe\xe5\x83\x8f\xe6\xa8\
+\xa1\xe5\xbc\x8f\xe4\xbb\xa5 seqNo \xe4\xb8\
+\xba\xe5\x9f\xba\xe7\xa1\x80\x0d\x0a    */\x0d\
+\x0a    }\x0d\x0a    enum\
+ PlayModel{//\xe6\x9f\xa5\
+\xe7\x9c\x8b\xe6\xa8\xa1\xe5\xbc\x8f\x0d\x0a    B\
+aseModel=0,    /\
+/ \xe4\xba\xba\xe5\xb7\xa5\xe6\x9f\xa5\xe7\x9c\x8b\xe6\xa8\
+\xa1\xe5\xbc\x8f\x0d\x0a    AutoMo\
+del=1,    // \xe6\x96\xb0\
+\xe9\x92\xa2\xe6\x9d\xbf\xe6\xa8\xa1\xe5\xbc\x8f\x0d\x0a  \
+  RealTimeModel=\
+2 // \xe8\x87\xaa\xe5\x8a\xa8\xe9\x98\x85\xe8\xaf\
+\xbb\xe6\xa8\xa1\xe5\xbc\x8f\x0d\x0a    }\x0d\x0a\
+    enum MainVie\
+wModel{\x0d\x0a    Bas\
+eModel=0,\x0d\x0a    S\
+electDefectModel\
+=1,\x0d\x0a    ZoomInM\
+odel=2,\x0d\x0a    Ite\
+mMoveModel=3,\x0d\x0a \
+   ClassiflyMode\
+l=4\x0d\x0a    }\x0d\x0a    \
+enum AppViewMode\
+l{//\xe7\xaa\x97\xe5\x8f\xa3\xe6\xa8\xa1\xe5\xbc\x8f\
+\x0d\x0a        BaseMo\
+del=0\x0d\x0a    }\x0d\x0a\x0d\x0a\
+    enum JoinMod\
+el{//\xe5\x9b\xbe\xe5\x83\x8f\xe7\x9a\x84\xe6\x8b\
+\xbc\xe6\x8e\xa5\xe6\xa8\xa1\xe5\xbc\x8f\x0d\x0a    \
+    UserModel=0,\
+\x0d\x0a        AutoMo\
+del=1\x0d\x0a    }\x0d\x0a}\x0d\
+\x0a\x0d\x0a\
+\x00\x00\x00[\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aMenu {\x0d\
+\x0afont: fontConfi\
+g.menuFontInfo.f\
+ont\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00c\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aTabButt\
+on {\x0d\x0a    font:f\
+ontConfig.baseFo\
+ntInfo.font\x0d\x0a}\x0d\x0a\
+\x0d\x0a\
+\x00\x00\x00o\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aComboBo\
+x {\x0d\x0aeditable: f\
+alse\x0d\x0afont:fontC\
+onfig.baseFontIn\
+fo.font\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x01\xf3\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aTumbler\
+ {\x0d\x0a    MouseAre\
+a{\x0d\x0a    accepted\
+Buttons: Qt.MidB\
+utton\x0d\x0a    hover\
+Enabled: true\x0d\x0a \
+   anchors.fill:\
+ parent\x0d\x0a    onW\
+heel: {\x0d\x0a    let\
+ i= wheel.angleD\
+elta.y>0?1:-1\x0d\x0a \
+       if(parent\
+.currentIndex==0\
+&&i<0){\x0d\x0a       \
+ parent.currentI\
+ndex=parent.coun\
+t-1\x0d\x0a        }\x0d\x0a\
+        else if(\
+parent.currentIn\
+dex== parent.cou\
+nt-1 &&i>0){\x0d\x0a  \
+              pa\
+rent.currentInde\
+x=0\x0d\x0a        }\x0d\x0a\
+        else {\x0d\x0a\
+            pare\
+nt.currentIndex+\
+=i\x0d\x0a        }\x0d\x0a \
+   }\x0d\x0a    }\x0d\x0a}\x0d\x0a\
+\x0d\x0a\
+\x00\x00\x00n\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aSlider \
+{\x0d\x0alayer.enabled\
+: true\x0d\x0alayer.ef\
+fect: DropShadow\
+Base{}\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\x9e\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Controls\
+.Material\x0aimport\
+ QtQuick.Layouts\
+\x0aPane {\x0d\x0aspacing\
+: 0\x0d\x0apadding: 0\x0d\
+\x0aMaterial.elevat\
+ion: 3\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x05-\
+\xef\
+\xbb\xbf//  \xe5\xae\xbd\xe5\xba\xa6\xe8\xb0\x83\xe6\
+\x95\xb4\x0d\x0aimport QtQui\
+ck\x0aimport QtQuic\
+k.Controls\x0aimpor\
+t QtQuick.Contro\
+ls.Material\x0aimpo\
+rt QtQuick.Layou\
+ts\x0aItem{\x0d\x0a    id\
+:seq_item\x0d\x0a     \
+   property real\
+ seqWidth: 6//ri\
+ght\x0d\x0a    propert\
+y Item target:pa\
+rent\x0d\x0a    proper\
+ty real\x0d\x0a    min\
+imumHeight: targ\
+et.Layout.\x0d\x0a    \
+minimumHeight\x0d\x0a \
+   property real\
+\x0d\x0a    maximumHei\
+ght: target.Layo\
+ut.\x0d\x0a    maximum\
+Height\x0d\x0a    heig\
+ht: seqWidth\x0d\x0a  \
+  width: parent.\
+width\x0d\x0a    y:tar\
+get.height-heigh\
+t/2\x0d\x0a\x0d\x0a    onYCh\
+anged: {\x0d\x0a      \
+  target.height=\
+x+height/2\x0d\x0a    \
+    y=target.hei\
+ght-height/2\x0d\x0a  \
+  }\x0d\x0a    DragHan\
+dler{\x0d\x0a        i\
+d:dragH\x0d\x0a       \
+ yAxis.enabled: \
+true\x0d\x0a        yA\
+xis.minimum: min\
+imumHeight\x0d\x0a    \
+    yAxis.maximu\
+m: maximumHeight\
+\x0d\x0a        xAxis.\
+enabled: false\x0d\x0a\
+    }\x0d\x0a    Mouse\
+Area{\x0d\x0a        a\
+cceptedButtons: \
+Qt.NoButton\x0d\x0a   \
+     hoverEnable\
+d: true\x0d\x0a       \
+ x:dragH.active?\
+-1000:0\x0d\x0a       \
+ y:dragH.active?\
+-1000:0\x0d\x0a       \
+ height: dragH.a\
+ctive?200:parent\
+.height\x0d\x0a       \
+ width: dragH.ac\
+tive?2000:parent\
+.width\x0d\x0a        \
+cursorShape:cont\
+ainsMouse? Qt.Sp\
+litVCursor:Qt.Ar\
+rowCursor\x0d\x0a    }\
+\x0d\x0a    MouseArea{\
+\x0d\x0a        accept\
+edButtons: Qt.No\
+Button\x0d\x0a        \
+hoverEnabled: tr\
+ue\x0d\x0a        x:dr\
+agH.active?-1000\
+:0\x0d\x0a        y:dr\
+agH.active?-1000\
+:0\x0d\x0a        heig\
+ht: dragH.active\
+?2000:0\x0d\x0a       \
+ width: dragH.ac\
+tive?2000:0\x0d\x0a   \
+     cursorShape\
+:containsMouse? \
+Qt.SplitVCursor:\
+Qt.ArrowCursor\x0d\x0a\
+    }\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x03\x22\
+\x00\
+\x00\x0a\x8ax\xda\xa5V\xcdn\xdb0\x0c\xbe\x17\xe8;\
+\xa89%E\xe7v\x05vq\x91\x0dY[`=\xec\
+\xa7ko\xc3P(6c\x0b\xb5%Cf\xda\x04E\
+\x9el\x87=\xd2^a\x94\xe5\xd8\x96\xecd\xd8\xa6\x8b\
+%\xf2#%\x91\x1f)\xff\xfa\xf1S\xe4\x85\xd2\xc8n\
+\xf1v)\xa2\xc7\x83\x1b\x84\x9c\xbd\x1c\x1e0\x1a\x22\x0e\
+\x99V\x0a\xed\xaa\xd0\xaa\x00\x8dkVAR\x95\xc3=\
+\xd7\x09`Xp\x0dr\x10\x14\xd3\xcaL<\x9d\x90\xc8\
+ \x83\x9c\xacnd\x0c\xab\x90$\xf4\xf1P%j!\
+\x13\x86)|\xe29\x0c\xb8\x90\xcb\x1c\xb4'\xe7\x99\xe0\
+e\xb5\xefL\x03\x0f\x9b\xd9 \x8cG(\x9e\x80\x19\x14\
+O>p\x19g\xa0\x03+\xb4\xf8g\x11cj\xd5_\
+!B.\x93\x0c\x82Jh\xf5)\x88$E\x1f`\xa5\
+\xde\x8es\xa52&\xca\x87D\x9b\xa8.xV\xd2\x1e\
+C\x98\xf5lE0\x90|\x9e\x01!k\x93w\xa8\x97\
+\x10\x1e)-(h\x1c\x85\x92C\xb6\xab=\xb6=\xd3\
+R$\x92gL\x83\xd21\xe8\xb1\x89(\xaa\x93*\xb2\
+\x0b\xad\xf2\x89E\x99\xf4\xd5t\xd8R\xc2\xb9m\xab\xe2\
+2J\x95.\x03TE\xc8,'\xcc\xbc\x0f\xc8`\x81\
+\x0d\xc2,Z\xc8\x15\xb9\x0eJ\xb5\xd4\x11\x84-\xf3\x1a\
+\x8d\xcd\xcd\xee|5@\x91\xf3\x04\xee\xac\x1f6\x1a\x1d\
+\x1e\x9c\x9en\xf5\xcd\xc9_\xbaR3\x22\x95)Mp\
+\x0d\xf1\xc8\xd7\xd5Lx}\xe6+\xb6\x14\xe8kV\xe1\
+\x00oN\xcf}\xd8:\x1cb\x8f\x8b\xdb\xd8\xeb]\xb5\
+\xd7vS\xd2\x89\x87\x95W$\x0a\x1a\x228\x9c\xb2\x88\
+\x95\x8bX\xf5\x11\xf5\xa6\x97\x8a\x1a\x844\xa9R\xd2\xcc\
+3@c\xd09\xc0\xb6\xca\x03\x9b\xd2\xe9\x0e~\x0cD\
+c\xda\x98v\x8a\xaa\x8f\xb5!i\xc1\xdd\x02\xdb\xe5\xf9\
+\x16\x839u\x15\xea \xe3\xf1d\xfa\xd6\xddh\xf2\x87\
+\x9dv\x19[\xf5\xc4\x89\xcff\xb0N\xa8\xa7U;\xb1\
+c\xf6\x8a\x9d\x05oZ\xcd:\xac9\xd3W\xf9\x85\xb2\
+\x10Y\xb6\xed\xc0.i\xfat\xb5\xfc\xb0\xcd\x8e\xfd\xef\
+Al\x95w;g\xa7\x06\xea\xc2\xf52\xb6\xad\x83Z\
+\xeb\xa7\xa8\xe9S\xe41\xab\x82\xfe@';\xdb\x0bX\
+;\x00%\xaf%\x82\xf6\xb8W\x9dv\xc1\xc6q\xdb8\
+\x82\xee\xd3\xc2\x8e\xa6S\xe7\xad\x99\xf8\xd6f\x98\x10\x07\
+\xdbF\xb8\xcb\xd5\x89\xeb\xa7\xef%\xb6-*\x82\x02\xc7\
+\xc4\xa0\x8f\xea\x09f\x91\xe9\xb7\x1ev\xd3.7\xdd\xc4\
+*i\x12X\xd47t\x13\xfe\xf7w\xec\x13\xe6\xdfn\
+\xd9\xf7\xb3\xef\x9e.z3\xd0\xc4\xdcOI/\x12\x94\
+!\xfb\xd6\xc6\xe4\xce\x88\xfc,I\xfa\x05 \xae\x9b\xad\
+\x13*\xcb\x91\xab}NA\xee\x7f\x15\xcc\xf8RQ\xf3\
+2\xa5R'\xff\x0c\xed\xdf\x8b\xdb\x01.j\x02\xdb\xb2\
+\x0b\xda\xbf\x9cn\xd6\xcc\x98U5j\x9d\x95\xbb\xbd9\
+\x8f\xe2\x92B\xba\x10\x12\xe2V\xaem\xd5\x0ch\xe6\x0a\
+Q\xe5\x83*\xfb\x806\x0a\x8fP\xe6\xf3\xdd~Ps\
+Y\x0a\x93\x1a7\xc4\xf7\x8d\xdc\x8f\xb3y\xf9w\xc7\x19\
+\x15\xe9\x8eIho?\x93\xf4\xce\x1a//\xf1RW\
+\x93\x90\x9d\x9f]\x00/\xc94\xc0uA)\xbb\xb6\x8b\
+\xcfK|\xcf\xa3\xc7\xc1\x93n\xcc\x8f\xd0o\x88^\x0e\
+l\
+\x00\x00\x01\xbf\
+\x00\
+\x00\x06\xacx\xda\xedU\xc1N\xc2@\x10\xbd\x93\xf0\x0f\
+\xf5\x8a\xb1\xad\x1c<lb\x08\x16\x13LD\x83\x1c\xf4\
+f\xd6\xee\x84n,\xbbu\xba\x85\x12\xc2\x97y\xf0\x93\
+\xfc\x05w[\x0a\x94\xb6\x12.\x9e\x9cC\xb33\xfb\xde\
+\xec\xcc\xdbi\xfb\xfd\xf9\xc5g\x91De\x8d\xd58\xe1\
+\xfe{\xab\xec\xda\x9e\x14\x0ae\x187\xc5\xed\x11U\x80\
+\x9c\x86\xad'xD\x068\x80\x10\xa6:\xb6j\xb7,\
+mN\xa7\xdd\xcaWV\xc7\xc9\x17\x11\xca\x08P--\
+O\xea\x9c\x02\x84\xb20\xe7\xde)\x98\x1d`\x10hh\
+\xc5\xf0\xf1\xcc\x99\x0a\x88u\xe58\xc8\xa7\x81\xda\xa4\xd4\
+\xc64\xd2\xf0\xc8.d\xcc\x84V\xe5\xd0\x22O\x11J\
+\xca^\xb9\xde\xb6\xb3@\x19\x13\x80\xc9\xbe\x0f\xca#e\
+\xd4\xbd\xde\x05<Ho\x8c3\xb2eVwc\x99\xa0\
+\x0f\xdb\xaeI\xa5\xeb\xc2\xd6G{\xd9\x1c\xa6\x85i8\
+\xabh$\xa2\xa8\x8f\xaa\xedbO\x93B\xe0* %\
+\x9b\x0c\x19\xf2\x22{:\xdd*N\x8a\x17/\xa0b\x0a\
+\x8cX5\xb5\x1a\xdbi\xbaS\xff:=oL\xb9\xae\
+\x86\x06H\xa7C*XX\xab\xfeF\x14f@\xf5\xbb\
+\xcb~\xcac\x1b\x04}\x0bM\xa1g\x12\xb9\xee\x8d*\
+.E=!-\x13~\xc5\xd7\xd4;\x92I\x0c}=\
+\xc3\x0d\xd5R\xdf\x87H\x01\xbbI\x94\x92\x22&\xfa\xf5\
+\xb2\x1fd\xee\xd53\x029\x07\xbc-\xeaQ\x98@C\
+\xe1\xb9\x0c6\xf5\x15\x9fC\xef\xe2\xd2u]\xe26\xa8\
+r\x02\xb6\x98\xab\x12\xa3\xab\xf1G\x06mo\xd8\x0e\xa9\
+ni\xc4\xea\xa9~\x82\xb1\xc4I@# \xbe\xfe\xf4\
+P.\xe2L\xdc\x9e\x91l\x12\x85\x5c\x0d\xbd\x0cC\xb4\
+\xdfG\x94\x8b\xdc\xfd\xbf\xa6\x03\xad\xdd\x13\xef\xc6\xfd\xeb\
+\x0b\xd9s\xd7\xc5\xbf#[\xfc\x00\x084\xac\xeb\
+\x00\x00\x05\x8e\
+\xef\
+\xbb\xbf//  \xe5\xae\xbd\xe5\xba\xa6\xe8\xb0\x83\xe6\
+\x95\xb4\x0d\x0aimport QtQui\
+ck\x0aimport QtQuic\
+k.Controls\x0aimpor\
+t QtQuick.Contro\
+ls.Material\x0aimpo\
+rt QtQuick.Layou\
+ts\x0aItem{\x0d\x0a    id\
+:root\x0d\x0a    prope\
+rty real seqWidt\
+h: 6//right\x0d\x0a   \
+ property Item t\
+arget:parent\x0d\x0a  \
+  property real \
+minimumWidth: ta\
+rget.Layout.mini\
+mumWidth\x0d\x0a    pr\
+operty real maxi\
+mumWidth: target\
+.Layout.maximumW\
+idth\x0d\x0a    proper\
+ty real p_width \
+: target.width\x0d\x0a\
+    onP_widthCha\
+nged: {\x0d\x0a       \
+ x=target.width-\
+width/2\x0d\x0a    }\x0d\x0a\
+\x0d\x0a    height: pa\
+rent.height\x0d\x0a   \
+ width: seqWidth\
+\x0d\x0a    x:target.w\
+idth-width/2\x0d\x0a\x0d\x0a\
+    onXChanged: \
+{\x0d\x0a        targe\
+t.width=x+width/\
+2\x0d\x0a    }\x0d\x0a    Dr\
+agHandler{\x0d\x0a    \
+    id:dragH\x0d\x0a  \
+      yAxis.enab\
+led: false\x0d\x0a    \
+    xAxis.enable\
+d: true\x0d\x0a       \
+ xAxis.minimum: \
+minimumWidth\x0d\x0a  \
+      xAxis.maxi\
+mum: maximumWidt\
+h\x0d\x0a    }\x0d\x0a    Mo\
+useArea{\x0d\x0a      \
+  enabled: root.\
+enabled\x0d\x0a       \
+ acceptedButtons\
+: Qt.NoButton\x0d\x0a \
+       hoverEnab\
+led: true\x0d\x0a     \
+   x:dragH.activ\
+e?-1000:0\x0d\x0a     \
+   y:dragH.activ\
+e?-1000:0\x0d\x0a     \
+   height: dragH\
+.active?200:pare\
+nt.height\x0d\x0a     \
+   width: dragH.\
+active?2000:pare\
+nt.width\x0d\x0a      \
+  cursorShape:co\
+ntainsMouse? Qt.\
+SplitHCursor:Qt.\
+ArrowCursor\x0d\x0a   \
+ }\x0d\x0a    MouseAre\
+a{\x0d\x0a        enab\
+led: root.enable\
+d\x0d\x0a        accep\
+tedButtons: Qt.N\
+oButton\x0d\x0a       \
+ hoverEnabled: t\
+rue\x0d\x0a        x:d\
+ragH.active?-100\
+0:0\x0d\x0a        y:d\
+ragH.active?-100\
+0:0\x0d\x0a        hei\
+ght: dragH.activ\
+e?2000:0\x0d\x0a      \
+  width: dragH.a\
+ctive?2000:0\x0d\x0a  \
+      cursorShap\
+e:containsMouse?\
+ Qt.SplitHCursor\
+:Qt.ArrowCursor\x0d\
+\x0a    }\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x01S\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aListView{\x0d\x0a    \
+model:5\x0d\x0a    ori\
+entation: ListVi\
+ew.Horizonta\x0d\x0a  \
+  interactive: f\
+alse\x0d\x0a    delega\
+te:\x0d\x0a        ReO\
+rderItem{\x0d\x0a     \
+   onReorder: {\x0d\
+\x0a            con\
+sole.log(from,\x22 \
+ \x22,to)\x0d\x0a        \
+}\x0d\x0a        dropI\
+tem:Rectangle{\x0d\x0a\
+            widt\
+h: 100\x0d\x0a        \
+    height: 200\x0d\
+\x0a            col\
+or: \x22red\x22\x0d\x0a     \
+   }\x0d\x0a    }\x0d\x0a}\x0d\x0a\
+\x0d\x0a\
+\x00\x00\x08K\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aItem {\x0d\x0a    id:\
+ root\x0d\x0a    prope\
+rty Item homeTar\
+get:parent\x0d\x0a    \
+property Compone\
+nt dropItem\x0d\x0a   \
+ property int el\
+ementIndex: inde\
+x\x0d\x0a    property \
+var orientation:\
+-1\x0d\x0a    property\
+ string theName\x0d\
+\x0a    z:active?1:\
+0\x0d\x0a    property \
+int numer\x0d\x0a    p\
+roperty alias dr\
+opArea: dropArea\
+\x0d\x0a    property b\
+ool active: drag\
+Handler.active\x0d\x0a\
+    width: dragR\
+ectangle.width\x0d\x0a\
+    height: drag\
+Rectangle.height\
+\x0d\x0a    signal reo\
+rder(int to, int\
+ from)\x0d\x0a\x0d\x0a    Lo\
+ader{\x0d\x0a        D\
+rag.source:root\x0d\
+\x0a        Drag.ac\
+tive: dragHandle\
+r.active\x0d\x0a      \
+  id: dragRectan\
+gle\x0d\x0a        anc\
+hors.top: parent\
+.top\x0d\x0a//        \
+anchors.bottom: \
+parent.bottom\x0d\x0a \
+       anchors.l\
+eft: parent.left\
+\x0d\x0a//        anch\
+ors.right: paren\
+t.right\x0d\x0a    sou\
+rceComponent: dr\
+opItem\x0d\x0a\x0d\x0a    Dr\
+agHandler{\x0d\x0a    \
+    id:dragHandl\
+er\x0d\x0a    yAxis.en\
+abled: orientati\
+on==-1||orientat\
+ion===ListView.V\
+ertical\x0d\x0a    xAx\
+is.enabled: orie\
+ntation==-1||ori\
+entation===ListV\
+iew.Horizontal\x0d\x0a\
+    }\x0d\x0a    }\x0d\x0a\x0d\x0a\
+    DropArea {\x0d\x0a\
+        id: drop\
+Area\x0d\x0a        wi\
+dth: parent.widt\
+h\x0d\x0a        heigh\
+t: parent.height\
+\x0d\x0a        // Why\
+ is the X/Y offs\
+et this way?\x0d\x0a  \
+      x: width *\
+ - 0.5\x0d\x0a        \
+onEntered: {\x0d\x0a  \
+          if (dr\
+ag.source.elemen\
+tIndex !== eleme\
+ntIndex) {\x0d\x0a    \
+            root\
+.reorder(drag.so\
+urce.elementInde\
+x, elementIndex)\
+\x0d\x0a              \
+  drag.accept(Qt\
+.MoveAction)\x0d\x0a  \
+          }\x0d\x0a   \
+     }\x0d\x0a    }\x0d\x0a\x0d\
+\x0a\x0d\x0a//    MouseAr\
+ea {\x0d\x0a//        \
+id: ma\x0d\x0a//      \
+  acceptedButton\
+s: Qt.NoButton\x0d\x0a\
+//        anchor\
+s.fill: parent\x0d\x0a\
+//        drag.t\
+arget: dragRecta\
+ngle\x0d\x0a//        \
+drag.axis: Drag.\
+XAxis\x0d\x0a//       \
+ preventStealing\
+ :true\x0d\x0a//      \
+  propagateCompo\
+sedEvents:false\x0d\
+\x0a//    }\x0d\x0a\x0d\x0a    \
+states: [\x0d\x0a     \
+   State {\x0d\x0a    \
+        name: \x22d\
+ragging\x22\x0d\x0a      \
+      when: drag\
+Handler.active\x0d\x0a\
+            Pare\
+ntChange { targe\
+t: dragRectangle\
+; parent: root.h\
+omeTarget }\x0d\x0a   \
+         AnchorC\
+hanges { target:\
+ dragRectangle; \
+anchors.top: und\
+efined; anchors.\
+right: undefined\
+; anchors.bottom\
+: undefined; anc\
+hors.left: undef\
+ined }\x0d\x0a        \
+}\x0d\x0a    ]\x0d\x0a    tr\
+ansitions: [\x0d\x0a  \
+      Transition\
+ {\x0d\x0a            \
+from: \x22dragging\x22\
+\x0d\x0a            to\
+: \x22*\x22\x0d\x0aAnchorAni\
+mation{duration:\
+ 300;easing.type\
+: Easing.OutBack\
+}\x0d\x0a        }\x0d\x0a  \
+  ]\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xb5\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+ColorItemDelegat\
+eButtonBase {\x0d\x0a \
+   tipText:\x22ping\
+\x22\x0d\x0a    source:Co\
+res.CoreStyle.ge\
+tIconSource(\x22qml\
+/resource/icon/p\
+ing.png\x22)\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x0d\x0a\x0d\x0a\
+\x00\x00\x04\xec\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+import QtQuick.L\
+ayouts\x0aimport \x22.\
+./../cores\x22 as C\
+ores`nimport QtQ\
+uick.Controls\x0aim\
+port \x22../../core\
+s\x22 as Cores`nimp\
+ort QtQuick.Cont\
+rols.Material\x0aim\
+port \x22../../core\
+s\x22 as Cores`nimp\
+ort QtGraphicalE\
+ffects\x0aimport \x22.\
+./Base\x22\x0d\x0aItem{\x0d\x0a\
+    id:root\x0d\x0a   \
+ height: parent.\
+height\x0d\x0a    widt\
+h: height\x0d\x0a    p\
+roperty bool sel\
+ected: false\x0d\x0a  \
+  property color\
+ selectColor: Ma\
+terial.color(Mat\
+erial.accent)\x0d\x0a \
+   property stri\
+ng tipText: \x22\x22\x0d\x0a\
+    ToolTip.visi\
+ble: tipText!==\x22\
+\x22 && hovered\x0d\x0a  \
+  ToolTip.text: \
+tipText\x0d\x0a    pro\
+perty alias sour\
+ce: efi.source\x0d\x0a\
+    Item{\x0d\x0a     \
+   height: paren\
+t.height*0.9\x0d\x0a  \
+      width: hei\
+ght\x0d\x0a        anc\
+hors.centerIn: p\
+arent\x0d\x0a        I\
+mage{\x0d\x0a         \
+   visible: fals\
+e\x0d\x0a            i\
+d:efi\x0d\x0a         \
+   height: paren\
+t.height\x0d\x0a      \
+      width: hei\
+ght\x0d\x0a           \
+ fillMode: Image\
+.PreserveAspectF\
+it\x0d\x0a        }\x0d\x0a \
+       ColorOver\
+lay {\x0d\x0a         \
+   width: efi.wi\
+dth\x0d\x0a           \
+ height: efi.hei\
+ght\x0d\x0a           \
+ anchors.centerI\
+n: parent\x0d\x0a     \
+           sourc\
+e: efi\x0d\x0a        \
+        color: r\
+oot.selected?roo\
+t.selectColor:\x0d\x0a\
+                \
+                \
+     Cores.CoreS\
+tyle.isDark?\x22#ee\
+e\x22:\x22#2e2e2e\x22\x0d\x0a  \
+              la\
+yer.enabled: tru\
+e\x0d\x0a             \
+   layer.effect:\
+DropShadowBase{}\
+\x0d\x0a        }\x0d\x0a   \
+ }\x0d\x0a}\x0d\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xc6\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+// \xe8\xbf\x9c\xe7\xa8\x8b \xe5\x9b\xbe\xe6\xa0\x87\
+\x0d\x0aImageButton {\x0d\
+\x0a    tipText:\x22\xe5\x85\
+\xb1\xe4\xba\xab\xe6\x96\x87\xe4\xbb\xb6\xe5\xa4\xb9\x22\x0d\x0a\
+    source:Cores\
+.CoreStyle.getIc\
+onSource(\x22qml/re\
+source/icon/expl\
+orer.png\x22)\x0d\x0a}\x0d\x0a\x0d\
+\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xf8\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+import QtQuick.C\
+ontrols\x0aimport \x22\
+../../cores\x22 as \
+Cores`nItemDeleg\
+ate{\x0d\x0aColorImage\
+Button {\x0d\x0a    ti\
+pText:\x22\xe8\xb0\x83\xe8\x8a\x82\x22\x0d\x0a\
+    source:Cores\
+.CoreStyle.getIc\
+onSource(\x22qml/re\
+source/icon/more\
+Set.png\x22)\x0d\x0a}\x0d\x0a}\x0d\
+\x0a\x0d\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x01h\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+    // \xe5\x88\x87\xe6\x8d\xa2 \xe5\x85\
+\xa8\xe5\xb1\x8f\xe7\xad\x89\x0d\x0aColorIt\
+emDelegateButton\
+Base{\x0d\x0a    tipTe\
+xt:qsTr(\x22\xe5\x85\xa8\xe5\xb1\x8f/\
+\xe5\x8f\x96\xe6\xb6\x88\xe5\x85\xa8\xe5\xb1\x8f\x22)\x0d\x0a\
+    height: pare\
+nt.height\x0d\x0a    w\
+idth: height\x0d\x0a  \
+  property bool \
+shouMaxIcon: tru\
+e\x0d\x0a    source: s\
+houMaxIcon ? Cor\
+es.CoreStyle.get\
+IconSource(\x22Full\
+Screen.png\x22) : C\
+ores.CoreStyle.g\
+etIconSource(\x22Wi\
+ndowScreen.png\x22)\
+\x0a}\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x01\xbf\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Layouts\x0aimport Q\
+tQuick.Controls\x0a\
+import QtQuick.C\
+ontrols.Material\
+\x0aItemDelegate{\x0d\x0a\
+    property ali\
+as source: image\
+.source\x0d\x0a    pro\
+perty string tip\
+Text: \x22\x22\x0d\x0a    To\
+olTip.visible: t\
+ipText!==\x22\x22 && h\
+overed\x0d\x0a    Tool\
+Tip.text: tipTex\
+t\x0d\x0a    Item{\x0d\x0a  \
+      anchors.fi\
+ll: parent\x0d\x0a    \
+    Image{\x0d\x0a    \
+        id:image\
+\x0d\x0a            an\
+chors.fill: pare\
+nt\x0d\x0a            \
+fillMode: Image.\
+PreserveAspectFi\
+t\x0d\x0a        }\x0d\x0a  \
+  }\x0d\x0a\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xa9\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aItemDel\
+egate {\x0d\x0a    pro\
+perty string tip\
+Text: \x22\x22\x0d\x0a    To\
+olTip.visible: t\
+ipText!==\x22\x22 && h\
+overed\x0d\x0a    Tool\
+Tip.text: tipTex\
+t\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x01\x9d\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+import QtQuick.C\
+ontrols\x0aimport \x22\
+../../cores\x22 as \
+Cores`nimport \x22.\
+./Labels\x22\x0d\x0aimpor\
+t \x22../Base\x22\x0d\x0a Bt\
+nBase{\x0d\x0a        \
+ColorImageButton\
+ {\x0d\x0a            \
+id: name\x0d\x0a//    \
+        fillMode\
+: Image.Preserve\
+AspectFit\x0d\x0a     \
+       source: C\
+ores.CoreStyle.g\
+etIconSource(\x22ar\
+row-pre.png\x22)\x0a\x0d\x0a\
+        }\x0d\x0a     \
+   EffectLabel{\x0d\
+\x0a            tex\
+t: qsTr(\x22\xe4\xb8\x8a\xe4\xb8\x80\xe5\
+\x8d\xb7\x22)\x0d\x0a        }\x0d\
+\x0a    }\x0d\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x02\x10\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+Row{\x0d\x0aspacing: 5\
+\x0d\x0aid:row\x0d\x0asignal\
+ clicked()\x0d\x0aprop\
+erty alias cliac\
+_enabled:  btb.e\
+nabled\x0d\x0aproperty\
+ alias hovered: \
+btb.hovered\x0d\x0aIte\
+m{\x0d\x0a    MouseAre\
+a{\x0d\x0a    width: r\
+ow.width\x0d\x0a    he\
+ight: row.height\
+\x0d\x0a    enabled: !\
+cliac_enabled\x0d\x0a \
+   acceptedButto\
+ns: Qt.NoButton\x0d\
+\x0a    hoverEnable\
+d: true\x0d\x0a    cur\
+sorShape:!cliac_\
+enabled?Qt.Forbi\
+ddenCursor:Qt.Po\
+intingHandCursor\
+\x0d\x0a    }\x0d\x0aItemDel\
+egate{\x0d\x0a    id:b\
+tb\x0d\x0awidth: row.w\
+idth\x0d\x0aheight: ro\
+w.height\x0d\x0aonClic\
+ked: row.clicked\
+()\x0d\x0a}\x0d\x0a}\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xc2\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+// \xe8\xbf\x9c\xe7\xa8\x8b \xe5\x9b\xbe\xe6\xa0\x87\
+\x0d\x0aImageButton {\x0d\
+\x0a    tipText:\x22\xe8\xbf\
+\x9c\xe7\xa8\x8b\x22\x0d\x0a    sourc\
+e:Cores.CoreStyl\
+e.getIconSource(\
+\x22qml/resource/ic\
+on/remoteControl\
+.png\x22)\x0d\x0a}\x0d\x0a\x0d\x0a\x0d\x0a\x0d\
+\x0a\
+\x00\x00\x01\xf8\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+import QtQuick.L\
+ayouts\x0aimport \x22.\
+./../cores\x22 as C\
+ores`nimport QtQ\
+uick.Controls\x0aim\
+port \x22../../core\
+s\x22 as Cores`nimp\
+ort QtQuick.Cont\
+rols.Material\x0aim\
+port \x22../../core\
+s\x22 as Cores`nIma\
+geButton{\x0a    so\
+urce: Cores.Core\
+Style.getIconSou\
+rce(\x22flush.png\x22)\
+ // replaced get\
+StyleIcon\x0a    It\
+em{\x0d\x0a        anc\
+hors.fill: paren\
+t\x0d\x0a        Image\
+{\x0d\x0a            i\
+d:image\x0d\x0a       \
+     anchors.fil\
+l: parent\x0d\x0a     \
+       fillMode:\
+ Image.PreserveA\
+spectFit\x0d\x0a      \
+  }\x0d\x0a    }\x0d\x0a\x0d\x0a\x0d\x0a\
+}\x0d\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xf0\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+import QtQuick.C\
+ontrols\x0aimport \x22\
+../../cores\x22 as \
+Cores`nColorItem\
+DelegateButtonBa\
+se {\x0d\x0a    tipTex\
+t:\x22\xe5\x85\xb3\xe9\x97\xad\x22\x0d\x0a    \
+source: Cores.Co\
+reStyle.getIconS\
+ource(\x22qml/resou\
+rce/icon/close.p\
+ng\x22)\x0d\x0a}\x0d\x0a\x0d\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x001\
+i\
+mport QtQuick\x0d\x0a\x0d\
+\x0aItemDelegateBut\
+tonBase {\x0d\x0a\x0d\x0a}\x0d\x0a\
+\
+\x00\x00\x00\xf2\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+import QtQuick.C\
+ontrols\x0aimport \x22\
+../../cores\x22 as \
+Cores`nColorItem\
+DelegateButtonBa\
+se {\x0d\x0a    tipTex\
+t:\x22\xe5\x88\x87\xe6\x8d\xa2\x22\x0d\x0a    \
+source:Cores.Cor\
+eStyle.getIconSo\
+urce(\x22qml/resour\
+ce/icon/switch.p\
+ng\x22)\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\x0d\x0a\x0d\
+\x0a\
+\x00\x00\x02U\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+import QtQuick.C\
+ontrols\x0aimport \x22\
+../../cores\x22 as \
+Cores`nimport \x22.\
+./Labels\x22\x0d\x0aimpor\
+t \x22../Base\x22\x0d\x0a Bt\
+nBase{\x0d\x0a        \
+EffectLabel{\x0d\x0a  \
+          text: \
+qsTr(\x22\xe4\xb8\x8b\xe4\xb8\x80\xe5\x8d\xb7\x22\
+)\x0d\x0a        }\x0d\x0a  \
+      ColorImage\
+Button {\x0d\x0a      \
+      id: name\x0d\x0a\
+            heig\
+ht: parent.heigh\
+t\x0d\x0a            w\
+idth: height\x0d\x0a  \
+          source\
+: Cores.CoreStyl\
+e.getIconSource(\
+\x22arrow-next.png\x22\
+)\x0a            sc\
+ale: hovered && \
+cliac_enabled ?1\
+.3:1\x0d\x0a          \
+  Behavior on sc\
+ale {\x0d\x0a         \
+   NumberAnimati\
+on{\x0d\x0a           \
+ duration: 300\x0d\x0a\
+            }\x0d\x0a \
+           }\x0d\x0a  \
+      }\x0d\x0a    }\x0d\x0a\
+\x0d\x0a\x0d\x0a\
+\x00\x00\x02j\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+\x22../Base\x22\x0d\x0aItemD\
+elegateBase {\x0d\x0a \
+   height: paren\
+t.height\x0d\x0a    wi\
+dth: height\x0d\x0a\x0d\x0a \
+   property alia\
+s selected: efi.\
+selected\x0d\x0a    pr\
+operty alias sou\
+rce: efi.source\x0d\
+\x0a    property al\
+ias selectColor:\
+ efi.selectColor\
+\x0d\x0a    MouseArea{\
+\x0d\x0a    anchors.fi\
+ll: parent\x0d\x0a    \
+acceptedButtons:\
+ Qt.NoButton\x0d\x0a  \
+  cursorShape: Q\
+t.PointingHandCu\
+rsor\x0d\x0a    }\x0d\x0a   \
+ Item{\x0d\x0a        \
+height: parent.h\
+eight*0.66\x0d\x0a    \
+    width: heigh\
+t\x0d\x0a        ancho\
+rs.centerIn: par\
+ent\x0d\x0a        Col\
+orImageButton{\x0d\x0a\
+            id:e\
+fi\x0d\x0a            \
+height: parent.h\
+eight\x0d\x0a         \
+   width: height\
+\x0d\x0a        }\x0d\x0a   \
+ }\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00z\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+ImageButton {\x0a  \
+  source: Cores.\
+CoreStyle.getIco\
+nSource(\x22add.png\
+\x22)\x0a}\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x02\xef\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aimport \
+QtQuick.Layouts\x0a\
+import QtQuick.C\
+ontrols.Material\
+\x0aItemDelegate{\x0d\x0a\
+    property ali\
+as labelText: la\
+b.text\x0d\x0a    prop\
+erty alias label\
+Color: lab.color\
+\x0d\x0a    property a\
+lias labelRotati\
+on: lab.rotation\
+\x0d\x0a    property i\
+nt labelPixelSiz\
+e: width/1.5\x0d\x0a  \
+  property alias\
+ labelScale: lab\
+.scale\x0d\x0a    Tool\
+Tip.visible: Too\
+lTip.text&&hover\
+ed\x0d\x0a    Label{\x0d\x0a\
+        id:lab\x0d\x0a\
+        scale:pa\
+rent.hovered?2:1\
+\x0d\x0a        anchor\
+s.centerIn: pare\
+nt\x0d\x0a        font\
+.pixelSize: labe\
+lPixelSize\x0d\x0a    \
+    font.bold: t\
+rue\x0d\x0a        tex\
+t: \x22\xe2\x96\xbc\x22\x0d\x0a      \
+  Behavior on ro\
+tation {NumberAn\
+imation{duration\
+: 400}}\x0d\x0a       \
+ Behavior on sca\
+le {NumberAnimat\
+ion{duration: 40\
+0}}\x0d\x0a        Beh\
+avior on color {\
+ColorAnimation{d\
+uration: 400}}\x0d\x0a\
+    }\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x009\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aItem {\x0d\
+\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xed\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+ColorItemDelegat\
+eButtonBase {\x0d\x0a \
+   source:select\
+ed?Cores.CoreSty\
+le.getIconSource\
+(\x22qml/resource/i\
+con/eye_l.png\x22):\
+Cores.CoreStyle.\
+getIconSource(\x22q\
+ml/resource/icon\
+/eyeu_l.png\x22)\x0d\x0a\x0d\
+\x0a}\x0d\x0a\x0d\x0a\x0d\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x00'\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aCloseBtnForm {\x0d\
+\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x01\xef\
+i\
+mport QtQuick\x0d\x0ai\
+mport QtQuick.Co\
+ntrols\x0d\x0aimport \x22\
+../Base\x22\x0d\x0aItemDe\
+legate {\x0d\x0a    he\
+ight: parent.hei\
+ght\x0d\x0a    width: \
+height\x0d\x0a    prop\
+erty string tipT\
+ext: \x22\x22\x0d\x0a    Too\
+lTip.visible: ti\
+pText!==\x22\x22 && ho\
+vered\x0d\x0a    ToolT\
+ip.text: tipText\
+\x0d\x0a    property a\
+lias source: efi\
+.source\x0d\x0a    Ite\
+m{\x0d\x0a        heig\
+ht: parent.heigh\
+t*0.66\x0d\x0a        \
+width: height\x0d\x0a \
+       anchors.c\
+enterIn: parent\x0d\
+\x0a        EffectI\
+mage{\x0d\x0a         \
+   id:efi\x0d\x0a     \
+       height: p\
+arent.height\x0d\x0a  \
+          width:\
+ height\x0d\x0a       \
+ }\x0d\x0a    }\x0d\x0a}\x0d\x0a\
+\x00\x00\x02\x86\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport \x22../../c\
+ores\x22 as Cores`n\
+import QtQuick.C\
+ontrols\x0aimport \x22\
+../../cores\x22 as \
+Cores`nItemDeleg\
+ateButtonBase {\x0a\
+    source: Core\
+s.CoreStyle.getI\
+conSource(\x22qml/r\
+esource/icon/AI.\
+png\x22)\x0a\x0d\x0a    Menu\
+{\x0d\x0a\x0d\x0a        id:\
+aiMenu\x0d\x0a\x0d\x0a      \
+  MenuItem{\x0d\x0a   \
+         text: q\
+sTr(\x22\xe9\x87\x8d\xe7\xae\x97\x22)\x0d\x0a \
+           onCli\
+cked: {\x0d\x0a       \
+         //   \xe5\x9b\
+\xbe\xe5\x83\x8f\xe9\x87\x8d\xe7\xae\x97\x0d\x0a    \
+            cons\
+ole.log(\x22\xe5\x9b\xbe\xe5\x83\x8f\xe9\
+\x87\x8d\xe7\xae\x97\x22)\x0d\x0a       \
+         control\
+.refreshDefectVi\
+ewBySteelId_pred\
+ict(Cores.CoreSt\
+ate.currentSteel\
+Id)\x0d\x0a           \
+ }\x0d\x0a        }\x0d\x0a\x0d\
+\x0a        MenuIte\
+m{\x0d\x0a            \
+text: qsTr(\x22\xe8\xae\xbe\xe7\
+\xbd\xae...\x22)\x0d\x0a       \
+ }\x0d\x0a    }\x0d\x0a\x0d\x0a   \
+ onClicked: {\x0d\x0a \
+       aiMenu.po\
+pup()\x0d\x0a    }\x0d\x0a}\x0d\
+\x0a\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xee\
+\xef\
+\xbb\xbfimport QtQuick\
+\x0aimport QtQuick.\
+Controls\x0aItemDel\
+egateBase {\x0d\x0a\x0d\x0a \
+   property alia\
+s iconText:  lb.\
+text\x0d\x0a    Label{\
+\x0d\x0a        id:lb\x0d\
+\x0a    anchors.cen\
+terIn: parent\x0d\x0a \
+   font.bold: tr\
+ue\x0d\x0a    font.fam\
+ily: \x22\xe9\xbb\x91\xe4\xbd\x93\x22\x0d\x0a \
+   scale: 2\x0d\x0a\x0d\x0a \
+   }\x0d\x0a\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00w\
+p\
+ragma Singleton\x0d\
+\x0aimport QtQuick\x0d\
+\x0a\x0d\x0aItem {\x0d\x0a\x0d\x0a   \
+ property var pa\
+geModels: [\x22\xe5\xae\x9e\xe6\
+\x97\xb6\x22,\x22\xe6\x89\x8b\xe5\x8a\xa8\x22,\x22\xe8\xb0\
+\x83\xe8\xaf\x95\x22,\x22\xe6\xb5\x8b\xe8\xaf\x95\x22]\x0d\
+\x0a\x0d\x0a}\x0d\x0a\
+\x00\x00\x00\xd4\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtQuic\
+k\x0a\x0aItem {\x0a    //\
+ \xe5\xba\x94\xe7\x94\xa8\xe6\xa0\x87\xe9\xa2\x98\x0a  \
+  property strin\
+g title: \x22\xe9\x93\x9c\xe7\xb2\x92\
+\xe5\xad\x90\xe5\xae\x9a\xe4\xbd\x8d\xe7\xa3\xa8\xe5\x89\x8a\xe7\
+\xb3\xbb\xe7\xbb\x9f\x22\x0a    prope\
+rty string compa\
+nyName: \x22\xe5\x85\xac\xe5\x8f\xb8\xe5\
+\x90\x8d\xe7\xa7\xb0\x22\x0a    prope\
+rty string syste\
+mTitle: title\x0a}\x0a\
+\x0a\x0d\x0a\
+\x00\x00\x01\x89\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtQuic\
+k\x0d\x0a\x0d\x0aItem {\x0a    \
+id: root\x0a    // \
+Properly typed s\
+tate for global \
+error dialog\x0a   \
+ property bool g\
+lobErrorVisible:\
+ false\x0a    prope\
+rty string globE\
+rrorText: \x22\x22\x0a\x0a  \
+  function showE\
+rror(msg) {\x0a    \
+  root.globError\
+Text = msg\x0a     \
+ root.globErrorV\
+isible = true\x0a  \
+  }\x0a\x0a    functio\
+n clear() {\x0a    \
+  root.globError\
+Visible = false\x0a\
+      root.globE\
+rrorText = \x22\x22\x0a  \
+  }\x0a}\x0a\x0d\x0a\
+\x00\x00\x01\xa0\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtQuic\
+k\x0aimport Qt.labs\
+.settings\x0a\x0aItem \
+{\x0a  id: root\x0a  /\
+/ Last selected \
+main view tab\x0a  \
+property int sel\
+ectedTabIndex: 0\
+\x0a  // Optional: \
+last selected vi\
+ew id\x0a  property\
+ string selected\
+ViewId: \x22\x22\x0a\x0a  Se\
+ttings {\x0a    id:\
+ st\x0a    category\
+: \x22CoreState\x22\x0a  \
+  // Persist fie\
+lds\x0a    property\
+ alias selectedT\
+abIndex: root.se\
+lectedTabIndex\x0a \
+   property alia\
+s selectedViewId\
+: root.selectedV\
+iewId\x0a  }\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x00\xee\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtQuic\
+k\x0d\x0a\x0d\x0aItem {\x0a  id\
+: root\x0a  // Expo\
+rt a ticking tim\
+estamp for laten\
+cy calculations\x0a\
+  property doubl\
+e nowTs: 0\x0a\x0a  Ti\
+mer { interval: \
+500; running: tr\
+ue; repeat: true\
+; onTriggered: r\
+oot.nowTs = Date\
+.now() }\x0a}\x0a\x0d\x0a\
+\x00\x00\x0d\xb5\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtQuic\
+k\x0a/*\x0a\x0a*/\x0aItem {\x0a\
+    // ---- Them\
+e palette ----\x0a \
+   // Name of ac\
+tive palette\x0a   \
+ property string\
+ theme: \x22techBlu\
+e\x22\x0a\x0a    property\
+ color titleColo\
+r: \x22#FFF\x22\x0a\x0a    /\
+/ Exposed colors\
+ (bind these in \
+UI)\x0a    property\
+ color primary: \
+\x22#2563eb\x22\x0a    pr\
+operty color acc\
+ent: \x22#22d3ee\x22\x0a \
+   property colo\
+r background: \x22#\
+0b1220\x22\x0a    prop\
+erty color surfa\
+ce: \x22#111827\x22\x0a  \
+  property color\
+ text: \x22#e5e7eb\x22\
+\x0a    property co\
+lor muted: \x22#94a\
+3b8\x22\x0a    // Stat\
+us colors\x0a    pr\
+operty color suc\
+cess: \x22#22c55e\x22\x0a\
+    property col\
+or warning: \x22#f5\
+9e0b\x22\x0a    proper\
+ty color danger:\
+  \x22#ef4444\x22\x0a    \
+property color i\
+nfo:    \x22#38bdf8\
+\x22\x0a\x0a    // Option\
+al common accent\
+s\x0a    property c\
+olor border:  \x22#\
+2a3441\x22\x0a    prop\
+erty color overl\
+ay: \x22#00000080\x22\x0a\
+\x0a    // Built\xe2\x80\x91\
+in palettes\x0a    \
+readonly propert\
+y var palettes: \
+({\x0a        techB\
+lue:   { primary\
+: \x22#2563eb\x22, acc\
+ent: \x22#22d3ee\x22, \
+background: \x22#0b\
+1220\x22, surface: \
+\x22#111827\x22, text:\
+ \x22#e5e7eb\x22, mute\
+d: \x22#94a3b8\x22 },\x0a\
+        emerald:\
+    { primary: \x22\
+#10b981\x22, accent\
+: \x22#34d399\x22, bac\
+kground: \x22#0d141\
+2\x22, surface: \x22#1\
+21a16\x22, text: \x22#\
+e6f4ef\x22, muted: \
+\x22#9ca3af\x22 },\x0a   \
+     amber:     \
+ { primary: \x22#f5\
+9e0b\x22, accent: \x22\
+#f97316\x22, backgr\
+ound: \x22#141008\x22,\
+ surface: \x22#1b14\
+08\x22, text: \x22#fff\
+7ed\x22, muted: \x22#f\
+ed7aa\x22 },\x0a      \
+  nightPurple:{ \
+primary: \x22#8b5cf\
+6\x22, accent: \x22#a7\
+8bfa\x22, backgroun\
+d: \x22#0f0a1f\x22, su\
+rface: \x22#15112b\x22\
+, text: \x22#ede9fe\
+\x22, muted: \x22#c4b5\
+fd\x22 },\x0a        g\
+raphite:   { pri\
+mary: \x22#64748b\x22,\
+ accent: \x22#22c55\
+e\x22, background: \
+\x22#0b0f14\x22, surfa\
+ce: \x22#131922\x22, t\
+ext: \x22#e2e8f0\x22, \
+muted: \x22#94a3b8\x22\
+ }\x0a    })\x0a\x0a    f\
+unction applyThe\
+me(name){\x0a      \
+  if (!name || !\
+palettes[name]) \
+return;\x0a        \
+theme = name;\x0a  \
+      var p = pa\
+lettes[name];\x0a  \
+      primary = \
+p.primary; accen\
+t = p.accent;\x0a  \
+      background\
+ = p.background;\
+ surface = p.sur\
+face;\x0a        te\
+xt = p.text; mut\
+ed = p.muted;\x0a  \
+      // keep st\
+atus colors cons\
+tant across them\
+es\x0a        succe\
+ss = \x22#22c55e\x22; \
+warning = \x22#f59e\
+0b\x22; danger = \x22#\
+ef4444\x22; info = \
+\x22#38bdf8\x22;\x0a     \
+   border = \x22#2a\
+3441\x22; overlay =\
+ \x22#00000080\x22;\x0a  \
+  }\x0a\x0a    functio\
+n getColor(key){\
+\x0a        // conv\
+enient lookup by\
+ string\x0a        \
+try { return thi\
+s[key]; } catch(\
+e) { return \x22tra\
+nsparent\x22 }\x0a    \
+}\x0a\x0a    Component\
+.onCompleted: ap\
+plyTheme(theme)\x0a\
+    // Normalize\
+ various forms i\
+nto a valid qrc \
+path.\x0a    // Usa\
+ge examples:\x0a   \
+ //  getIconSour\
+ce(\x22share.png\x22) \
+               -\
+> qrc:/resource/\
+icon/share.png\x0a \
+   //  getIconSo\
+urce(\x22icon/share\
+.png\x22)          \
+ -> qrc:/resourc\
+e/icon/share.png\
+\x0a    //  getIcon\
+Source(\x22resource\
+/icon/share.png\x22\
+)  -> qrc:/resou\
+rce/icon/share.p\
+ng\x0a    //  getIc\
+onSource(\x22qml/re\
+source/icon/x.pn\
+g\x22)  -> qrc:/res\
+ource/icon/x.png\
+\x0a    //  getIcon\
+Source(\x22qrc:/res\
+ource/icon/x.png\
+\x22) -> qrc:/resou\
+rce/icon/x.png\x0a \
+   function getI\
+conSource(name){\
+\x0a        if (!na\
+me || name.lengt\
+h===0)\x0a         \
+   return \x22\x22;\x0a  \
+      // Already\
+ a qrc url\x0a     \
+   if (name.inde\
+xOf(\x22qrc:\x22) === \
+0)\x0a            r\
+eturn name;\x0a    \
+    var p = Stri\
+ng(name);\x0a      \
+  // Strip leadi\
+ng ../ or .// an\
+d normalize\x0a    \
+    p = p.replac\
+e(/^[.\x5c/]+/, \x22\x22)\
+;\x0a        // Col\
+lapse backslashe\
+s just in case\x0a \
+       p = p.rep\
+lace(/\x5c\x5c/g, \x22/\x22)\
+;\x0a        // Rem\
+ove optional lea\
+ding 'qml/'\x0a    \
+    if (p.indexO\
+f(\x22qml/\x22) === 0)\
+\x0a            p =\
+ p.substring(4);\
+\x0a        // If p\
+oints into resou\
+rce/ already\x0a   \
+     if (p.index\
+Of(\x22resource/\x22) \
+=== 0)\x0a         \
+   return \x22qrc:/\
+\x22 + p;\x0a        /\
+/ Allow passing \
+subdir like 'ico\
+n/xxx.png'\x0a     \
+   if (p.indexOf\
+(\x22icon/\x22) === 0)\
+\x0a            ret\
+urn \x22qrc:/resour\
+ce/\x22 + p;\x0a      \
+  // Fall back t\
+o icon folder fo\
+r bare filenames\
+\x0a        return \
+\x22qrc:/resource/i\
+con/\x22 + p;\x0a    }\
+\x0a}\x0a\x0a\
+\x00\x00\x00\xad\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtCore\
+\x0d\x0a\x0d\x0aSettings {\x0d\x0a\
+  id: uiSettings\
+\x0d\x0a  property str\
+ing apiHost: \x2212\
+7.0.0.1\x22\x0d\x0a  prop\
+erty int apiPort\
+: 8010\x0d\x0a  proper\
+ty int refreshMs\
+: 120\x0d\x0a}\x0d\x0a\x0d\x0a\
+\x00\x00\x005\
+\xef\
+\xbb\xbfpragma Singlet\
+on\x0aimport QtQuic\
+k\x0d\x0a\x0d\x0aItem {\x0d\x0a\x0d\x0a}\
+\x0d\x0a\x0d\x0a\
+\x00\x00\x013\
+\xef\
+\xbb\xbfsingleton Core\
+ 1.0 Core.qml\x0d\x0as\
+ingleton CoreErr\
+or 1.0 CoreError\
+.qml\x0d\x0asingleton \
+CoreModels 1.0 C\
+oreModels.qml\x0d\x0as\
+ingleton CoreSet\
+tings 1.0 CoreSe\
+ttings.qml\x0d\x0asing\
+leton CoreState \
+1.0 CoreState.qm\
+l\x0d\x0asingleton Cor\
+eStyle 1.0 CoreS\
+tyle.qml\x0d\x0asingle\
+ton CoreTimer 1.\
+0 CoreTimer.qml\x0d\
+\x0asingleton CoreU\
+I 1.0 CoreUI.qml\
+\x0d\x0a\
+"
+
+qt_resource_name = b"\
+\x00\x03\
+\x00\x00x<\
+\x00q\
+\x00m\x00l\
+\x00\x0c\
+\x01\x9a\x93<\
+\x00A\
+\x00p\x00p\x00_\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x05\
+\x00jh\xc3\
+\x00c\
+\x00o\x00r\x00e\x00s\
+\x00\x0a\
+\x07j\x093\
+\x00c\
+\x00o\x00m\x00p\x00o\x00n\x00e\x00n\x00t\x00s\
+\x00\x03\
+\x00\x00Hi\
+\x00A\
+\x00p\x00i\
+\x00\x07\
+\x06wX\x9c\
+\x00R\
+\x00B\x00T\x00.\x00q\x00m\x00l\
+\x00\x0b\
+\x03\x97^<\
+\x00m\
+\x00i\x00n\x00i\x00m\x00a\x00l\x00.\x00q\x00m\x00l\
+\x00\x07\
+\x0a\xf85#\
+\x00d\
+\x00i\x00a\x00l\x00o\x00g\x00s\
+\x00\x04\
+\x00\x07<U\
+\x00m\
+\x00e\x00n\x00u\
+\x00\x05\
+\x00|\xfc\xe3\
+\x00v\
+\x00i\x00e\x00w\x00s\
+\x00\x07\
+\x0aZ\x1c\x13\
+\x00S\
+\x00o\x00c\x00k\x00e\x00t\x00s\
+\x00\x09\
+\x06\x9a_S\
+\x00s\
+\x00h\x00o\x00r\x00t\x00c\x00u\x00t\x00s\
+\x00\x05\
+\x00v}\xc3\
+\x00p\
+\x00a\x00g\x00e\x00s\
+\x00\x08\
+\x08\x01Z\x5c\
+\x00m\
+\x00a\x00i\x00n\x00.\x00q\x00m\x00l\
+\x00\x04\
+\x00\x06\xd6d\
+\x00f\
+\x00o\x00o\x00t\
+\x00\x0f\
+\x0c\xd2\x02\xfc\
+\x00M\
+\x00a\x00i\x00n\x00L\x00a\x00y\x00o\x00u\x00t\x00s\x00.\x00q\x00m\x00l\
+\x00\x04\
+\x00\x077\xfe\
+\x00m\
+\x00a\x00i\x00n\
+\x00\x04\
+\x00\x06\xebt\
+\x00h\
+\x00e\x00a\x00d\
+\x00\x0e\
+\x09\xda\x06\x1c\
+\x00T\
+\x00i\x00t\x00l\x00e\x00L\x00a\x00b\x00e\x00l\x00.\x00q\x00m\x00l\
+\x00\x0c\
+\x04t\xd7\xdc\
+\x00I\
+\x00t\x00e\x00m\x00I\x00c\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0c\
+\x06 \xa7\xbc\
+\x00H\
+\x00e\x00a\x00d\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x15\
+\x06{A|\
+\x00V\
+\x00i\x00e\x00w\x00C\x00h\x00a\x00n\x00g\x00e\x00T\x00a\x00b\x00V\x00i\x00e\x00w\
+\x00.\x00q\x00m\x00l\
+\x00\x0c\
+\x06>\x93\xbc\
+\x00I\
+\x00c\x00o\x00n\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x10\
+\x0a\x9c\x83\x1c\
+\x00D\
+\x00a\x00t\x00e\x00T\x00i\x00m\x00e\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x07\xf35\xfc\
+\x00I\
+\x00c\x00o\x00n\x00L\x00a\x00b\x00e\x00l\x00.\x00q\x00m\x00l\
+\x00\x0a\
+\x0b\xdb0\xf5\
+\x00d\
+\x00e\x00b\x00u\x00g\x00_\x00p\x00a\x00g\x00e\
+\x00\x0d\
+\x0a\xc6=\x9c\
+\x00M\
+\x00a\x00i\x00n\x00P\x00a\x00g\x00e\x00s\x00.\x00q\x00m\x00l\
+\x00\x09\
+\x0c\x86\x9e\xf5\
+\x00u\
+\x00s\x00e\x00r\x00_\x00p\x00a\x00g\x00e\
+\x00\x09\
+\x0a\xa6\x92U\
+\x00t\
+\x00e\x00s\x00t\x00_\x00p\x00a\x00g\x00e\
+\x00\x09\
+\x08&\x96\xb5\
+\x00r\
+\x00e\x00a\x00l\x00_\x00p\x00a\x00g\x00e\
+\x00\x10\
+\x0d\x13\xcf\xbc\
+\x00R\
+\x00e\x00a\x00l\x00P\x00a\x00g\x00e\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x10\
+\x0d\x13S\x1c\
+\x00T\
+\x00e\x00s\x00t\x00P\x00a\x00g\x00e\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x10\
+\x01\x12\xc6\xbc\
+\x00U\
+\x00s\x00e\x00r\x00P\x00a\x00g\x00e\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x11\
+\x06/\x07\x5c\
+\x00D\
+\x00e\x00b\x00u\x00g\x00P\x00a\x00g\x00e\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\
+\x00\x0c\
+\x06f\x87\xbc\
+\x00F\
+\x00o\x00o\x00t\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x13\
+\x039\xb8\xbc\
+\x00S\
+\x00h\x00o\x00r\x00t\x00c\x00u\x00t\x00M\x00a\x00n\x00a\x00g\x00e\x00r\x00.\x00q\
+\x00m\x00l\
+\x00\x0b\
+\x0c\x02\xe4\x1c\
+\x00S\
+\x00o\x00c\x00k\x00e\x00t\x00s\x00.\x00q\x00m\x00l\
+\x00\x06\
+\x07\x84+\x02\
+\x00q\
+\x00m\x00l\x00d\x00i\x00r\
+\x00\x0f\
+\x05\xd2\x96|\
+\x00E\
+\x00d\x00i\x00t\x00o\x00r\x00P\x00a\x00n\x00e\x00l\x00.\x00q\x00m\x00l\
+\x00\x0a\
+\x08\x8e<\xbc\
+\x00T\
+\x00o\x00p\x00B\x00a\x00r\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x05\xc72\x9c\
+\x00S\
+\x00t\x00a\x00t\x00u\x00s\x00P\x00a\x00n\x00e\x00l\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x06?\xe0\xdc\
+\x00V\
+\x00i\x00d\x00e\x00o\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x0d*\x01\x5c\
+\x00S\
+\x00a\x00f\x00e\x00t\x00y\x00P\x00a\x00n\x00e\x00l\x00.\x00q\x00m\x00l\
+\x00\x09\
+\x00\xc9\x93\xef\
+\x00D\
+\x00r\x00i\x00v\x00e\x00I\x00n\x00f\x00o\
+\x00\x0f\
+\x02\xb2m\x9c\
+\x00M\
+\x00o\x00t\x00i\x00o\x00n\x00P\x00a\x00n\x00e\x00l\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x00w\x1a\x1c\
+\x00C\
+\x00o\x00m\x00m\x00P\x00a\x00n\x00e\x00l\x00.\x00q\x00m\x00l\
+\x00\x09\
+\x07\xd9dO\
+\x00I\
+\x00n\x00a\x00g\x00e\x00I\x00n\x00f\x00o\
+\x00\x11\
+\x0d\x02\xe2\xdc\
+\x00I\
+\x00n\x00a\x00g\x00e\x00I\x00n\x00f\x00o\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\
+\x00\x11\
+\x0c\xf1\xbe\x9c\
+\x00D\
+\x00r\x00i\x00v\x00e\x00I\x00n\x00f\x00o\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\
+\x00\x12\
+\x02x\xcd\x1c\
+\x00S\
+\x00e\x00t\x00t\x00i\x00n\x00g\x00s\x00D\x00r\x00a\x00w\x00e\x00r\x00.\x00q\x00m\
+\x00l\
+\x00\x14\
+\x0au*\xbc\
+\x00T\
+\x00e\x00s\x00t\x00I\x00m\x00a\x00g\x00e\x00s\x00D\x00i\x00a\x00l\x00o\x00g\x00.\
+\x00q\x00m\x00l\
+\x00\x13\
+\x09B\xbb<\
+\x00G\
+\x00l\x00o\x00b\x00E\x00r\x00r\x00o\x00r\x00D\x00i\x00a\x00l\x00o\x00g\x00.\x00q\
+\x00m\x00l\
+\x00\x07\
+\x0f\xbb5\x93\
+\x00H\
+\x00t\x00t\x00p\x00.\x00j\x00s\
+\x00\x0d\
+\x0c\x8c\x14\xfc\
+\x00A\
+\x00p\x00i\x00C\x00l\x00i\x00e\x00n\x00t\x00.\x00q\x00m\x00l\
+\x00\x08\
+\x096_\xbc\
+\x00U\
+\x00r\x00l\x00s\x00.\x00q\x00m\x00l\
+\x00\x04\
+\x00\x06\x9bS\
+\x00b\
+\x00t\x00n\x00s\
+\x00\x04\
+\x00\x04\x88\x95\
+\x00B\
+\x00a\x00s\x00e\
+\x00\x10\
+\x0b\x1f\x05\x9c\
+\x00L\
+\x00i\x00s\x00t\x00V\x00i\x00e\x00w\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0c\
+\x03 6<\
+\x00F\
+\x00i\x00l\x00l\x00I\x00t\x00e\x00m\x00.\x00q\x00m\x00l\
+\x00\x10\
+\x0c\x99\xa6\x5c\
+\x00M\
+\x00e\x00n\x00u\x00I\x00t\x00e\x00m\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x11\
+\x0f\xe4\x00\xbc\
+\x00S\
+\x00c\x00r\x00o\x00l\x00l\x00B\x00a\x00r\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\
+\x00\x0c\
+\x01d\x95<\
+\x00I\
+\x00c\x00o\x00n\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x12\
+\x06\x87\x19|\
+\x00D\
+\x00r\x00o\x00p\x00S\x00h\x00a\x00d\x00o\x00w\x00B\x00a\x00s\x00e\x00.\x00q\x00m\
+\x00l\
+\x00\x0c\
+\x0d~\xe6<\
+\x00F\
+\x00o\x00n\x00t\x00I\x00n\x00f\x00o\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x0a\x99\x0c|\
+\x00L\
+\x00a\x00y\x00o\x00u\x00t\x00F\x00I\x00t\x00e\x00n\x00.\x00q\x00m\x00l\
+\x00\x19\
+\x09\x0ax|\
+\x00A\
+\x00p\x00p\x00l\x00i\x00c\x00a\x00t\x00i\x00o\x00n\x00W\x00i\x00n\x00d\x00o\x00w\
+\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x02\xeb\x14\x5c\
+\x00S\
+\x00e\x00l\x00e\x00c\x00t\x00I\x00t\x00e\x00m\x00.\x00q\x00m\x00l\
+\x00\x13\
+\x0c\x5c\x00\x1c\
+\x00S\
+\x00e\x00l\x00e\x00c\x00t\x00R\x00e\x00c\x00t\x00a\x00n\x00g\x00l\x00e\x00.\x00q\
+\x00m\x00l\
+\x00\x0e\
+\x02\xdf\xcd\xfc\
+\x00B\
+\x00o\x00r\x00d\x00e\x00r\x00V\x00i\x00e\x00w\x00.\x00q\x00m\x00l\
+\x00\x11\
+\x08\x80y\x9c\
+\x00R\
+\x00o\x00w\x00L\x00a\x00y\x00o\x00u\x00t\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\
+\x00\x14\
+\x04#\x8f\xdc\
+\x00I\
+\x00t\x00e\x00m\x00D\x00e\x00l\x00e\x00g\x00a\x00t\x00e\x00B\x00a\x00s\x00e\x00.\
+\x00q\x00m\x00l\
+\x00\x11\
+\x08\x8e6\xbc\
+\x00B\
+\x00a\x00s\x00e\x00B\x00a\x00s\x00e\x00L\x00a\x00b\x00e\x00l\x00.\x00q\x00m\x00l\
+\
+\x00\x1a\
+\x0cTV<\
+\x00R\
+\x00e\x00c\x00t\x00a\x00n\x00g\x00l\x00e\x00_\x00I\x00t\x00e\x00m\x00D\x00e\x00l\
+\x00e\x00g\x00a\x00t\x00e\x00.\x00q\x00m\x00l\
+\x00\x15\
+\x03-x\x5c\
+\x00R\
+\x00a\x00d\x00i\x00o\x00D\x00e\x00l\x00e\x00g\x00a\x00t\x00e\x00B\x00a\x00s\x00e\
+\x00.\x00q\x00m\x00l\
+\x00\x0b\
+\x08\x0e\x83|\
+\x00N\
+\x00o\x00w\x00D\x00a\x00t\x00e\x00.\x00q\x00m\x00l\
+\x00\x17\
+\x0a\x93\x81\x5c\
+\x00D\
+\x00r\x00o\x00p\x00S\x00h\x00a\x00d\x00o\x00w\x00R\x00e\x00c\x00t\x00a\x00n\x00g\
+\x00l\x00e\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x07\xac\xbc\xbc\
+\x00R\
+\x00e\x00O\x00r\x00d\x00e\x00r\x00I\x00t\x00e\x00m\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x02\xb3{\x5c\
+\x00S\
+\x00p\x00l\x00i\x00t\x00V\x00i\x00e\x00w\x00_\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x0fT2\x5c\
+\x00E\
+\x00f\x00R\x00e\x00c\x00t\x00a\x00n\x00g\x00l\x00e\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x0e\xa4c|\
+\x00E\
+\x00f\x00f\x00e\x00c\x00t\x00I\x00m\x00a\x00g\x00e\x00.\x00q\x00m\x00l\
+\x00\x12\
+\x04\xfa\xed\x5c\
+\x00F\
+\x00l\x00i\x00c\x00k\x00a\x00b\x00l\x00e\x00V\x00B\x00a\x00s\x00e\x00.\x00q\x00m\
+\x00l\
+\x00\x0e\
+\x06IO\xbc\
+\x00T\
+\x00a\x00b\x00B\x00a\x00r\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x06\xc7\x19|\
+\x00B\
+\x00a\x00s\x00e\x00I\x00m\x00a\x00g\x00e\x00.\x00q\x00m\x00l\
+\x00\x15\
+\x01]\xec\xdc\
+\x00C\
+\x00h\x00e\x00c\x00k\x00D\x00e\x00l\x00e\x00g\x00a\x00t\x00e\x00B\x00a\x00s\x00e\
+\x00.\x00q\x00m\x00l\
+\x00\x11\
+\x0bR\xbd\xbc\
+\x00F\
+\x00l\x00i\x00c\x00k\x00a\x00b\x00l\x00e\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\
+\x00\x10\
+\x0dt\xde\x9c\
+\x00P\
+\x00o\x00p\x00T\x00i\x00t\x00l\x00e\x00H\x00e\x00a\x00d\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x08\xc7\xe8\xfc\
+\x00S\
+\x00p\x00i\x00n\x00B\x00o\x00x\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x09\
+\x02\xbd\x1fC\
+\x00D\
+\x00e\x00l\x00e\x00g\x00a\x00t\x00e\x00s\
+\x00\x0e\
+\x0a\x92\x7f|\
+\x00B\
+\x00a\x00s\x00e\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x00mr\xfc\
+\x00R\
+\x00M\x00o\x00u\x00s\x00e\x00A\x00r\x00e\x00a\x00.\x00q\x00m\x00l\
+\x00\x10\
+\x08$$\x9c\
+\x00A\
+\x00p\x00i\x00T\x00h\x00r\x00e\x00a\x00d\x00G\x00e\x00t\x00.\x00q\x00m\x00l\
+\x00\x10\
+\x0e\x8b\xed\xdc\
+\x00S\
+\x00e\x00t\x00t\x00i\x00n\x00g\x00s\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x01\xcb_\xfc\
+\x00E\
+\x00f\x00f\x00e\x00c\x00t\x00L\x00a\x00b\x00e\x00l\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x06[\xe0|\
+\x00P\
+\x00o\x00p\x00u\x00p\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0c\
+\x09i\x05|\
+\x00D\
+\x00a\x00t\x00e\x00T\x00i\x00m\x00e\x00.\x00q\x00m\x00l\
+\x00\x0a\
+\x05\xb6\x1b\xbc\
+\x00N\
+\x00C\x00E\x00n\x00u\x00m\x00.\x00q\x00m\x00l\
+\x00\x0c\
+\x02\xf0\xe7<\
+\x00M\
+\x00e\x00n\x00u\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x11\
+\x00\x8b\xcb\x5c\
+\x00T\
+\x00a\x00b\x00B\x00u\x00t\x00t\x00o\x00n\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\
+\x00\x10\
+\x0a\xf8\x19\xdc\
+\x00C\
+\x00o\x00m\x00b\x00o\x00B\x00o\x00x\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x0f\xb4\xb6<\
+\x00T\
+\x00u\x00m\x00b\x00l\x00e\x00r\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x0de\xcf\xbc\
+\x00S\
+\x00l\x00i\x00d\x00e\x00r\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0c\
+\x02H\xc7<\
+\x00P\
+\x00a\x00n\x00e\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x10\
+\x0dU\x85\x9c\
+\x00R\
+\x00e\x00H\x00e\x00i\x00g\x00h\x00t\x00I\x00t\x00e\x00m\x00.\x00q\x00m\x00l\
+\x00\x19\
+\x00\xf2\xd8\x1c\
+\x00R\
+\x00e\x00O\x00r\x00d\x00e\x00r\x00R\x00e\x00s\x00i\x00z\x00e\x00D\x00e\x00l\x00e\
+\x00g\x00a\x00t\x00e\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x01Jp\x9c\
+\x00R\
+\x00e\x00W\x00i\x00d\x00t\x00h\x00I\x00t\x00e\x00m\x00.\x00q\x00m\x00l\
+\x00\x08\
+\x0c\xa7_|\
+\x00T\
+\x00e\x00s\x00t\x00.\x00q\x00m\x00l\
+\x00\x13\
+\x07v*\x5c\
+\x00R\
+\x00e\x00O\x00r\x00d\x00e\x00r\x00D\x00e\x00l\x00e\x00g\x00a\x00t\x00e\x00.\x00q\
+\x00m\x00l\
+\x00\x0e\
+\x0b\xf6|\x9c\
+\x00P\
+\x00i\x00n\x00g\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x14\
+\x0cK\xcc\xbc\
+\x00C\
+\x00o\x00l\x00o\x00r\x00I\x00m\x00a\x00g\x00e\x00B\x00u\x00t\x00t\x00o\x00n\x00.\
+\x00q\x00m\x00l\
+\x00\x12\
+\x0a\x11\xa4\xdc\
+\x00E\
+\x00x\x00p\x00l\x00o\x00r\x00e\x00r\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\
+\x00l\
+\x00\x0b\
+\x09o\x89|\
+\x00M\
+\x00o\x00r\x00e\x00S\x00e\x00t\x00.\x00q\x00m\x00l\
+\x00\x1b\
+\x0db\x16\xdc\
+\x00W\
+\x00i\x00n\x00d\x00o\x00w\x00M\x00o\x00d\x00e\x00l\x00C\x00h\x00a\x00n\x00g\x00e\
+\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x05\x131\x9c\
+\x00I\
+\x00m\x00a\x00g\x00e\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0a\
+\x09\xbb\xa9\x1c\
+\x00P\
+\x00r\x00e\x00B\x00t\x00n\x00.\x00q\x00m\x00l\
+\x00\x0b\
+\x08\x075<\
+\x00B\
+\x00t\x00n\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x17\
+\x01O\xdc\xfc\
+\x00R\
+\x00e\x00m\x00o\x00t\x00e\x00C\x00o\x00n\x00t\x00r\x00o\x00l\x00B\x00u\x00t\x00t\
+\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x02\x99]\xbc\
+\x00F\
+\x00l\x00u\x00s\x00h\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x13\
+\x0b<\xe2\x1c\
+\x00C\
+\x00l\x00o\x00s\x00e\x00B\x00t\x00n\x00F\x00o\x00r\x00m\x00.\x00u\x00i\x00.\x00q\
+\x00m\x00l\
+\x00\x12\
+\x05\x1c\x85|\
+\x00S\
+\x00e\x00t\x00t\x00i\x00n\x00g\x00s\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\
+\x00l\
+\x00\x10\
+\x0e\x8e\xd9|\
+\x00S\
+\x00w\x00i\x00t\x00c\x00h\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0b\
+\x09\x18\xcb<\
+\x00N\
+\x00e\x00x\x00t\x00B\x00t\x00n\x00.\x00q\x00m\x00l\
+\x00\x1f\
+\x0a\xbb\x0f\xfc\
+\x00C\
+\x00o\x00l\x00o\x00r\x00I\x00t\x00e\x00m\x00D\x00e\x00l\x00e\x00g\x00a\x00t\x00e\
+\x00B\x00u\x00t\x00t\x00o\x00n\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x040p\x5c\
+\x00A\
+\x00d\x00d\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0f\
+\x0a\xe1(\xbc\
+\x00L\
+\x00a\x00b\x00e\x00l\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x0ez|\x9c\
+\x00P\
+\x00l\x00a\x00y\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x02\xd2p|\
+\x00E\
+\x00y\x00e\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0c\
+\x00\xf7\x87\x1c\
+\x00C\
+\x00l\x00o\x00s\x00e\x00B\x00t\x00n\x00.\x00q\x00m\x00l\
+\x00\x1a\
+\x08\x91&\xbc\
+\x00I\
+\x00t\x00e\x00m\x00D\x00e\x00l\x00e\x00g\x00a\x00t\x00e\x00B\x00u\x00t\x00t\x00o\
+\x00n\x00B\x00a\x00s\x00e\x00.\x00q\x00m\x00l\
+\x00\x09\
+\x09\xb1\xdb\x9c\
+\x00A\
+\x00i\x00B\x00t\x00n\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x02\xd0{\xfc\
+\x00T\
+\x00e\x00x\x00t\x00B\x00u\x00t\x00t\x00o\x00n\x00.\x00q\x00m\x00l\
+\x00\x0a\
+\x0a\x95\x1d<\
+\x00C\
+\x00o\x00r\x00e\x00U\x00I\x00.\x00q\x00m\x00l\
+\x00\x08\
+\x06\x88a|\
+\x00C\
+\x00o\x00r\x00e\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x0d\xb4p<\
+\x00C\
+\x00o\x00r\x00e\x00E\x00r\x00r\x00o\x00r\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x0cy\x04\x5c\
+\x00C\
+\x00o\x00r\x00e\x00S\x00t\x00a\x00t\x00e\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x07\x14\x05\x1c\
+\x00C\
+\x00o\x00r\x00e\x00T\x00i\x00m\x00e\x00r\x00.\x00q\x00m\x00l\
+\x00\x0d\
+\x0c\xf9\x04|\
+\x00C\
+\x00o\x00r\x00e\x00S\x00t\x00y\x00l\x00e\x00.\x00q\x00m\x00l\
+\x00\x10\
+\x01\xd1\xa8\x1c\
+\x00C\
+\x00o\x00r\x00e\x00S\x00e\x00t\x00t\x00i\x00n\x00g\x00s\x00.\x00q\x00m\x00l\
+\x00\x0e\
+\x09\x22\xd1\xfc\
+\x00C\
+\x00o\x00r\x00e\x00M\x00o\x00d\x00e\x00l\x00s\x00.\x00q\x00m\x00l\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x0d\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00T\x00\x02\x00\x00\x00\x04\x00\x00\x00\x8c\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\xa4\x00\x02\x00\x00\x00\x01\x00\x00\x00\x8b\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00*\x00\x02\x00\x00\x00\x09\x00\x00\x00\x82\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\xee\x00\x02\x00\x00\x00\x04\x00\x00\x00m\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\xb2\x00\x02\x00\x00\x00\x0a\x00\x00\x00a\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x99\xd1\xc5\xfa|\
+\x00\x00\x00t\x00\x00\x00\x00\x00\x01\x00\x00\x02\xf7\
+\x00\x00\x01\x99\xcd\x83\xa1~\
+\x00\x00\x00`\x00\x00\x00\x00\x00\x01\x00\x00\x01\xd3\
+\x00\x00\x01\x99\xd2\x0f\x18\x83\
+\x00\x00\x00\xd6\x00\x02\x00\x00\x00\x01\x00\x00\x00`\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00:\x00\x02\x00\x00\x00\x02\x00\x00\x00\x13\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\xfe\x00\x00\x00\x00\x00\x01\x00\x00\x05\x1a\
+\x00\x00\x01\x99\xd2\x9a\x7f\x04\
+\x00\x00\x00\xc2\x00\x02\x00\x00\x00\x02\x00\x00\x00\x11\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x90\x00\x02\x00\x00\x00\x02\x00\x00\x00\x0f\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x05\xaa\x00\x00\x00\x00\x00\x01\x00\x00\x8e\xa9\
+\x00\x00\x01\x99\xd1\xc4\x1c\x0f\
+\x00\x00\x05|\x00\x00\x00\x00\x00\x01\x00\x00~\xa6\
+\x00\x00\x01\x99\xcd\x83 6\
+\x00\x00\x03\xd6\x00\x00\x00\x00\x00\x01\x00\x00@\xf2\
+\x00\x00\x01\x99\xd2\x16\xcb\x10\
+\x00\x00\x03\xba\x00\x00\x00\x00\x00\x01\x00\x009k\
+\x00\x00\x01\x99\xd2\x9c\xc5S\
+\x00\x00\x06.\x00\x02\x00\x00\x00-\x00\x00\x00-\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x06 \x00\x02\x00\x00\x00\x18\x00\x00\x00\x15\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x10r\x00\x00\x00\x00\x00\x01\x00\x01)\xe5\
+\x00\x00\x01\x99\xd13\x9bF\
+\x00\x00\x0e\xb8\x00\x00\x00\x00\x00\x01\x00\x01\x1b\x9e\
+\x00\x00\x01\x99\xd1\xbfe\x00\
+\x00\x00\x0e\xec\x00\x00\x00\x00\x00\x01\x00\x01\x1cd\
+\x00\x00\x01\x99\xd1\xbfd\xf6\
+\x00\x00\x10\xe2\x00\x00\x00\x00\x00\x01\x00\x01.\x8d\
+\x00\x00\x01\x99\xd13\x9be\
+\x00\x00\x10R\x00\x00\x00\x00\x00\x01\x00\x01(\xf4\
+\x00\x00\x01\x99\xd1\xbfd\xf2\
+\x00\x00\x08(\x00\x00\x00\x00\x00\x01\x00\x01\x17<\
+\x00\x00\x01\x99\xd13\x9bT\
+\x00\x00\x0f\xec\x00\x00\x00\x00\x00\x01\x00\x01%F\
+\x00\x00\x01\x99\xd1\xbfd\xed\
+\x00\x00\x0e^\x00\x00\x00\x00\x00\x01\x00\x01\x15y\
+\x00\x00\x01\x99\xd13\x9bS\
+\x00\x00\x0f<\x00\x00\x00\x00\x00\x01\x00\x01\x1fT\
+\x00\x00\x01\x99\xd1\x09\xad\xf6\
+\x00\x00\x0e\x9c\x00\x00\x00\x00\x00\x01\x00\x01\x19\x8a\
+\x00\x00\x01\x99\xd13\x9bE\
+\x00\x00\x10\x90\x00\x00\x00\x00\x00\x01\x00\x01*\x10\
+\x00\x00\x01\x99\xd1\x09\xeb\x82\
+\x00\x00\x0f\x8c\x00\x00\x00\x00\x00\x01\x00\x01 \x7f\
+\x00\x00\x01\x99\xd1\xbfd\xfa\
+\x00\x00\x0e\x06\x00\x00\x00\x00\x00\x01\x00\x01\x13\x11\
+\x00\x00\x01\x99\xd1\xbfd\xf8\
+\x00\x00\x10\xca\x00\x00\x00\x00\x00\x01\x00\x01,\x03\
+\x00\x00\x01\x99\xd1\xbfd\xf0\
+\x00\x00\x0e\x82\x00\x00\x00\x00\x00\x01\x00\x01\x17\xe9\
+\x00\x00\x01\x99\xd1\xbfd\xfe\
+\x00\x00\x0d\xdc\x00\x00\x00\x00\x00\x01\x00\x01\x12G\
+\x00\x00\x01\x99\xd1\xbfd\xf4\
+\x00\x00\x0f\xa8\x00\x00\x00\x00\x00\x01\x00\x01\x22\xd8\
+\x00\x00\x01\x99\xd13\x9bK\
+\x00\x00\x10\x0c\x00\x00\x00\x00\x00\x01\x00\x01%\xc4\
+\x00\x00\x01\x99\xd13\x9bV\
+\x00\x00\x0f\x10\x00\x00\x00\x00\x00\x01\x00\x01\x1e`\
+\x00\x00\x01\x99\xd1\xbfe\x05\
+\x00\x00\x0d\x8c\x00\x00\x00\x00\x00\x01\x00\x01\x0c\x9e\
+\x00\x00\x01\x99\xd1\xbfd\xfc\
+\x00\x00\x0d\xae\x00\x00\x00\x00\x00\x01\x00\x01\x0dW\
+\x00\x00\x01\x99\xd1\xbfe\x08\
+\x00\x00\x0e\x22\x00\x00\x00\x00\x00\x01\x00\x01\x14\x0d\
+\x00\x00\x01\x99\xd1\xbfe\x03\
+\x00\x00\x100\x00\x00\x00\x00\x00\x01\x00\x01(\xb7\
+\x00\x00\x01\x99\xd13\x9b^\
+\x00\x00\x0ff\x00\x00\x00\x00\x00\x01\x00\x01\x1f\x89\
+\x00\x00\x01\x99\xd1\xbfe\x02\
+\x00\x00\x0b\x0e\x00\x00\x00\x00\x00\x01\x00\x00\xe4\xb9\
+\x00\x00\x01\x99\xd13\x9b+\
+\x00\x00\x0c\x16\x00\x00\x00\x00\x00\x01\x00\x00\xefg\
+\x00\x00\x01\x99\xd13\x9b=\
+\x00\x00\x0a2\x00\x00\x00\x00\x00\x01\x00\x00\xdf*\
+\x00\x00\x01\x99\xd13\x9a\xff\
+\x00\x00\x06\xce\x00\x00\x00\x00\x00\x01\x00\x00\xa7\xbf\
+\x00\x00\x01\x99\xd13\x9b\x12\
+\x00\x00\x0b|\x00\x00\x00\x00\x00\x01\x00\x00\xe9^\
+\x00\x00\x01\x99\xd0\xf7~\x9f\
+\x00\x00\x0c\xaa\x00\x00\x00\x00\x00\x01\x00\x00\xf2\xaa\
+\x00\x00\x01\x99\xd13\x9b \
+\x00\x00\x09\x5c\x00\x00\x00\x00\x00\x01\x00\x00\xce\x09\
+\x00\x00\x01\x99\xd17\xe5L\
+\x00\x00\x0a\xd4\x00\x02\x00\x00\x00\x06\x00\x00\x00Z\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x07\xde\x00\x01\x00\x00\x00\x01\x00\x00\xb1A\
+\x00\x00\x01\x99\xd13\x9a\xfe\
+\x00\x00\x07\x90\x00\x00\x00\x00\x00\x01\x00\x00\xadW\
+\x00\x00\x01\x99\xd13\x9b0\
+\x00\x00\x0b\xf8\x00\x00\x00\x00\x00\x01\x00\x00\xef\x08\
+\x00\x00\x01\x99\xd13\x9b\x19\
+\x00\x00\x06b\x00\x00\x00\x00\x00\x01\x00\x00\xa6\xad\
+\x00\x00\x01\x99\xd1H\xd1\xc4\
+\x00\x00\x08\xb8\x00\x00\x00\x00\x00\x01\x00\x00\xc01\
+\x00\x00\x01\x99\xd13\x9b&\
+\x00\x00\x08(\x00\x00\x00\x00\x00\x01\x00\x00\xb2\xfb\
+\x00\x00\x01\x99\xd13\x9b\x13\
+\x00\x00\x09\xc6\x00\x00\x00\x00\x00\x01\x00\x00\xde\x14\
+\x00\x00\x01\x99\xd13\x9b\x0e\
+\x00\x00\x0b\xde\x00\x00\x00\x00\x00\x01\x00\x00\xeb\xc0\
+\x00\x00\x01\x99\xd13\x9b\x1d\
+\x00\x00\x09\xf0\x00\x00\x00\x00\x00\x01\x00\x00\xde\x85\
+\x00\x00\x01\x99\xd13\x9b<\
+\x00\x00\x0b\xa0\x00\x00\x00\x00\x00\x01\x00\x00\xe9\xd7\
+\x00\x00\x01\x99\xd13\x9b$\
+\x00\x00\x06\xec\x00\x00\x00\x00\x00\x01\x00\x00\xaa!\
+\x00\x00\x01\x99\xd0\xf7A\xc9\
+\x00\x00\x0a\x12\x00\x00\x00\x00\x00\x01\x00\x00\xdf\x03\
+\x00\x00\x01\x99\xd13\x9a\xfc\
+\x00\x00\x098\x00\x00\x00\x00\x00\x01\x00\x00\xc40\
+\x00\x00\x01\x99\xd13\x9b)\
+\x00\x00\x08\xe8\x00\x00\x00\x00\x00\x01\x00\x00\xc0\xbc\
+\x00\x00\x01\x99\xd13\x9b\x1e\
+\x00\x00\x0b0\x00\x00\x00\x00\x00\x01\x00\x00\xe5\x1a\
+\x00\x00\x01\x99\xd17\xe4\xd7\
+\x00\x00\x08\x00\x00\x00\x00\x00\x00\x01\x00\x00\xb2\xba\
+\x00\x00\x01\x99\xd13\x9b-\
+\x00\x00\x08V\x00\x00\x00\x00\x00\x01\x00\x00\xb3b\
+\x00\x00\x01\x99\xd0\xf4\x15\xf2\
+\x00\x00\x0a\xb0\x00\x00\x00\x00\x00\x01\x00\x00\xe3b\
+\x00\x00\x01\x99\xd13\x9b7\
+\x00\x00\x07X\x00\x00\x00\x00\x00\x01\x00\x00\xad\x0f\
+\x00\x00\x01\x99\xd13\x9a\xf7\
+\x00\x00\x0b\xc0\x00\x00\x00\x00\x00\x01\x00\x00\xea\xc2\
+\x00\x00\x01\x99\xd13\x9b\x03\
+\x00\x00\x0a\xec\x00\x00\x00\x00\x00\x01\x00\x00\xe3\xa2\
+\x00\x00\x01\x99\xd13\x9a\xfa\
+\x00\x00\x09\x04\x00\x00\x00\x00\x00\x01\x00\x00\xc30\
+\x00\x00\x01\x99\xd13\x9b\x05\
+\x00\x00\x074\x00\x00\x00\x00\x00\x01\x00\x00\xac\x9a\
+\x00\x00\x01\x99\xd13\x9b\x15\
+\x00\x00\x0c>\x00\x00\x00\x00\x00\x01\x00\x00\xef\xce\
+\x00\x00\x01\x99\xd13\x9b\x02\
+\x00\x00\x06<\x00\x00\x00\x00\x00\x01\x00\x00\xa6@\
+\x00\x00\x01\x99\xd13\x9b\x16\
+\x00\x00\x0ab\x00\x00\x00\x00\x00\x01\x00\x00\xdf\xd7\
+\x00\x00\x01\x99\xd13\x9b\x0c\
+\x00\x00\x08~\x00\x00\x00\x00\x00\x01\x00\x00\xb3\x9f\
+\x00\x00\x01\x99\xd13\x9b'\
+\x00\x00\x07\xb2\x00\x00\x00\x00\x00\x01\x00\x00\xb0\xdd\
+\x00\x00\x01\x99\xd13\x9b2\
+\x00\x00\x06\x80\x00\x00\x00\x00\x00\x01\x00\x00\xa7\x1a\
+\x00\x00\x01\x99\xd13\x9b\x1b\
+\x00\x00\x0c\x88\x00\x00\x00\x00\x00\x01\x00\x00\xf28\
+\x00\x00\x01\x99\xd13\x9b6\
+\x00\x00\x0a\x8a\x00\x00\x00\x00\x00\x01\x00\x00\xe0\x19\
+\x00\x00\x01\x99\xd13\x9b\x22\
+\x00\x00\x07\x16\x00\x01\x00\x00\x00\x01\x00\x00\xabD\
+\x00\x00\x01\x99\xd13\x9b\x0f\
+\x00\x00\x0bV\x00\x00\x00\x00\x00\x01\x00\x00\xe8\x7f\
+\x00\x00\x01\x99\xd13\x9b4\
+\x00\x00\x09\xa2\x00\x00\x00\x00\x00\x01\x00\x00\xdc\x15\
+\x00\x00\x01\x99\xd0\xda\xa27\
+\x00\x00\x09~\x00\x00\x00\x00\x00\x01\x00\x00\xdb\x9c\
+\x00\x00\x01\x99\xd13\x9b\x09\
+\x00\x00\x0cd\x00\x00\x00\x00\x00\x01\x00\x00\xf0A\
+\x00\x00\x01\x99\xd13\x9b?\
+\x00\x00\x06\xa6\x00\x00\x00\x00\x00\x01\x00\x00\xa7}\
+\x00\x00\x01\x99\xd13\x9b.\
+\x00\x00\x0c\xee\x00\x01\x00\x00\x00\x01\x00\x00\xfb\xa3\
+\x00\x00\x01\x99\xd13\x9a\xf0\
+\x00\x00\x0d&\x00\x00\x00\x00\x00\x01\x00\x00\xfdf\
+\x00\x00\x01\x99\xd13\x9a\xf2\
+\x00\x00\x0d`\x00\x00\x00\x00\x00\x01\x00\x01\x04O\
+\x00\x00\x01\x99\xd13\x9a\xea\
+\x00\x00\x098\x00\x01\x00\x00\x00\x01\x00\x00\xf8}\
+\x00\x00\x01\x99\xd13\x9a\xed\
+\x00\x00\x0dJ\x00\x00\x00\x00\x00\x01\x00\x01\x02\xf8\
+\x00\x00\x01\x99\xd13\x9a\xf4\
+\x00\x00\x0c\xc8\x00\x00\x00\x00\x00\x01\x00\x00\xf3L\
+\x00\x00\x01\x99\xd13\x9a^\
+\x00\x00\x03\x8e\x00\x00\x00\x00\x00\x01\x00\x0079\
+\x00\x00\x01\x99\xd2_\x80\xeb\
+\x00\x00\x04\xca\x00\x00\x00\x00\x00\x01\x00\x00m\xe4\
+\x00\x00\x01\x99\xcd3\xab\xad\
+\x00\x00\x04\x8e\x00\x02\x00\x00\x00\x01\x00\x00\x00l\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x04\xa6\x00\x00\x00\x00\x00\x01\x00\x00g\xa5\
+\x00\x00\x01\x99\xd1\xb2M|\
+\x00\x00\x04&\x00\x01\x00\x00\x00\x01\x00\x00\x5c\xd6\
+\x00\x00\x01\x99\xcd\x80`\xb7\
+\x00\x00\x03\xe8\x00\x00\x00\x00\x00\x01\x00\x00A\x1c\
+\x00\x00\x01\x99\xcd\x80\xe8:\
+\x00\x00\x04J\x00\x00\x00\x00\x00\x01\x00\x00`>\
+\x00\x00\x01\x99\xcd\x82\xb4\x1a\
+\x00\x00\x04\xea\x00\x02\x00\x00\x00\x01\x00\x00\x00k\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x04\x0c\x00\x00\x00\x00\x00\x01\x00\x00J\x01\
+\x00\x00\x01\x99\xcd\x7f\xd8\x08\
+\x00\x00\x01\x22\x00\x00\x00\x00\x00\x01\x00\x00K\xde\
+\x00\x00\x01\x99\xd0\xc6\x9e\xb7\
+\x00\x00\x04j\x00\x00\x00\x00\x00\x01\x00\x00e\x8a\
+\x00\x00\x01\x99\xcd4\x17\xc7\
+\x00\x00\x05\x02\x00\x00\x00\x00\x00\x01\x00\x00p\xed\
+\x00\x00\x01\x99\xd2\x9a\x01\xdf\
+\x00\x00\x05*\x00\x00\x00\x00\x00\x01\x00\x00q\xe0\
+\x00\x00\x01\x99\xd2\x842\x81\
+\x00\x00\x01\x14\x00\x02\x00\x00\x00\x01\x00\x00\x00\x81\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x01T\x00\x02\x00\x00\x00\x07\x00\x00\x00z\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x01F\x00\x02\x00\x00\x00\x05\x00\x00\x00q\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x01\x22\x00\x00\x00\x00\x00\x01\x00\x00\x09p\
+\x00\x00\x01\x99\xd2|\xf0\xa9\
+\x00\x00\x02\xbe\x00\x02\x00\x00\x00\x01\x00\x00\x00y\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x02\xa6\x00\x02\x00\x00\x00\x01\x00\x00\x00x\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x02n\x00\x00\x00\x00\x00\x01\x00\x00\x1f\xc7\
+\x00\x00\x01\x99\xd2I\xd1`\
+\x00\x00\x02T\x00\x02\x00\x00\x00\x01\x00\x00\x00w\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x02\x8e\x00\x02\x00\x00\x00\x01\x00\x00\x00v\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x03\x22\x00\x00\x00\x00\x00\x01\x00\x000>\
+\x00\x00\x01\x99\xd2?:\x05\
+\x00\x00\x03H\x00\x00\x00\x00\x00\x01\x00\x000a\
+\x00\x00\x01\x99\xd2?\xfbS\
+\x00\x00\x02\xfc\x00\x00\x00\x00\x00\x01\x00\x00#$\
+\x00\x00\x01\x99\xd2\x94dv\
+\x00\x00\x02\xd6\x00\x00\x00\x00\x00\x01\x00\x00!l\
+\x00\x00\x01\x99\xd2\x9b\xa6\xa6\
+\x00\x00\x01\x84\x00\x00\x00\x00\x00\x01\x00\x00\x0c\x1d\
+\x00\x00\x01\x99\xd1<\xc5\xdf\
+\x00\x00\x01\xa2\x00\x00\x00\x00\x00\x01\x00\x00\x0dX\
+\x00\x00\x01\x99\xd2Ic7\
+\x00\x00\x01\xf0\x00\x00\x00\x00\x00\x01\x00\x00\x12\xda\
+\x00\x00\x01\x99\xd1\xa0vd\
+\x00\x00\x01\xc0\x00\x00\x00\x00\x00\x01\x00\x00\x11Q\
+\x00\x00\x01\x99\xd1\xeb\x8f)\
+\x00\x00\x024\x00\x00\x00\x00\x00\x01\x00\x00\x1eh\
+\x00\x00\x01\x99\xd1\xc9*\x19\
+\x00\x00\x01b\x00\x00\x00\x00\x00\x01\x00\x00\x0a\xd0\
+\x00\x00\x01\x99\xd2Bl\xb0\
+\x00\x00\x02\x0e\x00\x00\x00\x00\x00\x01\x00\x00\x16T\
+\x00\x00\x01\x99\xd1\xfc\xb8\xec\
+\x00\x00\x03p\x00\x00\x00\x00\x00\x01\x00\x000\x84\
+\x00\x00\x01\x99\xd2\x940\x18\
+\x00\x00\x11\xb4\x00\x00\x00\x00\x00\x01\x00\x01B\xae\
+\x00\x00\x01\x99\xd1\xbd\x8d\x16\
+\x00\x00\x11\x1e\x00\x00\x00\x00\x00\x01\x00\x01/\xfa\
+\x00\x00\x01\x99\xd1\xbd\x8c~\
+\x00\x00\x11t\x00\x00\x00\x00\x00\x01\x00\x014\x03\
+\x00\x00\x01\x99\xd1\xbd\x8d\x1a\
+\x00\x00\x03\xd6\x00\x00\x00\x00\x00\x01\x00\x01C\x98\
+\x00\x00\x01\x99\xd1\xe5\x90\xd2\
+\x00\x00\x11\xda\x00\x00\x00\x00\x00\x01\x00\x01C_\
+\x00\x00\x01\x99\xd1\xbd\x8d\x15\
+\x00\x00\x11\x04\x00\x00\x00\x00\x00\x01\x00\x01/\x7f\
+\x00\x00\x01\x99\xd25\xfcS\
+\x00\x00\x11T\x00\x00\x00\x00\x00\x01\x00\x012_\
+\x00\x00\x01\x99\xd1\xa7\x00\xb1\
+\x00\x00\x11\x94\x00\x00\x00\x00\x00\x01\x00\x014\xf5\
+\x00\x00\x01\x99\xd2C\x0c\xdc\
+\x00\x00\x114\x00\x00\x00\x00\x00\x01\x00\x010\xd2\
+\x00\x00\x01\x99\xd1\xbd\x8d\x12\
+\x00\x00\x05R\x00\x00\x00\x00\x00\x01\x00\x00r@\
+\x00\x00\x01\x99\xd2\x9e\x18\xd1\
+\x00\x00\x03\xd6\x00\x00\x00\x00\x00\x01\x00\x00\x9b\xbc\
+\x00\x00\x01\x99\xd2\x90\xac=\
+\x00\x00\x06\x0a\x00\x00\x00\x00\x00\x01\x00\x00\xa3\xbf\
+\x00\x00\x01\x99\xd2\x9d<\x8d\
+\x00\x00\x05\xea\x00\x00\x00\x00\x00\x01\x00\x00\x9c\x07\
+\x00\x00\x01\x99\xd1\xb1\xceR\
+\x00\x00\x05\xd6\x00\x00\x00\x00\x00\x01\x00\x00\x918\
+\x00\x00\x01\x99\xcd\x84\x96\xf4\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()

@@ -1,3 +1,4 @@
+﻿pragma Singleton
 import QtQuick
 import "./Http.js" as Http
 
@@ -34,10 +35,4 @@ QtObject {
   function listGroupImages(serial, onOk, onErr){ get('/test/group/' + encodeURIComponent(serial) + '/images', onOk, onErr) }
   function createGroup(serial, note, onOk, onErr){ post('/test/group/create', { serial: serial, note: note }, onOk, onErr) }
   function addImageToGroup(serial, name, onOk, onErr){ post('/test/group/' + encodeURIComponent(serial) + '/add_image?name=' + encodeURIComponent(name), {}, onOk, onErr) }
-
-  property string apiHost: coreSettings.apiHost
-  property int apiPort: coreSettings.apiPort
-  readonly property string baseUrl: 'http://' + coreSettings.apiHost + ':' + coreSettings.apiPort
-  onBaseUrlChanged: setBase(baseUrl)
-
 }

@@ -1,28 +1,50 @@
-import QtQuick
-import QtQuick.Controls
+﻿import QtQuick
+import QtQuick.Controls.Material
 import QtQuick.Layouts
-/*
+import "../../cores" as Cores
+import "../../components/Base"
+import "../../components/btns"
 
-
-*/
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
-
-RowLayout {
+Item {
   id: root
-  signal startClicked()
-  signal stopClicked()
-  signal openSettings()
-  signal openTestImages()
-
-  spacing: 8
+  height: 50
   Layout.fillWidth: true
 
-  Button { text: "开始"; onClicked: root.startClicked() }
-  Button { text: "停止"; onClicked: root.stopClicked() }
-  Button { text: "设置"; onClicked: root.openSettings() }
-  Button { text: "测试图片"; onClicked: root.openTestImages() }
-}
+  Pane{
+    anchors.fill: parent
+    background: Rectangle { color: Cores.CoreStyle.surface; border.color: Cores.CoreStyle.border }  }
 
+  RowLayout{
+    anchors.fill: parent
+    spacing: 18
+    Row{  // 图标区域
+      IconView{
+        height: root.height
+        width: height*2
+        source: Cores.CoreStyle.getIconSource("share.png")
+      }
+      IconLabel{
+        anchors.verticalCenter: parent.verticalCenter
+      }
+    }
+    ViewChangeTabView{}
+
+    FillItem{}
+
+    TitleLabel{}
+
+    FillItem{}
+
+    DateTimeView{
+      Layout.alignment: Qt.AlignVCenter
+    }
+    SettingsButton{
+      source: Cores.CoreStyle.getIconSource("setting.png")
+      height: root.height
+      width: height*2
+      onClicked:  settingsDrawer.open()
+    }
+    Item { width: 10; height: 2 }
+  }
+}
 

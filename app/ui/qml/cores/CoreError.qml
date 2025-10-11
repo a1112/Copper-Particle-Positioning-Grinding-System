@@ -1,3 +1,4 @@
+﻿pragma Singleton
 import QtQuick
 
 Item {
@@ -16,3 +17,4 @@ Item {
       root.globErrorText = ""
     }
 }
+

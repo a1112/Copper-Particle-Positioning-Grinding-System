@@ -1,3 +1,4 @@
+﻿pragma Singleton
 import QtQuick
 
 Item {
@@ -7,3 +8,4 @@ Item {
 
   Timer { interval: 500; running: true; repeat: true; onTriggered: root.nowTs = Date.now() }
 }
+

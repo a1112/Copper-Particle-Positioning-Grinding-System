@@ -1,17 +1,17 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "head"
+import "main"
 import "foot"
 
 ColumnLayout {
-    HeadView{
+  id: root
+  spacing: 0
 
-    }
-    DataViewLayout{
+  HeadView { Layout.fillWidth: true; Layout.preferredHeight: 50 }
 
+  MainPages { Layout.fillWidth: true; Layout.fillHeight: true }
 
-    }
-    FootView{
-    }
+  FootView { Layout.fillWidth: true; Layout.preferredHeight: 25 }
 }
