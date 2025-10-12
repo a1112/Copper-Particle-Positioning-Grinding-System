@@ -24,7 +24,7 @@ App_Base {
   Component.onCompleted: {
     Api.ApiClient.root = win
     Api.ApiClient.showError = function(msg){ Cores.CoreError.showError(msg) }
-    Api.ApiClient.setBase(U.Urls.base())
+    Api.ApiClient.setBase(Api.Urls.base())
   }
 
   // Use MainLayouts as the top-level container

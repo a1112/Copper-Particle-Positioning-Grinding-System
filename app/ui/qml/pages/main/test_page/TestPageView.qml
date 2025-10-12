@@ -36,7 +36,7 @@ Item {
         Text {
           textFormat: Text.RichText
           color: Cores.CoreStyle.accent
-          readonly property string base: U.Urls.base()
+          readonly property string base: Api.Urls.base()
           text: "<a href='" + base + "/docs'>" + Cores.CoreSettings.apiHost + ":" + Cores.CoreSettings.apiPort + "/docs</a>"
           onLinkActivated: function(url){ Qt.openUrlExternally(url) }
         }
@@ -96,6 +96,7 @@ Item {
     }    Item { Layout.fillHeight: true }
   }
 }
+
 
 
 
