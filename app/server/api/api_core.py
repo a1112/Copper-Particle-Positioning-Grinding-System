@@ -9,9 +9,10 @@ status_router = APIRouter(tags=["状态"])
 ws_router = APIRouter(tags=["webSockets"])
 
 
-app.include_router(image_router)
-app.include_router(test_router)
-app.include_router(motion_router)
-app.include_router(ws_router)
-app.include_router(status_router)
+def include_router():
+    app.include_router(image_router)
+    app.include_router(test_router)
+    app.include_router(motion_router)
+    app.include_router(ws_router)
+    app.include_router(status_router)
 

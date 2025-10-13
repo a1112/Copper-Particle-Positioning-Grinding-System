@@ -17,7 +17,7 @@ from app.ui.src.image_provider import CameraImageProvider
 from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
 from app.server import CONFIG
-from api.api_core import app
+from api.api_core import app,include_router
 
 
 def _ensure_module_alias(name: str, module: Any) -> None:
@@ -55,40 +55,9 @@ def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrato
 
     motion_proxy = _wrap_motion_module(motion)
     sys.modules["motion"] = motion_proxy
-
-    module_names = (
-        "app.server.api.api.api_image",
-        "app.server.api.api.api_motion",
-        "app.server.api.api.api_status",
-        "app.server.api.api.api_test",
-        "app.server.api.ws.ws_code",
-        "app.server.api.ws.ws_logs",
-        "app.server.api.ws.ws_status",
-    )
-    loaded: Dict[str, Any] = {}
-    for name in module_names:
-        try:
-            loaded[name] = import_module(name)
-        except Exception as exc:
-            raise RuntimeError(f"Failed to import API module {name}") from exc
-
-    api_image = loaded["app.server.api.api.api_image"]
-    api_image.provider = provider
-
-    api_status = loaded["app.server.api.api.api_status"]
-    api_status.motion = motion_proxy
-    api_status.orch = orch
-    api_status.spindle = getattr(orch, "spindle", None)
-    api_status.random = random
-    api_status.time = time
-    api_status.math = math
-    api_status._sim_t0 = time.monotonic()
-
-    ws_logs = loaded["app.server.api.ws.ws_logs"]
-    ws_logs._log_buffer = get_buffer()
-    ws_logs.time = time
-
-    ws_status = loaded["app.server.api.ws.ws_status"]
+    from api.api import api_image,api_motion,api_status,api_test
+    from api.ws import ws_code,ws_logs,ws_status
+    include_router()
 
     async def _status_fn():
         try:
