@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "../Api" as Api
 
 Item {
   id: root
@@ -13,9 +14,8 @@ Item {
     fillMode: Image.PreserveAspectFit
     cache: false
     asynchronous: false
-    source: 'image://camera/live?ts=' + Date.now()
+    source: Api.Urls.api('image.png') + '?ts=' + Date.now()
   }
-  Timer { interval: refreshMs; running: true; repeat: true; onTriggered: video.source = 'image://camera/live?ts=' + Date.now() }
   Canvas {
     id: overlay
     anchors.fill: parent
@@ -42,4 +42,3 @@ Item {
     }
   }
 }
-

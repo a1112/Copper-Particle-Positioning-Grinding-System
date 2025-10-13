@@ -47,7 +47,10 @@ Drawer {
           onValueModified: if (Cores.CoreSettings) Cores.CoreSettings.apiPort = value
         }
       }
-
+    Item{
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+    }
       // Theme switching
       GroupBox {
         title: "主题"

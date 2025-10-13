@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import math
@@ -21,7 +22,86 @@ from app.devices.spindle_base import ISpindle
 from app.devices.io_base import IIO
 
 
+class MotionSpeed(BaseModel):
+    v_fast: float
+    v_work: float
 
+
+class JogCmd(BaseModel):
+    axis: str
+    direction: int
+    speed: float = 10.0
+
+
+class GroupCreate(BaseModel):
+    serial: str
+    note: str | None = None
+
+
+def create_app(
+    provider: CameraImageProvider,
+    orch: Orchestrator,
+    motion: IMotionController,
+    spindle: ISpindle | None = None,
+    io: IIO | None = None,
+) -> FastAPI:
+    app = FastAPI(title="CopperSystem API")
+    lock = Lock()
+    logger = get_logger("app")
+
+    # Ensure DB schema exists
+    try:
+        init_db()
+    except Exception:
+        pass
+
+    # Test data root (groups stored as 测试文件/<serial>)
+    if Path("测试文件").exists():
+        _test_root = Path("测试文件").resolve()
+    else:
+        _test_root = Path("../..").resolve()
+    # Default PNG for /image.png override
+    _project_root = Path(__file__).resolve().parents[2]
+    _override_png = _project_root / "测试文件" / "images" / "1_IMG_Texture_8Bit.png"
+    # Fixed override path requested by user: TestData/images/2_IMG_Texture_8Bit.png
+    try:
+        from app.server import CONFIG as _CFG  # uses TestData root
+        _fixed_png = _CFG.testFolder / "images" / "2_IMG_Texture_8Bit.png"
+    except Exception:
+        _fixed_png = None
+
+    @app.get("/health")
+    async def health():
+        return {"status": "ok"}
+
+    @app.get("/image.png")
+    async def image_png():
+        # Prefer the fixed TestData image when present
+        try:
+            if _fixed_png is not None and Path(_fixed_png).exists():
+                return Response(content=Path(_fixed_png).read_bytes(), media_type='image/png')
+        except Exception:
+            pass
+        # Else prefer the bundled test image when present
+        try:
+            if _override_png.exists():
+                return Response(content=_override_png.read_bytes(), media_type='image/png')
+        except Exception:
+            pass
+        # Else encode current frame to PNG using OpenCV (pure backend)
+        import numpy as np
+        import cv2
+        with provider._lock:  # type: ignore[attr-defined]
+            frame = getattr(provider, "_frame_bgr", None)
+            if frame is None:
+                # Gray fallback image
+                h, w = 360, 640
+                gray = np.full((h, w, 3), 0x20, dtype=np.uint8)
+                ok, buf = cv2.imencode(".png", gray)
+                return Response(content=buf.tobytes() if ok else b"", media_type="image/png")
+            else:
+                ok, buf = cv2.imencode(".png", frame)
+                return Response(content=buf.tobytes() if ok else b"", media_type="image/png")
 
     # Simulated telemetry for charts when no real spindle
     _sim_t0 = time.monotonic()
@@ -161,7 +241,7 @@ from app.devices.io_base import IIO
     async def group_add_image(serial: str, name: str):
         src = (_test_root / name)
         if not src.exists():
-            alt = Path("docs/铜粒子项�?算法/A001粒子打磨/ImageSimMx") / name
+            alt = Path("docs/铜粒子项目算法/A001粒子打磨/ImageSimMx") / name
             if alt.exists():
                 src = alt.resolve()
         if not src.exists():
@@ -229,6 +309,20 @@ from app.devices.io_base import IIO
 
     # Mount WebSocket endpoints via module (centralized implementation)
     mount_ws(app, status, logger)
+
+    # Minimal test endpoint to append a log entry (used by ws_logs_demo)
+    @app.post("/test/log")
+    async def test_log(msg: str = "demo"):
+        try:
+            logger.info("test_log: %s", msg)
+        except Exception:
+            pass
+        try:
+            from app.api.utils.logs import push
+            push("INFO", "test", str(msg))
+        except Exception:
+            pass
+        return {"ok": True}
 
     # Optional: spawn UI as a child process
     from typing import Optional

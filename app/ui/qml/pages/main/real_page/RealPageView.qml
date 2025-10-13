@@ -8,7 +8,8 @@ import "../../../views/Code" as Code
 // 设备信息 + 图像信息 预览页
 Item {
   id: root
-  anchors.fill: parent
+  Layout.fillWidth: true
+  Layout.fillHeight: true
   SplitView{
     anchors.fill: parent
     orientation: Qt.Vertical

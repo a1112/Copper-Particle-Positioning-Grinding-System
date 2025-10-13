@@ -2,15 +2,14 @@ import asyncio
 
 from fastapi.logger import logger
 from starlette.websockets import WebSocket, WebSocketDisconnect
-from ..api_core import app
+from ..api_core import ws_router
+import logging
+log =logging.getLogger("app.ws")
 
-@_removed_app.websocket("/ws/logs")
+@ws_router.websocket("/ws/logs")
 async def ws_logs(ws: WebSocket):
     await ws.accept()
-    try:
-        logger.info("WS connected endpoint=/ws/logs client=%s", getattr(ws, "client", None))
-    except Exception:
-        pass
+    logger.info("WS connected endpoint=/ws/logs client=%s", getattr(ws, "client", None))
     try:
         await ws.send_json({"type": "history", "items": list(_log_buffer)})
         while True:

@@ -1,6 +1,6 @@
 import motion
 from ..api_core import motion_router as router
-from ..server import JogCmd, MotionSpeed
+from ..api_models import MotionSpeed, JogCmd
 
 
 @router.post("/motion/set_speed")

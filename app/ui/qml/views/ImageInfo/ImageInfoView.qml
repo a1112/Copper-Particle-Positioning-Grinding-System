@@ -2,6 +2,7 @@
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../Sockets" as Sockets
+import "../../Api" as Api
 // 显示图像 + 测试移动路径叠加
 import "../Base"
 import "../../cores" as Cores
@@ -26,6 +27,7 @@ BaseCard {
       Item { Layout.fillWidth: true }
       CheckBox { text: "记录路径"; checked: root.recordPath; onToggled: root.recordPath = checked }
       Button { text: "清除"; onClicked: { root.pathPoints = []; overlay.requestPaint() } }
+      Button { text: "刷新"; onClicked: { img.source = Api.Urls.api('image.png') + '?ts=' + Date.now() } }
     }
 
     Item {
@@ -39,9 +41,8 @@ BaseCard {
         fillMode: Image.PreserveAspectFit
         cache: false
         asynchronous: false
-        source: 'image://camera/live?ts=' + Date.now()
+        source: Api.Urls.api('image.png') + '?ts=' + Date.now()
       }
-      Timer { interval: refreshMs; running: true; repeat: true; onTriggered: img.source = 'image://camera/live?ts=' + Date.now() }
 
       Canvas {
         id: overlay

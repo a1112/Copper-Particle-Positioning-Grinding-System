@@ -7,7 +7,7 @@ from typing import Awaitable, Callable
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
-from .utils.logs import get_buffer, attach_root_handler
+from .utils.logs import get_buffer, attach_root_handler, push
 
 
 StatusFn = Callable[[], Awaitable[dict]]
@@ -84,16 +84,29 @@ def mount_ws(app: FastAPI, status_fn: StatusFn, logger: logging.Logger | None = 
         except Exception:
             pass
         try:
-            await ws.send_json({"type": "history", "items": list(_log_buffer)})
+            # Send history snapshot once
+            history = list(_log_buffer)
+            await ws.send_json({"type": "history", "items": history})
+            last_len = len(history)
+            # If empty, send a welcome log so UI shows something
+            if last_len == 0:
+                push("INFO", "ws", "logs connected")
+                new_item = list(_log_buffer)[-1]
+                last_len = len(_log_buffer)
+                await ws.send_json({"type": "append", "item": new_item})
+            # Poll for new log items appended to buffer
             while True:
-                item = {"ts": time.time(), "level": "INFO", "name": "app", "msg": "heartbeat"}
-                _log_buffer.append(item)
-                await ws.send_json({"type": "append", "item": item})
-                await asyncio.sleep(3.0)
+                cur_len = len(_log_buffer)
+                if cur_len > last_len:
+                    # send only newly appended items in order
+                    new_items = list(_log_buffer)[last_len:cur_len]
+                    for item in new_items:
+                        await ws.send_json({"type": "append", "item": item})
+                    last_len = cur_len
+                await asyncio.sleep(0.5)
         except WebSocketDisconnect:
             try:
                 log.info("WS disconnected endpoint=/ws/logs client=%s", getattr(ws, "client", None))
             except Exception:
                 pass
             return
-
