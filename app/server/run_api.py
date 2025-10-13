@@ -1,6 +1,11 @@
 from __future__ import annotations
 
 import signal
+import sys
+from importlib import import_module
+from types import ModuleType
+from typing import Any, Dict
+
 import uvicorn
 
 from app.core.events import EventBus
@@ -9,10 +14,94 @@ from app.devices.sim.camera_sim import CameraSim
 from app.devices.sim.motion_sim import MotionSim
 from app.process.orchestrator import Orchestrator
 from app.ui.src.image_provider import CameraImageProvider
-from app.api.server import create_app
-from app.api.utils.logs import attach_root_handler, push
+from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
 from app.server import CONFIG
+from api.api_core import app
+
+
+def _ensure_module_alias(name: str, module: Any) -> None:
+    """Expose an imported module under a legacy shorthand name if absent."""
+    if name not in sys.modules:
+        sys.modules[name] = module
+
+
+def _wrap_motion_module(controller: MotionSim) -> ModuleType:
+    """Export motion controller methods through a lightweight module proxy."""
+    proxy = ModuleType("motion")
+    for attr in ("set_speed", "jog", "home", "set_work_origin", "status", "move_abs", "wait_done"):
+        if hasattr(controller, attr):
+            setattr(proxy, attr, getattr(controller, attr))
+    proxy.controller = controller  # type: ignore[attr-defined]
+    return proxy
+
+
+def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrator, motion: MotionSim) -> None:
+    """Eagerly import API/WS modules and inject runtime singletons they expect."""
+    import math
+    import random
+    import time
+
+    from app.server.utils.logs import get_buffer
+
+    # Provide legacy module aliases expected by individual route modules.
+    _ensure_module_alias("CONFIG", CONFIG)
+    try:
+        import app.db as app_db
+    except Exception:
+        app_db = None
+    else:
+        _ensure_module_alias("db", app_db)
+
+    motion_proxy = _wrap_motion_module(motion)
+    sys.modules["motion"] = motion_proxy
+
+    module_names = (
+        "app.server.api.api.api_image",
+        "app.server.api.api.api_motion",
+        "app.server.api.api.api_status",
+        "app.server.api.api.api_test",
+        "app.server.api.ws.ws_code",
+        "app.server.api.ws.ws_logs",
+        "app.server.api.ws.ws_status",
+    )
+    loaded: Dict[str, Any] = {}
+    for name in module_names:
+        try:
+            loaded[name] = import_module(name)
+        except Exception as exc:
+            raise RuntimeError(f"Failed to import API module {name}") from exc
+
+    api_image = loaded["app.server.api.api.api_image"]
+    api_image.provider = provider
+
+    api_status = loaded["app.server.api.api.api_status"]
+    api_status.motion = motion_proxy
+    api_status.orch = orch
+    api_status.spindle = getattr(orch, "spindle", None)
+    api_status.random = random
+    api_status.time = time
+    api_status.math = math
+    api_status._sim_t0 = time.monotonic()
+
+    ws_logs = loaded["app.server.api.ws.ws_logs"]
+    ws_logs._log_buffer = get_buffer()
+    ws_logs.time = time
+
+    ws_status = loaded["app.server.api.ws.ws_status"]
+
+    async def _status_fn():
+        try:
+            return await api_status.status()
+        except Exception as exc:
+            if log:
+                try:
+                    log.warning("Status endpoint failed: %s", exc, exc_info=False)
+                except Exception:
+                    pass
+            return {"state": "ERROR", "position": {}, "spindle_rpm": 0, "spindle_torque": 0.0, "seriesA": 0, "seriesB": 0}
+
+    ws_status.status_fn = _status_fn
 
 
 def main() -> None:
@@ -40,8 +129,6 @@ def main() -> None:
 
     cam.start_stream(on_frame)
 
-    app = create_app(provider, orch, motion)
-
     def _stop_cam(*_):
         try:
             cam.stop_stream()
@@ -54,6 +141,16 @@ def main() -> None:
             signal.signal(sig, _stop_cam)
         except Exception:
             pass
+
+    try:
+        _bootstrap_api_modules(log, provider, orch, motion)
+    except Exception as exc:
+        if log:
+            try:
+                log.error("Failed to bootstrap API modules: %s", exc, exc_info=False)
+            except Exception:
+                pass
+        raise
 
     try:
         log.info("API starting at %s:%s", CONFIG.app_host, CONFIG.app_port)

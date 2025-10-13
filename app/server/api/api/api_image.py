@@ -1,10 +1,11 @@
 from fastapi.openapi.models import Response
 import CONFIG
-from ..api_core import app
+from ..api_core import image_router as router
 
 _override_png = CONFIG.testFolder / "images" / "1_IMG_Texture_8Bit.png"
 
-@app.get("/image.png")
+
+@router.get("/image.png")
 async def image_png():
     # Prefer a bundled test image when present
 
@@ -28,7 +29,8 @@ async def image_png():
             ok, buf = cv2.imencode(".png", frame)
             return Response(content=buf.tobytes() if ok else b"", media_type="image/png")
 
-@app.get("/image.png")
+
+@router.get("/image.png")
 async def image_png():
     # If override test image exists, return its bytes
     try:

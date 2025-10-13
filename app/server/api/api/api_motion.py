@@ -1,4 +1,4 @@
-import motion
+from app import motion
 from ..api_core import motion_router as router
 from ..api_models import MotionSpeed, JogCmd
 
@@ -9,17 +9,20 @@ async def motion_set_speed(body: MotionSpeed):
         motion.set_speed(body.v_fast, body.v_work)
     return {"ok": True}
 
+
 @router.post("/motion/jog")
 async def motion_jog(body: JogCmd):
     if hasattr(motion, 'jog'):
         motion.jog(body.axis, body.direction, body.speed)
     return {"ok": True}
 
+
 @router.post("/motion/home")
 async def motion_home():
     if hasattr(motion, 'home'):
         motion.home()
     return {"ok": True}
+
 
 @router.post("/motion/set_work_origin")
 async def motion_set_work_origin():

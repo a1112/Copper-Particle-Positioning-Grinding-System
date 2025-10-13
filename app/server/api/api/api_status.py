@@ -1,5 +1,7 @@
+from ..api_core import status_router as router
 
-@app.get("/status")
+
+@router.get("/status")
 async def status():
     pos = motion.status() if hasattr(motion, 'status') else (0, 0, 0, 0)
     st = getattr(orch.sm, 'state', None)
@@ -27,14 +29,14 @@ async def status():
         "seriesB": torque,
         "debug": bool(_DBG),  }# Test images support】
 
-@app.get("/")
+@router.get("/")
 def read_root():
     return {"/docs": "请访问 /docs 查看文档"}
 
-@app.get("/delay")
+@router.get("/delay")
 async def get_delay():
     return 0
 
-@app.get("/health")
+@router.get("/health")
 async def health():
     return {"status": "ok"}
