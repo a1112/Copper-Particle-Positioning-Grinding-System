@@ -14,6 +14,8 @@ class CameraImageProvider(QQuickImageProvider):
         super().__init__(QQuickImageProvider.Image)
         self._lock = Lock()
         self._img: QImage | None = None
+        # Keep a copy of latest frame in BGR uint8 for backend encoding
+        self._frame_bgr: np.ndarray | None = None
 
     def requestImage(self, id, size, requestedSize):  # type: ignore[override]
         """QML 请求图像回调（中文注释）。若暂无帧，则返回灰底图。"""
@@ -44,3 +46,8 @@ class CameraImageProvider(QQuickImageProvider):
         img = QImage(rgb.data, w, h, 3 * w, QImage.Format_RGB888)
         with self._lock:
             self._img = img.copy()
+            # Store a copy for server-side encoding (avoid sharing memory)
+            try:
+                self._frame_bgr = frame.copy()
+            except Exception:
+                self._frame_bgr = None

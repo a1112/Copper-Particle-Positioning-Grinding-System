@@ -130,5 +130,6 @@
         <file>qml/views/Code/CodeFoot.qml</file>
         <file>qml/views/Code/CodeContorl.qml</file>
         <file>qml/views/Code/CodeHead.qml</file>
+        <file>qml/Api/Ajax.qml</file>
     </qresource>
 </RCC>

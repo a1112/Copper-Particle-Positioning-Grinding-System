@@ -28,7 +28,3 @@ coverage.xml
 .DS_Store
 Thumbs.db
 
-# Local config/user files
-app/ui/pyproject.toml.user*
-*.env
-*.env.*

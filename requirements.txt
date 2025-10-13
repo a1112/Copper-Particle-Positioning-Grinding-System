@@ -1,11 +1,13 @@
-﻿PySide6
+﻿PySide6~=6.10.0
 opencv-python
-numpy
+numpy~=2.2.6
 PyYAML
 
-fastapi
-uvicorn
-pydantic
+fastapi~=0.115.0
+uvicorn~=0.31.0
+pydantic~=2.9.2
 
 websockets
-SQLAlchemy
+SQLAlchemy~=2.0.35
+
+starlette~=0.38.6

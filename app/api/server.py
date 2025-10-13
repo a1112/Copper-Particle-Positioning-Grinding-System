@@ -1,17 +1,19 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
-import asyncio
+import math
+import random
+import time
 from threading import Lock
-from typing import Any
-from collections import deque
-from collections import deque
+from pathlib import Path
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
 from app.ui.src.image_provider import CameraImageProvider
-from app.db import init_db, SessionLocal
+from app.diagnostics.logging import get_logger
+from .endpoints import mount_ws
+from app.db.base import init_db, SessionLocal
 from app.db.models import TestGroup, TestImage
 from app.process.orchestrator import Orchestrator
 from app.devices.motion_base import IMotionController
@@ -19,85 +21,10 @@ from app.devices.spindle_base import ISpindle
 from app.devices.io_base import IIO
 
 
-class MotionSpeed(BaseModel):
-    v_fast: float
-    v_work: float
 
 
-class JogCmd(BaseModel):
-    axis: str
-    direction: int
-    speed: float = 10.0
-
-
-class GroupCreate(BaseModel):
-    serial: str
-    note: str | None = None
-
-
-def create_app(
-    provider: CameraImageProvider,
-    orch: Orchestrator,
-    motion: IMotionController,
-    spindle: ISpindle | None = None,
-    io: IIO | None = None,
-) -> FastAPI:
-    """Create FastAPI app for headless API server."""
-
-    app = FastAPI(title="CopperSystem API")
-    lock = Lock()
-
-    # --- Simulated telemetry clock for demo charts ---
-    import time, math, random
+    # Simulated telemetry for charts when no real spindle
     _sim_t0 = time.monotonic()
-    # Ensure DB schema exists
-    try:
-        init_db()
-    except Exception:
-        pass
-
-    # Test data root (groups stored as 娴嬭瘯鏂囦欢/<serial>)
-    from pathlib import Path
-
-    if Path("娴嬭瘯鏂囦欢").exists():
-        _test_root = Path("娴嬭瘯鏂囦欢").resolve()
-    else:
-        _test_root = Path(".").resolve()
-    # Absolute path to default PNG for /image.png override
-    _project_root = Path(__file__).resolve().parents[2]
-    _override_png = _project_root / "娴嬭瘯鏂囦欢" / "images" / "1_IMG_Texture_8Bit.png"
-
-    @app.get("/health")
-    async def health():
-        return {"status": "ok"}
-
-    @app.get("/image.png")
-    async def image_png():
-        # If override test image exists, return its bytes
-        try:
-            if _override_png.exists():
-                return Response(content=_override_png.read_bytes(), media_type='image/png')
-        except Exception:
-            pass
-        # Else return current frame as PNG; gray fallback if empty
-        from PySide6.QtGui import QImage
-        from PySide6.QtCore import QByteArray, QBuffer
-        with provider._lock:  # type: ignore[attr-defined]
-            img = provider._img  # type: ignore[attr-defined]
-            if img is None:
-                image = QImage(640, 360, QImage.Format_RGB888)
-                image.fill(0x202020)
-                qba = QByteArray()
-                buf = QBuffer(qba)
-                buf.open(QBuffer.WriteOnly)
-                image.save(buf, 'PNG')
-                return Response(content=bytes(qba), media_type='image/png')
-            else:
-                qba = QByteArray()
-                buf = QBuffer(qba)
-                buf.open(QBuffer.WriteOnly)
-                img.save(buf, 'PNG')
-                return Response(content=bytes(qba), media_type='image/png')
 
     @app.get("/status")
     async def status():
@@ -117,7 +44,7 @@ def create_app(
             torque = 0.6 + 0.25 * math.sin(2.0 * math.pi * 0.22 * t + 1.3) + 0.04 * math.sin(2.0 * math.pi * 1.8 * t)
             rpm = max(0.0, rpm)
             torque = max(0.0, torque)
-        from app.config import DEBUG as _DBG
+        from app.server.CONFIG import DEBUG as _DBG
         return {
             "state": state,
             "position": {"x": pos[0], "y": pos[1], "z": pos[2], "theta": pos[3]},
@@ -126,7 +53,9 @@ def create_app(
             "seriesA": rpm,
             "seriesB": torque,
             "debug": bool(_DBG),
-        }# Test images support
+        }
+
+    # Test images support
     @app.get("/test/images")
     async def list_test_images():
         try:
@@ -232,7 +161,7 @@ def create_app(
     async def group_add_image(serial: str, name: str):
         src = (_test_root / name)
         if not src.exists():
-            alt = Path("docs/閾滅矑瀛愰」鐩?绠楁硶/A001绮掑瓙鎵撶（/ImageSimMx") / name
+            alt = Path("docs/铜粒子项�?算法/A001粒子打磨/ImageSimMx") / name
             if alt.exists():
                 src = alt.resolve()
         if not src.exists():
@@ -253,7 +182,7 @@ def create_app(
                 db.add(g)
                 db.commit()
                 db.refresh(g)
-            rel = str(Path("娴嬭瘯鏂囦欢") / serial / src.name)
+            rel = str(Path("测试文件") / serial / src.name)
             ti = db.query(TestImage).filter(TestImage.group_id == g.id, TestImage.filename == src.name).one_or_none()
             if ti is None:
                 ti = TestImage(group_id=g.id, filename=src.name, rel_path=rel)
@@ -298,60 +227,8 @@ def create_app(
             motion.set_work_origin()
         return {"ok": True}
 
-    # WebSocket for periodic status push
-    @app.websocket("/ws")
-    async def ws_status(ws: WebSocket):
-        await ws.accept()
-        try:
-            while True:
-                s = await status()
-                await ws.send_json(s)
-                await asyncio.sleep(0.5)
-        except WebSocketDisconnect:
-            return
-
-    # Simple code execution WebSocket (demo): periodically streams a program snapshot and running index
-    @app.websocket("/ws/code")
-    async def ws_code(ws: WebSocket):
-        await ws.accept()
-        # Demo program lines
-        demo_lines = [
-            "FastMove SX 0 SY 0 SZ 10 EX 10 EY 10 EZ 10",
-            "FastCut  SX 10 SY 10 SZ 10 EX 20 EY 10 EZ  8 V 50 R 1000",
-            "SetDO 1,2,3",
-            "FastMove SX 20 SY 10 SZ  8 EX  0 EY  0 EZ 10",
-        ]
-        # Send snapshot once
-        await ws.send_json({"type": "program", "lines": demo_lines})
-        idx = -1
-        try:
-            while True:
-                # simulate run
-                for i in range(len(demo_lines)):
-                    idx = i
-                    await ws.send_json({"type": "state", "state": "RUNNING", "current": idx})
-                    await asyncio.sleep(1.0)
-                idx = -1
-                await ws.send_json({"type": "state", "state": "IDLE", "current": idx})
-                await asyncio.sleep(2.0)
-        except WebSocketDisconnect:
-            return
-
-    # Simple logs WebSocket: send recent history and periodic heartbeats
-    _log_buffer = deque(maxlen=1000)
-
-    @app.websocket("/ws/logs")
-    async def ws_logs(ws: WebSocket):
-        await ws.accept()
-        try:
-            await ws.send_json({"type": "history", "items": list(_log_buffer)})
-            while True:
-                item = {"ts": time.monotonic(), "level": "INFO", "name": "server", "msg": "heartbeat"}
-                _log_buffer.append(item)
-                await ws.send_json({"type": "append", "item": item})
-                await asyncio.sleep(3.0)
-        except WebSocketDisconnect:
-            return
+    # Mount WebSocket endpoints via module (centralized implementation)
+    mount_ws(app, status, logger)
 
     # Optional: spawn UI as a child process
     from typing import Optional
@@ -374,10 +251,3 @@ def create_app(
                 return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
 
     return app
-
-
-
-
-
-
-

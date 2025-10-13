@@ -12,8 +12,8 @@ from app.ui.src.qml_bridge import Backend
 from app.ui.src.image_provider import CameraImageProvider
 from app.ui.src.settings_bridge import SettingsBridge
 from app.ui.src.highlighter import HighlighterBridge
-from app.api.server import create_app
-from app.api.launcher import ApiController
+from api.server import create_app
+from app.server.launcher import ApiController
 
 
 def main():

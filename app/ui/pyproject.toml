@@ -7,5 +7,4 @@ files = [
             "main.py",
             "qml.qrc",
             "resource.qrc",
-            "src.qrc",
 ]

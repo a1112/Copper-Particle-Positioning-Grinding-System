@@ -17,8 +17,8 @@ from app.ui.image_provider import CameraImageProvider
 from app.ui.qml_bridge import Backend
 from app.ui.settings_bridge import SettingsBridge
 from app.ui.highlighter import HighlighterBridge
-from app.api.server import create_app
-from app.api.launcher import ApiController
+from api.server import create_app
+from app.server.launcher import ApiController
 
 
 class Runtime:
