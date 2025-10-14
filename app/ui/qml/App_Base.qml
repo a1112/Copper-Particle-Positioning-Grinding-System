@@ -9,7 +9,7 @@ ApplicationWindow  {
   Material.accent: Cores.CoreStyle.accent
   Material.background: Cores.CoreStyle.background
   Material.foreground: Cores.CoreStyle.text
-
+  visibility:Window.Maximized
   visible: true
 
   width: Screen.width*0.8

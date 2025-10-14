@@ -6,3 +6,5 @@ singleton CoreState 1.0 CoreState.qml
 singleton CoreStyle 1.0 CoreStyle.qml
 singleton CoreTimer 1.0 CoreTimer.qml
 singleton CoreUI 1.0 CoreUI.qml
+
+singleton CoreControl 1.0 CoreControl.qml

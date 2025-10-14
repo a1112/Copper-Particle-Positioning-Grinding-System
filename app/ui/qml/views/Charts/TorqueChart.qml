@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import "../../cores" as Cores
 import "." as Charts
@@ -18,7 +18,7 @@ GroupBox {
   Charts.LineChart {
     id: chart
     anchors.fill: parent
-    title: "主轴扭矩 (N·m)"
+    title: "主轴扭矩 (N*m)"
     series: root.series
     maxPoints: root.maxPoints
     sampleIntervalSec: root.sampleIntervalSec
@@ -29,3 +29,4 @@ GroupBox {
     emptyText: "无扭矩数据"
   }
 }
+

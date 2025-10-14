@@ -87,7 +87,7 @@
         <file>qml/cores/CoreStyle.qml</file>
         <file>qml/cores/CoreTimer.qml</file>
         <file>qml/cores/CoreUI.qml</file>
-        <file>qml/cores/qmldir</file>
+        <file>qml/cores/CoreControl.qml</file>
         <file>qml/dialogs/GlobErrorDialog.qml</file>
         <file>qml/dialogs/TestImagesDialog.qml</file>
         <file>qml/main.qml</file>
@@ -107,9 +107,7 @@
         <file>qml/pages/main/test_page/TestPageView.qml</file>
         <file>qml/pages/main/user_page/UserPageView.qml</file>
         <file>qml/pages/MainLayouts.qml</file>
-        <file>qml/RBT.qml</file>
         <file>qml/shortcuts/ShortcutManager.qml</file>
-        
         <file>qml/Sockets/StatusSocket.qml</file>
         <file>qml/Sockets/LogsSocket.qml</file>
         <file>qml/Sockets/CodeSocket.qml</file>
@@ -128,7 +126,7 @@
         <file>qml/views/Code/CodeView.qml</file>
         <file>qml/views/Base/BaseCard.qml</file>
         <file>qml/views/Charts/TorqueChart.qml</file>
-        <file>qml/views/Charts/LineChart.qml</file>
+        <file>qml/views/Charts/ElevationAreaChart.qml</file>
         <file>qml/views/Code/CodeFoot.qml</file>
         <file>qml/views/Code/CodeContorl.qml</file>
         <file>qml/views/Code/CodeHead.qml</file>
@@ -140,7 +138,7 @@
         <file>qml/pages/foot/PingLabel.qml</file>
         <file>qml/components/btns/CheckDelegateBase.qml</file>
         <file>qml/pages/foot/ViewMangeRow.qml</file>
+        <file>qml/Sockets/qmldir</file>
+        <file>qml/views/DriveInfo/DeviceMsgView.qml</file>
     </qresource>
 </RCC>
-
-

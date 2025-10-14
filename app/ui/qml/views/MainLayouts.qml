@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -101,30 +101,31 @@ Item {
 
     Rectangle { anchors.fill: parent; color: "#1e1e1e"; border.color: "#333"
       ColumnLayout { anchors.fill: parent; anchors.margins: 8; spacing: 8
-        Label { text: "设置"; font.bold: true }
+        Label { text: "???"; font.bold: true }
         RowLayout {
-          Label { text: "示例开关"; Layout.fillWidth: true }
+          Label { text: "???????; Layout.fillWidth: true }
           Switch { checked: true }
         }
         RowLayout {
-          Label { text: "API 地址"; Layout.preferredWidth: 80 }
+          Label { text: "API ???"; Layout.preferredWidth: 80 }
           TextField { text: uiSettings ? uiSettings.apiHost : ''; onTextChanged: if(uiSettings) uiSettings.apiHost = text; placeholderText: "127.0.0.1" }
         }
         RowLayout {
-          Label { text: "API 端口"; Layout.preferredWidth: 80 }
+          Label { text: "API ???"; Layout.preferredWidth: 80 }
           SpinBox { from: 1; to: 65535; value: uiSettings ? uiSettings.apiPort : 8010; onValueModified: if(uiSettings) uiSettings.apiPort = value }
         }
         RowLayout {
-          Label { text: "刷新间隔(ms)"; Layout.preferredWidth: 80 }
+          Label { text: "??????(ms)"; Layout.preferredWidth: 80 }
           SpinBox { from: 50; to: 1000; value: root.refreshMs; onValueModified: root.refreshMs = value }
         }
         RowLayout {
-          Button { text: "保存并重启 API"; onClicked: { if(uiSettings){ settings.apiHost = uiSettings.apiHost; settings.apiPort = uiSettings.apiPort; settings.saveAndRestart(); } } }
+          Button { text: "????????API"; onClicked: { if(uiSettings){ settings.apiHost = uiSettings.apiHost; settings.apiPort = uiSettings.apiPort; settings.saveAndRestart(); } } }
           Item { Layout.fillWidth: true }
-          Button { text: "关闭"; onClicked: settingsDrawer.close() }
+          Button { text: "???"; onClicked: settingsDrawer.close() }
         }
       }
     }
   }
 }
+
 

@@ -17,7 +17,8 @@ from app.ui.src.image_provider import CameraImageProvider
 from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
 from app.server import CONFIG
-from api.api_core import app,include_router\nfrom app.data.providers import set_provider, SimDataProvider, CommDataProvider
+from api.api_core import app,include_router
+from app.data.providers import set_provider, SimDataProvider, CommDataProvider
 
 
 def _ensure_module_alias(name: str, module: Any) -> None:
@@ -55,9 +56,14 @@ def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrato
 
     motion_proxy = _wrap_motion_module(motion)
     sys.modules["motion"] = motion_proxy
-    from api.api import api_image,api_motion,api_status,api_test
+    from api.api import api_image,api_motion,api_status,api_test,api_control,api_config,api_path
     from api.ws import ws_code,ws_logs,ws_status
-    include_router()\r\n    # Default to simulated data provider for decoupled business logic\r\n    try:\r\n        set_provider(CommDataProvider() if getattr(CONFIG, 'data_mode', 'sim')=='comm' else SimDataProvider())\r\n    except Exception:\r\n        pass\r\n
+    include_router()
+    # Default to simulated data provider for decoupled business logic
+    try:
+        set_provider(CommDataProvider() if getattr(CONFIG, 'data_mode', 'sim')=='comm' else SimDataProvider())
+    except Exception:
+        pass
     async def _status_fn():
         try:
             return await api_status.status()
@@ -134,5 +140,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
 
 

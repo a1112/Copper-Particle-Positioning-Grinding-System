@@ -7,13 +7,11 @@ import "../../cores" as Cores
 import "../../Sockets" as Sockets
 import "../Charts" as Charts
 
-// 驱动信息视图：上方关键状态/位置，下方转速/扭矩曲线
 BaseCard {
     id: root
 
-    // 简单缓存曲线数据（基于 WS 推送）
-    property var rpmSeries: []       // 主轴转速 rpm
-    property var torqueSeries: []    // 主轴扭矩 N·m（若服务端提供 spindle_torque 字段则显示）
+    property var rpmSeries: []
+    property var torqueSeries: []
     readonly property int maxPoints: 240
 
     function _pushSeries(arr, v) {
@@ -27,7 +25,7 @@ BaseCard {
         anchors.margins: 10
         spacing: 10
 
-        // 顶部关键信息
+        // Connection & basic info
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 6
@@ -36,15 +34,15 @@ BaseCard {
                 Layout.fillWidth: true
                 spacing: 8
                 Label { text: "连接"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 56 }
-                Rectangle { width: 10; height: 10; radius: 5
-                    color: Sockets.Sockets.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger }
+                Rectangle { width: 10; height: 10; radius: 5;
+                    color: Sockets.StatusSocket.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger }
                 Label {
-                    text: Sockets.Sockets.connected ? "已连接" : "未连接"
-                    color: Sockets.Sockets.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger
+                    text: (Sockets.StatusSocket.connected ? "已连接" : "未连接")
+                    color: Sockets.StatusSocket.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger
                 }
                 Item { Layout.fillWidth: true }
                 Label {
-                    text: "状态: " + ((Sockets.Sockets.lastMessage && Sockets.Sockets.lastMessage.state) || "-")
+                    text: "状态: " + ((Sockets.StatusSocket.lastMessage && Sockets.StatusSocket.lastMessage.state) || "-")
                     color: Cores.CoreStyle.text
                 }
             }
@@ -54,8 +52,8 @@ BaseCard {
                 spacing: 16
                 Label { text: "位置"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 56 }
                 Label {
-                    readonly property var pos: (Sockets.Sockets.lastMessage && Sockets.Sockets.lastMessage.position) || {}
-                    text: `X:${Number(pos.x||0).toFixed(2)}  Y:${Number(pos.y||0).toFixed(2)}  Z:${Number(pos.z||0).toFixed(2)}  θ:${Number(pos.theta||0).toFixed(2)}`
+                    readonly property var pos: (Sockets.StatusSocket.lastMessage && Sockets.StatusSocket.lastMessage.position) || {}
+                    text: `X:${Number(pos.x||0).toFixed(2)}  Y:${Number(pos.y||0).toFixed(2)}  Z:${Number(pos.z||0).toFixed(2)}  Theta:${Number(pos.theta||0).toFixed(2)}`
                     color: Cores.CoreStyle.text
                 }
             }
@@ -63,16 +61,16 @@ BaseCard {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 16
-                Label { text: "主轴转速"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 56 }
+                Label { text: "主轴转速"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 72 }
                 Label {
-                    text: `${Number((Sockets.Sockets.lastMessage && Sockets.Sockets.lastMessage.spindle_rpm) || 0).toFixed(0)} rpm`
+                    text: `${Number((Sockets.StatusSocket.lastMessage && Sockets.StatusSocket.lastMessage.spindle_rpm) || 0).toFixed(0)} rpm`
                     color: Cores.CoreStyle.accent
                 }
                 Item { Layout.fillWidth: true }
-                Label { text: "扭矩"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 40 }
+                Label { text: "扭矩"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 56 }
                 Label {
-                    readonly property var tq: (Sockets.Sockets.lastMessage && (Sockets.Sockets.lastMessage.spindle_torque))
-                    text: (tq===undefined||tq===null? "-" : `${Number(tq).toFixed(2)} N·m`)
+                    readonly property var tq: (Sockets.StatusSocket.lastMessage && (Sockets.StatusSocket.lastMessage.spindle_torque))
+                    text: (tq===undefined||tq===null? "-" : `${Number(tq).toFixed(2)} N*m`)
                     color: Cores.CoreStyle.text
                 }
             }
@@ -80,7 +78,7 @@ BaseCard {
             Rectangle { Layout.fillWidth: true; height: 1; color: Cores.CoreStyle.border }
         }
 
-        // 曲线区：上 转速 / 下 扭矩
+        // Charts: RPM / Torque
         Charts.RpmChart {
             id: rpmChart
             Layout.fillWidth: true
@@ -98,9 +96,8 @@ BaseCard {
         Item { Layout.fillHeight: true }
     }
 
-    // 订阅 WS 消息：提取转速/扭矩、触发重绘
     Connections {
-        target: Sockets.Sockets
+        target: Sockets.StatusSocket
         function onMessageReceived(p) {
             try {
                 if (!p) return
@@ -112,3 +109,4 @@ BaseCard {
         }
     }
 }
+

@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import "../../cores" as Cores
 import "." as Charts
@@ -30,3 +30,4 @@ GroupBox {
     emptyText: "无转速数据"
   }
 }
+

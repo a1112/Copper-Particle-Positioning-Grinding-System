@@ -43,14 +43,14 @@ BaseCard {
     RowLayout {
       Layout.fillWidth: true
       spacing: 12
-      Label { text: '\u6307\u4ee4'; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
+      Label { text: '指令'; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
       // Connection status for /ws/code
       Rectangle { width: 10; height: 10; radius: 5; color: root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger }
-      Label { text: (root.codeConnected ? '\u5df2\u8fde\u63a5' : '\u672a\u8fde\u63a5'); color: (root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger) }
-      Label { text: '\u72b6\u6001: ' + runState; color: (runState==='RUNNING'? Cores.CoreStyle.success : Cores.CoreStyle.muted) }
-      Label { text: (currentIndex>=0 ? ('\u5f53\u524d: ' + (currentIndex+1)) : '\u5f53\u524d: -'); color: Cores.CoreStyle.muted }
-      Btns.ActionButton { text: '\u542f\u52a8'; onClicked: Api.ApiClient.startRun() }
-      Btns.ActionButton { text: '\u505c\u6b62'; danger: true; onClicked: Api.ApiClient.stopRun() }
+      Label { text: (root.codeConnected ? '已连接' : '未连接'); color: (root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger) }
+      Label { text: '状态: ' + runState; color: (runState==='RUNNING'? Cores.CoreStyle.success : Cores.CoreStyle.muted) }
+      Label { text: (currentIndex>=0 ? ('当前: ' + (currentIndex+1)) : '当前: -'); color: Cores.CoreStyle.muted }
+      Btns.ActionButton { text: '启动'; onClicked: Api.ApiClient.startRun() }
+      Btns.ActionButton { text: '停止'; danger: true; onClicked: Api.ApiClient.stopRun() }
     }
 
     // Program list with inline editing
@@ -94,3 +94,4 @@ BaseCard {
     function onRunStateChanged(){ /* status label updates via binding */ }
   }
 }
+

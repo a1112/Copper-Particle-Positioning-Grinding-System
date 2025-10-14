@@ -35,5 +35,6 @@ Item {
     }
   }
 
+
   Timer { id: logsReconnect; interval: 2000; running: false; repeat: false; onTriggered: wsLogs.active = true }
 }

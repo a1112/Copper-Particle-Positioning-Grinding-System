@@ -9,5 +9,6 @@ pydantic~=2.9.2
 
 websockets
 SQLAlchemy~=2.0.35
-
-starlette~=0.38.6
+pytest
+starlette
+httpx

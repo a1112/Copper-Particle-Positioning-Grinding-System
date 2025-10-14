@@ -15,8 +15,6 @@ BaseCard {
     anchors.margins: 8
     spacing: 6
     LogHead{
-
-
     }
     Frame {
       Layout.fillWidth: true
