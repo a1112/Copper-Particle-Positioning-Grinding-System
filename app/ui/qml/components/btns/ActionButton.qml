@@ -7,21 +7,45 @@ Button {
   id: control
   // 可选危险态（如停止）
   property bool danger: false
-
+  // 外部可激活的高亮态（用于键盘反馈等）
+  property bool active: false
+  Rectangle{anchors.fill: parent;opacity:0.1}
   font.pixelSize: 13
-  padding: 6
+  // 明确内边距与悬停行为，避免实际点击区域与视觉不一致
+  padding: 3
+  leftPadding: 6
+  rightPadding: 6
+  topPadding: 2
+  bottomPadding: 2
+  hoverEnabled: true
+
+  // 基于内容计算隐式尺寸，减少布局产生的过大空白
+  implicitWidth: Math.max(
+                    64,
+                    (contentItem ? contentItem.implicitWidth : 0)
+                  )
+  implicitHeight: Math.max(
+                     28,
+                     (contentItem ? contentItem.implicitHeight : 0)
+                   )
 
   background: Rectangle {
     radius: 4
-    color: control.down
+    anchors.fill: control
+    color: (control.down || control.active)
            ? (control.danger ? "#b91c1c" : Cores.CoreStyle.primary)
-           : (control.hovered ? Cores.CoreStyle.surface : Cores.CoreStyle.background)
+           : Cores.CoreStyle.surface
     border.color: Cores.CoreStyle.border
   }
   contentItem: Text {
     font.bold: true
     text: control.text
-    color: control.down ? "white" : Cores.CoreStyle.text
+    color: (control.down || control.active) ? "white" : Cores.CoreStyle.text
+    horizontalAlignment: Text.AlignHCenter
+    verticalAlignment: Text.AlignVCenter
+    elide: Text.ElideRight
+    width: control.availableWidth
+    height: control.availableHeight
 
   }
 }

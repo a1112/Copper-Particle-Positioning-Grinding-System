@@ -1,4 +1,4 @@
-﻿pragma Singleton
+pragma Singleton
 import QtQuick
 import "../cores" as Cores
 
@@ -16,7 +16,7 @@ QtObject {
     return base() + path
   }
   function ws() {
-    return 'ws://' + Cores.CoreSettings.apiHost + ':' + Cores.CoreSettings.apiPort + '/ws'
+    return 'ws://' + Cores.CoreSettings.apiHost + ':' + Cores.CoreSettings.apiPort + '/ws/status'
   }
   function wsLogs() {
     return 'ws://' + Cores.CoreSettings.apiHost + ':' + Cores.CoreSettings.apiPort + '/ws/logs'
@@ -25,5 +25,7 @@ QtObject {
     return 'ws://' + Cores.CoreSettings.apiHost + ':' + Cores.CoreSettings.apiPort + '/ws/code'
   }  function docs() { return base() + '/docs' }
 }
+
+
 
 

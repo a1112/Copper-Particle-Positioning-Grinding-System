@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import "../../../views/DriveInfo" as Drv
 import "../../../views/ImageInfo" as Img
 import "../../../views/Log" as Log
+import "../../../views/Control" as Ctrl
 import "../../../views/Code" as Code
 // 设备信息 + 图像信息 预览页
 Item {
@@ -37,13 +38,16 @@ Item {
       }
     }
     SplitView{
-              SplitView.fillWidth: true
-              SplitView.preferredHeight: 300
+      SplitView.fillWidth: true
+      SplitView.preferredHeight: 300
       Log.LogView{
         SplitView.fillHeight: true
-
+        SplitView.fillWidth: true
       }
-
+      Ctrl.PTZControl {
+        SplitView.fillHeight: true
+        SplitView.preferredWidth: 400
+      }
     }
   }
 }

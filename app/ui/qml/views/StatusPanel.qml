@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtWebSockets
+import "../components/btns" as Btns
 
 Rectangle {
   id: root
@@ -64,7 +65,6 @@ Rectangle {
       Label { text: backend && backend.lockSpindle ? 'OK' : 'NG'; color: backend && backend.lockSpindle ? '#22c55e' : '#ef4444' }
     }
     Item { Layout.fillHeight: true }
-    RowLayout { Layout.alignment: Qt.AlignRight; Button { text: "刷新"; onClicked: backend && backend.refresh() } }
+    RowLayout { Layout.alignment: Qt.AlignRight; Btns.ActionButton { text: "刷新"; onClicked: backend && backend.refresh() } }
   }
 }
-

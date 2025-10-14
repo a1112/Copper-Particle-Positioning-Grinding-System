@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../components/btns" as Btns
 
 Dialog {
   id: testDialog
@@ -53,7 +54,7 @@ Dialog {
       RowLayout {
         Layout.fillWidth: true
         Label { text: "测试组"; font.bold: true }
-        Button { text: "刷新"; onClicked: testDialog.refreshGroups() }
+        Btns.ActionButton { text: "刷新"; onClicked: testDialog.refreshGroups() }
         Item { Layout.fillWidth: true }
         TextField { id: tfSerial; placeholderText: "新建组流水号"; width: 200 }
         TextField { id: tfNote; placeholderText: "说明(可选)"; width: 240 }
@@ -106,4 +107,3 @@ Dialog {
     }
   }
 }
-

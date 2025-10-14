@@ -25,12 +25,12 @@ BaseCard {
       ListView {
         id: list
         anchors.fill: parent
-        model: Sockets.Sockets.logs
+        model: Sockets.LogsSocket.logs
         delegate: RowLayout {
           width: list.width
           spacing: 8
           property color lvColor: (level==='ERROR'? '#ef4444' : (level==='WARN' || level==='WARNING' ? '#f59e0b' : Cores.CoreStyle.muted))
-          Label { text: new Date(ts*1000).toLocaleTimeString(); color: Cores.CoreStyle.muted; Layout.preferredWidth: 92 }
+          Label { text: (time && time.length>0) ? time.split(' ')[1] : new Date(ts*1000).toLocaleTimeString(); color: Cores.CoreStyle.muted; Layout.preferredWidth: 92 }
           Label { text: level; color: lvColor; Layout.preferredWidth: 64 }
           Label { text: name; color: Cores.CoreStyle.muted; Layout.preferredWidth: 120; elide: Label.ElideRight }
           Label { text: msg; color: Cores.CoreStyle.text; Layout.fillWidth: true; wrapMode: Text.WordWrap }
@@ -41,7 +41,10 @@ BaseCard {
   }
 
   Connections {
-    target: Sockets.Sockets
+    target: Sockets.LogsSocket
     function onLogReceived(item){ if (root.autoScroll) list.positionViewAtEnd() }
   }
 }
+
+
+

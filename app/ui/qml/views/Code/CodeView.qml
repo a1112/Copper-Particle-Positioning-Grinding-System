@@ -1,10 +1,10 @@
 ﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtWebSockets
 import QtCore
 import "../Base"
 import "../../Api" as Api
+import "../../Sockets" as Sockets
 import "../../cores" as Cores
 import "../../components/btns" as Btns
 
@@ -13,10 +13,10 @@ BaseCard {
 
   // Program model: each row is one instruction line and its status
   ListModel { id: codeModel }
-  property int currentIndex: -1
-  property string runState: 'IDLE'   // IDLE/RUNNING/PAUSED
+  property int currentIndex: Sockets.CodeSocket.currentIndex
+  property string runState: Sockets.CodeSocket.runState   // IDLE/RUNNING/PAUSED
   // WS connection state for code channel
-  property bool codeConnected: (wsCode.status===WebSocket.Open)
+  property bool codeConnected: (Sockets.CodeSocket.connected)
 
   function setProgram(lines){
     codeModel.clear()
@@ -25,27 +25,32 @@ BaseCard {
     }
   }
 
+  function updateStatuses(){
+    var cur = Sockets.CodeSocket.currentIndex;
+    for (var i=0;i<codeModel.count;i++){
+      var st = (i===cur ? 'RUNNING' : (i<cur ? 'OK' : 'READY'))
+      codeModel.setProperty(i, 'status', st)
+    }
+  }
+
   ColumnLayout {
     anchors.fill: parent
     anchors.margins: 8
     spacing: 8
 
-
-    CodeHead{
-
-    }
+    CodeHead{ }
 
     RowLayout {
       Layout.fillWidth: true
       spacing: 12
-      Label { text: '指令'; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
+      Label { text: '\u6307\u4ee4'; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
       // Connection status for /ws/code
       Rectangle { width: 10; height: 10; radius: 5; color: root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger }
-      Label { text: (root.codeConnected ? '已连接' : '未连接'); color: (root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger) }
-      Label { text: '状态: ' + runState; color: (runState==='RUNNING'? Cores.CoreStyle.success : Cores.CoreStyle.muted) }
-      Label { text: (currentIndex>=0 ? ('当前: ' + (currentIndex+1)) : '当前: -'); color: Cores.CoreStyle.muted }
-      Btns.ActionButton { text: '运行'; onClicked: Api.ApiClient.startRun() }
-      Btns.ActionButton { text: '停止'; danger: true; onClicked: Api.ApiClient.stopRun() }
+      Label { text: (root.codeConnected ? '\u5df2\u8fde\u63a5' : '\u672a\u8fde\u63a5'); color: (root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger) }
+      Label { text: '\u72b6\u6001: ' + runState; color: (runState==='RUNNING'? Cores.CoreStyle.success : Cores.CoreStyle.muted) }
+      Label { text: (currentIndex>=0 ? ('\u5f53\u524d: ' + (currentIndex+1)) : '\u5f53\u524d: -'); color: Cores.CoreStyle.muted }
+      Btns.ActionButton { text: '\u542f\u52a8'; onClicked: Api.ApiClient.startRun() }
+      Btns.ActionButton { text: '\u505c\u6b62'; danger: true; onClicked: Api.ApiClient.stopRun() }
     }
 
     // Program list with inline editing
@@ -82,32 +87,10 @@ BaseCard {
     }
   }
 
-  // WebSocket to receive execution info
-  WebSocket {
-    id: wsCode
-    url: Api.Urls.wsCode()
-    active: true
-    onStatusChanged: function(status){ /* trigger binding update */ root.codeConnected = (status===WebSocket.Open) }
-    onTextMessageReceived: function(message){
-      try {
-        var p = JSON.parse(message)
-        if (p.type === 'program' && Array.isArray(p.lines)) {
-          setProgram(p.lines)
-        } else if (p.type === 'state') {
-          root.runState = p.state || 'IDLE'
-          root.currentIndex = (p.current!==undefined ? p.current : -1)
-          // update statuses
-          for (var i=0;i<codeModel.count;i++){
-            var st = (i===root.currentIndex ? 'RUNNING' : (i<root.currentIndex ? 'OK' : 'READY'))
-            codeModel.setProperty(i, 'status', st)
-          }
-        } else if (p.type === 'result') {
-          if (p.index!==undefined) {
-            codeModel.setProperty(p.index, 'status', (p.ok? 'OK':'FAIL'))
-            if (p.msg) codeModel.setProperty(p.index, 'msg', p.msg)
-          }
-        }
-      } catch(e) { /* ignore */ }
-    }
+  Connections {
+    target: Sockets.CodeSocket
+    function onLinesChanged(){ setProgram(Sockets.CodeSocket.lines||[]) }
+    function onCurrentIndexChanged(){ updateStatuses() }
+    function onRunStateChanged(){ /* status label updates via binding */ }
   }
 }

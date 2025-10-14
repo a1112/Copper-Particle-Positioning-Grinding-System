@@ -109,8 +109,10 @@
         <file>qml/pages/MainLayouts.qml</file>
         <file>qml/RBT.qml</file>
         <file>qml/shortcuts/ShortcutManager.qml</file>
-        <file>qml/Sockets/qmldir</file>
-        <file>qml/Sockets/Sockets.qml</file>
+        
+        <file>qml/Sockets/StatusSocket.qml</file>
+        <file>qml/Sockets/LogsSocket.qml</file>
+        <file>qml/Sockets/CodeSocket.qml</file>
         <file>qml/urls/Urls.qml</file>
         <file>qml/views/CommPanel.qml</file>
         <file>qml/views/DriveInfo/DriveInfoView.qml</file>
@@ -131,6 +133,14 @@
         <file>qml/views/Code/CodeContorl.qml</file>
         <file>qml/views/Code/CodeHead.qml</file>
         <file>qml/Api/Ajax.qml</file>
+        <file>qml/views/Control/PTZControl.qml</file>
         <file>qml/views/log/LogHead.qml</file>
+        <file>qml/components/Card/CardBase.qml</file>
+        <file>qml/components/btns/CheckBoxBase.qml</file>
+        <file>qml/pages/foot/PingLabel.qml</file>
+        <file>qml/components/btns/CheckDelegateBase.qml</file>
+        <file>qml/pages/foot/ViewMangeRow.qml</file>
     </qresource>
 </RCC>
+
+

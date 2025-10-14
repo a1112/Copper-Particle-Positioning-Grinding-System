@@ -9,6 +9,14 @@ from typing import Deque, Dict, Any, List, Optional
 _BUFFER: Deque[Dict[str, Any]] = deque(maxlen=1000)
 
 
+def _fmt_time(ts: float) -> str:
+    try:
+        # Local time, second resolution
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts))
+    except Exception:
+        return ""
+
+
 class _BufferHandler(logging.Handler):
     def __init__(self, level: int = logging.INFO) -> None:
         super().__init__(level=level)
@@ -16,8 +24,10 @@ class _BufferHandler(logging.Handler):
 
     def emit(self, record: logging.LogRecord) -> None:
         try:
+            ts = getattr(record, "ts", None) or time.time()
             item = {
-                "ts": getattr(record, "ts", None) or time.time(),
+                "ts": ts,
+                "time": _fmt_time(ts),
                 "level": record.levelname,
                 "name": record.name,
                 "msg": record.getMessage(),
@@ -38,7 +48,8 @@ def as_list() -> List[Dict[str, Any]]:
 
 def push(level: str, name: str, msg: str, ts: Optional[float] = None) -> None:
     try:
-        item = {"ts": ts or time.time(), "level": level.upper(), "name": name, "msg": msg}
+        ts2 = ts or time.time()
+        item = {"ts": ts2, "time": _fmt_time(ts2), "level": level.upper(), "name": name, "msg": msg}
         _BUFFER.append(item)
     except Exception:
         pass
@@ -50,4 +61,3 @@ def attach_root_handler(level: int = logging.INFO) -> None:
     if any(getattr(h, "_is_ws_buffer", False) for h in root.handlers):
         return
     root.addHandler(_BufferHandler(level=level))
-

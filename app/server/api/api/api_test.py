@@ -155,3 +155,25 @@ async def group_add_image(serial: str, name: str):
         return {"ok": True, "file": src.name}
     finally:
         db.close()
+@router.post("/test/log")
+async def test_log(msg: str):
+    """Append a test log message to the in-memory WS buffer.
+    Useful for smoke testing `/ws/logs` without real devices.
+    """
+    try:
+        from app.server.utils.logs import push
+        push("INFO", "demo", msg)
+    except Exception:
+        pass
+    return {"ok": True}
+
+@router.post("/test/log/clear")
+async def test_log_clear():
+    """Clear in-memory log buffer (test-only)."""
+    try:
+        from app.server.utils.logs import get_buffer
+        buf = get_buffer()
+        buf.clear()
+    except Exception:
+        pass
+    return {"ok": True}
