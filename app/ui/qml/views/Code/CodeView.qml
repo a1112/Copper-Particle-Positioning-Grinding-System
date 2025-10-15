@@ -23,6 +23,7 @@ BaseCard {
     for (var i=0;i<lines.length;i++){
       codeModel.append({ idx: i+1, text: String(lines[i]), status: 'READY', msg: '' })
     }
+    updateStatuses()
   }
 
   function updateStatuses(){
@@ -43,7 +44,7 @@ BaseCard {
     RowLayout {
       Layout.fillWidth: true
       spacing: 12
-      Label { text: '指令'; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
+      Label { text: 'G-code'; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
       // Connection status for /ws/code
       Rectangle { width: 10; height: 10; radius: 5; color: root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger }
       Label { text: (root.codeConnected ? '已连接' : '未连接'); color: (root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger) }
@@ -69,12 +70,13 @@ BaseCard {
           Rectangle { width: 36; height: 28; radius: 4; color: (index===root.currentIndex ? Cores.CoreStyle.accent : Cores.CoreStyle.surface)
             Label { anchors.centerIn: parent; text: idx; color: (index===root.currentIndex ? 'black' : Cores.CoreStyle.text) }
           }
-          TextField {
-            id: lineEdit
+          Label {
             Layout.fillWidth: true
             text: model.text
             color: Cores.CoreStyle.text
-            onEditingFinished: { model.text = text }
+            font.family: "monospace"
+            horizontalAlignment: Text.AlignLeft
+            wrapMode: Text.NoWrap
           }
           Label {
             text: model.status

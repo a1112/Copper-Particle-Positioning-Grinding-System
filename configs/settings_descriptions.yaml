@@ -1,0 +1,40 @@
+# UI setting descriptions mapping
+# Keys follow the "<section>.<sub>.<field>" pattern produced by ConfigSettingsLoader.
+
+job.meta.lot: "任务批次标识，可直接在设置界面调整以区分不同生产批次。"
+job.meta.board_id: "当前加工板号/二维码，如需区分治具或工位可在此修改。"
+job.meta.operator: "执行作业的操作员账号，支持通过设置界面快速更新。"
+
+scan.mode: "扫描方式（线激光/结构光/文件导入），选项可在界面下拉切换。"
+scan.pitch_xy: "XY 采样间距，影响高度场分辨率，可在界面输入框直接调整。"
+scan.height_scale: "灰度与高度的换算比例，界面修改后会同步写入配置。"
+scan.speed: "扫描速度（mm/s），可在设置界面调整以适配不同材质。"
+scan.exposure_us: "相机曝光时间（微秒），可在界面调整达到最佳亮度。"
+scan.laser.power_pct: "激光功率百分比，建议根据材质在界面调优。"
+
+baseline.method: "基准面提取方法，界面提供下拉选择（平面/滚珠/开运算）。"
+baseline.robust: "是否启用鲁棒拟合，界面勾选后将更新配置文件。"
+
+detect.h_min: "颗粒高度下限，界面输入框可直接修改。"
+detect.noise_margin: "噪声裕量，界面修改后用于调节双阈值检测灵敏度。"
+detect.min_area_px: "颗粒最小面积阈值，界面数值调整即可生效。"
+
+plan.strategy: "路径规划策略（自动/螺旋等），界面下拉选项支持切换。"
+plan.step_over: "步距比例，界面中可直接输入以控制加工密度。"
+plan.layer.ap: "分层切深，界面调整后会同步更新加工路径。"
+
+motion.feed_xy: "XY 平面进给速度（mm/min），可在界面中直接修改。"
+motion.feed_z: "Z 向进给速度（mm/min），界面调整后立即存档。"
+motion.smoothing_tolerance: "轨迹平滑公差，界面输入框可设置。"
+
+monitor_defaults.spindle_load_max: "主轴负载上限，界面修改后用于实时监控报警。"
+monitor_defaults.vacuum_kpa_min: "真空下限（kPa），界面调整后适配不同夹具。"
+monitor_defaults.vibration_rms_max: "振动 RMS 上限，可在界面修正以减少误报。"
+
+workoffset.G54.x: "G54 工件坐标 X 偏置，可在界面中微调。"
+workoffset.G54.y: "G54 工件坐标 Y 偏置，可在界面中微调。"
+workoffset.G54.z: "G54 工件坐标 Z 偏置，可在界面中微调。"
+
+gcode.post: "后处理方言，可在界面选择（Fanuc/Heidenhain 等）。"
+gcode.spindle_on_mcode: "主轴启转 M 码，支持在界面更新以适配数控系统。"
+gcode.coolant_on_mcode: "冷却/吹屑 M 码，可在界面调整。"

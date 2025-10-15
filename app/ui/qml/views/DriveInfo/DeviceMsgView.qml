@@ -16,6 +16,7 @@ BaseCard {
     property var machineMeta: ({})
     property var elevPts: []
     property var elevCuts: []
+    property real elevBase: 0.0
     Component.onCompleted:
     {
         Api.ApiClient.get('/config/meta',
@@ -27,14 +28,25 @@ BaseCard {
         Api.ApiClient.get('/path/elevation',
                           function(r){
                             root.elevPts = (r && r.points)||[];
-                            root.elevCuts = (r && r.cuts)||[] },
+                            root.elevCuts = (r && r.cuts)||[];
+                            root.elevBase = (r && typeof r.base === 'number') ? r.base : 0.0 },
                           function(s,m){
                             console.log('elev err', s, m) })
     }
-
-      ColumnLayout { anchors.fill: parent; spacing: 3
         GridLayout { id: gridInfo; columns: 3; rowSpacing: 4; columnSpacing: 24
           // 每格一个“名: 值”对
+          RowLayout { Label { text: "流水号"; color: "#b8c"; Layout.preferredWidth: 72 }
+            Label { text: (root.machineMeta.board_serial || '-') }
+          }
+
+          RowLayout { Label { text: "平面高度"; color: "#b8c"; Layout.preferredWidth: 72 }
+            Label { text: (root.machineMeta.plane_height || '-') }
+          }
+
+          RowLayout { Label { text: "粒子数量"; color: "#b8c"; Layout.preferredWidth: 72 }
+            Label { text: (root.machineMeta.particle_count || '-') }
+          }
+
           RowLayout { Label { text: "刀盘"; color: "#b8c"; Layout.preferredWidth: 72 }
             Label { text: (root.machineMeta.cutter_diameter || '-') }
           }
@@ -46,18 +58,5 @@ BaseCard {
           }
 
           }
-        }
-        Rectangle { height: 1; color: '#333'; Layout.fillWidth: true }
-        GridLayout { id: gridProd; columns: 3; rowSpacing: 4; columnSpacing: 24
-          RowLayout { Label { text: "平面高度"; color: "#b8c"; Layout.preferredWidth: 72 }
-            Label { text: (root.machineMeta.plane_height || '-') }
-          }
-          RowLayout { Label { text: "流水号"; color: "#b8c"; Layout.preferredWidth: 72 }
-            Label { text: (root.machineMeta.board_serial || '-') }
-          }
-          RowLayout { Label { text: "粒子数量"; color: "#b8c"; Layout.preferredWidth: 72 }
-            Label { text: (root.machineMeta.particle_count || '-') }
-          }
-        }
       }
 

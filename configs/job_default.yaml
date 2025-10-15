@@ -1,0 +1,92 @@
+# 任务配置（每块板可覆盖的参数）
+job:
+  meta:
+    lot: "LOT-2025-10-15"   # 批次号/日期
+    board_id: "B-0001"      # 板号/条码
+    operator: "op01"        # 操作员
+
+scan:
+  mode: "line-laser"        # 扫描方式：line-laser/structured/file
+  pitch_xy: 0.10            # XY 采样间距（mm/px）
+  height_scale: 0.02        # 灰度→高度比例（mm/灰度），由相机/SDK决定
+  speed: 120                # 扫描相对速度（mm/s）
+  exposure_us: 8000         # 曝光时间（微秒）
+  gain: 1.0                 # 增益
+  laser:
+    power_pct: 60           # 激光功率（%）
+    wavelength_nm: 405      # 波长（nm）
+  filter:
+    bilateral_d: 7          # 双边滤波内核直径
+  saturation_mask: 240      # 饱和阈值（0~255）；≥该值视为无效
+  roi: [0, 0, -1, -1]       # ROI [x,y,w,h]；-1表示全幅
+
+baseline:
+  method: "plane"           # 基准面：plane/rolling-ball/morph-open
+  robust: true              # 是否鲁棒拟合（RANSAC/L1）
+  morph_ksize: 51           # 开运算内核（像素）；当 method=morph-open 时生效
+  patch_grid_mm: 0          # 局部网格平面边长（mm），0=禁用；翘曲大可设20~50
+
+detect:
+  h_min: 1.0                # 颗粒最小高度阈值（mm）
+  noise_margin: 0.10        # 噪声裕量（mm）
+  dual_threshold: true      # 启用双阈值（高阈= h_min+margin，低阈= h_min）
+  min_area_px: 25           # 最小有效面积（像素），换算≈ mm²
+  morph:
+    open: 3                 # 开运算核尺寸（像素）净化小噪点
+    close: 5                # 闭运算核尺寸（像素）合并近邻孔洞
+  merge:
+    gap_factor: 1.5         # 合并间距= gap_factor × 刀径（mm）
+  edge_safe_margin_factor: 2.0  # 边界安全距= 因子 × 刀径（mm）
+  max_height_guard: 12.0    # 高度上限保护（mm），超过视为异常拒绝加工
+
+plan:
+  strategy: "auto"          # auto=孤立用spiral，密集用raster；或显式"spiral-pocket"/"raster"
+  step_over: 0.55           # 步距比例（相对刀径）
+  layer:
+    ap: 0.4                 # 分层切深（mm）
+  ordering: "nearest"       # 颗粒加工顺序：nearest/TSP
+  corner_radius_ratio: 0.15 # 轨迹圆角相对刀径
+  final:
+    skim_on: true           # 是否精修一层
+    skim_allowance: 0.15    # 精修留量（mm）
+
+motion:
+  feed_xy: 1000             # 平面进给（mm/min）
+  feed_z: 300               # Z向进给（mm/min）
+  smoothing_tolerance: 0.03 # 轨迹平滑公差（mm）
+  s_curve: true             # S曲线加减速
+
+qa:
+  residual:
+    h_tol: 0.15             # 切后残余高度容差（mm）
+  rescan:
+    roi_margin: 1.5         # 复扫ROI外扩（mm）
+    sampling_grid: 0.4      # 复检采样网格（mm）
+  recut:
+    enable: true            # 超差自动补切
+    max_times: 2            # 最大补切次数
+
+monitor:                    # 任务级门限（可覆盖机台默认）
+  spindle_load_max: 0.9
+  vibration_rms_max: 1.2
+  vacuum_kpa_min: -6.0
+
+gcode:
+  post: "fanuc"             # 后处理方言：fanuc/heidenhain/custom
+  spindle_on_mcode: "M3"    # 主轴正转M码
+  coolant_on_mcode: "M8"    # 冷却/吹屑M码
+  end_block: ["M9", "M5"]   # 结束关闭指令
+
+io_paths:
+  data_dir: "./app/data"        # 数据目录
+  reports_dir: "./app/reports"  # 报告/导出目录
+
+api:
+  ws_url: "/ws/progress"    # WebSocket推送地址
+  timeouts_s:
+    controller: 15          # 控制器通讯超时（秒）
+    rest: 10                # REST调用超时（秒）
+
+log:
+  level: "INFO"             # 日志级别：DEBUG/INFO/WARN/ERROR
+  retention_days: 30        # 日志保留天数

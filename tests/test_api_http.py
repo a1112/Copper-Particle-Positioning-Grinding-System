@@ -55,3 +55,16 @@ def test_motion_endpoints_noop_ok(client):
     r2 = client.post("/motion/set_work_origin")
     assert r1.status_code == 200 and r1.json().get("ok") is True
     assert r2.status_code == 200 and r2.json().get("ok") is True
+
+
+def test_config_settings_bundle(client):
+    r = client.get("/config/settings")
+    assert r.status_code == 200
+    data = r.json()
+    assert "sources" in data and data["sources"]["job"].endswith("job_default.yaml")
+    assert any(section["name"] == "scan" for section in data.get("job_sections", []))
+    assert isinstance(data.get("tool_table"), list) and len(data["tool_table"]) >= 1
+
+    scan_section = next(section for section in data.get("job_sections", []) if section["name"] == "scan")
+    scan_mode = next(item for item in scan_section.get("items", []) if item["key"] == "mode")
+    assert isinstance(scan_mode.get("description"), str) and len(scan_mode["description"]) > 0

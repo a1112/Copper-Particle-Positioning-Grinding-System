@@ -8,6 +8,7 @@ import "pages"
 import "pages/main"
 import "Dialogs"
 import "menu"
+import "menu/settings"
 import "shortcuts" as Keys
 import "cores" as Cores
 import "Api" as Api
@@ -33,6 +34,7 @@ App_Base {
   GlobErrorDialog { id: errorDialog }
   TestImagesDialog { id: testDialog }
   SettingsDrawer { id: settingsDrawer }
+  SettingPage{id: settingsPage}
 
   // F12 dialog for test page
   Dialog {

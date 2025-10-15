@@ -30,8 +30,8 @@ Item {
     spacing: 18
 
     Row { // logo + title icon
-      IconView { height: root.height; width: height*2; source: Cores.CoreStyle.getIconSource("share.png") }
-      IconLabel { anchors.verticalCenter: parent.verticalCenter }
+      IconView { height: root.height; width: height*4;  }
+      // IconLabel { anchors.verticalCenter: parent.verticalCenter }
     }
 
     ViewChangeTabView {}
@@ -71,8 +71,8 @@ Item {
     }
 
     DateTimeView { Layout.alignment: Qt.AlignVCenter }
-
-    SettingsButton { source: Cores.CoreStyle.getIconSource("setting.png"); height: root.height; width: height*2; onClicked: settingsDrawer.open() }
+    ItemDelegateButtonBase { source: Cores.CoreStyle.getIconSource("tool.png"); height: root.height; width: height*2; onClicked: settingsPage.open() }
+    ItemDelegateButtonBase { source: Cores.CoreStyle.getIconSource("setting.png"); height: root.height; width: height*2; onClicked: settingsDrawer.open() }
     Item { width: 10; height: 2 }
   }
 }

@@ -28,7 +28,11 @@ Item {
 
       // 左列：设备状态/信息 + 元数据
       SplitView { SplitView.preferredWidth: 440; SplitView.fillHeight: true; orientation: Qt.Vertical
-        Drv.DeviceMsgView{  SplitView.fillWidth: true; SplitView.preferredHeight: 160}
+        Drv.DeviceMsgView{
+          id: deviceMsgView
+          SplitView.fillWidth: true
+          SplitView.preferredHeight: 100
+        }
         Drv.DriveInfoView { SplitView.fillWidth: true; SplitView.preferredHeight: 420 }
       }
       // 中列：图像信息预览
@@ -50,7 +54,13 @@ Item {
         SplitView.fillHeight: true
         SplitView.fillWidth: true
       }
-      Charts.ElevationAreaChart { SplitView.fillHeight: true; SplitView.preferredWidth: 520; points: (elevPts.length?elevPts:demoPts); cuts: (elevCuts.length?elevCuts:demoCuts); base: 0.0 }
+      Charts.ElevationAreaChart {
+        SplitView.fillHeight: true
+        SplitView.preferredWidth: 520
+        points: deviceMsgView && deviceMsgView.elevPts.length ? deviceMsgView.elevPts : deviceMsgView.demoPts
+        cuts: deviceMsgView && deviceMsgView.elevCuts.length ? deviceMsgView.elevCuts : deviceMsgView.demoCuts
+        base: deviceMsgView ? deviceMsgView.elevBase : 0.0
+      }
       Ctrl.PTZControl {
         SplitView.fillHeight: true
         SplitView.preferredWidth: 400

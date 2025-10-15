@@ -63,5 +63,8 @@
         <file>resource/icon/warn.png</file>
         <file>resource/icon/WindowScreen.png</file>
         <file>resource/img/lbx.png</file>
+        <file>resource/icon/LOGO-MZ-MAX.ico</file>
+        <file>resource/icon/MZ.ico</file>
+        <file>resource/icon/MZ-old.ico</file>
     </qresource>
 </RCC>

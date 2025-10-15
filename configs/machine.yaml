@@ -1,0 +1,58 @@
+# 机台标定安全（低频修改）
+calib
+  camera
+    K  # 内参矩阵3x3，单位：像素（示例；请用标定结果替换）
+      - [1800.0, 0.0, 960.0]
+      - [0.0, 1800.0, 540.0]
+      - [0.0, 0.0, 1.0]
+    D [0.0, 0.0, 0.0, 0.0, 0.0]  # 畸变系数(k1,k2,p1,p2,k3)，标定后填写
+    extrinsic  # 相机到世界标定板的外参(4x4)，单位与机床坐标统一（mm），示例为单位阵
+      - [1, 0, 0, 0]
+      - [0, 1, 0, 0]
+      - [0, 0, 1, 0]
+      - [0, 0, 0, 1]
+  T_cam2mac  # 相机坐标→机床坐标的刚体变换(4x4)，单位：毫米（手眼标定结果）
+    - [1, 0, 0, 0]
+    - [0, 1, 0, 0]
+    - [0, 0, 1, 0]
+    - [0, 0, 0, 1]
+
+workoffset
+  G54 { x 0.0, y 0.0, z 0.0 }  # 工件零点（装夹后复核），单位：mm
+
+tool
+  table  # 刀具表（示例），length为对刀仪测得的H补偿
+    T1 { name Probe,      diameter 0.0, length 100.00 }  # 测头（如有）
+    T2 { name Endmill-6,  diameter 6.0, length 125.30 }  # φ6端铣
+    T3 { name Endmill-3,  diameter 3.0, length 118.70 }  # φ3端铣
+
+machine
+  limits
+    soft  # 软限位，单位：mm（按实际行程设置）
+      x [0.0, 1200.0]
+      y [0.0, 800.0]
+      z [-150.0, 0.0]
+  motion
+    lookahead_ms 20        # 速度前瞻缓冲（毫秒）
+    accel { x 2000, y 2000, z 1000 }   # 加速度（mms^2）
+    jerk  { x 5000, y 5000, z 2000 }   # 加加速度（mms^3）
+    s_curve true           # S曲线加减速开关
+    smoothing_tolerance 0.03  # 轨迹平滑公差（mm）
+
+safety
+  interlocks
+    door_lock true         # 门锁互锁：未关门禁止加工
+    light_curtain true     # 光幕互锁：遮挡即停
+    e_stop true            # 急停使能
+    vacuum_required true   # 真空吸屑不到位禁止主轴启转
+  io_names                 # 可选：PLCIO点名称映射（便于对接）
+    door_closed_in X0.0
+    vacuum_ok_in X0.1
+    spindle_enable_out Y0.0
+    mist_air_out Y0.1
+
+monitor_defaults
+  spindle_load_max 0.9     # 主轴负载上限（0~1）
+  vibration_rms_max 1.2    # 振动RMS上限（机台自定义单位）
+  cabinet_temp_max_c 50    # 电控柜最高温度（℃）
+  vacuum_kpa_min -6.0      # 负压下限（kPa）

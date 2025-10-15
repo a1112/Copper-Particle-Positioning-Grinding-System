@@ -11,12 +11,21 @@ async def ws_code(ws: WebSocket):
         logger.info("WS connected endpoint=/ws/code client=%s", getattr(ws, "client", None))
     except Exception:
         pass
-    # Demo program lines
+    # Demo program lines (G-code style)
     demo_lines = [
-        "FastMove SX 0 SY 0 SZ 10 EX 10 EY 10 EZ 10",
-        "FastCut  SX 10 SY 10 SZ 10 EX 20 EY 10 EZ  8 V 50 R 1000",
-        "SetDO 1,2,3",
-        "FastMove SX 20 SY 10 SZ  8 EX  0 EY  0 EZ 10",
+        "%",
+        "O1001 (Copper Pocket Demo)",
+        "G90 G54 G17",
+        "G21",
+        "G0 X0 Y0 Z5.000",
+        "M3 S12000",
+        "G1 Z0.500 F300",
+        "G1 X25.000 Y0.000 F800",
+        "G2 X25.000 Y25.000 I0.000 J12.500",
+        "G1 X0.000 Y25.000",
+        "G0 Z5.000",
+        "M5",
+        "M30",
     ]
     # Send snapshot once
     await ws.send_json({"type": "program", "lines": demo_lines})

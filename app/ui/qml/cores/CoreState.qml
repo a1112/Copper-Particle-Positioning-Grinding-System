@@ -9,6 +9,8 @@ Item {
   // Optional: last selected view id
   property string selectedViewId: ""
 
+
+  property int realViewIndex: 0
   Settings {
     id: st
     category: "CoreState"

@@ -140,5 +140,14 @@
         <file>qml/pages/foot/ViewMangeRow.qml</file>
         <file>qml/Sockets/qmldir</file>
         <file>qml/views/DriveInfo/DeviceMsgView.qml</file>
+        <file>qml/menu/settings/SettingPage.qml</file>
+        <file>qml/menu/settings/SettingPageHead.qml</file>
+        <file>qml/menu/settings/SettingPageTitle.qml</file>
+        <file>qml/views/Base/BaseHead.qml</file>
+        <file>qml/views/ImageInfo/head/ViewChioseItem.qml</file>
+        <file>qml/views/ImageInfo/head/ViewHead.qml</file>
+        <file>qml/views/ImageInfo/head/ViewChiose.qml</file>
+        <file>qml/views/RunTimeView/RunTimeView.qml</file>
+        <file>qml/views/ImageInfo/view2d/View2D.qml</file>
     </qresource>
 </RCC>

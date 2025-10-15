@@ -1,0 +1,41 @@
+# 工艺模板：铜板去粒（端铣 φ6）
+name: "Copper_RemoveParticles_Endmill6"  # 模板名
+material: "Copper"          # 材料：铜
+notes: "去除表面1~30mm凸起颗粒；优先强吹屑/MQL，避免粘刀"
+
+tool:
+  type: "endmill"           # 刀具类型：endmill/ball/etc.
+  diameter: 6.0             # 刀具直径（mm）
+  flutes: 2                 # 刀刃数
+  coating: "uncoated"       # 涂层（铜材可选未涂层/专用涂层）
+  length_H: 125.30          # 刀长补偿H（mm，对刀后更新）
+
+process:
+  spindle:
+    rpm: 42000              # 主轴转速（rpm）
+  feed:
+    fz: 0.03                # 每齿进给（mm/齿）
+    teeth: 2                # 刀刃数（用于推导进给）
+    feed_xy: 1000           # 平面进给（mm/min），也可在线计算
+    feed_z: 300             # Z向进给（mm/min）
+  doc:
+    ap: 0.4                 # 轴向切深（mm/层）
+    ae_ratio: 0.55          # 径向吃刀占刀径比例（0~1）
+  coolant:
+    mode: "air+MQL"         # 冷却方式：干切/气刀/MQL/喷液
+    on: true
+  approach:
+    helix: true             # 螺旋下刀
+    ramp_angle_deg: 3.0     # 斜坡入刀角度（度）
+  clearance:
+    safe_z: 5.0             # 抬刀安全高度（mm）
+
+planning:
+  strategy: "spiral-pocket" # 孤立颗粒用螺旋口袋；密集区可在任务级改为raster
+  step_over: 0.55           # 步距比例（相对刀径）
+  corner_radius_ratio: 0.15 # 轨迹圆角相对刀径（避免急拐）
+  ordering: "nearest"       # 顺序策略：nearest/TSP
+
+defaults_detect:            # 此模板的默认检测阈值（任务可覆盖）
+  h_min: 1.0                # 颗粒高度阈值（mm）
+  noise_margin: 0.1         # 噪声裕量（mm）
