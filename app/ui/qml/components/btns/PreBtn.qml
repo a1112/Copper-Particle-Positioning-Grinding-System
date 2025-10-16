@@ -1,17 +1,17 @@
 ﻿import QtQuick
-import "../../cores" as Cores`nimport QtQuick.Controls
-import "../../cores" as Cores`nimport "../Labels"
+import QtQuick.Controls
+
 import "../Base"
- BtnBase{
-        ColorImageButton {
-            id: name
-//            fillMode: Image.PreserveAspectFit
-            source: Cores.CoreStyle.getIconSource("arrow-pre.png")
+import "../Labels"
+import "../../cores" as Cores
 
-        }
-        EffectLabel{
-            text: qsTr("上一卷")
-        }
-    }
+BtnBase {
+  ColorImageButton {
+    id: icon
+    source: Cores.CoreStyle.getIconSource("arrow-pre.png")
+  }
 
-
+  EffectLabel {
+    text: qsTr("涓婁竴鍗?)
+  }
+}

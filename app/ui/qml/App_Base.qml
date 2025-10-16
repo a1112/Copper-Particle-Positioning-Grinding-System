@@ -1,7 +1,8 @@
 ﻿import QtQuick.Controls.Material
 import QtQuick.Window
 import "cores" as Cores
-
+import "action"
+import "dialogs"
 ApplicationWindow  {
   // Bind Material palette from coreStyle
   Material.theme: Material.Dark
@@ -16,6 +17,14 @@ ApplicationWindow  {
   height: Screen.height*0.8
 
   title: Cores.Core.title
+
+  EstopDialog{
+    id:estopDialog
+  }
+
+  Shortcuts{
+
+  }
 }
 
 

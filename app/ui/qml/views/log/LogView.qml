@@ -9,8 +9,12 @@ BaseCard {
   id: root
   property bool autoScroll: true
   property int maxRows: 1000
-  // Normalize server log messages that may contain PowerShell-style `n newlines
-  function normalizeMsg(s){ return (s===undefined || s===null) ? '' : String(s).replace(/`n/g, '\n') }
+  // Normalize server log messages that may contain literal backtick-n sequences
+  function normalizeMsg(s){
+    if (s === undefined || s === null) return ''
+    const literal = String.fromCharCode(96) + 'n'
+    return String(s).split(literal).join('\n')
+  }
 
   ColumnLayout {
     anchors.fill: parent

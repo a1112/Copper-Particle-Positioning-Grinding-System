@@ -107,7 +107,6 @@
         <file>qml/pages/main/test_page/TestPageView.qml</file>
         <file>qml/pages/main/user_page/UserPageView.qml</file>
         <file>qml/pages/MainLayouts.qml</file>
-        <file>qml/shortcuts/ShortcutManager.qml</file>
         <file>qml/Sockets/StatusSocket.qml</file>
         <file>qml/Sockets/LogsSocket.qml</file>
         <file>qml/Sockets/CodeSocket.qml</file>
@@ -150,5 +149,6 @@
         <file>qml/views/ImageInfo/view2d/View2D.qml</file>
         <file>qml/action/qmldir</file>
         <file>qml/action/Shortcuts.qml</file>
+        <file>qml/dialogs/EstopDialog.qml</file>
     </qresource>
 </RCC>

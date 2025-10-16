@@ -11,11 +11,6 @@ Item {
   height: 50
   Layout.fillWidth: true
 
-  // Global shortcuts: Ctrl+E / Ctrl+Shift+E -> open E-STOP confirmation; Enter/Return to confirm
-  Shortcut { sequence: "Ctrl+E"; onActivated: confirmEstop.open() }
-  Shortcut { sequence: "Ctrl+Shift+E"; onActivated: confirmEstop.open() }
-  Shortcut { sequence: "Enter"; onActivated: if (confirmEstop.visible) confirmEstop.accept() }
-  Shortcut { sequence: "Return"; onActivated: if (confirmEstop.visible) confirmEstop.accept() }
 
   Pane {
     anchors.fill: parent
@@ -55,19 +50,6 @@ Item {
         Label { text: "急停"; color: "white"; font.bold: true }
       }
       MouseArea { anchors.fill: parent; enabled: root.isRunning; onClicked: confirmEstop.open() }
-    }
-
-    Dialog {
-      id: confirmEstop
-      modal: true
-      anchors.centerIn: Overlay.overlay
-      title: "确认急停"
-      standardButtons: Dialog.Yes | Dialog.Cancel
-      contentItem: Column {
-        spacing: 8; padding: 12
-        Label { wrapMode: Text.WordWrap; text: "是否立即执行急停？此操作会立即中断动作" }
-      }
-      onAccepted: { Cores.CoreControl.estop(); close() }
     }
 
     DateTimeView { Layout.alignment: Qt.AlignVCenter }

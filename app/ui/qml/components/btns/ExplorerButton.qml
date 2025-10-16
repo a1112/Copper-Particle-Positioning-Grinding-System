@@ -1,9 +1,8 @@
 ﻿import QtQuick
-import "../../cores" as Cores`n// 远程 图标
+
+import "../../cores" as Cores
+
 ImageButton {
-    tipText:"共享文件夹"
-    source:Cores.CoreStyle.getIconSource("qml/resource/icon/explorer.png")
+  tipText: "鍏变韩鏂囦欢澶?
+  source: Cores.CoreStyle.getIconSource("qml/resource/icon/explorer.png")
 }
-
-
-
