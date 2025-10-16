@@ -1,6 +1,5 @@
 ﻿<RCC>
     <qresource prefix="/">
-        <file>resource/flush2.jpg</file>
         <file>resource/font/DS-DIGIT.TTF</file>
         <file>resource/font/LoadFont.qml</file>
         <file>resource/icon/adjust.png</file>
@@ -63,8 +62,8 @@
         <file>resource/icon/warn.png</file>
         <file>resource/icon/WindowScreen.png</file>
         <file>resource/img/lbx.png</file>
-        <file>resource/icon/LOGO-MZ-MAX.ico</file>
         <file>resource/icon/MZ.ico</file>
         <file>resource/icon/MZ-old.ico</file>
+        <file>resource/app.ico</file>
     </qresource>
 </RCC>

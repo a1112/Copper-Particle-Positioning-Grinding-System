@@ -150,5 +150,6 @@
         <file>qml/action/qmldir</file>
         <file>qml/action/Shortcuts.qml</file>
         <file>qml/dialogs/EstopDialog.qml</file>
+        <file>qml/pages/head/EstopBtn.qml</file>
     </qresource>
 </RCC>
