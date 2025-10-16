@@ -1,0 +1,3 @@
+这个是用于显示main.qml 的，在于同时可以通过python/c++ 运行
+
+Shortcuts.qml

@@ -1,0 +1,4 @@
+#include <windows.h>
+
+IDI_APP_ICON ICON "resource/icon/app.ico"
+
