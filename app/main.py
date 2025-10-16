@@ -12,7 +12,7 @@ from app.ui.src.qml_bridge import Backend
 from app.ui.src.image_provider import CameraImageProvider
 from app.ui.src.settings_bridge import SettingsBridge
 from app.ui.src.highlighter import HighlighterBridge
-from api.server import create_app
+from app.api.server import create_app
 from app.server.launcher import ApiController
 
 
@@ -67,7 +67,10 @@ def main():
     except Exception:
         pass
     engine.rootContext().setContextProperty("backend", backend)
-    engine.load("app/ui/qml/main.qml")
+    # Load QML via absolute path to be resilient to CWD
+    from PySide6.QtCore import QUrl
+    qml_path = Path(__file__).resolve().parent.joinpath('ui', 'qml', 'main.qml')
+    engine.load(QUrl.fromLocalFile(str(qml_path)))
     if not engine.rootObjects():
         sys.exit(-1)
 

@@ -17,7 +17,7 @@ from app.ui.src.image_provider import CameraImageProvider
 from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
 from app.server import CONFIG
-from api.api_core import app,include_router
+from app.server.api.api_core import app, include_router
 from app.data.providers import set_provider, SimDataProvider, CommDataProvider
 
 
@@ -56,8 +56,21 @@ def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrato
 
     motion_proxy = _wrap_motion_module(motion)
     sys.modules["motion"] = motion_proxy
-    from api.api import api_image,api_motion,api_status,api_test,api_control,api_config,api_path
-    from api.ws import ws_code,ws_logs,ws_status
+    from app.server.api.api import (
+        api_image,
+        api_motion,
+        api_status,
+        api_test,
+        api_control,
+        api_config,
+        api_path,
+    )
+    from app.server.api.ws import ws_code, ws_logs, ws_status
+    # Inject image provider if available
+    try:
+        setattr(api_image, "provider", provider)
+    except Exception:
+        pass
     include_router()
     # Default to simulated data provider for decoupled business logic
     try:

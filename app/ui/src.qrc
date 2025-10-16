@@ -1,9 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>src/highlighter.py</file>
-        <file>src/image_provider.py</file>
-        <file>src/qml_bridge.py</file>
-        <file>src/settings_bridge.py</file>
-        <file>src/__init__.py</file>
-    </qresource>
-</RCC>

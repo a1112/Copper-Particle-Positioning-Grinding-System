@@ -9,7 +9,7 @@ import "pages/main"
 import "Dialogs"
 import "menu"
 import "menu/settings"
-import "shortcuts" as Keys
+// import "shortcuts" as Keys
 import "cores" as Cores
 import "Api" as Api
 import "Sockets"
@@ -19,7 +19,7 @@ App_Base {
   id: win
 
   // F11/F12 shortcuts
-  Keys.ShortcutManager { id: keyMgr; rootWindow: win; onOpenTestPage: testPage.open() }
+  // Keys.ShortcutManager { id: keyMgr; rootWindow: win; onOpenTestPage: testPage.open() }
 
   // Init global API client
   Component.onCompleted: {

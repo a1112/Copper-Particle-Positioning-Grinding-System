@@ -13,11 +13,11 @@ from app.devices.sim.motion_sim import MotionSim
 from app.vision.pipeline import VisionPipeline
 from app.devices.sim.camera_sim import CameraSim
 
-from app.ui.image_provider import CameraImageProvider
-from app.ui.qml_bridge import Backend
-from app.ui.settings_bridge import SettingsBridge
-from app.ui.highlighter import HighlighterBridge
-from api.server import create_app
+from app.ui.src.image_provider import CameraImageProvider
+from app.ui.src.qml_bridge import Backend
+from app.ui.src.settings_bridge import SettingsBridge
+from app.ui.src.highlighter import HighlighterBridge
+from app.api.server import create_app
 from app.server.launcher import ApiController
 
 
@@ -104,9 +104,10 @@ class Runtime:
 
     def load_main_qml(self, qml_path: Optional[Path] = None) -> None:
         assert self.engine is not None
+        from PySide6.QtCore import QUrl
         if qml_path is None:
             qml_path = Path(__file__).resolve().parents[1].joinpath('ui', 'qml', 'main.qml')
-        self.engine.load(str(qml_path))
+        self.engine.load(QUrl.fromLocalFile(str(qml_path)))
 
     def exec(self) -> int:
         assert self.app is not None
