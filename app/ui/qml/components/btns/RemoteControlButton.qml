@@ -3,6 +3,6 @@
 import "../../cores" as Cores
 
 ImageButton {
-  tipText: "杩滅▼"
+  tipText: "\u8fdc\u7a0b"
   source: Cores.CoreStyle.getIconSource("qml/resource/icon/remoteControl.png")
 }

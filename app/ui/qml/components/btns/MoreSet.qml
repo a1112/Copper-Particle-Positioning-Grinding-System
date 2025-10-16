@@ -5,7 +5,7 @@ import "../../cores" as Cores
 
 ItemDelegate {
   ColorImageButton {
-    tipText: "璋冭妭"
+    tipText: "\u8c03\u8282"
     source: Cores.CoreStyle.getIconSource("qml/resource/icon/moreSet.png")
   }
 }

@@ -3,6 +3,6 @@
 import "../../cores" as Cores
 
 ImageButton {
-  tipText: "鍏变韩鏂囦欢澶?
+  tipText: "\u5171\u4eab\u6587\u4ef6\u5939"
   source: Cores.CoreStyle.getIconSource("qml/resource/icon/explorer.png")
 }

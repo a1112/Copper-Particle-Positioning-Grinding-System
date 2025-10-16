@@ -12,6 +12,6 @@ BtnBase {
   }
 
   EffectLabel {
-    text: qsTr("涓婁竴鍗?)
+    text: qsTr("\u4e0a\u4e00\u5377")
   }
 }

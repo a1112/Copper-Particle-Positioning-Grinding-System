@@ -7,7 +7,7 @@ import "../../cores" as Cores
 
 BtnBase {
   EffectLabel {
-    text: qsTr("涓嬩竴鍗?)
+    text: qsTr("\u4e0b\u4e00\u5377")
   }
 
   ColorImageButton {

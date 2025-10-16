@@ -3,7 +3,7 @@
 import "../../cores" as Cores
 
 ColorItemDelegateButtonBase {
-  tipText: qsTr("鍏ㄥ睆/鍙栨秷鍏ㄥ睆")
+  tipText: qsTr("\u5168\u5c4f/\u53d6\u6d88\u5168\u5c4f")
   height: parent.height
   width: height
 
