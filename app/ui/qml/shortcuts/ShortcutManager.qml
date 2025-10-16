@@ -1,24 +1,20 @@
-﻿import QtQuick
-import QtQuick.Window
+pragma Singleton
+import QtQuick
+import QtQuick.Controls
 
-Item {
-  id: manager
-  // Root window reference for toggling full screen
+// Minimal shortcut manager singleton.
+// Provides a hook to attach common global shortcuts when desired.
+QtObject {
+  id: shortcutManager
+
+  // Root window to attach shortcuts to (optional)
   property var rootWindow
-  signal openTestPage()
 
-  // F11: toggle fullscreen
-  Shortcut {
-    sequence: "F11"
-    onActivated: {
-      if (!manager.rootWindow) return;
-      var vis = manager.rootWindow.visibility;
-      manager.rootWindow.visibility = (vis === Window.FullScreen) ? Window.Windowed : Window.FullScreen;
-    }
-  }
-  // F12: open test page dialog
-  Shortcut {
-    sequence: "F12"
-    onActivated: manager.openTestPage()
-  }
+  // Example signals that pages may listen to
+  signal openTestPage()
+  signal toggleFullscreen()
+
+  // Consumers can bind shortcuts in their QML directly.
+  // This singleton primarily serves as a central place to share intent.
 }
+
