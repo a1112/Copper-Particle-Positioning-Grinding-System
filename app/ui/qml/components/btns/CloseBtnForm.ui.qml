@@ -1,6 +1,7 @@
 ﻿import QtQuick
-import "../../cores" as Cores`nimport QtQuick.Controls
-import "../../cores" as Cores`nColorItemDelegateButtonBase {
+import "../../cores" as Cores
+import QtQuick.Controls
+ColorItemDelegateButtonBase {
     tipText:"关闭"
     source: Cores.CoreStyle.getIconSource("qml/resource/icon/close.png")
 }

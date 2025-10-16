@@ -111,13 +111,11 @@
         <file>qml/Sockets/StatusSocket.qml</file>
         <file>qml/Sockets/LogsSocket.qml</file>
         <file>qml/Sockets/CodeSocket.qml</file>
-        <file>qml/urls/Urls.qml</file>
         <file>qml/views/CommPanel.qml</file>
         <file>qml/views/DriveInfo/DriveInfoView.qml</file>
         <file>qml/views/EditorPanel.qml</file>
         <file>qml/views/ImageInfo/ImageInfoView.qml</file>
         <file>qml/views/log/LogView.qml</file>
-        <file>qml/views/MainLayouts.qml</file>
         <file>qml/views/MotionPanel.qml</file>
         <file>qml/views/SafetyPanel.qml</file>
         <file>qml/views/StatusPanel.qml</file>

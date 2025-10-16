@@ -9,6 +9,8 @@ BaseCard {
   id: root
   property bool autoScroll: true
   property int maxRows: 1000
+  // Normalize server log messages that may contain PowerShell-style `n newlines
+  function normalizeMsg(s){ return (s===undefined || s===null) ? '' : String(s).replace(/`n/g, '\n') }
 
   ColumnLayout {
     anchors.fill: parent
@@ -31,7 +33,7 @@ BaseCard {
           Label { text: (time && time.length>0) ? time.split(' ')[1] : new Date(ts*1000).toLocaleTimeString(); color: Cores.CoreStyle.muted; Layout.preferredWidth: 92 }
           Label { text: level; color: lvColor; Layout.preferredWidth: 64 }
           Label { text: name; color: Cores.CoreStyle.muted; Layout.preferredWidth: 120; elide: Label.ElideRight }
-          Label { text: msg; color: Cores.CoreStyle.text; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+          Label { text: normalizeMsg(msg); color: Cores.CoreStyle.text; Layout.fillWidth: true; wrapMode: Text.WordWrap }
         }
         ScrollBar.vertical: ScrollBar {}
       }

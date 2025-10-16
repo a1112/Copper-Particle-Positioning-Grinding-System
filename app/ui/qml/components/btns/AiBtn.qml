@@ -1,6 +1,7 @@
 ﻿import QtQuick
-import "../../cores" as Cores`nimport QtQuick.Controls
-import "../../cores" as Cores`nItemDelegateButtonBase {
+import "../../cores" as Cores
+import QtQuick.Controls
+ItemDelegateButtonBase {
     source: Cores.CoreStyle.getIconSource("qml/resource/icon/AI.png")
 
     Menu{
