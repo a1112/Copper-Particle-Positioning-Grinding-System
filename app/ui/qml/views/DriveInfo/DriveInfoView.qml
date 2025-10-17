@@ -4,7 +4,7 @@ import QtQuick.Layouts
 
 import "../Base"
 import "../../cores" as Cores
-import "../../Sockets" as Sockets
+import "../../datas" as Datas
 import "../Charts" as Charts
 
 BaseCard {
@@ -35,14 +35,14 @@ BaseCard {
                 spacing: 8
                 Label { text: "连接"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 56 }
                 Rectangle { width: 10; height: 10; radius: 5;
-                    color: Sockets.StatusSocket.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger }
+                    color: Datas.StatusDatas.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger }
                 Label {
-                    text: (Sockets.StatusSocket.connected ? "已连接" : "未连接")
-                    color: Sockets.StatusSocket.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger
+                    text: (Datas.StatusDatas.connected ? "已连接" : "未连接")
+                    color: Datas.StatusDatas.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger
                 }
                 Item { Layout.fillWidth: true }
                 Label {
-                    text: "状态: " + ((Sockets.StatusSocket.lastMessage && Sockets.StatusSocket.lastMessage.state) || "-")
+                    text: "状态: " + ((Datas.StatusDatas.lastMessage && Datas.StatusDatas.lastMessage.state) || "-")
                     color: Cores.CoreStyle.text
                 }
             }
@@ -52,7 +52,7 @@ BaseCard {
                 spacing: 16
                 Label { text: "位置"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 56 }
                 Label {
-                    readonly property var pos: (Sockets.StatusSocket.lastMessage && Sockets.StatusSocket.lastMessage.position) || {}
+                    readonly property var pos: (Datas.StatusDatas.lastMessage && Datas.StatusDatas.lastMessage.position) || {}
                     text: `X:${Number(pos.x||0).toFixed(2)}  Y:${Number(pos.y||0).toFixed(2)}  Z:${Number(pos.z||0).toFixed(2)}  Theta:${Number(pos.theta||0).toFixed(2)}`
                     color: Cores.CoreStyle.text
                 }
@@ -63,13 +63,13 @@ BaseCard {
                 spacing: 16
                 Label { text: "主轴转速"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 72 }
                 Label {
-                    text: `${Number((Sockets.StatusSocket.lastMessage && Sockets.StatusSocket.lastMessage.spindle_rpm) || 0).toFixed(0)} rpm`
+                    text: `${Number((Datas.StatusDatas.lastMessage && Datas.StatusDatas.lastMessage.spindle_rpm) || 0).toFixed(0)} rpm`
                     color: Cores.CoreStyle.accent
                 }
                 Item { Layout.fillWidth: true }
                 Label { text: "扭矩"; color: Cores.CoreStyle.muted; Layout.preferredWidth: 56 }
                 Label {
-                    readonly property var tq: (Sockets.StatusSocket.lastMessage && (Sockets.StatusSocket.lastMessage.spindle_torque))
+                    readonly property var tq: (Datas.StatusDatas.lastMessage && (Datas.StatusDatas.lastMessage.spindle_torque))
                     text: (tq===undefined||tq===null? "-" : `${Number(tq).toFixed(2)} N*m`)
                     color: Cores.CoreStyle.text
                 }
@@ -97,7 +97,7 @@ BaseCard {
     }
 
     Connections {
-        target: Sockets.StatusSocket
+        target: Datas.StatusDatas
         function onMessageReceived(p) {
             try {
                 if (!p) return

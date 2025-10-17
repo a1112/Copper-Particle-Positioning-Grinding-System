@@ -244,20 +244,9 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("pyHighlighter"), &highlighter);
 
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
-    QObject::connect(
-        &engine,
-        &QQmlApplicationEngine::objectCreationFailed,
-        &app,
-        [](const QList<QQmlError> &errors) {
-            for (const auto &err : errors) {
-                qWarning() << err;
-            }
-            QCoreApplication::exit(-1);
-        },
-        Qt::QueuedConnection);
-
     engine.load(url);
     if (engine.rootObjects().isEmpty()) {
+        qWarning() << "Failed to load QML entry point:" << url;
         return -1;
     }
 

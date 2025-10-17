@@ -4,7 +4,6 @@ import QtQuick.Layouts
 import "../../cores" as Cores
 import "../../components/Base"
 import "../../components/btns"
-import "../../Sockets" as Sockets
 
 Rectangle {
   id: estopBtn

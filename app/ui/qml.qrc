@@ -88,6 +88,7 @@
         <file>qml/cores/CoreTimer.qml</file>
         <file>qml/cores/CoreUI.qml</file>
         <file>qml/cores/CoreControl.qml</file>
+        <file>qml/cores/qmldir</file>
         <file>qml/dialogs/GlobErrorDialog.qml</file>
         <file>qml/dialogs/TestImagesDialog.qml</file>
         <file>qml/main.qml</file>
@@ -107,14 +108,11 @@
         <file>qml/pages/main/test_page/TestPageView.qml</file>
         <file>qml/pages/main/user_page/UserPageView.qml</file>
         <file>qml/pages/MainLayouts.qml</file>
-        <file>qml/Sockets/StatusSocket.qml</file>
-        <file>qml/Sockets/LogsSocket.qml</file>
-        <file>qml/Sockets/CodeSocket.qml</file>
         <file>qml/views/CommPanel.qml</file>
         <file>qml/views/DriveInfo/DriveInfoView.qml</file>
         <file>qml/views/EditorPanel.qml</file>
         <file>qml/views/ImageInfo/ImageInfoView.qml</file>
-        <file>qml/views/log/LogView.qml</file>
+        <file>qml/views/Log/LogView.qml</file>
         <file>qml/views/MotionPanel.qml</file>
         <file>qml/views/SafetyPanel.qml</file>
         <file>qml/views/StatusPanel.qml</file>
@@ -124,18 +122,19 @@
         <file>qml/views/Base/BaseCard.qml</file>
         <file>qml/views/Charts/TorqueChart.qml</file>
         <file>qml/views/Charts/ElevationAreaChart.qml</file>
+        <file>qml/views/Charts/RpmChart.qml</file>
+        <file>qml/views/Charts/LineChart.qml</file>
         <file>qml/views/Code/CodeFoot.qml</file>
         <file>qml/views/Code/CodeContorl.qml</file>
         <file>qml/views/Code/CodeHead.qml</file>
         <file>qml/Api/Ajax.qml</file>
         <file>qml/views/Control/PTZControl.qml</file>
-        <file>qml/views/log/LogHead.qml</file>
         <file>qml/components/Card/CardBase.qml</file>
         <file>qml/components/btns/CheckBoxBase.qml</file>
         <file>qml/pages/foot/PingLabel.qml</file>
         <file>qml/components/btns/CheckDelegateBase.qml</file>
         <file>qml/pages/foot/ViewMangeRow.qml</file>
-        <file>qml/Sockets/qmldir</file>
+        <file>qml/views/Log/LogHead.qml</file>
         <file>qml/views/DriveInfo/DeviceMsgView.qml</file>
         <file>qml/menu/settings/SettingPage.qml</file>
         <file>qml/menu/settings/SettingPageHead.qml</file>
@@ -155,8 +154,16 @@
         <file>qml/test/TestWindow.qml</file>
         <file>qml/datas/Datas.qml</file>
         <file>qml/datas/DeviceInfoData.qml</file>
+        <file>qml/datas/LogDatas.qml</file>
+        <file>qml/datas/StatusDatas.qml</file>
+        <file>qml/datas/CodeDatas.qml</file>
+        <file>qml/datas/CuttingDatas.qml</file>
         <file>qml/datas/qmldir</file>
-        <file>qml/works/qmldir</file>
+        <file>qml/works/CodeWork.qml</file>
+        <file>qml/works/CuttingWork.qml</file>
+        <file>qml/works/LogsWork.qml</file>
+        <file>qml/works/StatusWork.qml</file>
         <file>qml/works/Works.qml</file>
+        <file>qml/works/qmldir</file>
     </qresource>
 </RCC>

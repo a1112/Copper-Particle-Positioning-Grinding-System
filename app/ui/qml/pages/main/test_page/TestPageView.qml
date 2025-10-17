@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import "../../head" as Widgets
 import "../../../cores" as Cores
-import "../../../Sockets" as Sockets
+import "../../../datas" as Datas
 import "../../../views" as Views
 import "../../../Api" as Api
 
@@ -49,7 +49,7 @@ Item {
       title: "WS 最近消息"
       Layout.fillWidth: true
       Layout.preferredHeight: 140
-      TextArea { anchors.fill: parent; readOnly: true; wrapMode: TextArea.Wrap; text: JSON.stringify(Sockets.StatusSocket.lastMessage||{}, null, 2) }
+      TextArea { anchors.fill: parent; readOnly: true; wrapMode: TextArea.Wrap; text: JSON.stringify(Datas.StatusDatas.lastMessage||{}, null, 2) }
     }
 
     GroupBox {
@@ -62,7 +62,7 @@ Item {
         onPaint: {
           var ctx = getContext('2d');
           ctx.clearRect(0,0,width,height);
-          var data = Sockets.StatusSocket.seriesA || [];
+          var data = Datas.StatusDatas.seriesA || [];
           if (!data.length) return;
           var n = Math.min(200, data.length);
           var arr = data.slice(data.length - n);
@@ -78,7 +78,7 @@ Item {
           }
           ctx.stroke();
         }
-        Connections { target: Sockets.StatusSocket; function onMessageReceived(p){ chart.requestPaint() } }
+        Connections { target: Datas.StatusDatas; function onMessageReceived(p){ chart.requestPaint() } }
       }
     }
 

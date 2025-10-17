@@ -1,7 +1,6 @@
 ﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "../../Sockets" as Sockets
 import "../../cores" as Cores
 import "../../Api" as Api
 import "../../components/btns" as Btns

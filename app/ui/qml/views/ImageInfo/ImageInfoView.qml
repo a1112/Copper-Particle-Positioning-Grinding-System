@@ -2,13 +2,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "head"
-import "../../Sockets" as Sockets
 import "../../Api" as Api
 import "../Base"
 import "../../cores" as Cores
 import "../../components/btns" as Btns
 
-import "View2D"
+import "view2d"
 BaseCard {
   id: root
   property int refreshMs: 150

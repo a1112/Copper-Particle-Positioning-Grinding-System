@@ -1,2 +1,7 @@
+singleton Datas 1.0 Datas.qml
 singleton DeviceInfoData 1.0 DeviceInfoData.qml
+singleton LogDatas 1.0 LogDatas.qml
+singleton StatusDatas 1.0 StatusDatas.qml
+singleton CodeDatas 1.0 CodeDatas.qml
+singleton CuttingDatas 1.0 CuttingDatas.qml
 

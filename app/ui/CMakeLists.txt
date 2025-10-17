@@ -8,7 +8,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 6.2 COMPONENTS Quick Qml REQUIRED)
+find_package(Qt6 6.2 COMPONENTS Quick Qml WebSockets REQUIRED)
 
 add_executable(copper_ui_cpp
     cpp/main.cpp
@@ -22,7 +22,7 @@ qt6_add_resources(QML_BUNDLE
 target_sources(copper_ui_cpp PRIVATE ${QML_BUNDLE})
 
 target_link_libraries(copper_ui_cpp
-    PRIVATE Qt6::Quick Qt6::Qml
+    PRIVATE Qt6::Quick Qt6::Qml Qt6::WebSockets
 )
 
 target_compile_definitions(copper_ui_cpp

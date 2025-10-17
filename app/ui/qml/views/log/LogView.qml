@@ -2,7 +2,7 @@
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import "../../Sockets" as Sockets
+import "../../datas" as Datas
 import "../Base"
 import "../../cores" as Cores
 
@@ -34,7 +34,7 @@ BaseCard {
       ListView {
         id: list
         anchors.fill: parent
-        model: Sockets.LogsSocket.logs
+        model: Datas.LogDatas.logs
 
         delegate: RowLayout {
           width: list.width
@@ -81,7 +81,7 @@ BaseCard {
   }
 
   Connections {
-    target: Sockets.LogsSocket
+    target: Datas.LogDatas
     function onLogReceived(item) {
       if (root.autoScroll) list.positionViewAtEnd()
     }

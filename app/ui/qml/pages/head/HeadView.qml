@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import "../../cores" as Cores
 import "../../components/Base"
 import "../../components/btns"
-import "../../Sockets" as Sockets
+import "../../datas" as Datas
 
 Item {
   id: root
@@ -18,7 +18,7 @@ Item {
   }
 
   // Running state from status socket
-  readonly property bool isRunning: (Sockets.StatusSocket.lastMessage && Sockets.StatusSocket.lastMessage.state) === "RUNNING"
+  readonly property bool isRunning: (Datas.StatusDatas.lastMessage && Datas.StatusDatas.lastMessage.state) === "RUNNING"
 
   RowLayout {
     anchors.fill: parent

@@ -1,2 +1,12 @@
+pragma Singleton
 import QtQuick
-Item{}
+import "." as WorksModule
+
+QtObject {
+  function startAll() {
+    WorksModule.StatusWork.start()
+    WorksModule.LogsWork.start()
+    WorksModule.CodeWork.start()
+    WorksModule.CuttingWork.start()
+  }
+}

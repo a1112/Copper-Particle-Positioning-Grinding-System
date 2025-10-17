@@ -4,8 +4,8 @@ import QtQuick.Window
 import "cores" as Cores
 import "action"
 import "dialogs"
-import "works"
-import "datas"
+import "works" as Works
+import "datas" as Datas
 
 ApplicationWindow {
   id: rootWindow
@@ -28,6 +28,6 @@ ApplicationWindow {
   }
 
   Shortcuts {}
-  Works{}
-  Datas{}
+
+
 }

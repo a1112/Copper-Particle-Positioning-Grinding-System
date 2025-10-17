@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import QtCore
 import "../Base"
 import "../../Api" as Api
-import "../../Sockets" as Sockets
+import "../../datas" as Datas
 import "../../cores" as Cores
 import "../../components/btns" as Btns
 
@@ -13,10 +13,10 @@ BaseCard {
 
   // Program model: each row is one instruction line and its status
   ListModel { id: codeModel }
-  property int currentIndex: Sockets.CodeSocket.currentIndex
-  property string runState: Sockets.CodeSocket.runState   // IDLE/RUNNING/PAUSED
+  property int currentIndex: Datas.CodeDatas.currentIndex
+  property string runState: Datas.CodeDatas.runState   // IDLE/RUNNING/PAUSED
   // WS connection state for code channel
-  property bool codeConnected: (Sockets.CodeSocket.connected)
+  property bool codeConnected: (Datas.CodeDatas.connected)
 
   function setProgram(lines){
     codeModel.clear()
@@ -27,7 +27,7 @@ BaseCard {
   }
 
   function updateStatuses(){
-    var cur = Sockets.CodeSocket.currentIndex;
+    var cur = Datas.CodeDatas.currentIndex;
     for (var i=0;i<codeModel.count;i++){
       var st = (i===cur ? 'RUNNING' : (i<cur ? 'OK' : 'READY'))
       codeModel.setProperty(i, 'status', st)
@@ -90,8 +90,8 @@ BaseCard {
   }
 
   Connections {
-    target: Sockets.CodeSocket
-    function onLinesChanged(){ setProgram(Sockets.CodeSocket.lines||[]) }
+    target: Datas.CodeDatas
+    function onLinesChanged(){ setProgram(Datas.CodeDatas.lines||[]) }
     function onCurrentIndexChanged(){ updateStatuses() }
     function onRunStateChanged(){ /* status label updates via binding */ }
   }

@@ -4,7 +4,6 @@ import QtQuick.Layouts
 
 import "../Base"
 import "../../cores" as Cores
-import "../../Sockets" as Sockets
 import "../Charts" as Charts
 import "../../Api" as Api
 
