@@ -1,4 +1,4 @@
-import QtQuick 2.15
+﻿import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
@@ -8,7 +8,7 @@ ApplicationWindow {
     width: 1080
     height: 720
     visible: true
-    title: qsTr("API & UI Test Window")
+    title: qsTr("API 与 UI 测试窗口")
 
     // Signals bubble actions to the Python side for wiring into the real API.
     signal apiCallRequested(string endpoint, var options)
@@ -20,43 +20,43 @@ ApplicationWindow {
     property bool autoLogRequests: true
 
     readonly property var systemActions: [
-        { label: qsTr("Initialize System"), endpoint: "system/init", method: "POST" },
-        { label: qsTr("Shutdown System"), endpoint: "system/shutdown", method: "POST" },
-        { label: qsTr("Get Status Summary"), endpoint: "status/summary", method: "GET" },
-        { label: qsTr("Reset Faults"), endpoint: "system/reset_faults", method: "POST" },
-        { label: qsTr("Reload Config"), endpoint: "config/reload", method: "POST" }
+        { label: qsTr("系统初始化"), endpoint: "system/init", method: "POST" },
+        { label: qsTr("关闭系统"), endpoint: "system/shutdown", method: "POST" },
+        { label: qsTr("获取状态摘要"), endpoint: "status/summary", method: "GET" },
+        { label: qsTr("复位故障"), endpoint: "system/reset_faults", method: "POST" },
+        { label: qsTr("重新加载配置"), endpoint: "config/reload", method: "POST" }
     ]
 
     readonly property var processActions: [
-        { label: qsTr("Start Grind Cycle"), endpoint: "process/start", method: "POST", payload: { recipe: "default" } },
-        { label: qsTr("Pause Cycle"), endpoint: "process/pause", method: "POST" },
-        { label: qsTr("Resume Cycle"), endpoint: "process/resume", method: "POST" },
-        { label: qsTr("Abort Cycle"), endpoint: "process/abort", method: "POST" },
-        { label: qsTr("Advance Step"), endpoint: "process/advance_step", method: "POST" }
+        { label: qsTr("启动打磨流程"), endpoint: "process/start", method: "POST", payload: { recipe: "default" } },
+        { label: qsTr("暂停流程"), endpoint: "process/pause", method: "POST" },
+        { label: qsTr("恢复流程"), endpoint: "process/resume", method: "POST" },
+        { label: qsTr("终止流程"), endpoint: "process/abort", method: "POST" },
+        { label: qsTr("前进一步"), endpoint: "process/advance_step", method: "POST" }
     ]
 
     readonly property var deviceActions: [
-        { label: qsTr("Home Gantry"), endpoint: "devices/gantry/home", method: "POST" },
-        { label: qsTr("Calibrate Spindle"), endpoint: "devices/spindle/calibrate", method: "POST" },
-        { label: qsTr("Measure Load Cell"), endpoint: "devices/load_cell/sample", method: "GET" },
-        { label: qsTr("Toggle Vacuum"), endpoint: "devices/vacuum/toggle", method: "POST" },
-        { label: qsTr("Simulate Fault"), endpoint: "devices/simulator/fault", method: "POST", payload: { code: "TEST_FAULT" } }
+        { label: qsTr("龙门回零"), endpoint: "devices/gantry/home", method: "POST" },
+        { label: qsTr("校准主轴"), endpoint: "devices/spindle/calibrate", method: "POST" },
+        { label: qsTr("测量称重传感器"), endpoint: "devices/load_cell/sample", method: "GET" },
+        { label: qsTr("切换真空"), endpoint: "devices/vacuum/toggle", method: "POST" },
+        { label: qsTr("模拟故障"), endpoint: "devices/simulator/fault", method: "POST", payload: { code: "TEST_FAULT" } }
     ]
 
     readonly property var visionActions: [
-        { label: qsTr("Capture Image"), endpoint: "vision/capture", method: "POST" },
-        { label: qsTr("Run Alignment"), endpoint: "vision/alignment", method: "POST" },
-        { label: qsTr("Inspect Part"), endpoint: "vision/inspection", method: "POST", payload: { mode: "quick" } },
-        { label: qsTr("Calibrate Camera"), endpoint: "vision/calibration", method: "POST" },
-        { label: qsTr("Fetch Overlays"), endpoint: "vision/overlays", method: "GET" }
+        { label: qsTr("采集图像"), endpoint: "vision/capture", method: "POST" },
+        { label: qsTr("运行对位"), endpoint: "vision/alignment", method: "POST" },
+        { label: qsTr("检测工件"), endpoint: "vision/inspection", method: "POST", payload: { mode: "quick" } },
+        { label: qsTr("校准相机"), endpoint: "vision/calibration", method: "POST" },
+        { label: qsTr("获取叠加层"), endpoint: "vision/overlays", method: "GET" }
     ]
 
     readonly property var uiActions: [
-        { label: qsTr("Focus Camera View"), actionId: "ui/focus_camera", options: { view: "main" } },
-        { label: qsTr("Toggle Overlay"), actionId: "ui/toggle_overlay", options: { overlay: "particle_map" } },
-        { label: qsTr("Show Alert Dialog"), actionId: "ui/show_alert", options: { level: "warning", message: "Test alert from harness" } },
-        { label: qsTr("Open Recipe Editor"), actionId: "ui/open_recipe_editor", options: {} },
-        { label: qsTr("Reload Dashboard"), actionId: "ui/reload_dashboard", options: {} }
+        { label: qsTr("聚焦相机视图"), actionId: "ui/focus_camera", options: { view: "main" } },
+        { label: qsTr("切换叠加层"), actionId: "ui/toggle_overlay", options: { overlay: "particle_map" } },
+        { label: qsTr("显示告警对话框"), actionId: "ui/show_alert", options: { level: "warning", message: "来自测试工具的告警" } },
+        { label: qsTr("打开配方编辑器"), actionId: "ui/open_recipe_editor", options: {} },
+        { label: qsTr("刷新仪表盘"), actionId: "ui/reload_dashboard", options: {} }
     ]
 
     ListModel {
@@ -100,18 +100,18 @@ ApplicationWindow {
 
     onApiCallRequested: {
         if (autoLogRequests) {
-            appendLog("API " + endpoint + " -> " + JSON.stringify(options))
+            appendLog("API 调用 " + endpoint + " -> " + JSON.stringify(options))
         }
     }
 
     onUiActionRequested: {
         if (autoLogRequests) {
-            appendLog("UI " + actionId + " -> " + JSON.stringify(options))
+            appendLog("界面操作 " + actionId + " -> " + JSON.stringify(options))
         }
     }
 
-    onRefreshUiStateRequested: appendLog("UI refresh requested")
-    onDiagnosticsRequested: appendLog("Diagnostics requested: " + category)
+    onRefreshUiStateRequested: appendLog("请求刷新界面")
+    onDiagnosticsRequested: appendLog("请求诊断: " + category)
 
     ColumnLayout {
         anchors.fill: parent
@@ -119,7 +119,7 @@ ApplicationWindow {
         spacing: 12
 
         GroupBox {
-            title: qsTr("Session Controls")
+            title: qsTr("会话控制")
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -132,7 +132,7 @@ ApplicationWindow {
                     spacing: 8
 
                     Label {
-                        text: qsTr("Base URL")
+                        text: qsTr("基础 URL")
                         Layout.alignment: Qt.AlignVCenter
                     }
 
@@ -146,17 +146,17 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("Apply")
+                        text: qsTr("应用")
                         onClicked: window.baseUrl = baseUrlField.text.length > 0 ? baseUrlField.text : window.baseUrl
                     }
 
                     Button {
-                        text: qsTr("Ping API")
+                        text: qsTr("Ping 接口")
                         onClicked: window.triggerApiAction({ endpoint: "status/ping", method: "GET" })
                     }
 
                     Button {
-                        text: qsTr("Refresh UI State")
+                        text: qsTr("刷新界面状态")
                         onClicked: {
                             window.refreshUiStateRequested()
                         }
@@ -169,14 +169,14 @@ ApplicationWindow {
 
                     Switch {
                         id: autoLogSwitch
-                        text: qsTr("Auto log requests")
+                        text: qsTr("自动记录请求")
                         checked: window.autoLogRequests
                         Layout.alignment: Qt.AlignVCenter
                         onToggled: window.autoLogRequests = checked
                     }
 
                     Button {
-                        text: qsTr("Run Diagnostics")
+                        text: qsTr("执行诊断")
                         onClicked: window.diagnosticsRequested("full")
                     }
                 }
@@ -184,7 +184,7 @@ ApplicationWindow {
         }
 
         GroupBox {
-            title: qsTr("Manual API Request")
+            title: qsTr("手动 API 请求")
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -197,7 +197,7 @@ ApplicationWindow {
                     spacing: 8
 
                     Label {
-                        text: qsTr("Endpoint")
+                        text: qsTr("接口路径")
                         Layout.alignment: Qt.AlignVCenter
                     }
 
@@ -216,10 +216,10 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("Send")
+                        text: qsTr("发送")
                         onClicked: {
                             if (manualEndpointField.text.length === 0) {
-                                window.appendLog("Manual request missing endpoint")
+                                window.appendLog("手动请求缺少接口路径")
                                 return
                             }
 
@@ -228,7 +228,7 @@ ApplicationWindow {
                                 try {
                                     payload = JSON.parse(manualPayloadField.text)
                                 } catch (err) {
-                                    window.appendLog("Payload parse error: " + err)
+                                    window.appendLog("负载解析出错: " + err)
                                     return
                                 }
                             }
@@ -249,7 +249,7 @@ ApplicationWindow {
                     id: manualPayloadField
                     Layout.fillWidth: true
                     Layout.preferredHeight: 100
-                    placeholderText: "{\n    \"example\": true\n}"
+                    placeholderText: "{\n    \"示例\": true\n}"
                     wrapMode: TextEdit.NoWrap
                 }
             }
@@ -264,7 +264,7 @@ ApplicationWindow {
                 spacing: 16
 
                 GroupBox {
-                    title: qsTr("System APIs")
+                    title: qsTr("系统 API")
                     Layout.fillWidth: true
 
                     Column {
@@ -288,7 +288,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("Process APIs")
+                    title: qsTr("工艺 API")
                     Layout.fillWidth: true
 
                     Column {
@@ -312,7 +312,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("Device APIs")
+                    title: qsTr("设备 API")
                     Layout.fillWidth: true
 
                     Column {
@@ -336,7 +336,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("Vision APIs")
+                    title: qsTr("视觉 API")
                     Layout.fillWidth: true
 
                     Column {
@@ -360,7 +360,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("UI Actions")
+                    title: qsTr("界面操作")
                     Layout.fillWidth: true
 
                     Column {
@@ -386,7 +386,7 @@ ApplicationWindow {
         }
 
         GroupBox {
-            title: qsTr("Event Log")
+            title: qsTr("事件日志")
             Layout.fillWidth: true
             Layout.preferredHeight: 220
 
@@ -426,14 +426,14 @@ ApplicationWindow {
                     spacing: 8
 
                     Button {
-                        text: qsTr("Add Note")
-                        onClicked: window.appendLog("Manual note at " + Qt.formatDateTime(new Date(), "hh:mm:ss"))
+                        text: qsTr("添加备注")
+                        onClicked: window.appendLog("手动备注 " + Qt.formatDateTime(new Date(), "hh:mm:ss"))
                     }
 
                     Item { Layout.fillWidth: true }
 
                     Button {
-                        text: qsTr("Clear Log")
+                        text: qsTr("清空日志")
                         onClicked: window.clearLog()
                     }
                 }
@@ -451,62 +451,62 @@ ApplicationWindow {
     width: 1100
     height: 720
     visible: true
-    title: qsTr("API & UI Test Window")
+    title: qsTr("API 与 UI 测试窗口")
 
     property string baseUrl: "http://localhost:8000/api"
     property bool autoLogRequests: true
 
     property var systemActions: [
-        { label: qsTr("Ping Status"), endpoint: "status/ping", method: "GET" },
-        { label: qsTr("Summary Status"), endpoint: "status/summary", method: "GET" },
-        { label: qsTr("Reload Config"), endpoint: "config/reload", method: "POST" },
-        { label: qsTr("Reset Faults"), endpoint: "system/reset_faults", method: "POST" },
-        { label: qsTr("Enter Maintenance"), endpoint: "system/maintenance", method: "POST", payload: { mode: "enter" } },
-        { label: qsTr("Exit Maintenance"), endpoint: "system/maintenance", method: "POST", payload: { mode: "exit" } }
+        { label: qsTr("状态 Ping"), endpoint: "status/ping", method: "GET" },
+        { label: qsTr("状态摘要"), endpoint: "status/summary", method: "GET" },
+        { label: qsTr("重新加载配置"), endpoint: "config/reload", method: "POST" },
+        { label: qsTr("复位故障"), endpoint: "system/reset_faults", method: "POST" },
+        { label: qsTr("进入维护模式"), endpoint: "system/maintenance", method: "POST", payload: { mode: "enter" } },
+        { label: qsTr("退出维护模式"), endpoint: "system/maintenance", method: "POST", payload: { mode: "exit" } }
     ]
 
     property var processActions: [
-        { label: qsTr("Start Grind Cycle"), endpoint: "process/start", method: "POST", payload: { recipe: "default" } },
-        { label: qsTr("Pause Cycle"), endpoint: "process/pause", method: "POST" },
-        { label: qsTr("Resume Cycle"), endpoint: "process/resume", method: "POST" },
-        { label: qsTr("Abort Cycle"), endpoint: "process/abort", method: "POST" },
-        { label: qsTr("Load Recipe A"), endpoint: "process/recipe/load", method: "POST", payload: { name: "RecipeA" } },
-        { label: qsTr("List Recipes"), endpoint: "process/recipe/list", method: "GET" }
+        { label: qsTr("启动打磨流程"), endpoint: "process/start", method: "POST", payload: { recipe: "default" } },
+        { label: qsTr("暂停流程"), endpoint: "process/pause", method: "POST" },
+        { label: qsTr("恢复流程"), endpoint: "process/resume", method: "POST" },
+        { label: qsTr("终止流程"), endpoint: "process/abort", method: "POST" },
+        { label: qsTr("加载配方A"), endpoint: "process/recipe/load", method: "POST", payload: { name: "RecipeA" } },
+        { label: qsTr("列出配方"), endpoint: "process/recipe/list", method: "GET" }
     ]
 
     property var deviceActions: [
-        { label: qsTr("Home All Axes"), endpoint: "devices/motion/home_all", method: "POST" },
-        { label: qsTr("Jog X+"), endpoint: "devices/motion/jog", method: "POST", payload: { axis: "X", distance: 1.0 } },
-        { label: qsTr("Jog X-"), endpoint: "devices/motion/jog", method: "POST", payload: { axis: "X", distance: -1.0 } },
-        { label: qsTr("Enable Motors"), endpoint: "devices/motion/enable", method: "POST" },
-        { label: qsTr("Disable Motors"), endpoint: "devices/motion/disable", method: "POST" },
-        { label: qsTr("Read Sensors"), endpoint: "devices/sensors/read_all", method: "GET" }
+        { label: qsTr("轴全部回零"), endpoint: "devices/motion/home_all", method: "POST" },
+        { label: qsTr("X轴正向点动"), endpoint: "devices/motion/jog", method: "POST", payload: { axis: "X", distance: 1.0 } },
+        { label: qsTr("X轴反向点动"), endpoint: "devices/motion/jog", method: "POST", payload: { axis: "X", distance: -1.0 } },
+        { label: qsTr("使能伺服"), endpoint: "devices/motion/enable", method: "POST" },
+        { label: qsTr("关闭伺服"), endpoint: "devices/motion/disable", method: "POST" },
+        { label: qsTr("读取传感器"), endpoint: "devices/sensors/read_all", method: "GET" }
     ]
 
     property var visionActions: [
-        { label: qsTr("Capture Frame"), endpoint: "vision/capture", method: "POST" },
-        { label: qsTr("Run Alignment"), endpoint: "vision/alignment/run", method: "POST" },
-        { label: qsTr("Calibrate Camera"), endpoint: "vision/calibrate", method: "POST" },
-        { label: qsTr("Toggle Overlay"), actionId: "vision/toggle_overlay" },
-        { label: qsTr("Show Last Inspection"), endpoint: "vision/inspection/latest", method: "GET" },
-        { label: qsTr("Export Snapshot"), actionId: "vision/export_snapshot" }
+        { label: qsTr("捕获帧"), endpoint: "vision/capture", method: "POST" },
+        { label: qsTr("运行对位"), endpoint: "vision/alignment/run", method: "POST" },
+        { label: qsTr("校准相机"), endpoint: "vision/calibrate", method: "POST" },
+        { label: qsTr("切换叠加层"), actionId: "vision/toggle_overlay" },
+        { label: qsTr("显示最近检测"), endpoint: "vision/inspection/latest", method: "GET" },
+        { label: qsTr("导出快照"), actionId: "vision/export_snapshot" }
     ]
 
     property var uiActions: [
-        { label: qsTr("Show Alarm Drawer"), actionId: "ui/show_alarm_drawer" },
-        { label: qsTr("Hide Alarm Drawer"), actionId: "ui/hide_alarm_drawer" },
-        { label: qsTr("Open Job Dialog"), actionId: "ui/open_job_dialog" },
-        { label: qsTr("Close Job Dialog"), actionId: "ui/close_job_dialog" },
-        { label: qsTr("Toggle Dark Mode"), actionId: "ui/toggle_dark_mode" },
-        { label: qsTr("Focus Vision Panel"), actionId: "ui/focus_vision_panel" }
+        { label: qsTr("显示告警抽屉"), actionId: "ui/show_alarm_drawer" },
+        { label: qsTr("隐藏告警抽屉"), actionId: "ui/hide_alarm_drawer" },
+        { label: qsTr("打开工单对话框"), actionId: "ui/open_job_dialog" },
+        { label: qsTr("关闭工单对话框"), actionId: "ui/close_job_dialog" },
+        { label: qsTr("切换暗色模式"), actionId: "ui/toggle_dark_mode" },
+        { label: qsTr("聚焦视觉面板"), actionId: "ui/focus_vision_panel" }
     ]
 
     property var diagnosticCategories: [
-        { label: qsTr("System Snapshot"), category: "system" },
-        { label: qsTr("Process Trace"), category: "process" },
-        { label: qsTr("Device Telemetry"), category: "device" },
-        { label: qsTr("Vision Metrics"), category: "vision" },
-        { label: qsTr("UI Layout Dump"), category: "ui" }
+        { label: qsTr("系统快照"), category: "system" },
+        { label: qsTr("工艺追踪"), category: "process" },
+        { label: qsTr("设备遥测"), category: "device" },
+        { label: qsTr("视觉指标"), category: "vision" },
+        { label: qsTr("界面布局导出"), category: "ui" }
     ]
 
     signal apiCallRequested(string endpoint, var options)
@@ -530,25 +530,25 @@ ApplicationWindow {
 
     onApiCallRequested: {
         if (window.autoLogRequests) {
-            window.appendLog("API -> " + endpoint + " " + JSON.stringify(options))
+            window.appendLog("API 调用 -> " + endpoint + " " + JSON.stringify(options))
         }
     }
 
     onUiActionRequested: {
         if (window.autoLogRequests) {
-            window.appendLog("UI -> " + actionId + " " + JSON.stringify(options))
+            window.appendLog("界面操作 -> " + actionId + " " + JSON.stringify(options))
         }
     }
 
     onRefreshUiStateRequested: {
         if (window.autoLogRequests) {
-            window.appendLog("UI refresh requested")
+            window.appendLog("请求刷新界面")
         }
     }
 
     onDiagnosticsRequested: {
         if (window.autoLogRequests) {
-            window.appendLog("Diagnostics -> " + category)
+            window.appendLog("诊断 -> " + category)
         }
     }
 
@@ -558,7 +558,7 @@ ApplicationWindow {
         spacing: 12
 
         GroupBox {
-            title: qsTr("API Connection")
+            title: qsTr("API 连接")
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -571,7 +571,7 @@ ApplicationWindow {
                     spacing: 8
 
                     Label {
-                        text: qsTr("Base URL")
+                        text: qsTr("基础 URL")
                         Layout.alignment: Qt.AlignVCenter
                     }
 
@@ -584,14 +584,14 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("Apply")
+                        text: qsTr("应用")
                         onClicked: window.baseUrl = baseUrlField.text
                     }
 
                     Switch {
                         id: logSwitch
                         checked: window.autoLogRequests
-                        text: qsTr("Auto Log")
+                        text: qsTr("自动记录")
                         onToggled: window.autoLogRequests = checked
                     }
                 }
@@ -601,7 +601,7 @@ ApplicationWindow {
                     spacing: 8
 
                     Button {
-                        text: qsTr("Ping API")
+                        text: qsTr("Ping 接口")
                         onClicked: window.apiCallRequested("status/ping", {
                             method: "GET",
                             baseUrl: window.baseUrl
@@ -609,7 +609,7 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("Health Check")
+                        text: qsTr("健康检查")
                         onClicked: window.apiCallRequested("status/health", {
                             method: "GET",
                             baseUrl: window.baseUrl
@@ -617,7 +617,7 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("Reload Config")
+                        text: qsTr("重新加载配置")
                         onClicked: window.apiCallRequested("config/reload", {
                             method: "POST",
                             baseUrl: window.baseUrl
@@ -625,7 +625,7 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("List Jobs")
+                        text: qsTr("列出任务")
                         onClicked: window.apiCallRequested("jobs/active", {
                             method: "GET",
                             baseUrl: window.baseUrl
@@ -637,7 +637,7 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("Refresh UI State")
+                        text: qsTr("刷新界面状态")
                         onClicked: window.refreshUiStateRequested()
                     }
                 }
@@ -655,7 +655,7 @@ ApplicationWindow {
                 spacing: 12
 
                 GroupBox {
-                    title: qsTr("System Controls")
+                    title: qsTr("系统控制")
                     Layout.fillWidth: true
 
                     Flow {
@@ -677,7 +677,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("Process Controls")
+                    title: qsTr("工艺控制")
                     Layout.fillWidth: true
 
                     Flow {
@@ -699,7 +699,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("Device Controls")
+                    title: qsTr("设备控制")
                     Layout.fillWidth: true
 
                     Flow {
@@ -721,7 +721,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("Vision Controls")
+                    title: qsTr("视觉控制")
                     Layout.fillWidth: true
 
                     Flow {
@@ -749,7 +749,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("UI Actions")
+                    title: qsTr("界面操作")
                     Layout.fillWidth: true
 
                     Flow {
@@ -767,7 +767,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("Diagnostics Snapshots")
+                    title: qsTr("诊断快照")
                     Layout.fillWidth: true
 
                     Flow {
@@ -785,7 +785,7 @@ ApplicationWindow {
                 }
 
                 GroupBox {
-                    title: qsTr("Custom API Call")
+                    title: qsTr("自定义 API 请求")
                     Layout.fillWidth: true
 
                     ColumnLayout {
@@ -806,11 +806,11 @@ ApplicationWindow {
                             TextField {
                                 id: endpointField
                                 Layout.fillWidth: true
-                                placeholderText: "/custom/endpoint"
+                                placeholderText: "/自定义/接口"
                             }
 
                             Button {
-                                text: qsTr("Send")
+                                text: qsTr("发送")
                                 onClicked: {
                                     var body = {}
                                     var raw = payloadArea.text.trim()
@@ -818,7 +818,7 @@ ApplicationWindow {
                                         try {
                                             body = JSON.parse(raw)
                                         } catch (error) {
-                                            window.appendLog("Invalid JSON payload: " + error)
+                                            window.appendLog("JSON 负载无效: " + error)
                                             return
                                         }
                                     }
@@ -858,7 +858,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
 
                     Label {
-                        text: qsTr("Activity Log")
+                        text: qsTr("活动日志")
                         font.bold: true
                     }
 
@@ -867,17 +867,17 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("Copy Latest")
+                        text: qsTr("复制最新")
                         onClicked: {
                             if (logModel.count > 0) {
                                 Qt.application.clipboard.text = logModel.get(0).message
-                                window.appendLog("Copied latest entry to clipboard")
+                                window.appendLog("已复制最新记录到剪贴板")
                             }
                         }
                     }
 
                     Button {
-                        text: qsTr("Clear Log")
+                        text: qsTr("清空日志")
                         onClicked: logModel.clear()
                     }
                 }
@@ -920,3 +920,5 @@ ApplicationWindow {
         }
     }
 }
+
+

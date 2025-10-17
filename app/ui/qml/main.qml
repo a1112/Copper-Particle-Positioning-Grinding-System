@@ -12,12 +12,12 @@ import "menu/settings"
 import "cores" as Cores
 import "Api" as Api
 import "Sockets"
-
+import "test"
 
 App_Base {
   id: win
 
-  // F11/F12 shortcuts
+
   Component.onCompleted: {
     Api.ApiClient.root = win
     Api.ApiClient.showError = function(msg){ Cores.CoreError.showError(msg) }
@@ -31,5 +31,6 @@ App_Base {
   TestImagesDialog { id: testDialog }
   SettingsDrawer { id: settingsDrawer }
   SettingPage{id: settingsPage}
+  TestWindow{id:testWindow}
 }
 

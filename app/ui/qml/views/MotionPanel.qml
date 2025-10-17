@@ -1,4 +1,6 @@
-﻿import QtQuick\nimport QtQuick.Controls\nimport "../Api" as Api\n\nimport QtQuick.Controls
+﻿import QtQuick
+import QtQuick.Controls
+import "../Api" as Api
 import QtQuick.Layouts
 
 Item {
