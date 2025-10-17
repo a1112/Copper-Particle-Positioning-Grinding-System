@@ -33,7 +33,8 @@ Item {
     FillItem {}
     TitleLabel {}
     FillItem {}
-
+    RunModelSelect{}
+    FillItem {}
     EstopBtn{}
 
     DateTimeView { Layout.alignment: Qt.AlignVCenter }

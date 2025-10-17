@@ -26,8 +26,6 @@ Item {
     // Optional common accents
     property color border:  "#2a3441"
     property color overlay: "#00000080"
-
-    property int cardHeadHeight: 25
     // Built‑in palettes
     readonly property var palettes: ({ techBlue: { primary: "#2563eb", accent: "#22d3ee", background: "#0b1220", surface: "#111827", text: "#e5e7eb", muted: "#94a3b8" }, techBlueLight: { primary: "#2563eb", accent: "#22d3ee", background: "#162337", surface: "#223047", text: "#f3f4f6", muted: "#b6c2cf" }, emerald: { primary: "#10b981", accent: "#34d399", background: "#0d1412", surface: "#121a16", text: "#e6f4ef", muted: "#9ca3af" }, amber: { primary: "#f59e0b", accent: "#f97316", background: "#141008", surface: "#1b1408", text: "#fff7ed", muted: "#fed7aa" }, nightPurple: { primary: "#8b5cf6", accent: "#a78bfa", background: "#0f0a1f", surface: "#15112b", text: "#ede9fe", muted: "#c4b5fd" }, graphite: { primary: "#64748b", accent: "#22c55e", background: "#0b0f14", surface: "#131922", text: "#e2e8f0", muted: "#94a3b8" } })
 
@@ -79,6 +77,9 @@ Item {
         // Fall back to icon folder for bare filenames
         return "qrc:/resource/icon/" + p;
     }
+
+    property int cardHeadHeight: 25
+    property int headComboBoxHeigh: 30
 }
 
 

@@ -6,8 +6,10 @@ Item {
   id: root
   // Last selected main view tab
   property int selectedTabIndex: 0
-  // Optional: last selected view id
-  property string selectedViewId: ""
+
+  // 选择的自动模式
+  property int currentRunModelIndex: 0
+  readonly property string currentRunModelName: CoreUI.allRunModel[currentRunModelIndex]
 
 
   property int realViewIndex: 0
@@ -16,7 +18,7 @@ Item {
     category: "CoreState"
     // Persist fields
     property alias selectedTabIndex: root.selectedTabIndex
-    property alias selectedViewId: root.selectedViewId
+    property alias currentRunModelIndex: root.currentRunModelIndex
   }
 }
 

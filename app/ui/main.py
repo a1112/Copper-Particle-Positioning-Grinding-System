@@ -42,7 +42,7 @@ def _ensure_qrc_resources() -> None:
     from PySide6.QtCore import QResource
 
     here = Path(__file__).resolve().parent
-    qrc_list = [here / 'qml.qrc', here / 'resource.qrc', here / 'src.qrc']
+    qrc_list = [here / 'qml.qrc', here / 'resource.qrc']
     rcc = shutil.which('rcc') or shutil.which('rcc.exe')
     pyside_rcc = (
         shutil.which('pyside6-rcc') or shutil.which('pyrcc5') or shutil.which('pyside2-rcc')
