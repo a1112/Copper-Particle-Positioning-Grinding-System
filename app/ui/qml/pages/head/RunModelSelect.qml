@@ -12,6 +12,7 @@ import "../../cores" as Cores
     ComboBox{
         height: Cores.CoreStyle.headComboBoxHeigh
         model: Cores.CoreUI.allRunModel
-        currentIndex: Cores.CoreState
+        currentIndex: Cores.CoreState.currentRunModelIndex
+        onCurrentIndexChanged: Cores.CoreState.currentRunModelIndex=currentIndex
     }
 }

@@ -1,11 +1,11 @@
 from ..api_core import status_router as router
-from app.data.providers import get_provider
+from app.domain.status import get_status_service
 
 
 @router.get("/status")
 async def status():
-    prov = get_provider()
-    data = prov.get_status()
+    service = get_status_service()
+    data = service.fetch_status()
     # Add debug flag if available via CONFIG
     try:
         from app.server.CONFIG import DEBUG as _DBG  # type: ignore

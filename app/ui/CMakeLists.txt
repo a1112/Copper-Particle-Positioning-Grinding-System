@@ -12,6 +12,7 @@ find_package(Qt6 6.2 COMPONENTS Quick Qml WebSockets REQUIRED)
 
 add_executable(copper_ui_cpp
     cpp/main.cpp
+    app.rc
 )
 
 qt6_add_resources(QML_BUNDLE

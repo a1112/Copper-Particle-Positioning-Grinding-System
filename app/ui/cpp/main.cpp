@@ -3,6 +3,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlError>
+#include <QIcon>
 #include <QTimer>
 #include <QObject>
 #include <QString>
@@ -232,6 +233,7 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationName(QStringLiteral("CopperSystem"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("example.local"));
     QCoreApplication::setApplicationName(QStringLiteral("Copper UI (C++ Stub)"));
+    QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/resource/app.ico")));
 
     QQmlApplicationEngine engine;
 

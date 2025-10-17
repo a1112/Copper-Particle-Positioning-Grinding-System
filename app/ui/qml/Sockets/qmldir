@@ -1,7 +1,0 @@
-singleton StatusSocket 1.0 StatusSocket.qml
-singleton LogsSocket 1.0 LogsSocket.qml
-singleton CodeSocket 1.0 CodeSocket.qml
-
-singleton CuttingSocket 1.0 CuttingSocket.qml
-
-singleton CuttingSocket 1.0 CuttingSocket.qml

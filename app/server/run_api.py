@@ -18,7 +18,8 @@ from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
 from app.server import CONFIG
 from app.server.api.api_core import app, include_router
-from app.data.providers import set_provider, SimDataProvider, CommDataProvider
+from app.domain.status import set_status_provider
+from app.domain.status.providers import SimStatusProvider, ProductionStatusProvider
 
 
 def _ensure_module_alias(name: str, module: Any) -> None:
@@ -74,7 +75,11 @@ def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrato
     include_router()
     # Default to simulated data provider for decoupled business logic
     try:
-        set_provider(CommDataProvider() if getattr(CONFIG, 'data_mode', 'sim')=='comm' else SimDataProvider())
+        if getattr(CONFIG, "data_mode", "sim") == "comm":
+            endpoint = getattr(CONFIG, "data_endpoint", None)
+            set_status_provider(ProductionStatusProvider(endpoint))
+        else:
+            set_status_provider(SimStatusProvider())
     except Exception:
         pass
     async def _status_fn():
