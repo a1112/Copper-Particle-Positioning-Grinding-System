@@ -7,7 +7,7 @@ import "foot"
 
 ColumnLayout {
   id: root
-  spacing: 0
+  spacing: 2
 
   HeadView { Layout.fillWidth: true; Layout.preferredHeight: 50 }
 

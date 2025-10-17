@@ -17,7 +17,6 @@ import "test"
 
 App_Base {
   id: win
-  Material.theme: Material.Dark
   Component.onCompleted: {
     Api.ApiClient.root = win
     Api.ApiClient.showError = function(msg){ Cores.CoreError.showError(msg) }

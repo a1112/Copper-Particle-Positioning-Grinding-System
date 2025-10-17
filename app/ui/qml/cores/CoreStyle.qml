@@ -78,7 +78,7 @@ Item {
         return "qrc:/resource/icon/" + p;
     }
 
-    property int cardHeadHeight: 25
+    property int cardHeadHeight: 30
     property int headComboBoxHeigh: 30
 }
 

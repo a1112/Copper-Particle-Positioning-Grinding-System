@@ -56,10 +56,7 @@
         <file>qml/components/Base/TabButtonBase.qml</file>
         <file>qml/components/Base/TumblerBase.qml</file>
         <file>qml/components/btns/AddButton.qml</file>
-        <file>qml/components/btns/AiBtn.qml</file>
         <file>qml/components/btns/BtnBase.qml</file>
-        <file>qml/components/btns/CloseBtn.qml</file>
-        <file>qml/components/btns/CloseBtnForm.ui.qml</file>
         <file>qml/components/btns/ColorImageButton.qml</file>
         <file>qml/components/btns/ColorItemDelegateButtonBase.qml</file>
         <file>qml/components/btns/ExplorerButton.qml</file>
@@ -70,7 +67,6 @@
         <file>qml/components/btns/ItemDelegateButtonBase.qml</file>
         <file>qml/components/btns/LabelButton.qml</file>
         <file>qml/components/btns/MoreSet.qml</file>
-        <file>qml/components/btns/NextBtn.qml</file>
         <file>qml/components/btns/PingButton.qml</file>
         <file>qml/components/btns/PlayButton.qml</file>
         <file>qml/components/btns/PreBtn.qml</file>
@@ -110,6 +106,7 @@
         <file>qml/pages/MainLayouts.qml</file>
         <file>qml/views/CommPanel.qml</file>
         <file>qml/views/DriveInfo/DriveInfoView.qml</file>
+        <file>qml/views/DriveInfo/ToolInfoView.qml</file>
         <file>qml/views/EditorPanel.qml</file>
         <file>qml/views/ImageInfo/ImageInfoView.qml</file>
         <file>qml/views/Log/LogView.qml</file>
@@ -135,7 +132,7 @@
         <file>qml/components/btns/CheckDelegateBase.qml</file>
         <file>qml/pages/foot/ViewMangeRow.qml</file>
         <file>qml/views/Log/LogHead.qml</file>
-        <file>qml/views/DriveInfo/DeviceMsgView.qml</file>
+        <file>qml/views/DriveInfo/RunStateInfoView.qml</file>
         <file>qml/menu/settings/SettingPage.qml</file>
         <file>qml/menu/settings/SettingPageHead.qml</file>
         <file>qml/menu/settings/SettingPageTitle.qml</file>
@@ -165,5 +162,14 @@
         <file>qml/works/StatusWork.qml</file>
         <file>qml/works/Works.qml</file>
         <file>qml/works/qmldir</file>
+        <file>qml/views/DriveInfo/InfoRowItem.qml</file>
+        <file>qml/views/DriveInfo/InfoTitleLabel.qml</file>
+        <file>qml/views/DriveInfo/InfoValueLabel.qml</file>
+        <file>qml/views/DriveInfo/head/InfoHeadView.qml</file>
+        <file>qml/components/Card/CardHead.qml</file>
+        <file>qml/views/Infos/InfosView.qml</file>
+        <file>qml/views/Infos/head/InfoHeadView.qml</file>
+        <file>qml/views/Infos/head/FilterMenu.qml</file>
+        <file>qml/views/Infos/InfoViewCore.qml</file>
     </qresource>
 </RCC>

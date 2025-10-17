@@ -1,7 +1,7 @@
 ﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QtGraphicalEffects
+
 
 import "../../cores" as Cores
 import "../Base"
@@ -31,15 +31,15 @@ Item {
       visible: false
     }
 
-    ColorOverlay {
-      anchors.centerIn: parent
-      width: iconImage.width
-      height: iconImage.height
-      source: iconImage
-      color: root.selected ? root.selectColor
-                           : (Cores.CoreStyle.isDark ? "#eee" : "#2e2e2e")
-      layer.enabled: true
-      layer.effect: DropShadowBase { }
-    }
+    // ColorOverlay {
+    //   anchors.centerIn: parent
+    //   width: iconImage.width
+    //   height: iconImage.height
+    //   source: iconImage
+    //   color: root.selected ? root.selectColor
+    //                        : (Cores.CoreStyle.isDark ? "#eee" : "#2e2e2e")
+    //   layer.enabled: true
+    //   layer.effect: DropShadowBase { }
+    // }
   }
 }

@@ -2,6 +2,7 @@
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../../views/DriveInfo" as Drv
+import "../../../views/Infos" as Info
 import "../../../views/ImageInfo" as Img
 import "../../../views/Log" as Log
 import "../../../views/Control" as Ctrl
@@ -27,15 +28,25 @@ Item {
       orientation: Qt.Horizontal
 
       // 左列：设备状态/信息 + 元数据
-      SplitView { SplitView.preferredWidth: 440; SplitView.fillHeight: true; orientation: Qt.Vertical
-        Drv.DeviceMsgView{
-          id: deviceMsgView
-          SplitView.fillWidth: true
-          SplitView.preferredHeight: 100
-        }
-        Drv.DriveInfoView { SplitView.fillWidth: true; SplitView.preferredHeight: 420 }
+      Info.InfosView{
+        SplitView.preferredWidth: 440
+        SplitView.fillHeight: true
       }
-      // 中列：图像信息预览
+
+      // ColumnLayout {
+
+
+
+      //   Drv.DeviceMsgView{
+      //     id: deviceMsgView
+      //     SplitView.fillWidth: true
+      //     SplitView.preferredHeight: 40
+      //   }
+      //   // 增加刀具相关显示， 型号，使用时长
+
+      //   Drv.DriveInfoView { SplitView.fillWidth: true; SplitView.preferredHeight: 420 }
+      // }
+      // // 中列：图像信息预览
       Img.ImageInfoView {
         SplitView.fillWidth: true
         SplitView.fillHeight: true
@@ -57,9 +68,6 @@ Item {
       Charts.ElevationAreaChart {
         SplitView.fillHeight: true
         SplitView.preferredWidth: 520
-        points: deviceMsgView && deviceMsgView.elevPts.length ? deviceMsgView.elevPts : deviceMsgView.demoPts
-        cuts: deviceMsgView && deviceMsgView.elevCuts.length ? deviceMsgView.elevCuts : deviceMsgView.demoCuts
-        base: deviceMsgView ? deviceMsgView.elevBase : 0.0
       }
       Ctrl.PTZControl {
         SplitView.fillHeight: true
