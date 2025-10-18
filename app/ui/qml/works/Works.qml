@@ -8,5 +8,6 @@ QtObject {
     WorksModule.LogsWork.start()
     WorksModule.CodeWork.start()
     WorksModule.CuttingWork.start()
+    WorksModule.DeviceInfoWork.start()
   }
 }

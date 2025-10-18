@@ -7,12 +7,15 @@ ColumnLayout {
   id: root
   spacing: 8
 
-  property InfoViewCore infoViewCore: InfoViewCore {
+  InfoViewCore {
     id: infoCore
   }
 
+  property InfoViewCore infoViewCore: infoCore
+
   InfoHeadView {
     Layout.fillWidth: true
+    infoViewCore: infoCore
   }
 
   ScrollView {
@@ -29,7 +32,6 @@ ColumnLayout {
       Repeater {
         model: infoCore.selectedViews
         delegate: Loader {
-          id: viewLoader
           width: columnContent.width
           source: modelData.source
           asynchronous: true

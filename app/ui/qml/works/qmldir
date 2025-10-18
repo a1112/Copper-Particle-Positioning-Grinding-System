@@ -3,3 +3,4 @@ singleton StatusWork 1.0 StatusWork.qml
 singleton LogsWork 1.0 LogsWork.qml
 singleton CodeWork 1.0 CodeWork.qml
 singleton CuttingWork 1.0 CuttingWork.qml
+singleton DeviceInfoWork 1.0 DeviceInfoWork.qml

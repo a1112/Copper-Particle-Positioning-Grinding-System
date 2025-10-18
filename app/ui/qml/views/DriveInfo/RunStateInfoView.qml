@@ -39,7 +39,7 @@ BaseCard {
 
     InfoRowItem {
       Layout.fillWidth: true
-      titleText: qsTr("\u8FD0\u884C\u72B6\u6001")
+      titleText: qsTr("运行状态")
       valueText: root.runState
       valueColor: root.stateColor(root.runState)
       valueFont.pointSize: 15
@@ -51,7 +51,7 @@ BaseCard {
 
       InfoRowItem {
         Layout.fillWidth: true
-        titleText: qsTr("\u6D41\u6C34\u53F7")
+        titleText: qsTr("流水号")
         valueText: root.serialNumber
         valueColor: Cores.CoreStyle.info
         valueFont.pointSize: 15
@@ -59,7 +59,7 @@ BaseCard {
 
       InfoRowItem {
         Layout.fillWidth: true
-        titleText: qsTr("\u8FD0\u884C\u6A21\u5F0F")
+        titleText: qsTr("运行模式")
         valueText: root.runMode
         valueColor: Cores.CoreStyle.accent
         valueFont.pointSize: 15

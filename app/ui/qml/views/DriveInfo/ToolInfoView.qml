@@ -25,45 +25,42 @@ BaseCard {
     return `${value} ${unit}`
   }
 
-  ColumnLayout {
+  GridLayout {
     id: contentColumn
+    anchors.margins: padding
     anchors.left: parent.left
     anchors.right: parent.right
-    anchors.margins: padding
-    spacing: 8
+    columns: 2
+    columnSpacing: 16
+    rowSpacing: 10
 
     InfoRowItem {
       Layout.fillWidth: true
-      titleText: qsTr("\u5200\u5177\u578B\u53F7")
+      titleText: qsTr("刀具型号")
       valueText: root.formatWithUnit(root.toolModel, "")
       valueColor: Cores.CoreStyle.text
       valueFont.pointSize: 14
     }
 
-    RowLayout {
+    InfoRowItem {
       Layout.fillWidth: true
-      spacing: 12
-
-      InfoRowItem {
-        Layout.fillWidth: true
-        titleText: qsTr("\u76F4\u5F84")
-        valueText: root.formatWithUnit(root.toolDiameter, "mm")
-        valueColor: Cores.CoreStyle.accent
-        valueFont.pointSize: 14
-      }
-
-      InfoRowItem {
-        Layout.fillWidth: true
-        titleText: qsTr("\u4F7F\u7528\u65F6\u957F")
-        valueText: root.formatWithUnit(root.toolUsage, "h")
-        valueColor: Cores.CoreStyle.info
-        valueFont.pointSize: 14
-      }
+      titleText: qsTr("直径")
+      valueText: root.formatWithUnit(root.toolDiameter, "mm")
+      valueColor: Cores.CoreStyle.accent
+      valueFont.pointSize: 14
     }
 
     InfoRowItem {
       Layout.fillWidth: true
-      titleText: qsTr("\u9884\u671F\u5BFF\u547D")
+      titleText: qsTr("使用时长")
+      valueText: root.formatWithUnit(root.toolUsage, "h")
+      valueColor: Cores.CoreStyle.info
+      valueFont.pointSize: 14
+    }
+
+    InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("预期寿命")
       valueText: root.formatWithUnit(root.toolLifetime, "h")
       valueColor: Cores.CoreStyle.warning
       valueFont.pointSize: 14

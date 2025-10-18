@@ -158,6 +158,7 @@
         <file>qml/datas/qmldir</file>
         <file>qml/works/CodeWork.qml</file>
         <file>qml/works/CuttingWork.qml</file>
+        <file>qml/works/DeviceInfoWork.qml</file>
         <file>qml/works/LogsWork.qml</file>
         <file>qml/works/StatusWork.qml</file>
         <file>qml/works/Works.qml</file>
@@ -167,9 +168,10 @@
         <file>qml/views/DriveInfo/InfoValueLabel.qml</file>
         <file>qml/views/DriveInfo/head/InfoHeadView.qml</file>
         <file>qml/components/Card/CardHead.qml</file>
-        <file>qml/views/Infos/InfosView.qml</file>
-        <file>qml/views/Infos/head/InfoHeadView.qml</file>
-        <file>qml/views/Infos/head/FilterMenu.qml</file>
-        <file>qml/views/Infos/InfoViewCore.qml</file>
+        <file>qml/views/Manage/InfoManageView.qml</file>
+        <file>qml/views/Manage/CodeManageView.qml</file>
+        <file>qml/views/Manage/InfoViewCore.qml</file>
+        <file>qml/views/Manage/head/InfoHeadView.qml</file>
+        <file>qml/views/Manage/head/FilterMenu.qml</file>
     </qresource>
 </RCC>

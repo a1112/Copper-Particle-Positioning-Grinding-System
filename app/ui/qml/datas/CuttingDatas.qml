@@ -10,12 +10,16 @@ QtObject {
   readonly property real downfeedCurrent: Number((last && last.downfeed_current) || 0)
   readonly property real removalCurrent: Number((last && last.removal_current) || 0)
   readonly property real removalExpected: Number((last && last.removal_expected) || 0)
+  readonly property real removalRemaining: Math.max(0, removalExpected - removalCurrent)
   readonly property real torqueMax: Number((last && last.torque_max) || 0)
   readonly property real torque: Number((last && last.torque) || 0)
   readonly property real elapsedSec: Number((last && last.elapsed_sec) || 0)
 
   function update(payload) {
-    last = payload || ({})
+    if (!payload)
+      return
+    connected = true
+    last = payload
   }
 
   function reset() {
