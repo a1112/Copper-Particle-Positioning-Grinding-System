@@ -27,9 +27,9 @@ BaseCard {
     var text = String(value)
     return text.length === 0 ? "-" : text
   }
-
+    height: col.height
   ColumnLayout {
-    anchors.fill: parent
+    id:col
     anchors.margins: 10
     spacing: 12
 

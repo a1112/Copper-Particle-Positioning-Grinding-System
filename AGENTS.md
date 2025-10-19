@@ -1,36 +1,48 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Core code lives in `app/`: `core/` (events, state machine), `devices/` (real/sim drivers), `process/` (grinding flows), `vision/` (calibration, inspection), `ui/` (PySide6/QML).
-- API is exposed via `app/api/` (FastAPI + WebSocket). API entry: `app/server/run_api.py`.
-- Configs and sample data: `configs/`, `TestData/`. Runtime logs: `runs/`. Automation scripts: `scripts/`. Tests: `tests/`.
+- Core runtime in `app/`.
+- `app/core/`: events and state machine.
+- `app/devices/`: real and simulated drivers.
+- `app/process/`: grinding flow orchestration.
+- `app/vision/`: calibration and inspection.
+- `app/ui/`: PySide6/QML components.
+- `app/api/`: public API; FastAPI entry at `app/server/run_api.py`.
+- `configs/`: configuration templates and samples.
+- `TestData/`: fixtures and representative telemetry.
+- `runs/`: runtime artifacts (sanitize before pushing).
+- `scripts/`: automation helpers.
+- `tests/`: unit/integration tests.
 
 ## Build, Test, and Development Commands
-- Create venv and install deps:
-  `python -m venv .venv` then `. .venv/Scripts/Activate.ps1` and `pip install -r requirements.txt`.
-- Run full simulator + UI: `python -m app.main`.
-- Run API only: `python -m app.server.run_api`.
-- Rebuild UI resources after QML/asset changes: `powershell -File scripts/build_rcc.ps1`.
-- Smoke test (simulated env): `python scripts/smoke_api.py`.
-- Run tests: `pytest` (or `python -m pytest`). Add files as `tests/test_<feature>.py`.
+- Create venv (PowerShell): `python -m venv .venv` then `. .venv/Scripts/Activate.ps1`.
+- Install deps: `pip install -r requirements.txt`.
+- Launch full simulator + UI: `python -m app.main`.
+- Run API services only: `python -m app.server.run_api`.
+- Rebuild QML assets: `powershell -File scripts/build_rcc.ps1`.
+- Smoke API check: `python scripts/smoke_api.py`.
+- Run tests: `python -m pytest`.
 
 ## Coding Style & Naming Conventions
-- PEP 8, 4-space indent; add type hints for public interfaces.
-- `snake_case` for modules/functions; `PascalCase` for classes.
-- QML: component filenames Capitalized (e.g., `LineChart.qml`); expose public properties via `alias`; minimize imperative JavaScript.
-- Formatting: run `black` or `ruff format` before commit.
+- Follow PEP 8 with 4-space indentation; add type hints for public interfaces.
+- Use `snake_case` for modules, functions, and file names; `PascalCase` for classes and QML (e.g., `LineChart.qml`).
+- Format before committing with `black` or `ruff format`.
+- Keep QML declarative: prefer `alias` for public properties; minimize imperative JS.
 
 ## Testing Guidelines
-- Focus on flow orchestration, device drivers, and API protocol. Keep `tests/ws_logs_demo.py` working for WebSocket flow.
-- Place reproducible artifacts in `TestData/` and reference with relative paths.
-- When adding devices, include sample data and note key telemetry/validation results in the PR.
+- Test runner: `pytest`. Add tests as `tests/test_<feature>.py`.
+- Prefer deterministic fixtures in `TestData/`.
+- Validate WebSocket flows by ensuring `tests/ws_logs_demo.py` passes.
+- Confirm smoke coverage after workflow changes: `python scripts/smoke_api.py`.
 
 ## Commit & Pull Request Guidelines
-- Conventional Commits: `feat(ui): ...`, `fix(core): ...`, `chore: ...`; imperative titles, <= 72 chars.
-- Squash WIP commits; describe behavior changes; link issues/requirements.
-- For UI/QML changes, attach screenshots or GIFs; list simulation and hardware validation steps and results.
-- Sanitize logs and runs before committing (remove serials, coordinates, other sensitive data).
+- Use Conventional Commits (e.g., `feat(ui): add drag handle`, `fix(core): guard idle transition`).
+- Squash WIP commits; describe behavioral changes; link issues/requirements.
+- For UI/QML changes, include screenshots/GIFs and document simulator/hardware validation.
+- Sanitize `runs/` outputs before pushing.
 
-## Configuration & Tips
-- Copy templates in `configs/` before editing local paths; do not change originals.
-- Prefer relative paths for portability; runtime logs are written to `runs/`.
+## Security & Configuration Tips
+- Do not edit templates in `configs/` directly—copy locally and keep paths relative.
+- Audit logs for sensitive data; avoid secrets in scripts or `TestData/`.
+- When adding devices, capture representative telemetry in `TestData/` and note validation steps in the PR.
+

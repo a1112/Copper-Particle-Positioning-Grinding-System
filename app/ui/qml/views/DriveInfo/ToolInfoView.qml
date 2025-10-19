@@ -31,7 +31,7 @@ BaseCard {
     anchors.left: parent.left
     anchors.right: parent.right
     columns: 2
-    columnSpacing: 16
+    columnSpacing: 5
     rowSpacing: 10
 
     InfoRowItem {

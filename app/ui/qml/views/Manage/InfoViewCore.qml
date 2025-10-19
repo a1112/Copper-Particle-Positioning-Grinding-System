@@ -10,14 +10,14 @@ QtObject {
       source: Qt.resolvedUrl("../DriveInfo/RunStateInfoView.qml")
     },
     {
-      key: "driveMetrics",
-      title: qsTr("运行数据"),
-      source: Qt.resolvedUrl("../DriveInfo/DriveInfoView.qml")
-    },
-    {
       key: "toolInfo",
       title: qsTr("刀具信息"),
       source: Qt.resolvedUrl("../DriveInfo/ToolInfoView.qml")
+    },
+    {
+      key: "driveMetrics",
+      title: qsTr("运行数据"),
+      source: Qt.resolvedUrl("../DriveInfo/DriveInfoView.qml")
     },
     {
       key: "torqueChart",
@@ -31,7 +31,7 @@ QtObject {
     }
   ]
 
-  property var selectedKeys: ["driveMetrics", "runState"]
+  property var selectedKeys: ["driveMetrics","toolInfo", "runState"]
   property var selectedViews: []
 
   signal selectionChanged()
