@@ -72,7 +72,6 @@ Item {
     smooth: true
     fillMode: Image.PreserveAspectFit
     source: Api.Urls.api("image.png") + "?ts=" + Date.now()
-    onStatusChanged: overlayArea.visible = (status === Image.Ready)
   }
 
   Item {
@@ -80,7 +79,7 @@ Item {
     width: img.paintedWidth
     height: img.paintedHeight
     anchors.centerIn: parent
-    visible: width > 0 && height > 0
+    visible: img.status === Image.Ready && width > 0 && height > 0
     clip: true
 
     Canvas {
@@ -138,6 +137,7 @@ Item {
       }
       onWidthChanged: requestPaint()
       onHeightChanged: requestPaint()
+      Component.onCompleted: requestPaint()
     }
 
     Layers.FixtureOverlay {
@@ -183,6 +183,14 @@ Item {
   }
 
   onPathPointsChanged: pathCanvas.requestPaint()
+  onScaleXChanged: {
+    pathCanvas.requestPaint()
+    coordinateLayer.requestUpdate()
+  }
+  onScaleYChanged: {
+    pathCanvas.requestPaint()
+    coordinateLayer.requestUpdate()
+  }
 
   Connections {
     target: img

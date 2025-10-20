@@ -21,6 +21,16 @@ Item {
       && toolPixelX >= 0 && toolPixelX <= imageWidth
       && toolPixelY >= 0 && toolPixelY <= imageHeight
 
+  function requestUpdate() { toolCross.requestPaint() }
+
+  onToolWorldPositionChanged: requestUpdate()
+  onPixelSizeMmChanged: requestUpdate()
+  onScaleXChanged: requestUpdate()
+  onScaleYChanged: requestUpdate()
+  onImageWidthChanged: requestUpdate()
+  onImageHeightChanged: requestUpdate()
+  onToolVisibleChanged: requestUpdate()
+
   Rectangle {
     id: marker
     visible: overlay.toolVisible
@@ -37,6 +47,7 @@ Item {
   Canvas {
     id: toolCross
     anchors.fill: parent
+    visible: overlay.toolVisible
     onPaint: {
       var ctx = getContext("2d")
       ctx.clearRect(0, 0, width, height)
@@ -74,10 +85,11 @@ Item {
       anchors.centerIn: parent
       font.family: "monospace"
       color: Cores.CoreStyle.text
-      text: qsTr("刀具坐标: %1 mm, %2 mm")
-              .arg(toolWorldPosition.x.toFixed(3))
-              .arg(toolWorldPosition.y.toFixed(3))
+      text: overlay.toolVisible
+            ? qsTr("刀具坐标: %1 mm, %2 mm")
+                .arg(toolWorldPosition.x.toFixed(3))
+                .arg(toolWorldPosition.y.toFixed(3))
+            : ""
     }
   }
 }
-

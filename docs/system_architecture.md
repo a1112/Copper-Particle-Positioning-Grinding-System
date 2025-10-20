@@ -6,23 +6,24 @@
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  用户界面层 (UI/QML)                │
-│  - app/ui/qml/*: 界面视图、数据单例、异步工人        │
-│  - app/ui/src/*: Python 桥接、图像处理              │
+│                  用户界面层 (UI/QML)                  │
+│  - app/ui/qml/*: 界面视图、数据单例、异步工人            │
+│  - app/ui/src/*: Python 桥接、图像处理                 │
+│  - app/ui/cmake: C++ 编译版本，提升安全与运行速度         │
 └──────────────▲───────────────────────────┬──────────┘
                │ WebSocket/HTTP JSON       │
 ┌──────────────┴───────────────────────────▼──────────┐
-│               后端服务层 (FastAPI)                   │
-│  - app/server/api: REST + WebSocket                  │
-│  - app/server/business: 业务服务（Sim/Runtime）      │
-│  - app/domain/status: 状态提供者/仓储/服务          │
+│               后端服务层 (FastAPI)                    │
+│  - app/server/api: REST + WebSocket                 │
+│  - app/server/business: 业务服务（Sim/Runtime）       │
+│  - app/domain/status: 状态提供者/仓储/服务             │
 └──────────────▲───────────────────────────┬──────────┘
-               │ 驱动接口调用               │
+               │ 驱动接口调用   / 数据库      │
 ┌──────────────┴───────────────────────────▼──────────┐
-│               核心运行层 (Core/Devices)              │
-│  - app/core: 状态机、配方、事件总线                  │
-│  - app/process: 工艺编排与任务流                     │
-│  - app/devices: 真实与模拟驱动实现                   │
+│               核心运行层 (Core/Devices)               │
+│  - app/core: 状态机、配方、事件总线                     │
+│  - app/process: 工艺编排与任务流                       │
+│  - app/devices: 真实与模拟驱动实现                     │
 └─────────────────────────────────────────────────────┘
 ```
 

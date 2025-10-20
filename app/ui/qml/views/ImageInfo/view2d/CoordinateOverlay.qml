@@ -15,6 +15,11 @@ Item {
 
   function requestUpdate() { cross.requestPaint() }
 
+  onHoverPixelChanged: requestUpdate()
+  onHoverValidChanged: requestUpdate()
+  onScaleXChanged: requestUpdate()
+  onScaleYChanged: requestUpdate()
+
   Canvas {
     id: cross
     anchors.fill: parent
@@ -28,7 +33,8 @@ Item {
       ctx.save()
       ctx.strokeStyle = "#22c55e"
       ctx.lineWidth = 1
-      ctx.setLineDash([4, 4])
+      if (ctx.setLineDash)
+        ctx.setLineDash([4, 4])
       ctx.beginPath()
       ctx.moveTo(px, 0)
       ctx.lineTo(px, height)
@@ -73,4 +79,3 @@ Item {
     }
   }
 }
-

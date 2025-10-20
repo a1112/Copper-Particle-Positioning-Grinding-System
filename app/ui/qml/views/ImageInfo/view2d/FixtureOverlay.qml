@@ -7,8 +7,8 @@ Item {
   id: overlay
   anchors.fill: parent
 
-  property int columns: 4
-  property int rows: 4
+  property int columns: 4            // clamps per edge
+  property int rows: 4               // unused but kept for compatibility
   property real imageWidth: 640
   property real imageHeight: 360
   property real pixelSizeMm: 0.2
@@ -20,33 +20,56 @@ Item {
   readonly property real fixtureWidthPx: fixtureSizeMm / pixelSizeMm
   readonly property real fixtureHeightPx: fixtureSizeMm / pixelSizeMm
   readonly property real marginPx: fixtureMarginMm / pixelSizeMm
+  readonly property int fixturesPerEdge: Math.max(1, columns)
+
+  readonly property var fixturePositions: {
+    var positions = []
+    var n = fixturesPerEdge
+    var stepX = n > 0 ? (imageWidth - marginPx * 2) / (n + 1) : 0
+    var stepY = n > 0 ? (imageHeight - marginPx * 2) / (n + 1) : 0
+
+    for (var i = 0; i < n; ++i) {
+      var offsetX = marginPx + (i + 1) * stepX
+      positions.push({ x: offsetX, y: marginPx, edge: "top", index: i })
+    }
+
+    for (var j = 0; j < n; ++j) {
+      var offsetXBottom = marginPx + (j + 1) * stepX
+      positions.push({ x: offsetXBottom, y: imageHeight - marginPx, edge: "bottom", index: j })
+    }
+
+    for (var k = 0; k < n; ++k) {
+      var offsetY = marginPx + (k + 1) * stepY
+      positions.push({ x: marginPx, y: offsetY, edge: "left", index: k })
+    }
+
+    for (var m = 0; m < n; ++m) {
+      var offsetYRight = marginPx + (m + 1) * stepY
+      positions.push({ x: imageWidth - marginPx, y: offsetYRight, edge: "right", index: m })
+    }
+    positions
+  }
 
   Repeater {
     id: fixtureRepeater
-    model: Math.max(1, overlay.columns * overlay.rows)
+    model: overlay.fixturePositions.length
     delegate: Rectangle {
-      readonly property int col: index % overlay.columns
-      readonly property int row: Math.floor(index / overlay.columns)
-      readonly property real spacingX: overlay.columns > 1
-                                      ? (overlay.imageWidth - overlay.marginPx * 2) / (overlay.columns - 1)
-                                      : 0
-      readonly property real spacingY: overlay.rows > 1
-                                      ? (overlay.imageHeight - overlay.marginPx * 2) / (overlay.rows - 1)
-                                      : 0
-      readonly property real centerX: overlay.marginPx + col * spacingX
-      readonly property real centerY: overlay.marginPx + row * spacingY
-
+      readonly property var fixture: overlay.fixturePositions[index]
       width: overlay.fixtureWidthPx * overlay.scaleX
       height: overlay.fixtureHeightPx * overlay.scaleY
-      x: centerX * overlay.scaleX - width / 2
-      y: centerY * overlay.scaleY - height / 2
+      x: fixture.x * overlay.scaleX - width / 2
+      y: fixture.y * overlay.scaleY - height / 2
       color: Qt.rgba(0.15, 0.8, 0.95, 0.18)
       border.color: Qt.rgba(0.0, 0.9, 1.0, 0.6)
       border.width: 1
       radius: Math.min(width, height) * 0.15
 
       Label {
-        text: qsTr("夹具%1").arg(index + 1)
+        text: qsTr("%1夹具%2").arg(
+                fixture.edge === "top" ? qsTr("上") :
+                fixture.edge === "bottom" ? qsTr("下") :
+                fixture.edge === "left" ? qsTr("左") : qsTr("右"))
+              .arg(fixture.index + 1)
         anchors.centerIn: parent
         color: Cores.CoreStyle.text
         font.pixelSize: 11

@@ -1,5 +1,6 @@
 ﻿import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import "../../cores" as Cores
 import "../../components/Base" as BaseComponents
 
@@ -35,14 +36,6 @@ GroupBox {
     RowLayout {
       Layout.fillWidth: true
       spacing: 8
-
-      Label {
-        text: root.title
-        color: Cores.CoreStyle.text
-        font.bold: true
-        Layout.fillWidth: true
-      }
-
       RowLayout {
         spacing: 6
         Repeater {
