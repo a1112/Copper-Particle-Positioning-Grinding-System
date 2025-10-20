@@ -5,8 +5,17 @@ import QtCore
 
 import "../../cores" as Cores
 
-Row {
-    spacing: 5
-    Label { text: (editor.text.length + ' chars'); color: Cores.CoreStyle.muted }
-    Item { Layout.fillWidth: true }
+RowLayout {
+  id: root
+  spacing: 8
+
+  // Text area whose content length is displayed.
+  property Item editorItem: null
+
+  Label {
+    text: (root.editorItem && root.editorItem.text !== undefined)
+          ? root.editorItem.text.length + qsTr(" chars")
+          : "-"
+    color: Cores.CoreStyle.muted
+  }
 }

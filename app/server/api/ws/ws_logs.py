@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 import asyncio
 import time
 from typing import List, Dict, Any
 
 from fastapi.logger import logger
 from starlette.websockets import WebSocket, WebSocketDisconnect
+
 from ..api_core import ws_router
-from app.server.utils import logs as logbuf
+from app.server.data import get_backend
 
 
 @ws_router.websocket("/ws/logs")
@@ -23,14 +26,16 @@ async def ws_logs(ws: WebSocket):
         except Exception:
             pass
 
-        # Send current history snapshot
-        history: List[Dict[str, Any]] = logbuf.as_list()
+        backend = get_backend()
+        history_entries = await backend.fetch_logs()
+        history: List[Dict[str, Any]] = [entry.to_dict() for entry in history_entries]
         await ws.send_json({"type": "history", "items": history})
         last_len = len(history)
         idle_ticks = 0
 
         while True:
-            buf_list = logbuf.as_list()
+            current_entries = await backend.fetch_logs()
+            buf_list: List[Dict[str, Any]] = [entry.to_dict() for entry in current_entries]
             if len(buf_list) < last_len:
                 # Buffer rotated/truncated; resend full snapshot
                 await ws.send_json({"type": "history", "items": buf_list})

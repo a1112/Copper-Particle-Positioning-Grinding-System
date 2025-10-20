@@ -18,7 +18,6 @@ Item {
   SplitView {
     anchors.fill: parent
     orientation: Qt.Vertical
-
     SplitView {
       id: rootSplit
       SplitView.fillWidth: true
@@ -46,7 +45,7 @@ Item {
 
     SplitView {
       SplitView.fillWidth: true
-      SplitView.preferredHeight: 280
+      SplitView.preferredHeight: 265
       Log.LogView {
         SplitView.fillHeight: true
         SplitView.fillWidth: true
@@ -57,7 +56,7 @@ Item {
       }
       Ctrl.PTZControl {
         SplitView.fillHeight: true
-        SplitView.preferredWidth: 400
+        SplitView.preferredWidth: 450
       }
     }
   }

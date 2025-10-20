@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import signal
 import sys
-from importlib import import_module
 from types import ModuleType
 from typing import Any, Dict
 
@@ -20,6 +19,8 @@ from app.server import CONFIG
 from app.server.api.api_core import app, include_router
 from app.domain.status import set_status_provider
 from app.domain.status.providers import SimStatusProvider, ProductionStatusProvider
+from app.server.business import RuntimeBusinessService, SimBusinessService
+from app.server.data import set_backend, get_backend
 
 
 def _ensure_module_alias(name: str, module: Any) -> None:
@@ -40,12 +41,6 @@ def _wrap_motion_module(controller: MotionSim) -> ModuleType:
 
 def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrator, motion: MotionSim) -> None:
     """Eagerly import API/WS modules and inject runtime singletons they expect."""
-    import math
-    import random
-    import time
-
-    from app.server.utils.logs import get_buffer
-
     # Provide legacy module aliases expected by individual route modules.
     _ensure_module_alias("CONFIG", CONFIG)
     try:
@@ -75,16 +70,23 @@ def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrato
     include_router()
     # Default to simulated data provider for decoupled business logic
     try:
-        if getattr(CONFIG, "data_mode", "sim") == "comm":
+        mode = getattr(CONFIG, "data_mode", "sim")
+        if mode == "comm":
             endpoint = getattr(CONFIG, "data_endpoint", None)
             set_status_provider(ProductionStatusProvider(endpoint))
+            set_backend(RuntimeBusinessService(motion, orch))
         else:
             set_status_provider(SimStatusProvider())
+            set_backend(SimBusinessService())
     except Exception:
-        pass
+        set_status_provider(SimStatusProvider())
+        set_backend(SimBusinessService())
+
     async def _status_fn():
         try:
-            return await api_status.status()
+            backend = get_backend()
+            model = await backend.fetch_status()
+            return model.to_dict()
         except Exception as exc:
             if log:
                 try:

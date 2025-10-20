@@ -4,52 +4,195 @@ import QtQuick.Layouts
 
 import "../../../Api" as Api
 import "../../../cores" as Cores
-
+import "." as Layers
 
 Item {
   id: view
   Layout.fillWidth: true
   Layout.fillHeight: true
+
+  property real imageWidth: 640
+  property real imageHeight: 360
+  property real pixelSizeMm: 0.2
+  property var pathPoints: []
+  property var toolWorldPosition: ({})
+  property int fixtureColumns: 4
+  property int fixtureRows: 4
+  property real fixtureSizeMm: 8
+  property real fixtureMarginMm: 6
+
+  readonly property real scaleX: overlayArea.width > 0 ? overlayArea.width / imageWidth : 1
+  readonly property real scaleY: overlayArea.height > 0 ? overlayArea.height / imageHeight : 1
+
+  property point hoverPixel: Qt.point(-1, -1)
+  property point hoverWorld: Qt.point(0, 0)
+  property bool hoverValid: false
+
+  function worldToPixel(worldPoint) {
+    if (!worldPoint || worldPoint.x === undefined || worldPoint.y === undefined)
+      return Qt.point(-1, -1)
+    return Qt.point(worldPoint.x / pixelSizeMm, worldPoint.y / pixelSizeMm)
+  }
+
+  function resetHover() {
+    hoverPixel = Qt.point(-1, -1)
+    hoverWorld = Qt.point(0, 0)
+    hoverValid = false
+    coordinateLayer.requestUpdate()
+  }
+
+  function updateHover(localX, localY) {
+    if (scaleX <= 0 || scaleY <= 0) {
+      resetHover()
+      return
+    }
+    var px = localX / scaleX
+    var py = localY / scaleY
+    if (px < 0 || py < 0 || px > imageWidth || py > imageHeight) {
+      resetHover()
+      return
+    }
+    hoverPixel = Qt.point(px, py)
+    hoverWorld = Qt.point(px * pixelSizeMm, py * pixelSizeMm)
+    hoverValid = true
+    coordinateLayer.requestUpdate()
+  }
+
   Rectangle {
     anchors.fill: parent
-    color: Cores.CoreStyle.background
     radius: 4
+    color: Cores.CoreStyle.background
   }
+
   Image {
     id: img
     anchors.fill: parent
-    fillMode: Image.PreserveAspectFit
+    asynchronous: true
     cache: false
-    asynchronous: false
-    source: Api.Urls.api('image.png') + '?ts=' + Date.now()
+    smooth: true
+    fillMode: Image.PreserveAspectFit
+    source: Api.Urls.api("image.png") + "?ts=" + Date.now()
+    onStatusChanged: overlayArea.visible = (status === Image.Ready)
   }
 
-  Canvas {
-    id: overlay
-    anchors.fill: parent
-    onPaint: {
-      var ctx = getContext('2d');
-      ctx.clearRect(0,0,width,height);
-      ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(width/2 - 16, height/2); ctx.lineTo(width/2 + 16, height/2);
-      ctx.moveTo(width/2, height/2 - 16); ctx.lineTo(width/2, height/2 + 16);
-      ctx.stroke();
-      var pts = root.pathPoints || [];
-      if (pts.length >= 2){
-        ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2;
-        ctx.beginPath();
-        for (var i=0;i<pts.length;i++){
-          var px = pts[i].x * width / 640.0;
-          var py = pts[i].y * height / 360.0;
-          if (i===0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  Item {
+    id: overlayArea
+    width: img.paintedWidth
+    height: img.paintedHeight
+    anchors.centerIn: parent
+    visible: width > 0 && height > 0
+    clip: true
+
+    Canvas {
+      id: pathCanvas
+      anchors.fill: parent
+      onPaint: {
+        var ctx = getContext("2d")
+        ctx.clearRect(0, 0, width, height)
+
+        var centerX = width / 2
+        var centerY = height / 2
+        var lenX = 16 * view.scaleX
+        var lenY = 16 * view.scaleY
+
+        ctx.strokeStyle = "#22d3ee"
+        ctx.lineWidth = 1.2
+        ctx.beginPath()
+        ctx.moveTo(centerX - lenX, centerY)
+        ctx.lineTo(centerX + lenX, centerY)
+        ctx.moveTo(centerX, centerY - lenY)
+        ctx.lineTo(centerX, centerY + lenY)
+        ctx.stroke()
+
+        var pts = view.pathPoints || []
+        if (!pts || pts.length < 2)
+          return
+
+        ctx.strokeStyle = "#10b981"
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        for (var i = 0; i < pts.length; ++i) {
+          var px = pts[i].x * view.scaleX
+          var py = pts[i].y * view.scaleY
+          if (i === 0)
+            ctx.moveTo(px, py)
+          else
+            ctx.lineTo(px, py)
         }
-        ctx.stroke();
-        var sx = pts[0].x * width / 640.0, sy = pts[0].y * height / 360.0;
-        var ex = pts[pts.length-1].x * width / 640.0, ey = pts[pts.length-1].y * height / 360.0;
-        ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(ex, ey, 4, 0, Math.PI*2); ctx.fill();
+        ctx.stroke()
+
+        var startX = pts[0].x * view.scaleX
+        var startY = pts[0].y * view.scaleY
+        var endX = pts[pts.length - 1].x * view.scaleX
+        var endY = pts[pts.length - 1].y * view.scaleY
+
+        ctx.fillStyle = "#f59e0b"
+        ctx.beginPath()
+        ctx.arc(startX, startY, 4, 0, Math.PI * 2)
+        ctx.fill()
+
+        ctx.fillStyle = "#ef4444"
+        ctx.beginPath()
+        ctx.arc(endX, endY, 4, 0, Math.PI * 2)
+        ctx.fill()
       }
+      onWidthChanged: requestPaint()
+      onHeightChanged: requestPaint()
     }
+
+    Layers.FixtureOverlay {
+      anchors.fill: parent
+      columns: view.fixtureColumns
+      rows: view.fixtureRows
+      imageWidth: view.imageWidth
+      imageHeight: view.imageHeight
+      pixelSizeMm: view.pixelSizeMm
+      fixtureSizeMm: view.fixtureSizeMm
+      fixtureMarginMm: view.fixtureMarginMm
+      scaleX: view.scaleX
+      scaleY: view.scaleY
+    }
+
+    Layers.ToolOverlay {
+      anchors.fill: parent
+      toolWorldPosition: view.toolWorldPosition
+      pixelSizeMm: view.pixelSizeMm
+      imageWidth: view.imageWidth
+      imageHeight: view.imageHeight
+      scaleX: view.scaleX
+      scaleY: view.scaleY
+    }
+
+    Layers.CoordinateOverlay {
+      id: coordinateLayer
+      anchors.fill: parent
+      hoverPixel: view.hoverPixel
+      hoverWorld: view.hoverWorld
+      hoverValid: view.hoverValid
+      scaleX: view.scaleX
+      scaleY: view.scaleY
+    }
+
+    MouseArea {
+      anchors.fill: parent
+      hoverEnabled: true
+      acceptedButtons: Qt.NoButton
+      onPositionChanged: view.updateHover(mouse.x, mouse.y)
+      onExited: view.resetHover()
+    }
+  }
+
+  onPathPointsChanged: pathCanvas.requestPaint()
+
+  Connections {
+    target: img
+    function onPaintedWidthChanged() { pathCanvas.requestPaint() }
+    function onPaintedHeightChanged() { pathCanvas.requestPaint() }
+  }
+
+  Connections {
+    target: overlayArea
+    function onWidthChanged() { pathCanvas.requestPaint() }
+    function onHeightChanged() { pathCanvas.requestPaint() }
   }
 }

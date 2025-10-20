@@ -16,16 +16,30 @@ QtObject {
   function append(item) {
     if (!item)
       return
-    logs.push(item)
-    if (logs.length > logsMax)
-      logs.shift()
+    var next = logs.slice()
+    next.push(item)
+    if (next.length > logsMax)
+      next = next.slice(next.length - logsMax)
+    logs = next
     logReceived(item)
   }
 
   function appendMany(items) {
     if (!items || !items.length)
       return
-    for (var i = 0; i < items.length; ++i)
-      append(items[i])
+    var next = logs.slice()
+    var lastAppended = null
+    for (var i = 0; i < items.length; ++i) {
+      var entry = items[i]
+      if (!entry)
+        continue
+      next.push(entry)
+      lastAppended = entry
+      if (next.length > logsMax)
+        next.shift()
+    }
+    logs = next
+    if (lastAppended !== null)
+      logReceived(lastAppended)
   }
 }

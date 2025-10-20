@@ -1,18 +1,18 @@
 from ..api_core import status_router as router
-from app.domain.status import get_status_service
+from app.server.data import get_backend
 
 
 @router.get("/status")
 async def status():
-    service = get_status_service()
-    data = service.fetch_status()
-    # Add debug flag if available via CONFIG
+    backend = get_backend()
+    status_model = await backend.fetch_status()
+    payload = status_model.to_dict()
     try:
         from app.server.CONFIG import DEBUG as _DBG  # type: ignore
-        data["debug"] = bool(_DBG)
+        payload["debug"] = bool(_DBG)
     except Exception:
         pass
-    return data
+    return payload
 
 
 @router.get("/")

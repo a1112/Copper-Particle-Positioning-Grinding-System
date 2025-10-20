@@ -1,11 +1,25 @@
+from __future__ import annotations
+
 import asyncio
-
-from fastapi.logger import logger
-from starlette.websockets import WebSocket, WebSocketDisconnect
-from ..api_core import ws_router
 import logging
+from typing import Awaitable, Callable, Dict, Any
 
-log =logging.getLogger("app.ws")
+from starlette.websockets import WebSocket, WebSocketDisconnect
+
+from ..api_core import ws_router
+from app.server.data import get_backend
+
+log = logging.getLogger("app.ws")
+
+
+async def _default_status_fn() -> Dict[str, Any]:
+    backend = get_backend()
+    status_model = await backend.fetch_status()
+    return status_model.to_dict()
+
+
+status_fn: Callable[[], Awaitable[Dict[str, Any]]] = _default_status_fn
+
 
 @ws_router.websocket("/ws/status")
 async def ws_status(ws: WebSocket):
@@ -16,8 +30,8 @@ async def ws_status(ws: WebSocket):
         except Exception:
             pass
         while True:
-            s = await status_fn()
-            await ws.send_json(s)
+            payload = await status_fn()
+            await ws.send_json(payload)
             await asyncio.sleep(0.5)
     except WebSocketDisconnect:
         try:

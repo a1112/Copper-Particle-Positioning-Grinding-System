@@ -4,11 +4,12 @@ import QtQuick.Layouts
 import "../../cores" as Cores
 import "../Base"
 import "../../components/btns" as Btns
-
+import "../../components/Base"
 // 云台手动控制：箭头矩形按钮 + 速度设置
+// 手动模式下显示
 BaseCard {
   id: root
-
+  visible: Cores.CoreState.isUseModel
   // 速度 (mm/s)
   property int vFast: 100
   property int vWork: 10
@@ -57,9 +58,9 @@ BaseCard {
     RowLayout {
       Layout.fillWidth: true; spacing: 8
       Label { text: "快速(mm/s)"; color: Cores.CoreStyle.text }
-      SpinBox { id: sbFast; from: 1; to: 1000; value: root.vFast; onValueModified: root.vFast = value; Layout.preferredWidth: 90 }
+      SpinBoxBase { id: sbFast; from: 1; to: 1000; value: root.vFast; onValueModified: root.vFast = value; Layout.preferredWidth: 90 }
       Label { text: "工作(mm/s)"; color: Cores.CoreStyle.text }
-      SpinBox { id: sbWork; from: 0; to: 200; value: root.vWork; onValueModified: root.vWork = value; Layout.preferredWidth: 90 }
+      SpinBoxBase { id: sbWork; from: 0; to: 200; value: root.vWork; onValueModified: root.vWork = value; Layout.preferredWidth: 90 }
       Btns.ActionButton { text: "设置速度"; onClicked: Cores.CoreControl.setSpeed(root.vFast, root.vWork) }
     }
 

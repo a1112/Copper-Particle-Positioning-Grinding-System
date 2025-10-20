@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "../../cores" as Cores
+import "../../../cores" as Cores
 
 Label {
   font.pointSize: 15

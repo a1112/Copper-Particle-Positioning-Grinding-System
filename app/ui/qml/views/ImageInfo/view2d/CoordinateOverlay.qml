@@ -1,0 +1,76 @@
+import QtQuick
+import QtQuick.Controls
+
+import "../../../cores" as Cores
+
+Item {
+  id: overlay
+  anchors.fill: parent
+
+  property point hoverPixel: Qt.point(-1, -1)
+  property point hoverWorld: Qt.point(0, 0)
+  property bool hoverValid: false
+  property real scaleX: 1.0
+  property real scaleY: 1.0
+
+  function requestUpdate() { cross.requestPaint() }
+
+  Canvas {
+    id: cross
+    anchors.fill: parent
+    onPaint: {
+      var ctx = getContext("2d")
+      ctx.clearRect(0, 0, width, height)
+      if (!overlay.hoverValid)
+        return
+      var px = overlay.hoverPixel.x * overlay.scaleX
+      var py = overlay.hoverPixel.y * overlay.scaleY
+      ctx.save()
+      ctx.strokeStyle = "#22c55e"
+      ctx.lineWidth = 1
+      ctx.setLineDash([4, 4])
+      ctx.beginPath()
+      ctx.moveTo(px, 0)
+      ctx.lineTo(px, height)
+      ctx.moveTo(0, py)
+      ctx.lineTo(width, py)
+      ctx.stroke()
+      ctx.restore()
+      ctx.fillStyle = "#f97316"
+      ctx.beginPath()
+      ctx.arc(px, py, 3.5, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    onWidthChanged: requestPaint()
+    onHeightChanged: requestPaint()
+  }
+
+  Rectangle {
+    id: labelBackground
+    visible: overlay.hoverValid
+    radius: 6
+    color: Qt.rgba(0.05, 0.09, 0.15, 0.85)
+    border.color: Qt.rgba(0.4, 0.7, 1.0, 0.6)
+    border.width: 1
+    anchors.margins: 8
+    anchors.left: parent.left
+    anchors.top: parent.top
+    implicitWidth: coordLabel.implicitWidth + 16
+    implicitHeight: coordLabel.implicitHeight + 12
+
+    Label {
+      id: coordLabel
+      anchors.centerIn: parent
+      color: Cores.CoreStyle.text
+      font.family: "monospace"
+      text: overlay.hoverValid
+            ? qsTr("像素 (%1, %2)\n世界 (%3, %4) mm")
+                .arg(Math.round(overlay.hoverPixel.x))
+                .arg(Math.round(overlay.hoverPixel.y))
+                .arg(overlay.hoverWorld.x.toFixed(3))
+                .arg(overlay.hoverWorld.y.toFixed(3))
+            : qsTr("移动鼠标查看坐标")
+    }
+  }
+}
+

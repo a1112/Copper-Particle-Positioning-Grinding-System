@@ -5,7 +5,8 @@ import QtQuick.Layouts
 import "../Base"
 import "../../cores" as Cores
 import "../../datas" as Datas
-
+import "base"
+//刀具信息
 BaseCard {
   id: root
   Layout.fillWidth: true

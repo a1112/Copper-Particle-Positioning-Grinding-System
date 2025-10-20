@@ -106,6 +106,7 @@
         <file>qml/pages/MainLayouts.qml</file>
         <file>qml/views/CommPanel.qml</file>
         <file>qml/views/DriveInfo/DriveInfoView.qml</file>
+        <file>qml/views/DriveInfo/StatusLightAlarmView.qml</file>
         <file>qml/views/DriveInfo/ToolInfoView.qml</file>
         <file>qml/views/EditorPanel.qml</file>
         <file>qml/views/ImageInfo/ImageInfoView.qml</file>
@@ -143,6 +144,10 @@
         <file>qml/views/ImageInfo/head/ViewChiose.qml</file>
         <file>qml/views/RunTimeView/RunTimeView.qml</file>
         <file>qml/views/ImageInfo/view2d/View2D.qml</file>
+        <file>qml/views/ImageInfo/view3d/Control3D.qml</file>
+        <file>qml/views/ImageInfo/view3d/Core3D.qml</file>
+        <file>qml/views/ImageInfo/view3d/ModelNode3D.qml</file>
+        <file>qml/views/ImageInfo/view3d/View3D.qml</file>
         <file>qml/action/qmldir</file>
         <file>qml/action/Shortcuts.qml</file>
         <file>qml/dialogs/EstopDialog.qml</file>
@@ -163,9 +168,6 @@
         <file>qml/works/StatusWork.qml</file>
         <file>qml/works/Works.qml</file>
         <file>qml/works/qmldir</file>
-        <file>qml/views/DriveInfo/InfoRowItem.qml</file>
-        <file>qml/views/DriveInfo/InfoTitleLabel.qml</file>
-        <file>qml/views/DriveInfo/InfoValueLabel.qml</file>
         <file>qml/views/DriveInfo/head/InfoHeadView.qml</file>
         <file>qml/components/Card/CardHead.qml</file>
         <file>qml/views/Manage/InfoManageView.qml</file>
@@ -173,5 +175,11 @@
         <file>qml/views/Manage/InfoViewCore.qml</file>
         <file>qml/views/Manage/head/InfoHeadView.qml</file>
         <file>qml/views/Manage/head/FilterMenu.qml</file>
+        <file>qml/views/Manage/CodeViewCore.qml</file>
+        <file>qml/views/DriveInfo/base/InfoRowItem.qml</file>
+        <file>qml/views/DriveInfo/base/InfoTitleLabel.qml</file>
+        <file>qml/views/DriveInfo/base/InfoValueLabel.qml</file>
+        <file>qml/views/DriveInfo/CuttingStatisticsView.qml</file>
+        <file>qml/views/DriveInfo/SingleCutCommandStatusView.qml</file>
     </qresource>
 </RCC>

@@ -11,8 +11,11 @@ Item {
   property int currentRunModelIndex: 0
   readonly property string currentRunModelName: CoreUI.allRunModel[currentRunModelIndex]
 
-
+  readonly property bool isUseModel: currentRunModelName == "手动"
+  //
   property int realViewIndex: 0
+  readonly property string realViewName: CoreUI.dataViewModels[realViewIndex]
+
   Settings {
     id: st
     category: "CoreState"

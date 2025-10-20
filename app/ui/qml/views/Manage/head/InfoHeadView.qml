@@ -8,13 +8,15 @@ import "../../../components/Base"
 CardHead {
   id: headRoot
   Layout.fillWidth: true
-
+  property alias title: title_id.text
   property var infoViewCore: null
 
   RowLayout {
     anchors.fill: parent
 
-    Label { text: qsTr("信息"); color: Cores.CoreStyle.text; font.pixelSize: 14 }
+    Label {
+      id:title_id
+      text: qsTr("信息"); color: Cores.CoreStyle.text; font.pixelSize: 14 }
     Item { Layout.fillWidth: true }
 
     ItemDelegateBase {
@@ -23,7 +25,7 @@ CardHead {
       onClicked: {
         filterMenu.anchorItem = settingsButton
         filterMenu.infoViewCore = headRoot.infoViewCore
-        filterMenu.open()
+        filterMenu.popup()
       }
     }
   }

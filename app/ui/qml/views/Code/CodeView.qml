@@ -1,99 +1,180 @@
-﻿import QtQuick
+import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtCore
+
 import "../Base"
-import "../../Api" as Api
+import "." as CodeViews
 import "../../datas" as Datas
 import "../../cores" as Cores
-import "../../components/btns" as Btns
 
 BaseCard {
   id: root
+  Layout.fillWidth: true
+  readonly property bool programEmpty: codeModel.count === 0
+  implicitHeight: contentColumn.implicitHeight + 16
 
-  // Program model: each row is one instruction line and its status
   ListModel { id: codeModel }
-  property int currentIndex: Datas.CodeDatas.currentIndex
-  property string runState: Datas.CodeDatas.runState   // IDLE/RUNNING/PAUSED
-  // WS connection state for code channel
-  property bool codeConnected: (Datas.CodeDatas.connected)
 
-  function setProgram(lines){
+  property int currentIndex: Datas.CodeDatas.currentIndex
+  property string runState: Datas.CodeDatas.runState
+  property bool codeConnected: Datas.CodeDatas.connected
+
+  function statusColor(status) {
+    switch (status) {
+    case "RUNNING":
+      return Cores.CoreStyle.accent
+    case "OK":
+      return Cores.CoreStyle.success
+    case "FAIL":
+    case "ERROR":
+      return Cores.CoreStyle.danger
+    default:
+      return Cores.CoreStyle.muted
+    }
+  }
+
+  function setProgram(lines) {
     codeModel.clear()
-    for (var i=0;i<lines.length;i++){
-      codeModel.append({ idx: i+1, text: String(lines[i]), status: 'READY', msg: '' })
+    if (!lines || !lines.length)
+      return
+    for (var i = 0; i < lines.length; ++i) {
+      codeModel.append({
+        idx: i + 1,
+        text: String(lines[i]),
+        status: "READY"
+      })
     }
     updateStatuses()
   }
 
-  function updateStatuses(){
-    var cur = Datas.CodeDatas.currentIndex;
-    for (var i=0;i<codeModel.count;i++){
-      var st = (i===cur ? 'RUNNING' : (i<cur ? 'OK' : 'READY'))
-      codeModel.setProperty(i, 'status', st)
-    }
+  function ensureCurrentVisible() {
+    var cur = Datas.CodeDatas.currentIndex
+    if (cur >= 0 && cur < codeModel.count)
+      list.positionViewAtIndex(cur, ListView.Center)
   }
 
-  ColumnLayout {
-    anchors.fill: parent
-    anchors.margins: 8
-    spacing: 8
+  function updateStatuses() {
+    var cur = Datas.CodeDatas.currentIndex
+    for (var i = 0; i < codeModel.count; ++i) {
+      var status = "READY"
+      if (i === cur)
+        status = Datas.CodeDatas.runState === "ERROR" ? "FAIL" : "RUNNING"
+      else if (i < cur)
+        status = "OK"
+      codeModel.setProperty(i, "status", status)
+    }
+    ensureCurrentVisible()
+  }
 
-    CodeHead{ }
+  function refreshProgram() {
+    var lines = Datas.CodeDatas.lines
+    if (!Array.isArray(lines))
+      lines = []
+    setProgram(lines)
+  }
+  height: contentColumn.height
+  Column {
+    id: contentColumn
+    spacing: 10
+    width: parent.width
 
-    RowLayout {
-      Layout.fillWidth: true
-      spacing: 12
-      Label { text: 'G-code'; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
-      // Connection status for /ws/code
-      Rectangle { width: 10; height: 10; radius: 5; color: root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger }
-      Label { text: (root.codeConnected ? '已连接' : '未连接'); color: (root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger) }
-      Label { text: '状态: ' + runState; color: (runState==='RUNNING'? Cores.CoreStyle.success : Cores.CoreStyle.muted) }
-      Label { text: (currentIndex>=0 ? ('当前: ' + (currentIndex+1)) : '当前: -'); color: Cores.CoreStyle.muted }
-      Btns.ActionButton { text: '启动'; onClicked: Api.ApiClient.startRun() }
-      Btns.ActionButton { text: '停止'; danger: true; onClicked: Api.ApiClient.stopRun() }
+    CodeViews.CodeHead {
+      width: parent.width
+      codeConnected: root.codeConnected
+      runState: root.runState
+      currentIndex: root.currentIndex
     }
 
-    // Program list with inline editing
-    Frame {
-      clip: true
+    Item {
+      width: parent.width
       Layout.fillWidth: true
-      Layout.fillHeight: true
-      padding: 6
+      height: list.contentHeight>400?420:list.contentHeight+15
+
+      clip: true
+      Frame{
+        anchors.fill: parent
+      }
       ListView {
         id: list
         anchors.fill: parent
+        anchors.margins: 4
         model: codeModel
-        delegate: RowLayout {
+        clip: true
+        focus: true
+
+        delegate: Rectangle {
+          readonly property bool isCurrent: index === Datas.CodeDatas.currentIndex
+          readonly property bool isPast: index < Datas.CodeDatas.currentIndex
           width: list.width
-          spacing: 8
-          Rectangle { width: 36; height: 28; radius: 4; color: (index===root.currentIndex ? Cores.CoreStyle.accent : Cores.CoreStyle.surface)
-            Label { anchors.centerIn: parent; text: idx; color: (index===root.currentIndex ? 'black' : Cores.CoreStyle.text) }
-          }
-          Label {
-            Layout.fillWidth: true
-            text: model.text
-            color: Cores.CoreStyle.text
-            font.family: "monospace"
-            horizontalAlignment: Text.AlignLeft
-            wrapMode: Text.NoWrap
-          }
-          Label {
-            text: model.status
-            color: (model.status==='RUNNING' ? Cores.CoreStyle.accent : (model.status==='OK' ? Cores.CoreStyle.success : (model.status==='FAIL' ? Cores.CoreStyle.danger : Cores.CoreStyle.muted)))
-            Layout.preferredWidth: 68
+          height: 32
+          radius: 6
+          color: isCurrent ? Qt.tint(Cores.CoreStyle.accent, "#22000000")
+                  : (isPast ? Qt.tint(Cores.CoreStyle.success, "#15000000") : "transparent")
+          border.width: isCurrent ? 1.2 : 0
+          border.color: isCurrent ? Cores.CoreStyle.accent : "transparent"
+
+          Behavior on color { ColorAnimation { duration: 150 } }
+          Behavior on border.color { ColorAnimation { duration: 150 } }
+
+          RowLayout {
+            anchors.fill: parent
+            anchors.margins: 8
+            spacing: 10
+
+            Rectangle {
+              width: 36
+              height: 22
+              radius: 4
+              color: isCurrent ? Cores.CoreStyle.accent :
+                     (isPast ? Qt.tint(Cores.CoreStyle.success, "#33000000") : Cores.CoreStyle.surface)
+              Label {
+                anchors.centerIn: parent
+                text: model.idx
+                color: isCurrent ? "#000000" : Cores.CoreStyle.text
+                font.family: "monospace"
+              }
+            }
+
+            Label {
+              Layout.fillWidth: true
+              text: model.text
+              color: Cores.CoreStyle.text
+              font.family: "monospace"
+              horizontalAlignment: Text.AlignLeft
+              elide: Text.ElideRight
+            }
+
+            Label {
+              text: model.status
+              color: root.statusColor(model.status)
+              font.bold: isCurrent
+              Layout.preferredWidth: 78
+              horizontalAlignment: Text.AlignHCenter
+            }
           }
         }
-        ScrollBar.vertical: ScrollBar {}
+
+        ScrollBar.vertical: ScrollBar { }
+      }
+
+      Label {
+        anchors.centerIn: parent
+        text: qsTr("No program available. Load data or wait for backend updates.")
+        color: Cores.CoreStyle.muted
+        visible: root.programEmpty
+        wrapMode: Text.WordWrap
+        horizontalAlignment: Text.AlignHCenter
       }
     }
   }
 
+  Component.onCompleted: refreshProgram()
+
   Connections {
     target: Datas.CodeDatas
-    function onLinesChanged(){ setProgram(Datas.CodeDatas.lines||[]) }
-    function onCurrentIndexChanged(){ updateStatuses() }
-    function onRunStateChanged(){ /* status label updates via binding */ }
+
+    function onLinesChanged() { refreshProgram() }
+    function onCurrentIndexChanged() { updateStatuses() }
+    function onRunStateChanged() { updateStatuses() }
   }
 }
-

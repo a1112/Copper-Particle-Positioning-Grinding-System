@@ -5,11 +5,12 @@ import QtQuick.Layouts
 import "../Base"
 import "../../cores" as Cores
 import "../../datas" as Datas
-
+import "base"
+// 运行状态信息
 BaseCard {
   id: root
   Layout.fillWidth: true
-  readonly property int padding: 12
+  readonly property int padding: 5
   implicitHeight: contentColumn.implicitHeight + padding * 2
 
   readonly property string runState: Datas.DeviceInfoData.runState || "-"

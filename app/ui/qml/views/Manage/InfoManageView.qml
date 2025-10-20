@@ -2,10 +2,11 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "head"
+import "../../cores" as Cores
 
 ColumnLayout {
   id: root
-  spacing: 8
+  spacing: 5
 
   InfoViewCore {
     id: infoCore
@@ -27,7 +28,7 @@ ColumnLayout {
     Column {
       id: columnContent
       width: root.width
-      spacing: 10
+      spacing: 4
 
       Repeater {
         model: infoCore.selectedViews

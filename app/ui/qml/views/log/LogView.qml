@@ -34,41 +34,50 @@ BaseCard {
       ListView {
         id: list
         anchors.fill: parent
+        anchors.margins: 2
+        clip: true
+        spacing: 4
         model: Datas.LogDatas.logs
 
         delegate: RowLayout {
           width: list.width
           spacing: 8
-
-          property color lvColor: (level === "ERROR"
-                                   ? "#ef4444"
-                                   : ((level === "WARN" || level === "WARNING")
-                                      ? "#f59e0b"
+          property var entry: modelData || ({})
+          property string levelText: String(entry.level !== undefined ? entry.level : (entry.Level || "")).toUpperCase()
+          property string loggerName: String(entry.name !== undefined ? entry.name : (entry.logger || ""))
+          property real timestamp: Number(entry.ts !== undefined ? entry.ts : entry.timestamp || 0)
+          property string stampText: (entry.time && String(entry.time).length > 0)
+                                      ? String(entry.time)
+                                      : (timestamp > 0 ? new Date(timestamp * 1000).toLocaleString() : "")
+          property var stampParts: stampText.length > 0 ? stampText.split(/\s+/) : []
+          property string stampDisplay: stampParts.length > 0 ? stampParts[stampParts.length - 1] : "-"
+          property color lvColor: (levelText === "ERROR"
+                                   ? Cores.CoreStyle.danger
+                                   : ((levelText === "WARN" || levelText === "WARNING")
+                                      ? Cores.CoreStyle.warning
                                       : Cores.CoreStyle.muted))
 
           Label {
-            text: (time && time.length > 0)
-                  ? time.split(" ")[1]
-                  : new Date(ts * 1000).toLocaleTimeString()
+            text: stampDisplay
             color: Cores.CoreStyle.muted
             Layout.preferredWidth: 92
           }
 
           Label {
-            text: level
+            text: levelText.length > 0 ? levelText : "-"
             color: lvColor
             Layout.preferredWidth: 64
           }
 
           Label {
-            text: name
+            text: loggerName.length > 0 ? loggerName : "-"
             color: Cores.CoreStyle.muted
-            Layout.preferredWidth: 120
+            Layout.preferredWidth: 140
             elide: Label.ElideRight
           }
 
           Label {
-            text: normalizeMsg(msg)
+            text: normalizeMsg(entry.msg !== undefined ? entry.msg : (entry.message || ""))
             color: Cores.CoreStyle.text
             Layout.fillWidth: true
             wrapMode: Text.WordWrap

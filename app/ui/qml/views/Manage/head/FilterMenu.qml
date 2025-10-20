@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import "../../../cores" as Cores
 
-Popup {
+Menu {
   id: control
   modal: false
   focus: true
@@ -25,10 +25,10 @@ Popup {
     border.color: Cores.CoreStyle.border
   }
 
-  contentItem: Column {
+   Column {
     spacing: 6
     Repeater {
-      model: control.infoViewCore ? control.infoViewCore.views : []
+      model: control.infoViewCore.views
       delegate: CheckDelegate {
         width: control.implicitWidth - control.padding * 2
         implicitHeight: 30

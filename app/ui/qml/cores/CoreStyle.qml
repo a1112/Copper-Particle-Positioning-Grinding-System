@@ -80,6 +80,7 @@ Item {
 
     property int cardHeadHeight: 30
     property int headComboBoxHeigh: 30
+    property int headSpinBoxHeigh: 30
 }
 
 

@@ -6,7 +6,8 @@ import "../Base"
 import "../../cores" as Cores
 import "../../datas" as Datas
 import "../Charts" as Charts
-
+import "base"
+// 设备状态信息
 BaseCard {
   id: root
   Layout.fillWidth: true
@@ -27,7 +28,7 @@ BaseCard {
     var text = String(value)
     return text.length === 0 ? "-" : text
   }
-    height: col.height
+  height: col.height
   ColumnLayout {
     id:col
     anchors.margins: 10

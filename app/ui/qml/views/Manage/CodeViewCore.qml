@@ -1,42 +1,34 @@
-﻿import QtQuick
+import QtQuick
 
+// Core object providing selectable subviews (mirrors InfoViewCore API)
 QtObject {
-  id: root
+  id: codeCore
 
   property var views: [
+
     {
-      key: "runState",
-      title: qsTr("运行信息"),
-      source: Qt.resolvedUrl("../DriveInfo/RunStateInfoView.qml")
+      key: "cuttingStats",
+      title: qsTr("切削统计"),
+      source: Qt.resolvedUrl("../DriveInfo/CuttingStatisticsView.qml")
     },
     {
-      key: "toolInfo",
-      title: qsTr("刀具信息"),
-      source: Qt.resolvedUrl("../DriveInfo/ToolInfoView.qml")
+      key: "singleCutStatus",
+      title: qsTr("单次切削状态"),
+      source: Qt.resolvedUrl("../DriveInfo/SingleCutCommandStatusView.qml")
     },
     {
-      key: "driveMetrics",
-      title: qsTr("运行数据"),
-      source: Qt.resolvedUrl("../DriveInfo/DriveInfoView.qml")
+      key: "codeEditor",
+      title: qsTr("代码编辑"),
+      source: Qt.resolvedUrl("../Code/CodeView.qml")
     },
     {
-      key: "statusLights",
-      title: qsTr("报警状态"),
-      source: Qt.resolvedUrl("../DriveInfo/StatusLightAlarmView.qml")
+      key: "codeControls",
+      title: qsTr("运行控制"),
+      source: Qt.resolvedUrl("../Code/CodeContorl.qml")
     },
-    {
-      key: "torqueChart",
-      title: qsTr("扭矩曲线"),
-      source: Qt.resolvedUrl("../Charts/TorqueChart.qml")
-    },
-    {
-      key: "elevationChart",
-      title: qsTr("高度趋势"),
-      source: Qt.resolvedUrl("../Charts/ElevationAreaChart.qml")
-    }
   ]
 
-  property var selectedKeys: ["statusLights","driveMetrics","toolInfo", "runState"]
+  property var selectedKeys: ["codeEditor", "codeControls", "cuttingStats", "singleCutStatus"]
   property var selectedViews: []
 
   signal selectionChanged()
@@ -97,3 +89,4 @@ QtObject {
   Component.onCompleted: updateSelected()
   onSelectedKeysChanged: updateSelected()
 }
+
