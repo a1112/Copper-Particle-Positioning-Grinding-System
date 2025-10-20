@@ -96,6 +96,7 @@
         <file>qml/pages/head/IconLabel.qml</file>
         <file>qml/pages/head/IconView.qml</file>
         <file>qml/pages/head/ItemIcon.qml</file>
+        <file>qml/pages/head/SemiAutoStartBtn.qml</file>
         <file>qml/pages/head/TitleLabel.qml</file>
         <file>qml/pages/head/ViewChangeTabView.qml</file>
         <file>qml/pages/main/debug_page/DebugPageView.qml</file>

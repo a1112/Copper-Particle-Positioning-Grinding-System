@@ -3,4 +3,5 @@ import QtQuick.Controls
 import "../../cores" as Cores
 SpinBox {
 height: Cores.CoreStyle.headSpinBoxHeigh
+implicitHeight: height
 }

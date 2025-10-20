@@ -12,6 +12,7 @@ from app.ui.src.qml_bridge import Backend
 from app.ui.src.image_provider import CameraImageProvider
 from app.ui.src.settings_bridge import SettingsBridge
 from app.ui.src.highlighter import HighlighterBridge
+from app.ui.src.localization import LocalizationManager, read_persisted_language
 from app.api.server import create_app
 from app.server.launcher import ApiController
 
@@ -53,12 +54,17 @@ def main():
     QCoreApplication.setOrganizationName("CopperSystem")
     QCoreApplication.setOrganizationDomain("example.local")
     QCoreApplication.setApplicationName("Copper UI")
+    translations_dir = Path(__file__).resolve().parent.joinpath('ui', 'i18n')
+    initial_language = read_persisted_language()
+    i18n = LocalizationManager(translations_dir, initial_language)
+
     engine = QQmlApplicationEngine()
     provider = CameraImageProvider()
     engine.addImageProvider('camera', provider)
     settings = SettingsBridge(Path(__file__).resolve().parent.joinpath('ui', 'config.json'))
     engine.rootContext().setContextProperty("settings", settings)
     engine.rootContext().setContextProperty("pyHighlighter", HighlighterBridge())
+    engine.rootContext().setContextProperty("i18n", i18n)
 
     backend = Backend(orch)
     # let orchestrator notify backend for vision results

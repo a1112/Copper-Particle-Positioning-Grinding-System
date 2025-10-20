@@ -98,6 +98,7 @@ def _run_minimal_ui() -> int:
     from app.ui.src.image_provider import CameraImageProvider
     from app.ui.src.settings_bridge import SettingsBridge
     from app.ui.src.highlighter import HighlighterBridge
+    from app.ui.src.localization import LocalizationManager, read_persisted_language
 
     class _DummyMotion:
         def home(self) -> None:
@@ -135,11 +136,16 @@ def _run_minimal_ui() -> int:
             pass
     provider = CameraImageProvider()
     engine.addImageProvider('camera', provider)
+
+    translations_dir = Path(__file__).resolve().parent.joinpath("i18n")
+    initial_language = read_persisted_language()
+    i18n = LocalizationManager(translations_dir, initial_language)
     settings = SettingsBridge(Path(__file__).resolve().parent.joinpath('config.json'))
     engine.rootContext().setContextProperty("settings", settings)
     backend = Backend(_DummyOrchestrator())
     engine.rootContext().setContextProperty("backend", backend)
     engine.rootContext().setContextProperty("pyHighlighter", HighlighterBridge())
+    engine.rootContext().setContextProperty("i18n", i18n)
     # 从 ./qml/main.qml 加载 QML，避免依赖当前工作目录
     qml_path = str(Path(__file__).resolve().parent.joinpath("qml", "main.qml"))
     try:

@@ -1,10 +1,11 @@
-﻿import QtQuick
+import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../cores" as Cores
 import "../../components/Base"
 import "../../components/btns"
 import "../../datas" as Datas
+import "."
 
 Item {
   id: root
@@ -31,11 +32,14 @@ Item {
 
     ViewChangeTabView {}
     FillItem {}
+
+
     TitleLabel {}
     FillItem {}
     RunModelSelect{}
     FillItem {}
     EstopBtn{}
+    SemiAutoStartBtn { running: root.isRunning }
 
     DateTimeView { Layout.alignment: Qt.AlignVCenter }
     ItemDelegateButtonBase { source: Cores.CoreStyle.getIconSource("tool.png"); height: root.height; width: height*2; onClicked: settingsPage.open() }
@@ -43,4 +47,5 @@ Item {
     Item { width: 10; height: 2 }
   }
 }
+
 

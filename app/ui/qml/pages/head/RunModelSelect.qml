@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import "../../cores" as Cores
+import "../../components/Base" as Base
  Row{
      spacing: 5
     Label{
@@ -9,8 +10,7 @@ import "../../cores" as Cores
         font.pointSize: 15
         text: "模式:"
     }
-    ComboBox{
-        height: Cores.CoreStyle.headComboBoxHeigh
+    Base.ComboBoxBase{
         model: Cores.CoreUI.allRunModel
         currentIndex: Cores.CoreState.currentRunModelIndex
         onCurrentIndexChanged: Cores.CoreState.currentRunModelIndex=currentIndex

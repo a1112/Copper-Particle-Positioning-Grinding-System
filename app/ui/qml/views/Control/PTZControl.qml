@@ -51,7 +51,7 @@ BaseCard {
 
     RowLayout {
       Layout.fillWidth: true
-      Label { text: "云台控制"; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
+      Label { text: "主轴控制"; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
       Label { text: "Shift=工作速度"; color: Cores.CoreStyle.muted }
     }
 

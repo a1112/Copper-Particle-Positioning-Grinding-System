@@ -1,7 +1,9 @@
 ﻿import QtQuick
 import QtQuick.Controls
+import "../../cores" as Cores
 ComboBox {
 editable: false
-font:fontConfig.baseFontInfo.font
+height: Cores.CoreStyle.headComboBoxHeigh
+implicitHeight: height
 }
 

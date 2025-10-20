@@ -17,6 +17,7 @@ from app.ui.src.image_provider import CameraImageProvider
 from app.ui.src.qml_bridge import Backend
 from app.ui.src.settings_bridge import SettingsBridge
 from app.ui.src.highlighter import HighlighterBridge
+from app.ui.src.localization import LocalizationManager, read_persisted_language
 from app.api.server import create_app
 from app.server.launcher import ApiController
 
@@ -37,6 +38,7 @@ class Runtime:
         self.settings = SettingsBridge(Path(__file__).resolve().parents[1].joinpath('ui', 'config.json'))
         self.backend = Backend(self.orch)
         self.highlighter = HighlighterBridge()
+        self.i18n: Optional[LocalizationManager] = None
 
         # Hook orchestrator to UI backend for vision target
         try:
@@ -88,9 +90,15 @@ class Runtime:
 
         self.engine = QQmlApplicationEngine()
         self.engine.addImageProvider('camera', self.provider)
+
+        translations_dir = Path(__file__).resolve().parents[1].joinpath('ui', 'i18n')
+        initial_language = read_persisted_language()
+        self.i18n = LocalizationManager(translations_dir, initial_language)
+
         self.engine.rootContext().setContextProperty("backend", self.backend)
         self.engine.rootContext().setContextProperty("pyHighlighter", self.highlighter)
         self.engine.rootContext().setContextProperty("settings", self.settings)
+        self.engine.rootContext().setContextProperty("i18n", self.i18n)
 
         # Bind API restart hook
         def _api_hook(action: str, port: int):

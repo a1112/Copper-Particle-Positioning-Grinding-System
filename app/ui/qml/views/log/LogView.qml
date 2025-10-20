@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -24,7 +24,7 @@ BaseCard {
     anchors.margins: 8
     spacing: 6
 
-    LogHead { }
+    LogHead { autoScroll: root.autoScroll; onAutoScrollChanged: root.autoScroll = autoScroll }
 
     Frame {
       Layout.fillWidth: true
@@ -37,11 +37,14 @@ BaseCard {
         anchors.margins: 2
         clip: true
         spacing: 4
-        model: Datas.LogDatas.logs
+        model: Datas.LogDatas.filteredLogs
 
-        delegate: RowLayout {
+        delegate: Rectangle {
           width: list.width
-          spacing: 8
+          radius: 6
+          color: backgroundColor
+          border.width: 1
+          border.color: Qt.alpha(textColor, 0.35)
           property var entry: modelData || ({})
           property string levelText: String(entry.level !== undefined ? entry.level : (entry.Level || "")).toUpperCase()
           property string loggerName: String(entry.name !== undefined ? entry.name : (entry.logger || ""))
@@ -51,36 +54,55 @@ BaseCard {
                                       : (timestamp > 0 ? new Date(timestamp * 1000).toLocaleString() : "")
           property var stampParts: stampText.length > 0 ? stampText.split(/\s+/) : []
           property string stampDisplay: stampParts.length > 0 ? stampParts[stampParts.length - 1] : "-"
-          property color lvColor: (levelText === "ERROR"
-                                   ? Cores.CoreStyle.danger
-                                   : ((levelText === "WARN" || levelText === "WARNING")
-                                      ? Cores.CoreStyle.warning
-                                      : Cores.CoreStyle.muted))
-
-          Label {
-            text: stampDisplay
-            color: Cores.CoreStyle.muted
-            Layout.preferredWidth: 92
+          property color textColor: {
+            switch (levelText) {
+            case "ERROR":
+              return Cores.CoreStyle.danger
+            case "WARN":
+            case "WARNING":
+              return Cores.CoreStyle.warning
+            case "DEBUG":
+              return Cores.CoreStyle.accent
+            default:
+              return Cores.CoreStyle.success
+            }
           }
+          readonly property color backgroundColor: Qt.rgba(textColor.r, textColor.g, textColor.b, 0.12)
 
-          Label {
-            text: levelText.length > 0 ? levelText : "-"
-            color: lvColor
-            Layout.preferredWidth: 64
-          }
+          implicitHeight: contentRow.implicitHeight + 16
 
-          Label {
-            text: loggerName.length > 0 ? loggerName : "-"
-            color: Cores.CoreStyle.muted
-            Layout.preferredWidth: 140
-            elide: Label.ElideRight
-          }
+          RowLayout {
+            id: contentRow
+            anchors.fill: parent
+            anchors.margins: 8
+            spacing: 10
 
-          Label {
-            text: normalizeMsg(entry.msg !== undefined ? entry.msg : (entry.message || ""))
-            color: Cores.CoreStyle.text
-            Layout.fillWidth: true
-            wrapMode: Text.WordWrap
+            Label {
+              text: stampDisplay
+              color: Cores.CoreStyle.muted
+              Layout.preferredWidth: 92
+            }
+
+            Label {
+              text: levelText.length > 0 ? levelText : "-"
+              color: textColor
+              font.bold: levelText === "ERROR" || levelText === "WARN" || levelText === "WARNING"
+              Layout.preferredWidth: 70
+            }
+
+            Label {
+              text: loggerName.length > 0 ? loggerName : "-"
+              color: Qt.tint(Cores.CoreStyle.muted, Qt.rgba(textColor.r, textColor.g, textColor.b, 0.25))
+              Layout.preferredWidth: 150
+              elide: Label.ElideRight
+            }
+
+            Label {
+              text: normalizeMsg(entry.msg !== undefined ? entry.msg : (entry.message || ""))
+              color: Cores.CoreStyle.text
+              Layout.fillWidth: true
+              wrapMode: Text.WordWrap
+            }
           }
         }
 
@@ -92,7 +114,17 @@ BaseCard {
   Connections {
     target: Datas.LogDatas
     function onLogReceived(item) {
-      if (root.autoScroll) list.positionViewAtEnd()
+      if (root.autoScroll && Datas.LogDatas.matchesFilter(item))
+        list.positionViewAtEnd()
+    }
+    function onFilteredLogsChanged() {
+      if (root.autoScroll)
+        list.positionViewAtEnd()
     }
   }
 }
+
+
+
+
+
