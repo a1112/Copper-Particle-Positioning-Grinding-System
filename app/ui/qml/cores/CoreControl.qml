@@ -13,7 +13,7 @@ QtObject {
   }
 
   function jog(axis, direction, speed){
-    try { Api.ApiClient.jog(axis, direction, speed||10, function(){}, function(){}) } catch(e){}
+    try { Api.ApiClient.jog(axis, direction, speed, function(){}, function(){}) } catch(e){}
 
   }
 
@@ -35,4 +35,3 @@ QtObject {
     try { Api.ApiClient.post('/control/estop', {}, function(){}, function(){}) } catch(e){}
   }
 }
-

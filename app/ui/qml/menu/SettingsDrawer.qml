@@ -14,6 +14,17 @@ Drawer {
   focus: true
   dim: true
 
+  function _languageCode(raw) {
+    var code = raw
+    if (code === undefined)
+      code = "zh_CN"
+    if (code === null)
+      code = "zh_CN"
+    if (code === "")
+      code = "zh_CN"
+    return code
+  }
+
   ColumnLayout {
     anchors.fill: parent
     anchors.margins: 12
@@ -70,7 +81,10 @@ Drawer {
             color: Cores.CoreStyle.muted
           }
           Label {
-            text: i18n ? i18n.displayName(Cores.CoreSettings.language || "zh_CN") : (Cores.CoreSettings.language || "zh_CN")
+            text: {
+              var code = settingsDrawer._languageCode(Cores.CoreSettings ? Cores.CoreSettings.language : undefined)
+              return i18n ? i18n.displayName(code) : code
+            }
             color: Cores.CoreStyle.accent
           }
         }
@@ -83,7 +97,7 @@ Drawer {
           model: i18n ? i18n.availableLanguages : []
 
           Component.onCompleted: {
-            const code = Cores.CoreSettings.language || "zh_CN"
+            const code = settingsDrawer._languageCode(Cores.CoreSettings ? Cores.CoreSettings.language : undefined)
             if (i18n && i18n.currentLanguage !== code) {
               i18n.currentLanguage = code
             }
@@ -94,9 +108,12 @@ Drawer {
           }
 
           onActivated: function(index) {
-            if (!model || index < 0 || index >= model.length) {
+            if (!model)
               return
-            }
+            if (index < 0)
+              return
+            if (index >= model.length)
+              return
             const item = model[index]
             if (!item) {
               return
@@ -114,7 +131,7 @@ Drawer {
       Connections {
         target: Cores.CoreSettings
         function onLanguageChanged() {
-          const code = Cores.CoreSettings.language || "zh_CN"
+          const code = settingsDrawer._languageCode(Cores.CoreSettings ? Cores.CoreSettings.language : undefined)
           const idx = languageCombo.indexOfValue(code)
           if (idx >= 0 && languageCombo.currentIndex !== idx) {
             languageCombo.currentIndex = idx
@@ -128,7 +145,7 @@ Drawer {
       Connections {
         target: i18n
         function onLanguageChanged() {
-          const code = i18n.currentLanguage || "zh_CN"
+          const code = settingsDrawer._languageCode(i18n ? i18n.currentLanguage : undefined)
           const idx = languageCombo.indexOfValue(code)
           if (idx >= 0 && languageCombo.currentIndex !== idx) {
             languageCombo.currentIndex = idx
@@ -227,4 +244,3 @@ Drawer {
     }
   }
 }
-

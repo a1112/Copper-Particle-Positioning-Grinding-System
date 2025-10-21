@@ -1,54 +1,43 @@
-pragma Singleton
+﻿pragma Singleton
 import QtQuick
-import QtWebSockets
 import "../Api" as Api
 import "../datas" as Datas
 
 QtObject {
   id: root
 
-  property QtObject __ws: WebSocket {
-    id: ws
-    url: Api.Urls.base().replace("http://", "ws://") + "/ws/cutting"
-    active: false
-
-    onStatusChanged: function(status) {
-      Datas.CuttingDatas.connected = (status === WebSocket.Open)
-      if (status === WebSocket.Error || status === WebSocket.Closed) {
-        ws.active = false
-        reconnectTimer.restart()
-      }
-    }
-
-    onTextMessageReceived: function(message) {
-      try {
-        Datas.CuttingDatas.update(JSON.parse(message))
-      } catch (e) {
-        // ignore malformed payload
-      }
-    }
+  property Timer pollTimer: Timer {
+    id: poll
+    interval: 1000
+    running: false
+    repeat: true
+    onTriggered: root.fetch()
   }
 
-  property Timer __reconnectTimer: Timer {
-    id: reconnectTimer
-    interval: 2000
-    running: false
-    repeat: false
-    onTriggered: ws.active = true
+  function fetch() {
+    Api.ApiClient.get('/cutting', function(resp) {
+      if (resp) {
+        Datas.CuttingDatas.update(resp)
+      }
+    }, function() {
+      Datas.CuttingDatas.reset()
+    })
   }
 
   function start() {
-    if (!ws.active)
-      ws.active = true
+    if (!pollTimer.running) {
+      pollTimer.start()
+      fetch()
+    }
   }
 
   function stop() {
-    reconnectTimer.stop()
-    ws.active = false
+    pollTimer.stop()
+    Datas.CuttingDatas.reset()
   }
 
   function reconnect() {
     stop()
-    reconnectTimer.restart()
+    start()
   }
 }

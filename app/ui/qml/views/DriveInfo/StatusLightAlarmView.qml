@@ -11,7 +11,14 @@ import "base"
 BaseCard {
   id: root
   Layout.fillWidth: true
-  readonly property var status: Datas.StatusDatas.lastMessage || ({})
+  readonly property var status: {
+    var payload = Datas.StatusDatas.lastMessage
+    if (payload === undefined)
+      payload = {}
+    if (payload === null)
+      payload = {}
+    return payload
+  }
   readonly property var indicatorEntries: [
     ({ key: "camera", label: qsTr("相机状态") }),
     ({ key: "spindle", label: qsTr("主轴状态") }),
@@ -20,8 +27,16 @@ BaseCard {
     ({ key: "server", label: qsTr("服务器状态") })
   ]
 
+  function _isEmptyValue(value) {
+    if (value === undefined)
+      return true
+    if (value === null)
+      return true
+    return value === ""
+  }
+
   function _lightContainers() {
-    var message = status || ({})
+    var message = status
     var buckets = []
     if (message.statusLights)
       buckets.push(message.statusLights)
@@ -55,7 +70,9 @@ BaseCard {
     var containers = _lightContainers()
     for (var i = 0; i < containers.length; ++i) {
       var bucket = containers[i]
-      if (!bucket || typeof bucket !== "object")
+      if (!bucket)
+        continue
+      if (typeof bucket !== "object")
         continue
       var keys = _keyCandidates(key)
       for (var j = 0; j < keys.length; ++j) {
@@ -71,7 +88,7 @@ BaseCard {
     var raw = _rawLightValue(key)
     var text = "-"
     var tone = "unknown"
-    if (raw === undefined || raw === null || raw === "") {
+    if (_isEmptyValue(raw)) {
       // leave defaults
     } else if (typeof raw === "boolean") {
       text = raw ? qsTr("正常") : qsTr("报警")
@@ -191,7 +208,13 @@ BaseCard {
         }
 
         Label {
-          text: stateInfo.raw === undefined || stateInfo.raw === null ? "" : "(" + String(stateInfo.raw) + ")"
+          text: {
+            if (stateInfo.raw === undefined)
+              return ""
+            if (stateInfo.raw === null)
+              return ""
+            return "(" + String(stateInfo.raw) + ")"
+          }
           visible: text.length > 0 && stateInfo.tone !== "custom"
           color: Cores.CoreStyle.muted
           font.pixelSize: 11

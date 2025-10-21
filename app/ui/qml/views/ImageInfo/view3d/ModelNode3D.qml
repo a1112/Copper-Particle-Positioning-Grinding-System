@@ -26,7 +26,9 @@ Node {
     interval: 80
     repeat: false
     onTriggered: {
-      if (!root.meshSource || String(root.meshSource).length === 0) {
+      if (!root.meshSource) {
+        model.source = root.fallbackPrimitive
+      } else if (String(root.meshSource).length === 0) {
         model.source = root.fallbackPrimitive
       } else {
         model.source = ""
@@ -45,7 +47,9 @@ Node {
   onModelStatusChanged: {
     if (modelStatus === statusError) {
       errorString = qsTr("模型加载失败")
-    } else if (modelStatus === statusReady || modelStatus === statusLoading) {
+    } else if (modelStatus === statusReady) {
+      errorString = ""
+    } else if (modelStatus === statusLoading) {
       errorString = ""
     }
   }

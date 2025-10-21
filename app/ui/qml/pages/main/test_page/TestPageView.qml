@@ -49,7 +49,19 @@ Item {
       title: "WS 最近消息"
       Layout.fillWidth: true
       Layout.preferredHeight: 140
-      TextArea { anchors.fill: parent; readOnly: true; wrapMode: TextArea.Wrap; text: JSON.stringify(Datas.StatusDatas.lastMessage||{}, null, 2) }
+      TextArea {
+        anchors.fill: parent
+        readOnly: true
+        wrapMode: TextArea.Wrap
+        text: {
+          var payload = Datas.StatusDatas.lastMessage
+          if (payload === undefined)
+            payload = {}
+          if (payload === null)
+            payload = {}
+          return JSON.stringify(payload, null, 2)
+        }
+      }
     }
 
     GroupBox {
@@ -62,7 +74,9 @@ Item {
         onPaint: {
           var ctx = getContext('2d');
           ctx.clearRect(0,0,width,height);
-          var data = Datas.StatusDatas.seriesA || [];
+          var data = Datas.StatusDatas.seriesA;
+          if (!Array.isArray(data))
+            data = [];
           if (!data.length) return;
           var n = Math.min(200, data.length);
           var arr = data.slice(data.length - n);

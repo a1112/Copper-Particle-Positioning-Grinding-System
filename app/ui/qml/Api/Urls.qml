@@ -16,7 +16,7 @@ QtObject {
     if (path.length>0 && path[0] !== '/') path = '/' + path
     return base() + path
   }
-  function ws() {
+  function wsStatus() {
     return 'ws://' + Cores.CoreSettings.apiHost + ':' + Cores.CoreSettings.apiPort + '/ws/status'
   }
   function wsLogs() {

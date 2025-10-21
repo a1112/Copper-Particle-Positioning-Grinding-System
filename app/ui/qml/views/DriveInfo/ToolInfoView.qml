@@ -13,15 +13,19 @@ BaseCard {
   readonly property int padding: 12
   implicitHeight: contentColumn.implicitHeight + padding * 2
 
-  readonly property string toolModel: Datas.DeviceInfoData.toolModel || "-"
-  readonly property string toolDiameter: Datas.DeviceInfoData.toolDiameter || "-"
-  readonly property string toolUsage: Datas.DeviceInfoData.toolUsage || "-"
-  readonly property string toolLifetime: Datas.DeviceInfoData.toolLifetime || "-"
+  readonly property string toolModel: Datas.DeviceInfoData.toolModel
+  readonly property string toolDiameter: Datas.DeviceInfoData.toolDiameter
+  readonly property string toolUsage: Datas.DeviceInfoData.toolUsage
+  readonly property string toolLifetime: Datas.DeviceInfoData.toolLifetime
 
   function formatWithUnit(value, unit) {
-    if (!value || value === "-")
+    if (!value)
       return "-"
-    if (!unit || unit.length === 0)
+    if (value === "-")
+      return "-"
+    if (!unit)
+      return value
+    if (unit.length === 0)
       return value
     return `${value} ${unit}`
   }

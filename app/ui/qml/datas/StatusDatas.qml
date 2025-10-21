@@ -1,5 +1,6 @@
 ﻿pragma Singleton
 import QtQuick
+// Data contract details: see docs/ui_data_contracts.md (status payload section)
 
 QtObject {
   id: root
@@ -37,7 +38,7 @@ QtObject {
   function ingest(payload) {
     connected = true
     lastMsgTs = Date.now()
-    lastMessage = payload || ({})
+    lastMessage = payload
 
     var rpmCandidate
     if (payload) {

@@ -44,6 +44,17 @@ Item {
     currentDate = fmtDate(d, dateFormat);
   }
 
+  function resolvedFontName() {
+    var name = ds.name
+    if (name === undefined)
+      return "DS-DIGIT"
+    if (name === null)
+      return "DS-DIGIT"
+    if (name === "")
+      return "DS-DIGIT"
+    return name
+  }
+
   Timer { interval: 500; running: true; repeat: true; onTriggered: refresh() }
   Component.onCompleted: refresh()
 
@@ -54,7 +65,7 @@ Item {
     Text {
       visible: root.showDate
       text: root.currentDate
-      font.family: ds.name || 'DS-DIGIT'
+      font.family: resolvedFontName()
       font.pixelSize: root.datePixelSize
       color: root.dateColor
       verticalAlignment: Text.AlignVCenter
@@ -64,7 +75,7 @@ Item {
     // Time (right)
     Text {
       text: root.currentTime
-      font.family: ds.name || 'DS-DIGIT'
+      font.family: resolvedFontName()
       font.pixelSize: root.timePixelSize
       color: root.timeColor
       verticalAlignment: Text.AlignVCenter

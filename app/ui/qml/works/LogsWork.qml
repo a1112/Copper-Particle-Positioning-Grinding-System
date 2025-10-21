@@ -15,7 +15,7 @@ QtObject {
     onStatusChanged: function(status) {
       Datas.LogDatas.status = status
       Datas.LogDatas.connected = (status === WebSocket.Open)
-      if (status === WebSocket.Error || status === WebSocket.Closed) {
+      if (isClosedStatus(status)) {
         ws.active = false
         reconnectTimer.restart()
       }
@@ -58,12 +58,17 @@ QtObject {
     reconnectTimer.restart()
   }
 
+  function isClosedStatus(status) {
+    return [WebSocket.Error, WebSocket.Closed].indexOf(status) !== -1
+  }
+
   function clearLocalLogs() {
     Datas.LogDatas.clear()
   }
 
   function sendServerLog(msg) {
-    Api.ApiClient.post("/test/log?msg=" + encodeURIComponent(msg || "UI log"), {}, function(_) {}, function(status, message) {
+    var logMessage = msg !== undefined ? msg : "UI log"
+    Api.ApiClient.post("/test/log?msg=" + encodeURIComponent(logMessage), {}, function(_) {}, function(status, message) {
       console.log("send log err", status, message)
     })
   }

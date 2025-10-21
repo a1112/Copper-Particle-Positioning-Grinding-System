@@ -10,12 +10,19 @@ BaseCard {
   id: root
   Layout.fillWidth: true
   readonly property int padding: 12
-  implicitHeight: contentColumn.implicitHeight + padding * 2
-
+  implicitHeight: contentColumn.implicitHeight+3
+  height: implicitHeight
+  width: parent.width
   property real maxFeedRate: 0
 
   function formatNumber(value, unit, decimals) {
-    if (value === undefined || value === null || value === "" || isNaN(Number(value)))
+    if (value === undefined)
+      return "-"
+    if (value === null)
+      return "-"
+    if (value === "")
+      return "-"
+    if (isNaN(Number(value)))
       return "-"
     var precision = (decimals !== undefined) ? decimals : 2
     var num = Number(value)
@@ -24,7 +31,13 @@ BaseCard {
   }
 
   function formatDuration(seconds) {
-    if (seconds === undefined || seconds === null || seconds === "" || isNaN(Number(seconds)))
+    if (seconds === undefined)
+      return "-"
+    if (seconds === null)
+      return "-"
+    if (seconds === "")
+      return "-"
+    if (isNaN(Number(seconds)))
       return "-"
     var total = Math.max(0, Math.floor(Number(seconds)))
     var hours = Math.floor(total / 3600)
@@ -52,7 +65,7 @@ BaseCard {
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("粒子总量")
-        valueText: Datas.DeviceInfoData.particleTotal || "-"
+        valueText: displayText(Datas.DeviceInfoData.particleTotal)
         valueColor: Cores.CoreStyle.text
       }
 
@@ -73,7 +86,7 @@ BaseCard {
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("平面高度")
-        valueText: Datas.DeviceInfoData.planeHeight || "-"
+        valueText: displayText(Datas.DeviceInfoData.planeHeight)
         valueColor: Cores.CoreStyle.text
       }
 
@@ -116,7 +129,10 @@ BaseCard {
     }
 
     function onLastChanged(payload) {
-      var feed = Number((payload && payload.feed_rate) || Datas.CuttingDatas.feedRate)
+      var feedSource = Datas.CuttingDatas.feedRate
+      if (payload !== undefined && payload !== null && payload.feed_rate !== undefined && payload.feed_rate !== null)
+        feedSource = payload.feed_rate
+      var feed = Number(feedSource)
       if (!isNaN(feed) && feed > root.maxFeedRate)
         root.maxFeedRate = feed
     }

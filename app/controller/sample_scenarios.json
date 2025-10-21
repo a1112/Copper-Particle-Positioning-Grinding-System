@@ -1,0 +1,93 @@
+{
+  "scenarios": [
+    {
+      "label": "idle_ready",
+      "delay": 2.0,
+      "status": {
+        "state": "IDLE",
+        "run_mode": "SIM",
+        "serial_number": "SIM-0001",
+        "tool_usage": "0%",
+        "tool_life": "0 h",
+        "plane_height": "-0.20",
+        "position": { "x": 0.0, "y": 0.0, "z": 50.0, "theta": 0.0 },
+        "spindle_rpm": 0,
+        "spindle_torque": 0.05,
+        "feed_rate": 0.0,
+        "travel_speed": 0.0,
+        "statusLights": { "camera": "READY", "spindle": "READY", "device": "IDLE", "interlock": true, "server": true }
+      },
+      "cutting": {
+        "feed_rate": 0.0,
+        "downfeed_target": 0.8,
+        "downfeed_current": 0.0,
+        "removal_current": 0.0,
+        "removal_expected": 120.0,
+        "torque_max": 0.1,
+        "torque": 0.05,
+        "elapsed_sec": 0
+      }
+    },
+    {
+      "label": "cutting_nominal",
+      "delay": 2.0,
+      "status": {
+        "state": "RUNNING",
+        "run_mode": "AUTO",
+        "serial_number": "SIM-0002",
+        "tool_usage": "36%",
+        "tool_life": "1.8 h",
+        "plane_height": "-0.32",
+        "position": { "x": 125.4, "y": 42.8, "z": -0.46, "theta": 0.75 },
+        "spindle_rpm": 2350,
+        "spindle_torque": 0.58,
+        "feed_rate": 24.0,
+        "travel_speed": 52.0,
+        "statusLights": { "camera": "READY", "spindle": "RUNNING", "device": "RUNNING", "interlock": true, "server": true }
+      },
+      "cutting": {
+        "feed_rate": 24.0,
+        "downfeed_target": 0.8,
+        "downfeed_current": 0.58,
+        "removal_current": 48.3,
+        "removal_expected": 120.0,
+        "torque_max": 0.62,
+        "torque": 0.55,
+        "elapsed_sec": 360
+      }
+    },
+    {
+      "label": "alarm_spindle_overload",
+      "delay": 3.0,
+      "status": {
+        "state": "FAULT",
+        "run_mode": "AUTO",
+        "serial_number": "SIM-0003",
+        "tool_usage": "88%",
+        "tool_life": "4.6 h",
+        "plane_height": "-0.45",
+        "fault_code": "SPINDLE_OVERLOAD",
+        "fault_message": "Spindle torque exceeded limit",
+        "position": { "x": 182.0, "y": 58.5, "z": -1.25, "theta": 1.2 },
+        "spindle_rpm": 80,
+        "spindle_torque": 1.25,
+        "feed_rate": 0.0,
+        "travel_speed": 0.0,
+        "statusLights": { "camera": "WARNING", "spindle": "FAULT", "device": "FAULT", "interlock": false, "server": true },
+        "alerts": [
+          { "level": "error", "message": "Spindle torque abnormal, inspect load" }
+        ]
+      },
+      "cutting": {
+        "feed_rate": 0.0,
+        "downfeed_target": 0.8,
+        "downfeed_current": 0.8,
+        "removal_current": 97.5,
+        "removal_expected": 120.0,
+        "torque_max": 1.3,
+        "torque": 1.25,
+        "elapsed_sec": 520
+      }
+    }
+  ]
+}

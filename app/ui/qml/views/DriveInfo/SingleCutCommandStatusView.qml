@@ -10,10 +10,16 @@ BaseCard {
   id: root
   Layout.fillWidth: true
   readonly property int padding: 12
-  implicitHeight: contentColumn.implicitHeight + padding * 2
+  implicitHeight: contentColumn.implicitHeight + 6
 
   function formatNumber(value, unit, decimals) {
-    if (value === undefined || value === null || value === "" || isNaN(Number(value)))
+    if (value === undefined)
+      return "-"
+    if (value === null)
+      return "-"
+    if (value === "")
+      return "-"
+    if (isNaN(Number(value)))
       return "-"
     var precision = (decimals !== undefined) ? decimals : 3
     var num = Number(value)
@@ -22,7 +28,9 @@ BaseCard {
   }
 
   function formatText(value) {
-    if (value === undefined || value === null)
+    if (value === undefined)
+      return "-"
+    if (value === null)
       return "-"
     var text = String(value).trim()
     return text.length === 0 ? "-" : text
@@ -82,7 +90,9 @@ BaseCard {
   }
 
   function formatPoint(point) {
-    if (point === null || point === undefined)
+    if (point === null)
+      return "-"
+    if (point === undefined)
       return "-"
     if (typeof point === "string")
       return formatText(point)
@@ -121,13 +131,19 @@ BaseCard {
     var targetText = root.formatNumber(target, "mm", 3)
     if (currentText === "-" && targetText === "-")
       return "-"
-    if (targetText === "-" || currentText === targetText)
+    if (targetText === "-")
+      return currentText
+    if (currentText === targetText)
       return currentText
     return currentText + " / " + targetText
   }
 
   function commandInfoText() {
-    var payload = Datas.CuttingDatas.last || ({})
+    var payload = Datas.CuttingDatas.last
+    if (payload === undefined)
+      payload = {}
+    if (payload === null)
+      payload = {}
     var fromPayload = root._pickFirst(payload, [
       "command",
       "command_text",
@@ -140,7 +156,9 @@ BaseCard {
       return root.formatText(fromPayload)
 
     var idx = Datas.CodeDatas.currentIndex
-    var lines = Datas.CodeDatas.lines || []
+    var lines = Datas.CodeDatas.lines
+    if (!Array.isArray(lines))
+      lines = []
     if (idx !== undefined && idx >= 0 && idx < lines.length) {
       return root.formatText(lines[idx])
     }

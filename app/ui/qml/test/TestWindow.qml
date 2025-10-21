@@ -2,6 +2,7 @@
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
+import "../Api" as Api
 
 ApplicationWindow {
     id: window
@@ -18,6 +19,19 @@ ApplicationWindow {
 
     property string baseUrl: "http://localhost:8000/api"
     property bool autoLogRequests: true
+
+    Component.onCompleted: {
+        try {
+            if (Api && Api.Urls && Api.Urls.base) {
+                window.baseUrl = Api.Urls.base()
+            }
+        } catch (err) {
+            // ignore
+        }
+        if (typeof baseUrlField !== "undefined" && baseUrlField) {
+            baseUrlField.text = window.baseUrl
+        }
+    }
 
     readonly property var systemActions: [
         { label: qsTr("系统初始化"), endpoint: "system/init", method: "POST" },
@@ -59,8 +73,274 @@ ApplicationWindow {
         { label: qsTr("刷新仪表盘"), actionId: "ui/reload_dashboard", options: {} }
     ]
 
+    readonly property var statusScenarios: [
+        ({
+            label: qsTr("空闲 · 待命准备"),
+            status: {
+                state: "IDLE",
+                run_mode: "SIM",
+                serial_number: "SIM-0001",
+                tool_usage: "0%",
+                cutter_diameter: "80mm",
+                tool_life: "0 h",
+                particle_count: 0,
+                plane_height: "-0.20",
+                position: { "x": 0.0, "y": 0.0, "z": 50.0, "theta": 0.0 },
+                spindle_rpm: 0,
+                spindle_torque: 0.05,
+                feed_rate: 0.0,
+                travel_speed: 0.0,
+                seriesA: 0,
+                seriesB: 0.05,
+                statusLights: { camera: "READY", spindle: "READY", device: "IDLE", interlock: true, server: true },
+                lights: { camera: "READY", spindle: "READY", device: "IDLE", interlock: true, server: true }
+            },
+            cutting: {
+                feed_rate: 0.0,
+                downfeed_target: 0.8,
+                downfeed_current: 0.0,
+                removal_current: 0.0,
+                removal_expected: 120.0,
+                torque_max: 0.1,
+                torque: 0.05,
+                elapsed_sec: 0
+            }
+        }),
+        ({
+            label: qsTr("加工 · 正常切削"),
+            status: {
+                state: "RUNNING",
+                run_mode: "AUTO",
+                serial_number: "SIM-0002",
+                tool_usage: "36%",
+                cutter_diameter: "80mm",
+                tool_life: "1.8 h",
+                particle_count: 320,
+                plane_height: "-0.32",
+                position: { "x": 125.4, "y": 42.8, "z": -0.46, "theta": 0.75 },
+                spindle_rpm: 2350,
+                spindle_torque: 0.58,
+                feed_rate: 24.0,
+                travel_speed: 52.0,
+                seriesA: 2350,
+                seriesB: 0.58,
+                statusLights: { camera: "READY", spindle: "RUNNING", device: "RUNNING", interlock: true, server: true },
+                lights: { camera: "READY", spindle: "RUNNING", device: "RUNNING", interlock: true, server: true }
+            },
+            cutting: {
+                feed_rate: 24.0,
+                downfeed_target: 0.8,
+                downfeed_current: 0.58,
+                removal_current: 48.3,
+                removal_expected: 120.0,
+                torque_max: 0.62,
+                torque: 0.55,
+                elapsed_sec: 360
+            }
+        }),
+        ({
+            label: qsTr("报警 · 主轴过载"),
+            status: {
+                state: "FAULT",
+                run_mode: "AUTO",
+                serial_number: "SIM-0003",
+                tool_usage: "88%",
+                cutter_diameter: "80mm",
+                tool_life: "4.6 h",
+                particle_count: 512,
+                plane_height: "-0.45",
+                fault_code: "SPINDLE_OVERLOAD",
+                fault_message: qsTr("主轴扭矩达到限制"),
+                position: { "x": 182.0, "y": 58.5, "z": -1.25, "theta": 1.2 },
+                spindle_rpm: 80,
+                spindle_torque: 1.25,
+                feed_rate: 0.0,
+                travel_speed: 0.0,
+                seriesA: 80,
+                seriesB: 1.25,
+                statusLights: { camera: "WARNING", spindle: "FAULT", device: "FAULT", interlock: false, server: true },
+                lights: { camera: "WARNING", spindle: "FAULT", device: "FAULT", interlock: false, server: true },
+                alerts: [
+                    { level: "error", message: qsTr("主轴扭矩异常，请检查负载") }
+                ]
+            },
+            cutting: {
+                feed_rate: 0.0,
+                downfeed_target: 0.8,
+                downfeed_current: 0.8,
+                removal_current: 97.5,
+                removal_expected: 120.0,
+                torque_max: 1.3,
+                torque: 1.25,
+                elapsed_sec: 520
+            }
+        })
+    ]
+
     ListModel {
         id: logModel
+    }
+
+    function resolveRequestUrl(endpoint) {
+        var target = ""
+        if (endpoint !== undefined && endpoint !== null) {
+            target = String(endpoint).trim()
+        }
+        if (target.length > 0 && target.indexOf("://") >= 0)
+            return target
+        var base = window.baseUrl ? String(window.baseUrl).trim() : ""
+        if (base.length === 0)
+            base = "http://localhost:8000/api"
+        if (base.endsWith("/"))
+            base = base.slice(0, base.length - 1)
+        if (target.length === 0)
+            return base
+        if (target.startsWith("/"))
+            target = target.slice(1)
+        return base + "/" + target
+    }
+
+    function performApiRequest(endpoint, method, payload, onSuccess, onError) {
+        var verb = method !== undefined ? method : "GET"
+        verb = String(verb).toUpperCase()
+        var url = resolveRequestUrl(endpoint)
+        var bodyAllowed = ["GET", "HEAD"].indexOf(verb) === -1
+        var bodyValue = bodyAllowed ? (payload !== undefined && payload !== null ? payload : {}) : null
+
+        apiCallRequested(endpoint !== undefined && endpoint !== null ? endpoint : "", {
+            method: verb,
+            baseUrl: window.baseUrl,
+            payload: bodyValue
+        })
+
+        var xhr = new XMLHttpRequest()
+        try {
+            xhr.open(verb, url)
+        } catch (openErr) {
+            window.appendLog("API open error " + verb + " " + url + " : " + openErr)
+            if (onError) onError(-1, String(openErr))
+            return
+        }
+        if (bodyAllowed)
+            xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE)
+                return
+            var status = xhr.status
+            var text = xhr.responseText !== undefined && xhr.responseText !== null ? xhr.responseText : ""
+            if (status >= 200 && status < 300) {
+                var result = {}
+                if (text.length > 0) {
+                    try { result = JSON.parse(text) } catch (parseErr) { result = {} }
+                }
+                if (onSuccess)
+                    onSuccess(result, status)
+                else
+                    window.appendLog("API success " + verb + " " + url + " <- " + text)
+            } else {
+                if (onError)
+                    onError(status, text)
+                else
+                    window.appendLog("API failure " + verb + " " + url + " -> " + status + " " + text)
+            }
+        }
+        xhr.onerror = function() {
+            var msg = "API network error " + verb + " " + url
+            window.appendLog(msg)
+            if (onError)
+                onError(-1, msg)
+        }
+        try {
+            if (bodyAllowed)
+                xhr.send(JSON.stringify(bodyValue))
+            else
+                xhr.send()
+        } catch (sendErr) {
+            var detail = "API send error " + verb + " " + url + " : " + sendErr
+            window.appendLog(detail)
+            if (onError)
+                onError(-1, String(sendErr))
+        }
+    }
+
+    function clonePayload(payload) {
+        if (payload === undefined)
+            return null
+        if (payload === null)
+            return null
+        try {
+            return JSON.parse(JSON.stringify(payload))
+        } catch (err) {
+            return payload
+        }
+    }
+
+    function sendScenario(scenario) {
+        if (!scenario)
+            return
+        var statusPayload = clonePayload(scenario.status)
+        var cuttingPayload = clonePayload(scenario.cutting)
+        var nowTs = Math.round(Date.now() / 1000)
+
+        if (statusPayload) {
+            statusPayload.timestamp = new Date().toISOString()
+            if (statusPayload.seriesA === undefined && statusPayload.spindle_rpm !== undefined)
+                statusPayload.seriesA = statusPayload.spindle_rpm
+            if (statusPayload.seriesB === undefined && statusPayload.spindle_torque !== undefined)
+                statusPayload.seriesB = statusPayload.spindle_torque
+            performApiRequest("status/test_payload", "POST", statusPayload,
+                function() {
+                    window.appendLog(qsTr("状态测试数据已提交: %1").arg(scenario.label))
+                },
+                function(code, message) {
+                    window.appendLog(qsTr("状态测试数据失败(%1): %2").arg(code).arg(message))
+                })
+        }
+        if (cuttingPayload) {
+            if (cuttingPayload.ts === undefined)
+                cuttingPayload.ts = nowTs
+            performApiRequest("cutting/test_payload", "POST", cuttingPayload,
+                function() {
+                    window.appendLog(qsTr("切削测试数据已提交: %1").arg(scenario.label))
+                },
+                function(code, message) {
+                    window.appendLog(qsTr("切削测试数据失败(%1): %2").arg(code).arg(message))
+                })
+        }
+    }
+
+    function resetTestPayloads() {
+        performApiRequest("status/test_payload", "DELETE", null,
+            function() {
+                window.appendLog(qsTr("已恢复状态模拟值"))
+            },
+            function(code, message) {
+                window.appendLog(qsTr("恢复状态数据失败(%1): %2").arg(code).arg(message))
+            })
+        performApiRequest("cutting/test_payload", "DELETE", null,
+            function() {
+                window.appendLog(qsTr("已恢复切削模拟值"))
+            },
+            function(code, message) {
+                window.appendLog(qsTr("恢复切削数据失败(%1): %2").arg(code).arg(message))
+            })
+    }
+
+    function fetchManualSnapshots() {
+        performApiRequest("status/test_payload", "GET", null,
+            function(resp) {
+                window.appendLog(qsTr("状态覆盖: %1").arg(JSON.stringify(resp)))
+            },
+            function(code, message) {
+                window.appendLog(qsTr("读取状态覆盖失败(%1): %2").arg(code).arg(message))
+            })
+        performApiRequest("cutting/test_payload", "GET", null,
+            function(resp) {
+                window.appendLog(qsTr("切削覆盖: %1").arg(JSON.stringify(resp)))
+            },
+            function(code, message) {
+                window.appendLog(qsTr("读取切削覆盖失败(%1): %2").arg(code).arg(message))
+            })
     }
 
     function appendLog(message) {
@@ -75,23 +355,38 @@ ApplicationWindow {
     }
 
     function triggerApiAction(action) {
-        if (!action || !action.endpoint)
+        if (!action)
+            return
+        if (!action.endpoint)
             return
 
-        var options = {
-            method: action.method || "GET",
-            baseUrl: baseUrl,
-            payload: action.payload !== undefined ? action.payload : {}
+        var endpoint = action.endpoint
+        if (action.query !== undefined && action.query !== null) {
+            if (typeof action.query === "string") {
+                var qs = action.query
+                endpoint = endpoint + (qs.startsWith("?") ? qs : ("?" + qs))
+            } else if (typeof action.query === "object") {
+                var parts = []
+                for (var key in action.query) {
+                    if (!action.query.hasOwnProperty(key))
+                        continue
+                    var value = action.query[key]
+                    parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(value))
+                }
+                if (parts.length > 0)
+                    endpoint = endpoint + "?" + parts.join("&")
+            }
         }
 
-        if (action.query !== undefined)
-            options.query = action.query
-
-        apiCallRequested(action.endpoint, options)
+        var payload = action.payload !== undefined ? action.payload : {}
+        var method = action.method !== undefined ? action.method : "GET"
+        performApiRequest(endpoint, method, payload)
     }
 
     function triggerUiAction(action) {
-        if (!action || !action.actionId)
+        if (!action)
+            return
+        if (!action.actionId)
             return
 
         var options = action.options !== undefined ? action.options : {}
@@ -204,8 +499,8 @@ ApplicationWindow {
                     TextField {
                         id: manualEndpointField
                         Layout.fillWidth: true
-                        placeholderText: "status/ping"
-                        text: "status/ping"
+                        placeholderText: "status/test_payload"
+                        text: "status/test_payload"
                         selectByMouse: true
                     }
 
@@ -233,12 +528,15 @@ ApplicationWindow {
                                 }
                             }
 
-                            window.apiCallRequested(
+                            performApiRequest(
                                 manualEndpointField.text,
-                                {
-                                    method: manualMethodBox.currentText,
-                                    baseUrl: window.baseUrl,
-                                    payload: payload
+                                manualMethodBox.currentText,
+                                payload,
+                                function(resp) {
+                                    window.appendLog(qsTr("手动请求响应: %1").arg(JSON.stringify(resp)))
+                                },
+                                function(status, message) {
+                                    window.appendLog(qsTr("手动请求失败(%1): %2").arg(status).arg(message))
                                 }
                             )
                         }
@@ -249,7 +547,7 @@ ApplicationWindow {
                     id: manualPayloadField
                     Layout.fillWidth: true
                     Layout.preferredHeight: 100
-                    placeholderText: "{\n    \"示例\": true\n}"
+                    placeholderText: "{\n    \"state\": \"RUNNING\",\n    \"spindle_rpm\": 2200\n}"
                     wrapMode: TextEdit.NoWrap
                 }
             }
@@ -262,6 +560,47 @@ ApplicationWindow {
             Column {
                 width: parent.width
                 spacing: 16
+
+                GroupBox {
+                    title: qsTr("测试数据注入")
+                    Layout.fillWidth: true
+
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 8
+
+                        Flow {
+                            width: parent.width
+                            spacing: 8
+
+                            Repeater {
+                                model: window.statusScenarios
+                                delegate: Button {
+                                    text: modelData.label
+                                    onClicked: window.sendScenario(modelData)
+                                }
+                            }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Button {
+                                text: qsTr("恢复模拟输出")
+                                onClicked: window.resetTestPayloads()
+                            }
+
+                            Button {
+                                text: qsTr("查看当前覆盖")
+                                onClicked: window.fetchManualSnapshots()
+                            }
+
+                            Item { Layout.fillWidth: true }
+                        }
+                    }
+                }
 
                 GroupBox {
                     title: qsTr("系统 API")
@@ -441,3 +780,6 @@ ApplicationWindow {
         }
     }
 }
+
+
+

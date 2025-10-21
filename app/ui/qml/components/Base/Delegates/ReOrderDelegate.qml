@@ -5,6 +5,8 @@ Item {
     property Component dropItem
     property int elementIndex: index
     property var orientation:-1
+    readonly property bool allowVertical: orientation === -1 ? true : orientation === ListView.Vertical
+    readonly property bool allowHorizontal: orientation === -1 ? true : orientation === ListView.Horizontal
     property string theName
     z:active?1:0
     property int numer
@@ -26,8 +28,8 @@ Item {
 
     DragHandler{
         id:dragHandler
-    yAxis.enabled: orientation==-1||orientation===ListView.Vertical
-    xAxis.enabled: orientation==-1||orientation===ListView.Horizontal
+    yAxis.enabled: root.allowVertical
+    xAxis.enabled: root.allowHorizontal
     }
     }
 

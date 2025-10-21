@@ -77,11 +77,13 @@ Rectangle {
     onClicked: {
       if (running) {
         Api.ApiClient.stopRun(function() {}, function(_, msg) {
-          Cores.CoreError.showError(msg || qsTr("停止失败"))
+          var stopError = msg !== undefined ? msg : qsTr("停止失败")
+          Cores.CoreError.showError(stopError)
         })
       } else {
         Api.ApiClient.startRun(function() {}, function(_, msg) {
-          Cores.CoreError.showError(msg || qsTr("启动失败"))
+          var startError = msg !== undefined ? msg : qsTr("启动失败")
+          Cores.CoreError.showError(startError)
         })
       }
     }

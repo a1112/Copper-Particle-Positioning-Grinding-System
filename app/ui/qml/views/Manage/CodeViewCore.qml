@@ -80,7 +80,9 @@ QtObject {
   }
 
   function resetSelection(keys) {
-    if (!keys || !keys.length)
+    if (!keys)
+      return
+    if (!keys.length)
       return
     selectedKeys = keys.slice()
     updateSelected()
@@ -89,4 +91,3 @@ QtObject {
   Component.onCompleted: updateSelected()
   onSelectedKeysChanged: updateSelected()
 }
-

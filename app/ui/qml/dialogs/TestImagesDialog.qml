@@ -23,7 +23,7 @@ Dialog {
       if (resp && resp.groups) {
         for (var i=0;i<resp.groups.length;i++) {
           var g = resp.groups[i];
-          groupsModel.append({ serial: g.serial, note: g.note||'', created_at: g.created_at||'' });
+          groupsModel.append({ serial: g.serial, note: g.note, created_at: g.created_at });
         }
       }
     }, function(s,m){ console.log('list groups err', s, m); })
@@ -31,7 +31,8 @@ Dialog {
 
   function refreshImages(serial){
     imagesModel.clear(); selectedSerial = serial; selectedImage='';
-    if (!apiClient || !serial) return;
+    if (!apiClient) return;
+    if (!serial) return;
     apiClient.listGroupImages(serial, function(resp){
       if (resp && resp.files) {
         for (var i=0;i<resp.files.length;i++) {
@@ -59,7 +60,7 @@ Dialog {
         TextField { id: tfSerial; placeholderText: "新建组流水号"; width: 200 }
         TextField { id: tfNote; placeholderText: "说明(可选)"; width: 240 }
         Button { text: "创建"; onClicked: {
-            if (!tfSerial.text || tfSerial.text.length===0) return;
+            if (tfSerial.text.length===0) return;
             apiClient && apiClient.createGroup(tfSerial.text, tfNote.text, function(_){ testDialog.refreshGroups(); }, function(s,m){ console.log('create group err', s, m); })
           } }
       }

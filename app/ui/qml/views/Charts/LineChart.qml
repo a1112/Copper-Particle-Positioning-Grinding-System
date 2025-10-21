@@ -26,7 +26,9 @@ GroupBox {
       var ctx = getContext('2d')
       ctx.clearRect(0, 0, width, height)
       var data = root.series
-      if (!data || !data.length) {
+      if (!Array.isArray(data))
+        data = []
+      if (data.length === 0) {
         ctx.fillStyle = Cores.CoreStyle.muted
         ctx.font = '12px sans-serif'
         ctx.fillText(root.emptyText, 8, 16)

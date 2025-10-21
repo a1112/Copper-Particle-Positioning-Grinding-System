@@ -13,12 +13,17 @@ BaseCard {
   readonly property int padding: 5
   implicitHeight: contentColumn.implicitHeight + padding * 2
 
-  readonly property string runState: Datas.DeviceInfoData.runState || "-"
-  readonly property string runMode: Datas.DeviceInfoData.runMode || "-"
-  readonly property string serialNumber: Datas.DeviceInfoData.serialNumber || "-"
+  readonly property string runState: Datas.DeviceInfoData.runState
+  readonly property string runMode: Datas.DeviceInfoData.runMode
+  readonly property string serialNumber: Datas.DeviceInfoData.serialNumber
 
   function stateColor(state) {
-    switch (String(state || "").toUpperCase()) {
+    var normalized = state
+    if (normalized === undefined)
+      normalized = ""
+    if (normalized === null)
+      normalized = ""
+    switch (String(normalized).toUpperCase()) {
     case "RUNNING":
       return Cores.CoreStyle.success
     case "ERROR":

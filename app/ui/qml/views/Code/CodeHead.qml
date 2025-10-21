@@ -40,8 +40,19 @@ RowLayout {
     color: root.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger
   }
 
+  function resolvedState() {
+    var stateValue = root.runState
+    if (stateValue === undefined)
+      return "-"
+    if (stateValue === null)
+      return "-"
+    if (stateValue === "")
+      return "-"
+    return stateValue
+  }
+
   Label {
-    text: qsTr("State: %1").arg(root.runState || "-")
+    text: qsTr("State: %1").arg(resolvedState())
     color: root.runState === "RUNNING" ? Cores.CoreStyle.success : Cores.CoreStyle.muted
   }
 

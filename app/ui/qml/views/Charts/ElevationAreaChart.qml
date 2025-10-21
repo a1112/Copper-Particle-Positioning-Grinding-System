@@ -143,7 +143,12 @@ GroupBox {
             ctx.strokeStyle = root.cutColor; ctx.fillStyle = root.cutColor; ctx.lineWidth = 1
             for (var c=0;c<root.cuts.length;c++){
               var cs = mapX(root.cuts[c].s)
-              var cz = mapY(root.cuts[c].z || root.base)
+              var cutZ = root.cuts[c].z
+              if (cutZ === undefined)
+                cutZ = root.base
+              if (cutZ === null)
+                cutZ = root.base
+              var cz = mapY(cutZ)
               ctx.beginPath(); ctx.moveTo(cs, height); ctx.lineTo(cs, Math.max(0, cz-6)); ctx.stroke()
               ctx.beginPath(); ctx.moveTo(cs-3, cz-6); ctx.lineTo(cs+3, cz-6); ctx.lineTo(cs, cz-12); ctx.closePath(); ctx.fill()
             }

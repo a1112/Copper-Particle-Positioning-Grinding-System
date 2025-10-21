@@ -9,6 +9,7 @@ Button {
   property bool danger: false
   // 外部可激活的高亮态（用于键盘反馈等）
   property bool active: false
+  readonly property bool isHighlighted: down ? true : active
   Rectangle{anchors.fill: parent;opacity:0.1}
   font.pixelSize: 13
   // 明确内边距与悬停行为，避免实际点击区域与视觉不一致
@@ -32,7 +33,7 @@ Button {
   background: Rectangle {
     radius: 4
     anchors.fill: control
-    color: (control.down || control.active)
+    color: control.isHighlighted
            ? (control.danger ? "#b91c1c" : Cores.CoreStyle.primary)
            : Cores.CoreStyle.surface
     border.color: Cores.CoreStyle.border
@@ -40,7 +41,7 @@ Button {
   contentItem: Text {
     font.bold: true
     text: control.text
-    color: (control.down || control.active) ? "white" : Cores.CoreStyle.text
+    color: control.isHighlighted ? "white" : Cores.CoreStyle.text
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter
     elide: Text.ElideRight

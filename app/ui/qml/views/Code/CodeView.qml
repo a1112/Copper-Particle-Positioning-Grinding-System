@@ -35,7 +35,9 @@ BaseCard {
 
   function setProgram(lines) {
     codeModel.clear()
-    if (!lines || !lines.length)
+    if (!Array.isArray(lines))
+      return
+    if (lines.length === 0)
       return
     for (var i = 0; i < lines.length; ++i) {
       codeModel.append({

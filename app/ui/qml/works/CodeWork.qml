@@ -14,7 +14,7 @@ QtObject {
 
     onStatusChanged: function(status) {
       Datas.CodeDatas.connected = (status === WebSocket.Open)
-      if (status === WebSocket.Error || status === WebSocket.Closed) {
+      if (isClosedStatus(status)) {
         ws.active = false
         reconnectTimer.restart()
       }
@@ -26,7 +26,7 @@ QtObject {
         if (payload.type === "program" && Array.isArray(payload.lines)) {
           Datas.CodeDatas.lines = payload.lines
         } else if (payload.type === "state") {
-          Datas.CodeDatas.runState = payload.state || "IDLE"
+          Datas.CodeDatas.runState = payload.state
           Datas.CodeDatas.currentIndex = (payload.current !== undefined ? payload.current : -1)
         }
       } catch (e) {
@@ -56,5 +56,9 @@ QtObject {
   function reconnect() {
     stop()
     reconnectTimer.restart()
+  }
+
+  function isClosedStatus(status) {
+    return [WebSocket.Error, WebSocket.Closed].indexOf(status) !== -1
   }
 }

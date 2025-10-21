@@ -26,6 +26,38 @@ Popup {
     property string errorText: ""
     property int currentIndex: 0
 
+    function _safeObject(value) {
+        if (value === undefined)
+            return {}
+        if (value === null)
+            return {}
+        return value
+    }
+
+    function _safeArray(value) {
+        if (!Array.isArray(value))
+            return []
+        return value
+    }
+
+    function _safeString(value) {
+        if (value === undefined)
+            return ""
+        if (value === null)
+            return ""
+        return value
+    }
+
+    function _preferred(value, fallback) {
+        if (value === undefined)
+            return fallback
+        if (value === null)
+            return fallback
+        if (value === "")
+            return fallback
+        return value
+    }
+
     background: Rectangle {
         color: "#1a1d23"
         radius: 12
@@ -39,12 +71,12 @@ Popup {
         try {
             Api.ApiClient.configSettings(
                         function(resp) {
-                            settingsData = resp || {}
+                            settingsData = root._safeObject(resp)
                             loading = false
                         },
                         function(status, message) {
                             loading = false
-                            errorText = "加载失败: " + (message || status)
+                            errorText = "加载失败: " + root._preferred(message, status)
                         })
         } catch (err) {
             loading = false
@@ -71,7 +103,7 @@ Popup {
 
             Label {
                 text: settingsData && settingsData.sources
-                      ? ("源文件: " + (settingsData.sources.job || "") + " | " + (settingsData.sources.machine || ""))
+                      ? ("源文件: " + root._safeString(settingsData.sources.job) + " | " + root._safeString(settingsData.sources.machine))
                       : ""
                 color: "#9aa0ac"
                 wrapMode: Text.WrapAnywhere
@@ -123,10 +155,10 @@ Popup {
                     spacing: 16
                     SettingSectionList {
                         title: "任务配置"
-                        sections: settingsData.job_sections || []
+                        sections: root._safeArray(settingsData.job_sections)
                     }
                     Label {
-                        visible: !root.loading && (settingsData.job_sections || []).length === 0
+                        visible: !root.loading && root._safeArray(settingsData.job_sections).length === 0
                         text: "未读取到任务配置。"
                         color: "#a0a6b4"
                     }
@@ -143,15 +175,15 @@ Popup {
                     spacing: 16
                     SettingSectionList {
                         title: "标定与工件坐标"
-                        sections: (settingsData.calibration_sections || [])
+                        sections: root._safeArray(settingsData.calibration_sections)
                     }
                     SettingSectionList {
                         title: "机台运动参数"
-                        sections: settingsData.machine_sections || []
+                        sections: root._safeArray(settingsData.machine_sections)
                     }
                     SettingSectionList {
                         title: "安全互锁"
-                        sections: settingsData.safety_sections || []
+                        sections: root._safeArray(settingsData.safety_sections)
                     }
                     SettingSectionList {
                         title: "监控默认阈值"
@@ -161,10 +193,10 @@ Popup {
                     }
                     Label {
                         visible: !root.loading
-                                 && (settingsData.calibration_sections || []).length === 0
-                                 && (settingsData.machine_sections || []).length === 0
-                                 && (settingsData.safety_sections || []).length === 0
-                                 && (!settingsData.monitor_defaults || settingsData.monitor_defaults.length === 0)
+                                 && root._safeArray(settingsData.calibration_sections).length === 0
+                                 && root._safeArray(settingsData.machine_sections).length === 0
+                                 && root._safeArray(settingsData.safety_sections).length === 0
+                                 && root._safeArray(settingsData.monitor_defaults).length === 0
                         text: "未读取到机台配置。"
                         color: "#a0a6b4"
                     }
@@ -200,7 +232,7 @@ Popup {
                     }
 
                     Repeater {
-                        model: settingsData.tool_table || []
+                        model: root._safeArray(settingsData.tool_table)
                         delegate: Rectangle {
                             width: parent.width
                             height: 40
@@ -230,7 +262,7 @@ Popup {
                     }
 
                     Label {
-                        visible: (settingsData.tool_table || []).length === 0
+                        visible: root._safeArray(settingsData.tool_table).length === 0
                         text: "未读取到刀具表。"
                         color: "#a0a6b4"
                     }
