@@ -11,6 +11,7 @@ BaseCard {
 
   property bool autoScroll: true
   property int maxRows: 1000
+  property real preservedBottomOffset: 0
 
   // Normalize server log messages that may contain literal backtick-n sequences
   function normalizeMsg(s) {
@@ -39,19 +40,16 @@ BaseCard {
         spacing: 4
         model: Datas.LogDatas.filteredLogs
 
-        delegate: Rectangle {
+        delegate: Item {
           width: list.width
-          radius: 6
-          color: backgroundColor
-          border.width: 1
-          border.color: Qt.alpha(textColor, 0.35)
-          property var entry: modelData || ({})
-          property string levelText: String(entry.level !== undefined ? entry.level : (entry.Level || "")).toUpperCase()
-          property string loggerName: String(entry.name !== undefined ? entry.name : (entry.logger || ""))
-          property real timestamp: Number(entry.ts !== undefined ? entry.ts : entry.timestamp || 0)
-          property string stampText: (entry.time && String(entry.time).length > 0)
-                                      ? String(entry.time)
-                                      : (timestamp > 0 ? new Date(timestamp * 1000).toLocaleString() : "")
+
+          property string rawLevel: level !== undefined ? level : (Level !== undefined ? Level : "")
+          property string levelText: String(rawLevel).toUpperCase()
+          property string loggerName: String(name !== undefined ? name : (logger !== undefined ? logger : ""))
+          property real timestampValue: Number(ts !== undefined ? ts : (timestamp !== undefined ? timestamp : 0))
+          property string stampText: (time !== undefined && String(time).length > 0)
+                                      ? String(time)
+                                      : (timestampValue > 0 ? new Date(timestampValue * 1000).toLocaleString() : "")
           property var stampParts: stampText.length > 0 ? stampText.split(/\s+/) : []
           property string stampDisplay: stampParts.length > 0 ? stampParts[stampParts.length - 1] : "-"
           property color textColor: {
@@ -68,8 +66,12 @@ BaseCard {
             }
           }
           readonly property color backgroundColor: Qt.rgba(textColor.r, textColor.g, textColor.b, 0.12)
+          readonly property string messageText: normalizeMsg(
+                                                  msg !== undefined ? msg :
+                                                  (message !== undefined ? message : ""))
 
-          implicitHeight: contentRow.implicitHeight + 16
+
+          implicitHeight: contentRow.implicitHeight + 2
 
           RowLayout {
             id: contentRow
@@ -98,7 +100,7 @@ BaseCard {
             }
 
             Label {
-              text: normalizeMsg(entry.msg !== undefined ? entry.msg : (entry.message || ""))
+              text: messageText.length > 0 ? messageText : "-"
               color: Cores.CoreStyle.text
               Layout.fillWidth: true
               wrapMode: Text.WordWrap
@@ -117,12 +119,29 @@ BaseCard {
       if (root.autoScroll && Datas.LogDatas.matchesFilter(item))
         list.positionViewAtEnd()
     }
-    function onFilteredLogsChanged() {
-      if (root.autoScroll)
+
+    function onFilteredAboutToUpdate() {
+      if (!root.autoScroll) {
+        var bottomOffset = list.contentHeight - list.contentY - list.height
+        root.preservedBottomOffset = Math.max(0, bottomOffset)
+      }
+    }
+    function onFilteredUpdated() {
+      if (root.autoScroll) {
         list.positionViewAtEnd()
+      } else {
+        Qt.callLater(function() {
+          var contentHeight = list.contentHeight
+          var viewHeight = list.height
+          var maxY = Math.max(0, contentHeight - viewHeight)
+          var targetY = Math.max(0, maxY - root.preservedBottomOffset)
+          list.contentY = targetY
+        })
+      }
     }
   }
 }
+
 
 
 

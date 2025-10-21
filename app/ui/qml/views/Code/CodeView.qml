@@ -159,7 +159,6 @@ BaseCard {
 
       Label {
         anchors.centerIn: parent
-        text: qsTr("No program available. Load data or wait for backend updates.")
         color: Cores.CoreStyle.muted
         visible: root.programEmpty
         wrapMode: Text.WordWrap

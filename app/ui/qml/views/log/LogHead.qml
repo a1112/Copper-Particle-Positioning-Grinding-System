@@ -66,8 +66,8 @@ Item {
             break
           }
         }
-        if (levelCombo.currentIndex !== idx)
-          levelCombo.currentIndex = idx
+        if (currentIndex !== idx)
+          currentIndex = idx
       }
 
       onActivated: {
@@ -104,4 +104,3 @@ Item {
     }
   }
 }
-

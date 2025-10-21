@@ -5,46 +5,34 @@ from typing import Optional
 
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QCoreApplication, QSettings
 
-from app.core.events import EventBus
-from app.process.orchestrator import Orchestrator
-from app.devices.sim.motion_sim import MotionSim
-from app.vision.pipeline import VisionPipeline
-from app.devices.sim.camera_sim import CameraSim
-
-from app.ui.src.image_provider import CameraImageProvider
-from app.ui.src.qml_bridge import Backend
-from app.ui.src.settings_bridge import SettingsBridge
-from app.ui.src.highlighter import HighlighterBridge
-from app.ui.src.localization import LocalizationManager, read_persisted_language
 from app.api.server import create_app
+from app.config import DATA_MODE, DATA_ENDPOINT
+from app.runtime.environment import bootstrap_environment
+from app.ui.src.highlighter import HighlighterBridge
+from app.ui.src.image_provider import CameraImageProvider
+from app.ui.src.localization import LocalizationManager, read_persisted_language
 from app.server.launcher import ApiController
 
 
 class Runtime:
     def __init__(self) -> None:
+        bindings, self.business_service = bootstrap_environment(DATA_MODE, endpoint=DATA_ENDPOINT)
+
         # Core domain
-        self.bus = EventBus()
-        self.motion = MotionSim()
-        self.orch = Orchestrator(self.bus, self.motion)
+        self.bus = bindings.bus
+        self.motion = bindings.motion
+        self.orch = bindings.orchestrator
 
         # Vision/camera
-        self.vision = VisionPipeline(self.bus)
-        self.camera = CameraSim()
+        self.vision = bindings.vision
+        self.camera = bindings.camera
 
         # UI provider/context
         self.provider = CameraImageProvider()
-        self.settings = SettingsBridge(Path(__file__).resolve().parents[1].joinpath('ui', 'config.json'))
-        self.backend = Backend(self.orch)
         self.highlighter = HighlighterBridge()
         self.i18n: Optional[LocalizationManager] = None
-
-        # Hook orchestrator to UI backend for vision target
-        try:
-            self.orch.backend = self.backend  # type: ignore[attr-defined]
-        except Exception:
-            pass
 
         # API
         self.api_app = create_app(self.provider, self.orch, self.motion)
@@ -76,7 +64,7 @@ class Runtime:
 
     # --- API control ---
     def start_api(self) -> None:
-        self.api_ctl.start(self.api_app, self.settings.apiPort)
+        self.api_ctl.start(self.api_app, self._resolve_api_port())
 
     def restart_api(self, port: int) -> None:
         self.api_ctl.restart(self.api_app, port)
@@ -95,20 +83,8 @@ class Runtime:
         initial_language = read_persisted_language()
         self.i18n = LocalizationManager(translations_dir, initial_language)
 
-        self.engine.rootContext().setContextProperty("backend", self.backend)
         self.engine.rootContext().setContextProperty("pyHighlighter", self.highlighter)
-        self.engine.rootContext().setContextProperty("settings", self.settings)
         self.engine.rootContext().setContextProperty("i18n", self.i18n)
-
-        # Bind API restart hook
-        def _api_hook(action: str, port: int):
-            if action == "restart":
-                self.restart_api(port)
-
-        try:
-            self.settings.bindController(_api_hook)
-        except Exception:
-            pass
 
     def load_main_qml(self, qml_path: Optional[Path] = None) -> None:
         assert self.engine is not None
@@ -120,4 +96,12 @@ class Runtime:
     def exec(self) -> int:
         assert self.app is not None
         return self.app.exec()
+
+    def _resolve_api_port(self) -> int:
+        settings = QSettings("CopperSystem", "Copper UI")
+        value = settings.value("apiPort", 8010)
+        try:
+            return int(value)
+        except Exception:
+            return 8010
 

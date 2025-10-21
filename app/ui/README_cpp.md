@@ -14,5 +14,5 @@ point for a future C++ backend, so only placeholder logic is implemented.
 - In Qt Creator, use “Open Project…” and select `app/ui/CMakeLists.txt`. Choose a Qt kit, configure, and build the `copper_ui_cpp` target.
 
 The generated executable loads all QML/UI assets from `qml.qrc` and `resource.qrc`
-and exposes stubbed context objects (`backend`, `settings`, `pyHighlighter`) so
+and exposes stubbed context objects (`settings`, `pyHighlighter`, `i18n`) so
 that screens render without wiring the real Python backend.

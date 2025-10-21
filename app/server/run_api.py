@@ -3,24 +3,19 @@ from __future__ import annotations
 import signal
 import sys
 from types import ModuleType
-from typing import Any, Dict
+from typing import Any
 
 import uvicorn
 
-from app.core.events import EventBus
-from app.vision.pipeline import VisionPipeline
-from app.devices.sim.camera_sim import CameraSim
-from app.devices.sim.motion_sim import MotionSim
-from app.process.orchestrator import Orchestrator
+from app.config import DATA_MODE, DATA_ENDPOINT
+from app.devices.motion_base import IMotionController
+from app.runtime.environment import bootstrap_environment
 from app.ui.src.image_provider import CameraImageProvider
 from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
 from app.server import CONFIG
 from app.server.api.api_core import app, include_router
-from app.domain.status import set_status_provider
-from app.domain.status.providers import SimStatusProvider, ProductionStatusProvider
-from app.server.business import RuntimeBusinessService, SimBusinessService
-from app.server.data import set_backend, get_backend
+from app.server.data import get_backend
 
 
 def _ensure_module_alias(name: str, module: Any) -> None:
@@ -29,7 +24,7 @@ def _ensure_module_alias(name: str, module: Any) -> None:
         sys.modules[name] = module
 
 
-def _wrap_motion_module(controller: MotionSim) -> ModuleType:
+def _wrap_motion_module(controller: IMotionController) -> ModuleType:
     """Export motion controller methods through a lightweight module proxy."""
     proxy = ModuleType("motion")
     for attr in ("set_speed", "jog", "home", "set_work_origin", "status", "move_abs", "wait_done"):
@@ -39,7 +34,7 @@ def _wrap_motion_module(controller: MotionSim) -> ModuleType:
     return proxy
 
 
-def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrator, motion: MotionSim) -> None:
+def _bootstrap_api_modules(log, provider: CameraImageProvider, orch, motion: IMotionController) -> None:
     """Eagerly import API/WS modules and inject runtime singletons they expect."""
     # Provide legacy module aliases expected by individual route modules.
     _ensure_module_alias("CONFIG", CONFIG)
@@ -68,19 +63,6 @@ def _bootstrap_api_modules(log, provider: CameraImageProvider, orch: Orchestrato
     except Exception:
         pass
     include_router()
-    # Default to simulated data provider for decoupled business logic
-    try:
-        mode = getattr(CONFIG, "data_mode", "sim")
-        if mode == "comm":
-            endpoint = getattr(CONFIG, "data_endpoint", None)
-            set_status_provider(ProductionStatusProvider(endpoint))
-            set_backend(RuntimeBusinessService(motion, orch))
-        else:
-            set_status_provider(SimStatusProvider())
-            set_backend(SimBusinessService())
-    except Exception:
-        set_status_provider(SimStatusProvider())
-        set_backend(SimBusinessService())
 
     async def _status_fn():
         try:
@@ -103,13 +85,15 @@ def main() -> None:
     attach_root_handler()
     log = get_logger("cli")
 
-    bus = EventBus()
-    motion = MotionSim()
-    orch = Orchestrator(bus, motion)
+    mode = getattr(CONFIG, "data_mode", DATA_MODE)
+    endpoint = getattr(CONFIG, "data_endpoint", DATA_ENDPOINT)
+    bindings, _service = bootstrap_environment(mode, endpoint=endpoint)
+    motion = bindings.motion
+    orch = bindings.orchestrator
 
     # Vision + camera setup (headless)
-    vision = VisionPipeline(bus)
-    cam = CameraSim()
+    vision = bindings.vision
+    cam = bindings.camera
     cam.open()
 
     provider = CameraImageProvider()

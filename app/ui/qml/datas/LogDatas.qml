@@ -1,15 +1,25 @@
 pragma Singleton
 import QtQuick
 
-QtObject {
+Item {
   id: root
+
   property int status: -1
   property bool connected: false
-  property var logs: []
   property int logsMax: 1000
   property string levelFilter: "ALL"
-  property var filteredLogs: []
+
+  ListModel { id: logsModel }
+  ListModel { id: filteredModel }
+
+  property alias logs: logsModel
+  property alias filteredLogs: filteredModel
+
+  property int nextId: 0
+
   signal logReceived(var item)
+  signal filteredAboutToUpdate()
+  signal filteredUpdated()
 
   function _levelRank(level) {
     var key = String(level || "").toUpperCase()
@@ -30,6 +40,20 @@ QtObject {
     }
   }
 
+  function _normalizeEntry(entry) {
+    if (entry === undefined || entry === null)
+      return null
+    if (typeof entry === "object") {
+      var clone = {}
+      for (var key in entry) {
+        if (!entry.hasOwnProperty || entry.hasOwnProperty(key))
+          clone[key] = entry[key]
+      }
+      return clone
+    }
+    return { value: entry }
+  }
+
   function matchesFilter(item) {
     return _matchesFilter(item)
   }
@@ -40,58 +64,131 @@ QtObject {
     var filterKey = String(levelFilter || "ALL").toUpperCase()
     if (filterKey === "ALL")
       return true
-    var itemRank = _levelRank(item.level !== undefined ? item.level : item.Level)
+    var rawLevel = item.level !== undefined ? item.level : item.Level
+    var itemRank = _levelRank(rawLevel)
     var minRank = _levelRank(filterKey)
     return itemRank >= minRank
   }
 
-  function updateFiltered() {
-    var next = []
-    for (var i = 0; i < logs.length; ++i) {
-      var entry = logs[i]
-      if (!entry)
-        continue
-      if (_matchesFilter(entry))
-        next.push(entry)
-    }
-    filteredLogs = next
+  function clear() {
+    filteredAboutToUpdate()
+    logsModel.clear()
+    filteredModel.clear()
+    filteredUpdated()
   }
 
-  function clear() {
-    logs = []
-    filteredLogs = []
+  function _removeFromFilteredById(targetId, notifyChange) {
+    for (var i = 0; i < filteredModel.count; ++i) {
+      var row = filteredModel.get(i)
+      if (row && row.__id === targetId) {
+        if (notifyChange)
+          notifyChange()
+        filteredModel.remove(i)
+        return true
+      }
+    }
+    return false
+  }
+
+  function _trimToMax(notifyChange) {
+    var changed = false
+    while (logsModel.count > logsMax && logsModel.count > 0) {
+      var removed = logsModel.get(0)
+      var removedId = removed && removed.__id
+      logsModel.remove(0)
+      if (_removeFromFilteredById(removedId, notifyChange))
+        changed = true
+    }
+    return changed
+  }
+
+  function rebuildFiltered() {
+    filteredModel.clear()
+    for (var i = 0; i < logsModel.count; ++i) {
+      var entry = logsModel.get(i)
+      if (_matchesFilter(entry))
+        filteredModel.append(entry)
+    }
+  }
+
+  function updateFiltered() {
+    filteredAboutToUpdate()
+    rebuildFiltered()
+    filteredUpdated()
   }
 
   function append(item) {
-    if (!item)
+    var normalized = _normalizeEntry(item)
+    if (!normalized)
       return
-    var next = logs.slice()
-    next.push(item)
-    if (next.length > logsMax)
-      next = next.slice(next.length - logsMax)
-    logs = next
-    logReceived(item)
+    normalized.__id = nextId++
+    logsModel.append(normalized)
+    var aboutEmitted = false
+    var changed = false
+    function ensureAbout() {
+      if (!aboutEmitted) {
+        filteredAboutToUpdate()
+        aboutEmitted = true
+      }
+    }
+    if (_matchesFilter(normalized)) {
+      ensureAbout()
+      filteredModel.append(normalized)
+      changed = true
+    }
+    if (_trimToMax(ensureAbout))
+      changed = true
+    if (changed)
+      filteredUpdated()
+    logReceived(normalized)
   }
 
   function appendMany(items) {
     if (!items || !items.length)
       return
-    var next = logs.slice()
-    var lastAppended = null
+    var last = null
+    var aboutEmitted = false
+    var changed = false
+    function ensureAbout() {
+      if (!aboutEmitted) {
+        filteredAboutToUpdate()
+        aboutEmitted = true
+      }
+    }
     for (var i = 0; i < items.length; ++i) {
-      var entry = items[i]
+      var entry = _normalizeEntry(items[i])
       if (!entry)
         continue
-      next.push(entry)
-      lastAppended = entry
-      if (next.length > logsMax)
-        next.shift()
+      entry.__id = nextId++
+      logsModel.append(entry)
+      if (_matchesFilter(entry)) {
+        ensureAbout()
+        filteredModel.append(entry)
+        changed = true
+      }
+      last = entry
     }
-    logs = next
-    if (lastAppended !== null)
-      logReceived(lastAppended)
+    if (_trimToMax(ensureAbout))
+      changed = true
+    if (changed)
+      filteredUpdated()
+    if (last !== null)
+      logReceived(last)
   }
 
   onLevelFilterChanged: updateFiltered()
-  onLogsChanged: updateFiltered()
+  onLogsMaxChanged: {
+    var aboutEmitted = false
+    function ensureAbout() {
+      if (!aboutEmitted) {
+        filteredAboutToUpdate()
+        aboutEmitted = true
+      }
+    }
+    var trimmed = _trimToMax(ensureAbout)
+    if (!aboutEmitted)
+      filteredAboutToUpdate()
+    rebuildFiltered()
+    filteredUpdated()
+  }
 }

@@ -1,0 +1,21 @@
+	//图像旋转及坐标系变换
+		RotateImage(Image.Gray, &Gray, 180, "constant");
+		RotateImage(Image.Color, &Color, 180, "constant");
+		RotateImage(Image.X, &X, 180, "constant");
+		RotateImage(Image.Y, &Y, 180, "constant");
+		RotateImage(Image.Z, &Z, 180, "constant");
+		RotateImage(Image.NX, &NX, 180, "constant");
+		RotateImage(Image.NY, &NY, 180, "constant");
+		RotateImage(Image.NZ, &NZ, 180, "constant");
+
+	
+		//旋转后无效值变成0了 去除
+		Threshold(Z, &ho_Region, 10, 3000);
+		ReduceDomain(X, ho_Region, &X);
+		ReduceDomain(Y, ho_Region, &Y);
+		ReduceDomain(Z, ho_Region, &Z);
+		ReduceDomain(NX, ho_Region, &NX);
+		ReduceDomain(NY, ho_Region, &NY);
+		ReduceDomain(NZ, ho_Region, &NZ);
+		ScaleImage(X, &X, -1, 0);//X方向反向  实际坐标值*-1
+		ScaleImage(Y, &Y, -1, 0); //Y方向反向

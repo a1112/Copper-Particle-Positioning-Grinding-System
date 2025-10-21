@@ -105,18 +105,11 @@
         <file>qml/pages/main/test_page/TestPageView.qml</file>
         <file>qml/pages/main/user_page/UserPageView.qml</file>
         <file>qml/pages/MainLayouts.qml</file>
-        <file>qml/views/CommPanel.qml</file>
         <file>qml/views/DriveInfo/DriveInfoView.qml</file>
         <file>qml/views/DriveInfo/StatusLightAlarmView.qml</file>
         <file>qml/views/DriveInfo/ToolInfoView.qml</file>
-        <file>qml/views/EditorPanel.qml</file>
         <file>qml/views/ImageInfo/ImageInfoView.qml</file>
         <file>qml/views/Log/LogView.qml</file>
-        <file>qml/views/MotionPanel.qml</file>
-        <file>qml/views/SafetyPanel.qml</file>
-        <file>qml/views/StatusPanel.qml</file>
-        <file>qml/views/TopBar.qml</file>
-        <file>qml/views/VideoView.qml</file>
         <file>qml/views/Code/CodeView.qml</file>
         <file>qml/views/Base/BaseCard.qml</file>
         <file>qml/views/Charts/TorqueChart.qml</file>

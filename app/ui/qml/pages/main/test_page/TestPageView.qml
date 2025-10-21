@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import "../../head" as Widgets
 import "../../../cores" as Cores
 import "../../../datas" as Datas
-import "../../../views" as Views
+
 import "../../../Api" as Api
 
 // 测试页面：用于快速验证主题、时间、小图表与API链接
@@ -89,11 +89,6 @@ Item {
       SplitView {
         anchors.fill: parent
         // 左侧状态
-        Views.StatusPanel { SplitView.preferredWidth: 260; backend: backend }
-        // 中间视频
-        Views.VideoView { SplitView.preferredWidth: 720; backend: backend }
-        // 右侧指令编辑
-        Views.EditorPanel { SplitView.preferredWidth: 360 }
       }
     }    Item { Layout.fillHeight: true }
   }
