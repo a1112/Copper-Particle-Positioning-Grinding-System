@@ -8,6 +8,9 @@ import "../../works" as Works
 import "../../components/btns" as Btns
 import "../../components/Base" as BaseComponents
 
+/* 日志列表表头
+ * 提供连接状态指示、等级筛选下拉框以及自动滚动开关。
+ */
 Item {
   id: root
   height: Cores.CoreStyle.cardHeadHeight

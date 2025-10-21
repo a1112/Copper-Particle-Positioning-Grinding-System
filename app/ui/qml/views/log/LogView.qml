@@ -6,6 +6,9 @@ import "../../datas" as Datas
 import "../Base"
 import "../../cores" as Cores
 
+/* 日志视图卡片
+ * 负责展示 WebSocket 推送的日志信息，可按等级筛选并选择是否自动滚动。
+ */
 BaseCard {
   id: root
 
@@ -13,7 +16,7 @@ BaseCard {
   property int maxRows: 1000
   property real preservedBottomOffset: 0
 
-  // Normalize server log messages that may contain literal backtick-n sequences
+  // 将后端传来的字符串中 ``n`` 转换为真实换行，方便阅读。
   function normalizeMsg(s) {
     if (s === undefined || s === null) return ""
     const literal = String.fromCharCode(96) + "n"
@@ -22,27 +25,30 @@ BaseCard {
 
   ColumnLayout {
     anchors.fill: parent
-    anchors.margins: 8
+    anchors.margins: 4
     spacing: 6
 
-    LogHead { autoScroll: root.autoScroll; onAutoScrollChanged: root.autoScroll = autoScroll }
+    LogHead {
+      autoScroll: root.autoScroll
+      onAutoScrollChanged: root.autoScroll = autoScroll
+    }
 
-    Frame {
+    Item {
       Layout.fillWidth: true
       Layout.fillHeight: true
-      padding: 6
-
+      Frame{
+        anchors.fill: parent
+      }
       ListView {
         id: list
         anchors.fill: parent
-        anchors.margins: 2
+        anchors.margins: 1
         clip: true
-        spacing: 4
+        spacing: 2
         model: Datas.LogDatas.filteredLogs
 
         delegate: Item {
           width: list.width
-
           property string rawLevel: level !== undefined ? level : (Level !== undefined ? Level : "")
           property string levelText: String(rawLevel).toUpperCase()
           property string loggerName: String(name !== undefined ? name : (logger !== undefined ? logger : ""))
