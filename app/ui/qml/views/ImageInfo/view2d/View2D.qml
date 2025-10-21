@@ -6,6 +6,9 @@ import "../../../Api" as Api
 import "../../../cores" as Cores
 import "." as Layers
 
+/* 二维图像视图
+ * 展示加工区实时画面，并叠加夹具、刀具与坐标提示信息。
+ */
 Item {
   id: view
   Layout.fillWidth: true

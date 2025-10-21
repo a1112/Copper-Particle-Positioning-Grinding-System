@@ -11,9 +11,12 @@ from app.devices.camera_base import ICamera
 from app.devices.motion_base import IMotionController
 from app.devices.sim.camera_sim import CameraSim
 from app.devices.sim.motion_sim import MotionSim
+from app.devices.sim.virtual_parameter_device import VirtualParameterDevice
 from app.domain.status import set_status_provider
 from app.domain.status.providers import SimStatusProvider, ProductionStatusProvider
 from app.process.orchestrator import Orchestrator
+from app.process.sim_executor import SimulatedProcessExecutor
+from app.process.sim_path_planner import SimulatedPathPlanner
 from app.server.business import BusinessService, RuntimeBusinessService, SimBusinessService
 from app.server.data import set_backend
 from app.vision.pipeline import VisionPipeline
@@ -54,6 +57,9 @@ class SystemBindings:
     camera: ICamera
     orchestrator: Orchestrator
     vision: VisionPipeline
+    parameter_device: Optional[VirtualParameterDevice] = None
+    path_planner: Optional[SimulatedPathPlanner] = None
+    process_engine: Optional[SimulatedProcessExecutor] = None
 
     @property
     def mode(self) -> str:
@@ -98,15 +104,46 @@ class SimEnvironment(BaseEnvironment):
 
     mode = "sim"
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._status_provider = SimStatusProvider()
+        self._parameter_device: Optional[VirtualParameterDevice] = None
+        self._planner: Optional[SimulatedPathPlanner] = None
+        self._executor: Optional[SimulatedProcessExecutor] = None
+
     def create_motion(self, bus: EventBus) -> IMotionController:  # noqa: ARG002
         return MotionSim()
 
     def create_camera(self) -> ICamera:
         return CameraSim()
 
+    def build(self) -> SystemBindings:
+        bindings = super().build()
+        parameter_device = VirtualParameterDevice(self._status_provider)
+        planner = SimulatedPathPlanner()
+        executor = SimulatedProcessExecutor(bindings.motion, planner, parameter_device)
+        executor.plan_and_record()
+        setattr(bindings.orchestrator, "sim_executor", executor)
+        setattr(bindings.orchestrator, "sim_planner", planner)
+        setattr(bindings.orchestrator, "sim_device", parameter_device)
+        self._parameter_device = parameter_device
+        self._planner = planner
+        self._executor = executor
+
+        return SystemBindings(
+            bus=bindings.bus,
+            motion=bindings.motion,
+            camera=bindings.camera,
+            orchestrator=bindings.orchestrator,
+            vision=bindings.vision,
+            parameter_device=parameter_device,
+            path_planner=planner,
+            process_engine=executor,
+        )
+
     def configure_backend(self, bindings: SystemBindings, *, endpoint: Optional[str] = None) -> BusinessService:  # noqa: ARG002
         service = SimBusinessService()
-        set_status_provider(SimStatusProvider())
+        set_status_provider(self._status_provider)
         set_backend(service)
         return service
 

@@ -32,5 +32,4 @@ def get_engine():
 
 def init_db() -> None:
     """初始化数据库（中文注释）：导入模型并创建表。"""
-    from . import models  # noqa: F401 确保模型导入
     Base.metadata.create_all(bind=engine)

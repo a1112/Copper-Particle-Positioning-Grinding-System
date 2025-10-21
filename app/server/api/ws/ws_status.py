@@ -13,6 +13,7 @@ log = logging.getLogger("app.ws")
 
 
 async def _default_status_fn() -> Dict[str, Any]:
+    """从当前后端实现中读取最新状态，转换成字典返回。"""
     backend = get_backend()
     status_model = await backend.fetch_status()
     return status_model.to_dict()
@@ -23,6 +24,7 @@ status_fn: Callable[[], Awaitable[Dict[str, Any]]] = _default_status_fn
 
 @ws_router.websocket("/ws/status")
 async def ws_status(ws: WebSocket):
+    """状态 WebSocket 入口：定期推送设备状态给前端。"""
     await ws.accept()
     try:
         try:

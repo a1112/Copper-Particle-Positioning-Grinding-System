@@ -6,10 +6,7 @@ from PySide6.QtCore import QByteArray, QBuffer
 import numpy as np
 
 class Backend(QObject):
-    """QML 后端桥（中文注释）
-
-    作用：向 QML 暴露运行状态、日志、相机帧与控制接口（运动/回零等）。
-    """
+    """QML 后端桥接对象，负责同步状态并提供日志、图像及控制能力。"""
     logsChanged = Signal()
     statusChanged = Signal()
 

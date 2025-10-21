@@ -51,7 +51,6 @@ def _bootstrap_api_modules(log, provider: CameraImageProvider, orch, motion: IMo
         api_image,
         api_motion,
         api_status,
-        api_test,
         api_control,
         api_config,
         api_path,

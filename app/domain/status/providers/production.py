@@ -13,9 +13,11 @@ class ProductionStatusProvider(StatusProviderProtocol):
   """Placeholder provider; replace with real device/fieldbus integration."""
 
   def __init__(self, endpoint: Optional[str] = None) -> None:
+    """记录设备通信端点，方便未来接入真实产线。"""
     self._endpoint = endpoint or "local"
 
   def get_status(self) -> Dict[str, Any]:
+    """返回一帧静态的设备状态，模拟现场数据结构。"""
     base = 1200.0 + random.random() * 50.0
     lights: Dict[str, Any] = {
         "camera": "READY",
