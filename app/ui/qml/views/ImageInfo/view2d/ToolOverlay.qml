@@ -13,10 +13,22 @@ Item {
   property real scaleY: 1.0
   property real imageWidth: 640
   property real imageHeight: 360
+  property var calibrationCore: null
 
   readonly property bool hasTool: toolWorldPosition && toolWorldPosition.x !== undefined && toolWorldPosition.y !== undefined
-  readonly property real toolPixelX: hasTool ? toolWorldPosition.x / pixelSizeMm : -1
-  readonly property real toolPixelY: hasTool ? toolWorldPosition.y / pixelSizeMm : -1
+  readonly property point toolPixelPoint: {
+    if (!hasTool)
+      return Qt.point(-1, -1)
+    if (calibrationCore && calibrationCore.worldToImage !== undefined) {
+      var mapped = calibrationCore.worldToImage(toolWorldPosition)
+      return Qt.point(mapped.x, mapped.y)
+    }
+    if (pixelSizeMm <= 0)
+      return Qt.point(-1, -1)
+    return Qt.point(toolWorldPosition.x / pixelSizeMm, toolWorldPosition.y / pixelSizeMm)
+  }
+  readonly property real toolPixelX: toolPixelPoint.x
+  readonly property real toolPixelY: toolPixelPoint.y
   readonly property bool toolVisible: hasTool
       && toolPixelX >= 0 && toolPixelX <= imageWidth
       && toolPixelY >= 0 && toolPixelY <= imageHeight
@@ -30,6 +42,7 @@ Item {
   onImageWidthChanged: requestUpdate()
   onImageHeightChanged: requestUpdate()
   onToolVisibleChanged: requestUpdate()
+  onCalibrationCoreChanged: requestUpdate()
 
   Rectangle {
     id: marker

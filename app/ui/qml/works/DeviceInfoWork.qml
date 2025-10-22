@@ -6,22 +6,12 @@ import "../datas" as Datas
 QtObject {
   id: root
 
-  property bool _settingsLoaded: false
-
   property Timer _refreshTimer: Timer {
     id: refreshTimer
     interval: 5000
     running: false
     repeat: true
     onTriggered: root.refresh()
-  }
-
-  function _isEmpty(value) {
-    if (value === undefined)
-      return true
-    if (value === null)
-      return true
-    return value === ""
   }
 
   function start() {
@@ -37,8 +27,7 @@ QtObject {
   function refresh() {
     _fetchStatus()
     _fetchMeta()
-    if (!_settingsLoaded)
-      _fetchSettings()
+    _fetchToolInfo()
   }
 
   function _fetchStatus() {
@@ -57,10 +46,6 @@ QtObject {
           snapshot.serialNumber = payload.serial_number
         else if (payload.serialNumber !== undefined)
           snapshot.serialNumber = payload.serialNumber
-        if (payload.tool_usage !== undefined)
-          snapshot.toolUsage = payload.tool_usage
-        else if (payload.toolUsage !== undefined)
-          snapshot.toolUsage = payload.toolUsage
         Datas.DeviceInfoData.applySnapshot(snapshot)
       } catch (err) {
         console.warn("DeviceInfoWork status apply failed", err)
@@ -80,14 +65,6 @@ QtObject {
           metaSnapshot.serialNumber = payload.board_serial
         else if (payload.boardSerial !== undefined)
           metaSnapshot.serialNumber = payload.boardSerial
-        if (payload.cutter_diameter !== undefined)
-          metaSnapshot.toolDiameter = payload.cutter_diameter
-        else if (payload.cutterDiameter !== undefined)
-          metaSnapshot.toolDiameter = payload.cutterDiameter
-        if (payload.tool_life !== undefined)
-          metaSnapshot.toolLifetime = payload.tool_life
-        else if (payload.toolLife !== undefined)
-          metaSnapshot.toolLifetime = payload.toolLife
         if (payload.particle_count !== undefined)
           metaSnapshot.particleTotal = payload.particle_count
         else if (payload.particleTotal !== undefined)
@@ -105,30 +82,17 @@ QtObject {
     })
   }
 
-  function _fetchSettings() {
-    Api.ApiClient.configSettings(function(payload) {
+  function _fetchToolInfo() {
+    Api.ApiClient.toolInfo(function(payload) {
       try {
         if (!payload)
           return
-        if (!payload.tool_table)
-          return
-        if (!payload.tool_table.length)
-          return
-        var first = payload.tool_table[0]
-        var toolModelValue = first.name
-        if (_isEmpty(toolModelValue))
-          toolModelValue = first.code
-        if (_isEmpty(toolModelValue))
-          toolModelValue = "-"
-        Datas.DeviceInfoData.applySnapshot({
-          toolModel: toolModelValue
-        })
-        _settingsLoaded = true
+        Datas.ToolInfoData.applySnapshot(payload)
       } catch (err) {
-        console.warn("DeviceInfoWork settings apply failed", err)
+        console.warn("DeviceInfoWork toolInfo apply failed", err)
       }
     }, function(status, message) {
-      console.warn("DeviceInfoWork settings error", status, message)
+      console.warn("DeviceInfoWork toolInfo error", status, message)
     })
   }
 }

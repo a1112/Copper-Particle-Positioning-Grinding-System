@@ -1,4 +1,11 @@
-﻿from __future__ import annotations
+from __future__ import annotations
+
+try:
+    from gevent import monkey as _gevent_monkey
+except ImportError:  # pragma: no cover - zerorpc installs gevent in normal deployments
+    _gevent_monkey = None
+else:  # pragma: no cover - side effect only
+    _gevent_monkey.patch_all()
 
 import argparse
 import asyncio
@@ -6,11 +13,10 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, AsyncIterator, Dict, Iterable, List, Optional
+from typing import Any, AsyncIterator, Dict, Iterable, List, Optional, Mapping
 
-import httpx
-
-DEFAULT_API_BASE = "http://127.0.0.1:8010/api"
+from app.config import RPC_CONTROL_ENDPOINT, RPC_LISTEN_ENDPOINT, RPC_TIMEOUT
+from app.controller.rpc.service import RpcControllerService
 
 LOG = logging.getLogger("controller")
 
@@ -23,12 +29,14 @@ class Scenario:
     status: Dict[str, Any]
     cutting: Optional[Dict[str, Any]] = None
     delay: float = 1.0
+    logs: Optional[List[Dict[str, Any]]] = None
 
     @classmethod
     def from_mapping(cls, payload: Dict[str, Any]) -> "Scenario":
         name = str(payload.get("label") or payload.get("name") or "unnamed")
         status_payload = payload.get("status") or {}
         cutting_payload = payload.get("cutting")
+        logs_payload = payload.get("logs")
         delay_value = payload.get("delay", 1.0)
         try:
             delay = float(delay_value)
@@ -36,58 +44,37 @@ class Scenario:
             delay = 1.0
         if delay < 0:
             delay = 0.0
-        return cls(name=name, status=dict(status_payload), cutting=dict(cutting_payload) if cutting_payload else None, delay=delay)
+
+        logs: Optional[List[Dict[str, Any]]] = None
+        if isinstance(logs_payload, Iterable):
+            parsed: List[Dict[str, Any]] = []
+            for entry in logs_payload:
+                if isinstance(entry, Mapping):
+                    parsed.append(dict(entry))
+            if parsed:
+                logs = parsed
+
+        return cls(
+            name=name,
+            status=dict(status_payload),
+            cutting=dict(cutting_payload) if isinstance(cutting_payload, Mapping) else None,
+            delay=delay,
+            logs=logs,
+        )
 
 
-async def _request_json(
-    client: httpx.AsyncClient,
-    base: str,
-    endpoint: str,
-    *,
-    method: str = "POST",
-    payload: Optional[Dict[str, Any]] = None,
-    params: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
-    url = f"{base.rstrip('/')}/{endpoint.lstrip('/')}"
-    LOG.debug("%s %s", method.upper(), url)
-    if method == "POST":
-        response = await client.post(url, params=params, json=payload)
-    elif method == "DELETE":
-        response = await client.delete(url, params=params)
-    else:
-        response = await client.request(method, url, params=params, json=payload)
-    response.raise_for_status()
-    if not response.content:
-        return {}
-    return response.json()
-
-
-async def _apply_scenario(
-    client: httpx.AsyncClient,
-    base: str,
-    scenario: Scenario,
-    merge: bool,
-) -> None:
+def _apply_scenario_rpc(service: RpcControllerService, scenario: Scenario) -> None:
     status_payload = dict(scenario.status)
     status_payload.setdefault("label", scenario.name)
-    await _request_json(client, base, "status/test_payload", params={"merge": "true" if merge else "false"}, payload=status_payload)
-    LOG.info("Applied status snapshot %s", scenario.name)
+    ok_status = service.publish_status(status_payload)
+    LOG.info("Published status snapshot %s via RPC (ok=%s)", scenario.name, ok_status)
+
     if scenario.cutting:
-        await _request_json(client, base, "cutting/test_payload", params={"merge": "true" if merge else "false"}, payload=scenario.cutting)
-        LOG.info("Applied cutting snapshot %s", scenario.name)
-
-
-async def _clear_manual_payloads(client: httpx.AsyncClient, base: str) -> None:
-    try:
-        LOG.info("Clearing manual status overrides")
-        await _request_json(client, base, "status/test_payload", method="DELETE")
-    except httpx.HTTPStatusError:
-        pass
-    try:
-        LOG.info("Clearing manual cutting overrides")
-        await _request_json(client, base, "cutting/test_payload", method="DELETE")
-    except httpx.HTTPStatusError:
-        pass
+        ok_cutting = service.publish_cutting(scenario.cutting)
+        LOG.info("Published cutting snapshot %s via RPC (ok=%s)", scenario.name, ok_cutting)
+    if scenario.logs:
+        ok_logs = service.publish_logs(scenario.logs)
+        LOG.info("Published %d log entries via RPC (ok=%s)", len(scenario.logs), ok_logs)
 
 
 def _load_scenarios(paths: Iterable[Path]) -> List[Scenario]:
@@ -104,9 +91,8 @@ def _load_scenarios(paths: Iterable[Path]) -> List[Scenario]:
             if not isinstance(items, list):
                 raise ValueError(f"Unsupported scenario file format: {path}")
         for item in items:
-            if not isinstance(item, dict):
-                continue
-            scenarios.append(Scenario.from_mapping(item))
+            if isinstance(item, dict):
+                scenarios.append(Scenario.from_mapping(item))
     if not scenarios:
         raise ValueError("No scenarios were loaded")
     return scenarios
@@ -124,25 +110,31 @@ async def run_controller(args: argparse.Namespace) -> None:
     paths = [Path(item) for item in args.scenario]
     scenarios = _load_scenarios(paths)
 
-    timeout = httpx.Timeout(args.timeout, connect=args.timeout)
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        try:
-            async for scenario in _cycle_scenarios(scenarios, args.loop):
-                await _apply_scenario(client, args.base, scenario, merge=args.merge)
-                await asyncio.sleep(scenario.delay if args.respect_delay else args.interval)
-        finally:
-            if args.reset_on_exit:
-                await _clear_manual_payloads(client, args.base)
+    service = RpcControllerService(
+        listen_endpoint=args.rpc_listen,
+        server_endpoint=args.rpc_server,
+        timeout=args.rpc_timeout,
+    )
+    service.start()
+    LOG.info(
+        "RPC controller started (listen=%s, upstream=%s)",
+        args.rpc_listen,
+        args.rpc_server,
+    )
+
+    try:
+        if not service.ping():
+            LOG.warning("Initial RPC ping failed; continuing regardless")
+        async for scenario in _cycle_scenarios(scenarios, args.loop):
+            _apply_scenario_rpc(service, scenario)
+            await asyncio.sleep(scenario.delay if args.respect_delay else args.interval)
+    finally:
+        service.stop()
+        LOG.info("RPC controller stopped")
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Standalone main-controller that drives the server simulator payloads.")
-    parser.add_argument(
-        "-b",
-        "--base",
-        default=DEFAULT_API_BASE,
-        help=f"Server API base URL (default: {DEFAULT_API_BASE})",
-    )
+    parser = argparse.ArgumentParser(description="Standalone main-controller that drives the server simulator payloads over ZeroRPC.")
     parser.add_argument(
         "-s",
         "--scenario",
@@ -163,25 +155,25 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Use the `delay` value inside each scenario (if present).",
     )
     parser.add_argument(
-        "--merge",
-        action="store_true",
-        help="Merge scenarios into existing overrides instead of overwriting on each push.",
-    )
-    parser.add_argument(
         "--loop",
         action="store_true",
         help="Keep replaying scenarios in a loop until interrupted.",
     )
     parser.add_argument(
-        "--timeout",
-        type=float,
-        default=5.0,
-        help="Timeout (seconds) for HTTP requests.",
+        "--rpc-listen",
+        default=RPC_CONTROL_ENDPOINT,
+        help=f"ZeroRPC endpoint where the controller listens for commands (default: {RPC_CONTROL_ENDPOINT}).",
     )
     parser.add_argument(
-        "--reset-on-exit",
-        action="store_true",
-        help="Clear manual payload overrides when the controller stops.",
+        "--rpc-server",
+        default=RPC_LISTEN_ENDPOINT,
+        help=f"ZeroRPC endpoint exposed by the API server to receive telemetry (default: {RPC_LISTEN_ENDPOINT}).",
+    )
+    parser.add_argument(
+        "--rpc-timeout",
+        type=float,
+        default=RPC_TIMEOUT,
+        help=f"Timeout (seconds) for ZeroRPC requests (default: {RPC_TIMEOUT}).",
     )
     parser.add_argument(
         "--log-level",
@@ -206,9 +198,6 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         asyncio.run(run_controller(args))
     except KeyboardInterrupt:
         LOG.info("Controller interrupted by user.")
-    except httpx.HTTPError as exc:
-        LOG.error("HTTP error: %s", exc)
-        raise SystemExit(2) from exc
     except Exception as exc:  # pragma: no cover - top-level safeguard
         LOG.exception("Controller crashed: %s", exc)
         raise SystemExit(1) from exc

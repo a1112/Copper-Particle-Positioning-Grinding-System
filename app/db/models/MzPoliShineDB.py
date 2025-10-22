@@ -19,28 +19,28 @@ class ActionCommands(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    action_name: Mapped[str] = mapped_column(String(200, 'utf8mb4_unicode_ci'), nullable=False, comment='¶¯×÷Ãû³Æ')
-    command_code: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='Ö¸Áî´úÂë')
-    command_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='Ö¸ÁîÊı¾İ')
-    status: Mapped[Optional[int]] = mapped_column(TINYINT, server_default=text("'0'"), comment='0=Î´Ö´ĞĞ, 1=Ö´ĞĞ³É¹¦, -1=Ö´ĞĞÊ§°Ü, 2=Ö´ĞĞÖĞ')
-    priority: Mapped[Optional[int]] = mapped_column(TINYINT, server_default=text("'0'"), comment='ÓÅÏÈ¼¶')
+    action_name: Mapped[str] = mapped_column(String(200, 'utf8mb4_unicode_ci'), nullable=False, comment='åŠ¨ä½œåç§°')
+    command_code: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='æŒ‡ä»¤ä»£ç ')
+    command_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='æŒ‡ä»¤æ•°æ®')
+    status: Mapped[Optional[int]] = mapped_column(TINYINT, server_default=text("'0'"), comment='0=æœªæ‰§è¡Œ, 1=æ‰§è¡ŒæˆåŠŸ, -1=æ‰§è¡Œå¤±è´¥, 2=æ‰§è¡Œä¸­')
+    priority: Mapped[Optional[int]] = mapped_column(TINYINT, server_default=text("'0'"), comment='ä¼˜å…ˆçº§')
     created_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
-    executed_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='Ö´ĞĞÊ±¼ä')
-    completed_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='Íê³ÉÊ±¼ä')
-    error_message: Mapped[Optional[str]] = mapped_column(Text(collation='utf8mb4_unicode_ci'), comment='´íÎóĞÅÏ¢')
+    executed_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='æ‰§è¡Œæ—¶é—´')
+    completed_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='å®Œæˆæ—¶é—´')
+    error_message: Mapped[Optional[str]] = mapped_column(Text(collation='utf8mb4_unicode_ci'), comment='é”™è¯¯ä¿¡æ¯')
 
 
 class CameraConfig(Base):
     __tablename__ = 'camera_config'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    camera_id: Mapped[str] = mapped_column(String(100, 'utf8mb4_unicode_ci'), nullable=False, comment='Ïà»ú±êÊ¶')
-    resolution_width: Mapped[Optional[int]] = mapped_column(Integer, comment='·Ö±æÂÊ¿í')
-    resolution_height: Mapped[Optional[int]] = mapped_column(Integer, comment='·Ö±æÂÊ¸ß')
-    frame_rate: Mapped[Optional[int]] = mapped_column(Integer, comment='Ö¡ÂÊ')
-    exposure_time: Mapped[Optional[float]] = mapped_column(Float, comment='ÆØ¹âÊ±¼ä')
-    manufacturer: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='³§ÉÌÃû')
-    is_active: Mapped[Optional[int]] = mapped_column(TINYINT(1), server_default=text("'1'"), comment='ÊÇ·ñ¼¤»î')
+    camera_id: Mapped[str] = mapped_column(String(100, 'utf8mb4_unicode_ci'), nullable=False, comment='ç›¸æœºæ ‡è¯†')
+    resolution_width: Mapped[Optional[int]] = mapped_column(Integer, comment='åˆ†è¾¨ç‡å®½')
+    resolution_height: Mapped[Optional[int]] = mapped_column(Integer, comment='åˆ†è¾¨ç‡é«˜')
+    frame_rate: Mapped[Optional[int]] = mapped_column(Integer, comment='å¸§ç‡')
+    exposure_time: Mapped[Optional[float]] = mapped_column(Float, comment='æ›å…‰æ—¶é—´')
+    manufacturer: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='å‚å•†å')
+    is_active: Mapped[Optional[int]] = mapped_column(TINYINT(1), server_default=text("'1'"), comment='æ˜¯å¦æ¿€æ´»')
     updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
 
@@ -52,10 +52,10 @@ class CoordinateSystem(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    coordinate_type: Mapped[str] = mapped_column(ENUM('¾ø¶ÔÎ»ÖÃ', 'Ïà¶ÔÎ»ÖÃ', '¹¤¼şÎ»ÖÃ', 'Ê£Óà¾àÀë'), nullable=False)
-    x_position: Mapped[decimal.Decimal] = mapped_column(DECIMAL(10, 3), nullable=False, comment='X×ø±ê(mm)')
-    y_position: Mapped[decimal.Decimal] = mapped_column(DECIMAL(10, 3), nullable=False, comment='Y×ø±ê(mm)')
-    z_position: Mapped[decimal.Decimal] = mapped_column(DECIMAL(10, 3), nullable=False, comment='Z×ø±ê(mm)')
+    coordinate_type: Mapped[str] = mapped_column(ENUM('ç»å¯¹ä½ç½®', 'ç›¸å¯¹ä½ç½®', 'å·¥ä»¶ä½ç½®', 'å‰©ä½™è·ç¦»'), nullable=False)
+    x_position: Mapped[decimal.Decimal] = mapped_column(DECIMAL(10, 3), nullable=False, comment='Xåæ ‡(mm)')
+    y_position: Mapped[decimal.Decimal] = mapped_column(DECIMAL(10, 3), nullable=False, comment='Yåæ ‡(mm)')
+    z_position: Mapped[decimal.Decimal] = mapped_column(DECIMAL(10, 3), nullable=False, comment='Zåæ ‡(mm)')
     timestamp: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
 
@@ -66,11 +66,11 @@ class FixtureStatus(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    fixture_id: Mapped[int] = mapped_column(TINYINT, nullable=False, comment='¼Ğ¾ß±àºÅ1~16')
-    is_on: Mapped[int] = mapped_column(TINYINT(1), nullable=False, server_default=text("'0'"), comment='¿ª¹Ø×´Ì¬: true=¿ª, false=¹Ø')
-    position_x: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='X×ø±ê')
-    position_y: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='Y×ø±ê')
-    position_z: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='Z×ø±ê')
+    fixture_id: Mapped[int] = mapped_column(TINYINT, nullable=False, comment='å¤¹å…·ç¼–å·1~16')
+    is_on: Mapped[int] = mapped_column(TINYINT(1), nullable=False, server_default=text("'0'"), comment='å¼€å…³çŠ¶æ€: true=å¼€, false=å…³')
+    position_x: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='Xåæ ‡')
+    position_y: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='Yåæ ‡')
+    position_z: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='Zåæ ‡')
     updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
 
@@ -84,13 +84,13 @@ class RunningLog(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    progress: Mapped[str] = mapped_column(ENUM('Î´Ö´ĞĞ', 'Ïà»úÈ¡Í¼', 'Ëã·¨µ÷ÓÃ', 'Ö¸ÁîÖ´ĞĞ', 'Íê³É'), nullable=False, server_default=text("'Î´Ö´ĞĞ'"))
-    job_id: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='ÈÎÎñÎ¨Ò»±êÊ¶')
-    camera_image_path: Mapped[Optional[str]] = mapped_column(String(500, 'utf8mb4_unicode_ci'), comment='Í¼Ïñ±£´æÂ·¾¶')
-    algorithm_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='Ëã·¨Ïà¹ØÊı¾İ')
-    machine_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='»úÌ¨Êı¾İ')
-    start_time: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='¿ªÊ¼Ê±¼ä')
-    end_time: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='½áÊøÊ±¼ä')
+    progress: Mapped[str] = mapped_column(ENUM('æœªæ‰§è¡Œ', 'ç›¸æœºå–å›¾', 'ç®—æ³•è°ƒç”¨', 'æŒ‡ä»¤æ‰§è¡Œ', 'å®Œæˆ'), nullable=False, server_default=text("'æœªæ‰§è¡Œ'"))
+    job_id: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='ä»»åŠ¡å”¯ä¸€æ ‡è¯†')
+    camera_image_path: Mapped[Optional[str]] = mapped_column(String(500, 'utf8mb4_unicode_ci'), comment='å›¾åƒä¿å­˜è·¯å¾„')
+    algorithm_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='ç®—æ³•ç›¸å…³æ•°æ®')
+    machine_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='æœºå°æ•°æ®')
+    start_time: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='å¼€å§‹æ—¶é—´')
+    end_time: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='ç»“æŸæ—¶é—´')
     created_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
 
@@ -98,17 +98,17 @@ class SpindleMotor(Base):
     __tablename__ = 'spindle_motor'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    temperature: Mapped[Optional[float]] = mapped_column(Float, comment='ÎÂ¶È')
-    spindle_speed: Mapped[Optional[int]] = mapped_column(Integer, comment='Ö÷Öá×ªËÙ')
-    tool_diameter: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='µ¶¾ßÖ±¾¶(mm)')
-    tool_path_spacing: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='ĞĞµ¶¼ä¾à(mm)')
-    total_cutting_depth: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='ÇĞÏ÷×ÜÉî(mm)')
-    air_cutting_speed: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='¿ÕÅÜËÙ¶È(mm/s)')
-    workpiece_surface_height: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='¹¤¼ş±íÃæ¸ß¶È(mm)')
-    cutting_depth: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='³Ôµ¶Éî¶È(mm)')
-    step_distance: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='²½¶¯¾àÀë(mm)')
-    feed_rate: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='½ø¸øËÙ¶È(mm/s)')
-    jog_speed: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='µã¶¯ËÙ¶È(mm/s)')
+    temperature: Mapped[Optional[float]] = mapped_column(Float, comment='æ¸©åº¦')
+    spindle_speed: Mapped[Optional[int]] = mapped_column(Integer, comment='ä¸»è½´è½¬é€Ÿ')
+    tool_diameter: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='åˆ€å…·ç›´å¾„(mm)')
+    tool_path_spacing: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='è¡Œåˆ€é—´è·(mm)')
+    total_cutting_depth: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='åˆ‡å‰Šæ€»æ·±(mm)')
+    air_cutting_speed: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='ç©ºè·‘é€Ÿåº¦(mm/s)')
+    workpiece_surface_height: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='å·¥ä»¶è¡¨é¢é«˜åº¦(mm)')
+    cutting_depth: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='åƒåˆ€æ·±åº¦(mm)')
+    step_distance: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='æ­¥åŠ¨è·ç¦»(mm)')
+    feed_rate: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='è¿›ç»™é€Ÿåº¦(mm/s)')
+    jog_speed: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(8, 3), comment='ç‚¹åŠ¨é€Ÿåº¦(mm/s)')
     updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
 
@@ -119,12 +119,12 @@ class SystemParameters(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    category: Mapped[str] = mapped_column(String(50, 'utf8mb4_unicode_ci'), nullable=False, comment='²ÎÊıÀà±ğ')
-    parameter_name: Mapped[str] = mapped_column(String(100, 'utf8mb4_unicode_ci'), nullable=False, comment='²ÎÊıÃû³Æ')
+    category: Mapped[str] = mapped_column(String(50, 'utf8mb4_unicode_ci'), nullable=False, comment='å‚æ•°ç±»åˆ«')
+    parameter_name: Mapped[str] = mapped_column(String(100, 'utf8mb4_unicode_ci'), nullable=False, comment='å‚æ•°åç§°')
     data_type: Mapped[str] = mapped_column(ENUM('int', 'float', 'string', 'bool', 'array'), nullable=False, server_default=text("'string'"))
-    parameter_value: Mapped[Optional[dict]] = mapped_column(JSON, comment='²ÎÊıÖµ')
-    description: Mapped[Optional[str]] = mapped_column(Text(collation='utf8mb4_unicode_ci'), comment='²ÎÊıÃèÊö')
-    is_editable: Mapped[Optional[int]] = mapped_column(TINYINT(1), server_default=text("'1'"), comment='ÊÇ·ñ¿É±à¼­')
+    parameter_value: Mapped[Optional[dict]] = mapped_column(JSON, comment='å‚æ•°å€¼')
+    description: Mapped[Optional[str]] = mapped_column(Text(collation='utf8mb4_unicode_ci'), comment='å‚æ•°æè¿°')
+    is_editable: Mapped[Optional[int]] = mapped_column(TINYINT(1), server_default=text("'1'"), comment='æ˜¯å¦å¯ç¼–è¾‘')
     updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
 
@@ -132,11 +132,11 @@ class SystemStatus(Base):
     __tablename__ = 'system_status'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    running_status: Mapped[str] = mapped_column(ENUM('ÔËĞĞ', 'ÔİÍ£', '±¨¾¯', '¿ÕÏĞ', '³õÊ¼»¯Íê³É'), nullable=False, server_default=text("'¿ÕÏĞ'"))
-    communication_status: Mapped[str] = mapped_column(ENUM('ÔËĞĞ', 'Í£Ö¹'), nullable=False, server_default=text("'Í£Ö¹'"))
-    alarm_status: Mapped[str] = mapped_column(ENUM('±¨¾¯', 'ÎŞ'), nullable=False, server_default=text("'ÎŞ'"))
-    control_mode: Mapped[str] = mapped_column(ENUM('Ô¶³Ì', '±¾µØ'), nullable=False, server_default=text("'±¾µØ'"))
-    machine_mode: Mapped[str] = mapped_column(ENUM('µã¶¯', 'ÊÖ¶¯', '×Ô¶¯'), nullable=False, server_default=text("'ÊÖ¶¯'"))
+    running_status: Mapped[str] = mapped_column(ENUM('è¿è¡Œ', 'æš‚åœ', 'æŠ¥è­¦', 'ç©ºé—²', 'åˆå§‹åŒ–å®Œæˆ'), nullable=False, server_default=text("'ç©ºé—²'"))
+    communication_status: Mapped[str] = mapped_column(ENUM('è¿è¡Œ', 'åœæ­¢'), nullable=False, server_default=text("'åœæ­¢'"))
+    alarm_status: Mapped[str] = mapped_column(ENUM('æŠ¥è­¦', 'æ— '), nullable=False, server_default=text("'æ— '"))
+    control_mode: Mapped[str] = mapped_column(ENUM('è¿œç¨‹', 'æœ¬åœ°'), nullable=False, server_default=text("'æœ¬åœ°'"))
+    machine_mode: Mapped[str] = mapped_column(ENUM('ç‚¹åŠ¨', 'æ‰‹åŠ¨', 'è‡ªåŠ¨'), nullable=False, server_default=text("'æ‰‹åŠ¨'"))
     updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
 
@@ -144,9 +144,9 @@ class WarningLog(Base):
     __tablename__ = 'warning_log'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    description: Mapped[Optional[str]] = mapped_column(Text(collation='utf8mb4_unicode_ci'), comment='ÃèÊö')
-    error_code: Mapped[Optional[str]] = mapped_column(String(50, 'utf8mb4_unicode_ci'), comment='´íÎóÂë')
-    solution: Mapped[Optional[str]] = mapped_column(Text(collation='utf8mb4_unicode_ci'), comment='½â¾ö·½·¨')
-    triggered_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), comment='´¥·¢Ê±¼ä')
-    processed_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='´¦ÀíÊ±¼ä')
-    is_processed: Mapped[Optional[int]] = mapped_column(TINYINT(1), server_default=text("'0'"), comment='ÊÇ·ñÒÑ´¦Àí')
+    description: Mapped[Optional[str]] = mapped_column(Text(collation='utf8mb4_unicode_ci'), comment='æè¿°')
+    error_code: Mapped[Optional[str]] = mapped_column(String(50, 'utf8mb4_unicode_ci'), comment='é”™è¯¯ç ')
+    solution: Mapped[Optional[str]] = mapped_column(Text(collation='utf8mb4_unicode_ci'), comment='è§£å†³æ–¹æ³•')
+    triggered_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'), comment='è§¦å‘æ—¶é—´')
+    processed_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, comment='å¤„ç†æ—¶é—´')
+    is_processed: Mapped[Optional[int]] = mapped_column(TINYINT(1), server_default=text("'0'"), comment='æ˜¯å¦å·²å¤„ç†')

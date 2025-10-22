@@ -16,6 +16,7 @@ import "works" as Works
 import "test"
 
 App_Base {
+  // 应用根窗口实例
   id: win
   Component.onCompleted: {
     Api.ApiClient.root = win
@@ -24,7 +25,7 @@ App_Base {
     Works.Works.startAll()
   }
 
-  // Use MainLayouts as the top-level container
+  // 主界面布局容器
   MainLayouts { anchors.fill: parent }
 
   GlobErrorDialog { id: errorDialog }

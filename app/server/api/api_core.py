@@ -10,6 +10,9 @@ ws_router = APIRouter(tags=["websockets"])
 control_router = APIRouter(tags=["control"])
 config_router = APIRouter(tags=["config"])
 path_router = APIRouter(tags=["path"])
+cutting_router = APIRouter(tags=["cutting"])
+tool_router = APIRouter(tags=["tool"])
+vision_router = APIRouter(tags=["vision"])
 
 
 def include_router():
@@ -20,4 +23,7 @@ def include_router():
     app.include_router(status_router)
     app.include_router(control_router)
     app.include_router(config_router)
+    app.include_router(cutting_router)
     app.include_router(path_router)
+    app.include_router(tool_router)
+    app.include_router(vision_router)

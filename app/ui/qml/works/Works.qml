@@ -9,5 +9,6 @@ QtObject {
     WorksModule.CodeWork.start()
     WorksModule.CuttingWork.start()
     WorksModule.DeviceInfoWork.start()
+    WorksModule.CalibrationWork.start()
   }
 }

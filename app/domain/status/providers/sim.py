@@ -107,3 +107,23 @@ class SimStatusProvider(StatusProviderProtocol):
     def update_extra_status(self, **fields: Any) -> None:
         """Attach additional simulated metrics that should surface in responses."""
         self._extra_status.update(fields)
+
+    def apply_manual_snapshot(self, payload: Dict[str, Any], *, reset: bool = True) -> Dict[str, Any]:
+        """Replace or merge the simulated overrides used by the API/UI."""
+        if reset:
+            self._extra_status = {}
+        if payload:
+            self._extra_status.update(payload)
+        return dict(self._extra_status)
+
+    def clear_manual_snapshot(self, *keys: str) -> None:
+        """Clear all overrides or drop specific keys from the snapshot."""
+        if keys:
+            for key in keys:
+                self._extra_status.pop(key, None)
+        else:
+            self._extra_status.clear()
+
+    def get_manual_snapshot(self) -> Dict[str, Any]:
+        """Expose the active override payload for diagnostics."""
+        return dict(self._extra_status)

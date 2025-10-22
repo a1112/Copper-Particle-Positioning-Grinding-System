@@ -34,7 +34,7 @@ async def ws_status(ws: WebSocket):
         while True:
             payload = await status_fn()
             await ws.send_json(payload)
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.1)
     except WebSocketDisconnect:
         try:
             log.info("WS disconnected endpoint=/ws client=%s", getattr(ws, "client", None))

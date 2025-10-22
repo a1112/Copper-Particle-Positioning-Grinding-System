@@ -62,10 +62,6 @@ async def read_status_test_payload() -> Dict[str, Any]:
     return snapshot_fn()
 
 
-@router.get("/")
-def read_root():
-    return {"/docs": "??? /docs ????"}
-
 
 @router.get("/delay")
 async def get_delay():

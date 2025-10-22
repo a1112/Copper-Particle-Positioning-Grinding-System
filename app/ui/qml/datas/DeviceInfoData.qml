@@ -10,11 +10,6 @@ QtObject {
   property string runMode: Core.CoreState.currentRunModelName
   property string runState: "-"
 
-  property string toolModel: "-"
-  property string toolDiameter: "-"
-  property string toolUsage: "-"
-  property string toolLifetime: "-"
-
   property string particleTotal: "-"
   property string planeHeight: "-"
 
@@ -43,26 +38,6 @@ QtObject {
       runState = _toDisplay(payload.runState)
     else if (payload.state !== undefined)
       runState = _toDisplay(payload.state)
-
-    if (payload.toolModel !== undefined)
-      toolModel = _toDisplay(payload.toolModel)
-    else if (payload.tool_model !== undefined)
-      toolModel = _toDisplay(payload.tool_model)
-    else if (payload.toolName !== undefined)
-      toolModel = _toDisplay(payload.toolName)
-    if (payload.toolDiameter !== undefined)
-      toolDiameter = _toDisplay(payload.toolDiameter)
-    else if (payload.cutter_diameter !== undefined)
-      toolDiameter = _toDisplay(payload.cutter_diameter)
-    if (payload.toolUsage !== undefined)
-      toolUsage = _toDisplay(payload.toolUsage)
-    else if (payload.tool_usage !== undefined)
-      toolUsage = _toDisplay(payload.tool_usage)
-    if (payload.toolLifetime !== undefined)
-      toolLifetime = _toDisplay(payload.toolLifetime)
-    else if (payload.tool_life !== undefined)
-      toolLifetime = _toDisplay(payload.tool_life)
-
     if (payload.particleTotal !== undefined)
       particleTotal = _toDisplay(payload.particleTotal)
     else if (payload.particle_count !== undefined)
@@ -77,10 +52,6 @@ QtObject {
     serialNumber = "-"
     runMode = Core.CoreState.currentRunModelName
     runState = "-"
-    toolModel = "-"
-    toolDiameter = "-"
-    toolUsage = "-"
-    toolLifetime = "-"
     particleTotal = "-"
     planeHeight = "-"
   }

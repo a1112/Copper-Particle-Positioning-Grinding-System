@@ -1,0 +1,17 @@
+{
+  "image": { "width": 640, "height": 480 },
+  "world": { "width": 320.0, "height": 240.0 },
+  "origin": { "x": 0.0, "y": 0.0 },
+  "fixtures": [
+    {
+      "name": "fixture_a",
+      "rotation_origin": { "x": 100.0, "y": 120.0 },
+      "rect": { "x": 80.0, "y": 90.0, "width": 40.0, "height": 60.0 }
+    },
+    {
+      "name": "fixture_b",
+      "rotation_origin": { "x": 220.0, "y": 160.0 },
+      "rect": { "x": 200.0, "y": 140.0, "width": 50.0, "height": 70.0 }
+    }
+  ]
+}

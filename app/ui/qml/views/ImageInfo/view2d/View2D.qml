@@ -23,6 +23,8 @@ Item {
   property int fixtureRows: 4
   property real fixtureSizeMm: 8
   property real fixtureMarginMm: 6
+  property var fixtures: []
+  property var calibrationCore: null
 
   readonly property real scaleX: overlayArea.width > 0 ? overlayArea.width / imageWidth : 1
   readonly property real scaleY: overlayArea.height > 0 ? overlayArea.height / imageHeight : 1
@@ -33,6 +35,12 @@ Item {
 
   function worldToPixel(worldPoint) {
     if (!worldPoint || worldPoint.x === undefined || worldPoint.y === undefined)
+      return Qt.point(-1, -1)
+    if (calibrationCore && calibrationCore.worldToImage !== undefined) {
+      var mapped = calibrationCore.worldToImage(worldPoint)
+      return Qt.point(mapped.x, mapped.y)
+    }
+    if (pixelSizeMm <= 0)
       return Qt.point(-1, -1)
     return Qt.point(worldPoint.x / pixelSizeMm, worldPoint.y / pixelSizeMm)
   }
@@ -56,7 +64,12 @@ Item {
       return
     }
     hoverPixel = Qt.point(px, py)
-    hoverWorld = Qt.point(px * pixelSizeMm, py * pixelSizeMm)
+    var worldPoint
+    if (calibrationCore && calibrationCore.imageToWorld !== undefined)
+      worldPoint = calibrationCore.imageToWorld({ x: px, y: py })
+    else
+      worldPoint = { x: px * pixelSizeMm, y: py * pixelSizeMm }
+    hoverWorld = Qt.point(worldPoint.x, worldPoint.y)
     hoverValid = true
     coordinateLayer.requestUpdate()
   }
@@ -154,6 +167,7 @@ Item {
       fixtureMarginMm: view.fixtureMarginMm
       scaleX: view.scaleX
       scaleY: view.scaleY
+      fixtures: view.fixtures
     }
 
     Layers.ToolOverlay {

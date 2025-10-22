@@ -26,6 +26,8 @@ QtObject {
   function setWorkOrigin(onOk, onErr){ post('/motion/set_work_origin', {}, onOk, onErr) }
   function status(onOk, onErr){ get('/status', onOk, onErr) }
   function configSettings(onOk, onErr){ get('/config/settings', onOk, onErr) }
+  function toolInfo(onOk, onErr){ get('/toolInfo', onOk, onErr) }
+  function calibration(onOk, onErr){ get('/vision/calibration', onOk, onErr) }
   // Test images
   function listTestImages(onOk, onErr){ get('/test/images', onOk, onErr) }
   function loadTestImage(name, onOk, onErr){ post('/test/load_image?name=' + encodeURIComponent(name), {}, onOk, onErr) }

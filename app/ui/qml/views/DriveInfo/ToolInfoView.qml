@@ -13,10 +13,10 @@ BaseCard {
   readonly property int padding: 12
   implicitHeight: contentColumn.implicitHeight + padding * 2
 
-  readonly property string toolModel: Datas.DeviceInfoData.toolModel
-  readonly property string toolDiameter: Datas.DeviceInfoData.toolDiameter
-  readonly property string toolUsage: Datas.DeviceInfoData.toolUsage
-  readonly property string toolLifetime: Datas.DeviceInfoData.toolLifetime
+  readonly property string toolModel: Datas.ToolInfoData.toolModel
+  readonly property string toolDiameter: Datas.ToolInfoData.toolDiameter
+  readonly property string toolUsage: Datas.ToolInfoData.toolUsage
+  readonly property string toolLifetime: Datas.ToolInfoData.toolLifetime
 
   function formatWithUnit(value, unit) {
     if (!value)

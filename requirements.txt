@@ -12,3 +12,5 @@ SQLAlchemy~=2.0.35
 pytest
 starlette
 httpx
+pymysql
+zerorpc

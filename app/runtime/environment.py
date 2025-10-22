@@ -6,6 +6,7 @@ import logging
 from importlib import import_module
 from typing import Optional, Tuple, Type, TypeVar, Any
 
+from app.config import RPC_CONTROL_ENDPOINT, RPC_LISTEN_ENDPOINT, RPC_TIMEOUT
 from app.core.events import EventBus
 from app.devices.camera_base import ICamera
 from app.devices.motion_base import IMotionController
@@ -17,8 +18,9 @@ from app.domain.status.providers import SimStatusProvider, ProductionStatusProvi
 from app.process.orchestrator import Orchestrator
 from app.process.sim_executor import SimulatedProcessExecutor
 from app.process.sim_path_planner import SimulatedPathPlanner
-from app.server.business import BusinessService, RuntimeBusinessService, SimBusinessService
+from app.server.business import BusinessService, RuntimeBusinessService, SimBusinessService, RpcBusinessService
 from app.server.data import set_backend
+from app.server.rpc import RpcControlClient, RpcDataStore, RpcServerRunner, RpcStatusProvider
 from app.vision.pipeline import VisionPipeline
 
 _LOGGER = logging.getLogger(__name__)
@@ -189,10 +191,58 @@ class RuntimeEnvironment(BaseEnvironment):
         return service
 
 
+class RpcEnvironment(BaseEnvironment):
+    """Environment that bridges the API to an external controller via ZeroRPC."""
+
+    mode = "rpc"
+
+    def __init__(
+        self,
+        *,
+        listen_endpoint: Optional[str] = None,
+        control_endpoint: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> None:
+        super().__init__()
+        self._listen_endpoint = listen_endpoint or RPC_LISTEN_ENDPOINT
+        self._control_endpoint = control_endpoint or RPC_CONTROL_ENDPOINT
+        self._timeout = RPC_TIMEOUT if timeout is None else timeout
+        self._store = RpcDataStore()
+        self._server_runner = RpcServerRunner(endpoint=self._listen_endpoint, store=self._store)
+        self._control_client = RpcControlClient(endpoint=self._control_endpoint, timeout=self._timeout)
+
+    def create_motion(self, bus: EventBus) -> IMotionController:  # noqa: ARG002
+        return MotionSim()
+
+    def create_camera(self) -> ICamera:
+        return CameraSim()
+
+    def configure_backend(self, bindings: SystemBindings, *, endpoint: Optional[str] = None) -> BusinessService:  # noqa: ARG002
+        set_status_provider(RpcStatusProvider(self._store))
+        service = RpcBusinessService(self._store, self._control_client)
+        set_backend(service)
+        try:
+            self._server_runner.start()
+            _LOGGER.info(
+                "RPC bridge enabled (listen=%s, upstream=%s, timeout=%ss)",
+                self._listen_endpoint,
+                self._control_endpoint,
+                self._timeout,
+            )
+        except Exception as exc:
+            _LOGGER.error("Failed to start ZeroRPC server at %s: %s", self._listen_endpoint, exc)
+            raise
+        setattr(bindings.orchestrator, "rpc_store", self._store)
+        setattr(bindings.orchestrator, "rpc_runner", self._server_runner)
+        return service
+
+
 def get_environment(mode: Optional[str] = None) -> BaseEnvironment:
     normalized = (mode or "sim").lower()
     if normalized in {"runtime", "production", "prod", "comm"}:
         return RuntimeEnvironment()
+    if normalized in {"rpc", "zerorpc"}:
+        return RpcEnvironment()
     return SimEnvironment()
 
 

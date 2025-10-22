@@ -1,6 +1,6 @@
 # 测试数据注入接口说明
 
-独立主控程序 (`app/controller/main.py`) 与 UI 测试窗口会通过以下 REST 接口把“虚拟产线数据”写入后端。后端再统一向 WebSocket/HTTP 订阅者推送，从而驱动 UI 刷新。
+UI 测试窗口仍会通过下述 REST 接口把“虚拟产线数据”写入后端；独立主控程序 (`app/controller/main.py`) 则改为通过内置 ZeroRPC 网桥投递同样的内容，后端再统一向 WebSocket/HTTP 订阅者推送，从而驱动 UI 刷新。
 
 所有路径均挂载在 FastAPI 的 `status_router`、`path_router` 下，默认基础地址为 `http://<host>:<port>/api`（参见 `app/server/run_api.py` 中 `CONFIG.app_host/app_port` 配置）。
 
@@ -124,18 +124,18 @@
 
 ## 3. 示例：通过主控程序推送场景
 
-项目内置示例场景文件 `app/controller/sample_scenarios.json`，可通过以下命令循环推送：
+项目内置示例场景文件 `app/controller/sample_scenarios.json`，可通过以下命令循环推送（ZeroRPC 模式）：
 
 ```powershell
-python -m app.controller.main --scenario app/controller/sample_scenarios.json --loop --reset-on-exit
+python -m app.controller.main --scenario app/controller/sample_scenarios.json --loop
 ```
 
 命令行参数说明：
 
-- `--base`：自定义 API 基地址，默认 `http://127.0.0.1:8010/api`。
 - `--interval` / `--respect-delay`：控制场景播放节奏。
-- `--merge`：在场景叠加时保留前一帧的部分字段。
-- `--reset-on-exit`：退出时自动调用 `DELETE` 清除覆盖，防止影响后续运行。
+- `--rpc-server`：API 端 ZeroRPC 监听地址（默认读取 `app.config.RPC_LISTEN_ENDPOINT`）。
+- `--rpc-listen`：主控自身用于接收控制命令的 ZeroRPC 地址（默认读取 `app.config.RPC_CONTROL_ENDPOINT`）。
+- `--rpc-timeout`：ZeroRPC 调用超时时间。
 
 ---
 
@@ -144,4 +144,3 @@ python -m app.controller.main --scenario app/controller/sample_scenarios.json --
 1. **接口探测**：可使用 `curl` 或 Postman 直接调用上述 REST 接口，快速验证字段是否按预期生效。
 2. **UI 监控**：打开 UI F12 测试窗口的“测试数据注入”面板即可实时查看日志反馈。
 3. **恢复默认**：当需要回到纯模拟环境时，请确认 `GET /status/test_payload` 与 `GET /cutting/test_payload` 均返回 `{}`。
-

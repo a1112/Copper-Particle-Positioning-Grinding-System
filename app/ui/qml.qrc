@@ -153,16 +153,19 @@
         <file>qml/test/TestWindow.qml</file>
         <file>qml/datas/Datas.qml</file>
         <file>qml/datas/DeviceInfoData.qml</file>
+        <file>qml/datas/ToolInfoData.qml</file>
         <file>qml/datas/LogDatas.qml</file>
         <file>qml/datas/StatusDatas.qml</file>
         <file>qml/datas/CodeDatas.qml</file>
         <file>qml/datas/CuttingDatas.qml</file>
+        <file>qml/datas/CalibrationData.qml</file>
         <file>qml/datas/qmldir</file>
         <file>qml/works/CodeWork.qml</file>
         <file>qml/works/CuttingWork.qml</file>
         <file>qml/works/DeviceInfoWork.qml</file>
         <file>qml/works/LogsWork.qml</file>
         <file>qml/works/StatusWork.qml</file>
+        <file>qml/works/CalibrationWork.qml</file>
         <file>qml/works/Works.qml</file>
         <file>qml/works/qmldir</file>
         <file>qml/views/DriveInfo/head/InfoHeadView.qml</file>
@@ -178,5 +181,6 @@
         <file>qml/views/DriveInfo/base/InfoValueLabel.qml</file>
         <file>qml/views/DriveInfo/CuttingStatisticsView.qml</file>
         <file>qml/views/DriveInfo/SingleCutCommandStatusView.qml</file>
+        <file>qml/views/ImageInfo/core/ImageDataCore.qml</file>
     </qresource>
 </RCC>

@@ -65,7 +65,7 @@ BaseCard {
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("粒子总量")
-        valueText: displayText(Datas.DeviceInfoData.particleTotal)
+        valueText: Datas.DeviceInfoData.particleTotal
         valueColor: Cores.CoreStyle.text
       }
 
@@ -86,7 +86,7 @@ BaseCard {
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("平面高度")
-        valueText: displayText(Datas.DeviceInfoData.planeHeight)
+        valueText: Datas.DeviceInfoData.planeHeight
         valueColor: Cores.CoreStyle.text
       }
 

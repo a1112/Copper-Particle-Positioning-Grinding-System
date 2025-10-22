@@ -7,8 +7,9 @@ Item {
   id: overlay
   anchors.fill: parent
 
-  property int columns: 4            // clamps per edge
-  property int rows: 4               // unused but kept for compatibility
+  // Legacy fallback parameters (grid-based fixtures)
+  property int columns: 4
+  property int rows: 4
   property real imageWidth: 640
   property real imageHeight: 360
   property real pixelSizeMm: 0.2
@@ -17,12 +18,18 @@ Item {
   property real scaleX: 1.0
   property real scaleY: 1.0
 
-  readonly property real fixtureWidthPx: fixtureSizeMm / pixelSizeMm
-  readonly property real fixtureHeightPx: fixtureSizeMm / pixelSizeMm
-  readonly property real marginPx: fixtureMarginMm / pixelSizeMm
+  // Calibration-aware fixtures list ({ name, rotation_origin:{x,y}, rect:{x,y,width,height} })
+  property var fixtures: []
+
+  readonly property real fixtureWidthPx: fixtureSizeMm / (pixelSizeMm > 0 ? pixelSizeMm : 1)
+  readonly property real fixtureHeightPx: fixtureSizeMm / (pixelSizeMm > 0 ? pixelSizeMm : 1)
+  readonly property real marginPx: fixtureMarginMm / (pixelSizeMm > 0 ? pixelSizeMm : 1)
   readonly property int fixturesPerEdge: Math.max(1, columns)
+  readonly property bool hasCalibrationFixtures: fixtures && fixtures.length > 0
 
   readonly property var fixturePositions: {
+    if (hasCalibrationFixtures)
+      return []
     var positions = []
     var n = fixturesPerEdge
     var stepX = n > 0 ? (imageWidth - marginPx * 2) / (n + 1) : 0
@@ -52,27 +59,56 @@ Item {
 
   Repeater {
     id: fixtureRepeater
-    model: overlay.fixturePositions.length
-    delegate: Rectangle {
-      readonly property var fixture: overlay.fixturePositions[index]
-      width: overlay.fixtureWidthPx * overlay.scaleX
-      height: overlay.fixtureHeightPx * overlay.scaleY
-      x: fixture.x * overlay.scaleX - width / 2
-      y: fixture.y * overlay.scaleY - height / 2
-      color: Qt.rgba(0.15, 0.8, 0.95, 0.18)
-      border.color: Qt.rgba(0.0, 0.9, 1.0, 0.6)
-      border.width: 1
-      radius: Math.min(width, height) * 0.15
+    model: overlay.hasCalibrationFixtures ? overlay.fixtures.length : overlay.fixturePositions.length
+    delegate: Item {
+      readonly property bool useCalibration: overlay.hasCalibrationFixtures
+      readonly property var fixture: useCalibration ? overlay.fixtures[index] : overlay.fixturePositions[index]
+      readonly property var rectData: (useCalibration && fixture && fixture.rect) ? fixture.rect : null
 
-      Label {
-        text: qsTr("%1夹具%2").arg(
-                fixture.edge === "top" ? qsTr("上") :
-                fixture.edge === "bottom" ? qsTr("下") :
-                fixture.edge === "left" ? qsTr("左") : qsTr("右"))
-              .arg(fixture.index + 1)
-        anchors.centerIn: parent
-        color: Cores.CoreStyle.text
-        font.pixelSize: 11
+      width: useCalibration ? Number((rectData && rectData.width) || 0) * overlay.scaleX
+                             : overlay.fixtureWidthPx * overlay.scaleX
+      height: useCalibration ? Number((rectData && rectData.height) || 0) * overlay.scaleY
+                              : overlay.fixtureHeightPx * overlay.scaleY
+      x: useCalibration ? Number((rectData && rectData.x) || 0) * overlay.scaleX
+                        : fixture.x * overlay.scaleX - width / 2
+      y: useCalibration ? Number((rectData && rectData.y) || 0) * overlay.scaleY
+                        : fixture.y * overlay.scaleY - height / 2
+
+      Rectangle {
+        anchors.fill: parent
+        color: Qt.rgba(0.15, 0.8, 0.95, 0.18)
+        border.color: Qt.rgba(0.0, 0.9, 1.0, 0.6)
+        border.width: 1
+        radius: Math.min(width, height) * 0.15
+
+        Label {
+          anchors.centerIn: parent
+          color: Cores.CoreStyle.text
+          font.pixelSize: 11
+          text: parent.parent.useCalibration
+                ? (parent.parent.fixture && parent.parent.fixture.name
+                   ? parent.parent.fixture.name
+                   : qsTr("夹具%1").arg(index + 1))
+                : qsTr("%1夹具%2").arg(
+                    parent.parent.fixture.edge === "top" ? qsTr("上") :
+                    parent.parent.fixture.edge === "bottom" ? qsTr("下") :
+                    parent.parent.fixture.edge === "left" ? qsTr("左") : qsTr("右")
+                  ).arg(parent.parent.fixture.index + 1)
+        }
+
+        Rectangle {
+          visible: parent.parent.useCalibration && parent.parent.fixture && parent.parent.fixture.rotation_origin
+          width: 6
+          height: 6
+          radius: 3
+          color: "#f59e0b"
+          border.color: "#d97706"
+          border.width: 1
+          readonly property real targetX: Number(parent.parent.fixture.rotation_origin.x || 0) * overlay.scaleX
+          readonly property real targetY: Number(parent.parent.fixture.rotation_origin.y || 0) * overlay.scaleY
+          x: targetX - parent.parent.x - width / 2
+          y: targetY - parent.parent.y - height / 2
+        }
       }
     }
   }

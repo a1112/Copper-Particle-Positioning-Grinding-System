@@ -1,57 +1,48 @@
-# UI <-> API 数据契约说明
+﻿# UI <-> API 鏁版嵁濂戠害璇存槑
 
-本文档汇总 UI 与后端之间目前使用的主要 JSON 字段，便于 API、主控程序或自动化脚本生成/模拟数据时对齐格式。除非特别说明，所有路径均以 `http://<host>:<port>/api` 为前缀。
-
+鏈枃妗ｆ眹鎬?UI 涓庡悗绔箣闂寸洰鍓嶄娇鐢ㄧ殑涓昏 JSON 瀛楁锛屼究浜?API銆佷富鎺х▼搴忔垨鑷姩鍖栬剼鏈敓鎴?妯℃嫙鏁版嵁鏃跺榻愭牸寮忋€傞櫎闈炵壒鍒鏄庯紝鎵€鏈夎矾寰勫潎浠?`http://<host>:<port>/api` 涓哄墠缂€銆?
 ---
 
-## 1. 状态数据（`/ws/status` + `/status/test_payload`）
+## 1. 鐘舵€佹暟鎹紙`/ws/status` + `/status/test_payload`锛?
+WebSocket `/ws/status` 鍛ㄦ湡鎺ㄩ€佺殑杞借嵎浼氳 `Datas.StatusDatas.ingest()` / `DriveInfoView.qml` / `StatusLightAlarmView.qml` 绛夌粍浠舵秷璐广€備富鎺х▼搴忔垨娴嬭瘯绐楀彛鍙€氳繃 `POST /status/test_payload` 鍐欏叆鍚屾牱鐨勫瓧娈点€?
+### 1.1 椤跺眰瀛楁
 
-WebSocket `/ws/status` 周期推送的载荷会被 `Datas.StatusDatas.ingest()` / `DriveInfoView.qml` / `StatusLightAlarmView.qml` 等组件消费。主控程序或测试窗口可通过 `POST /status/test_payload` 写入同样的字段。
-
-### 1.1 顶层字段
-
-| 字段 | 类型 | 说明 | UI 消费位置 |
+| 瀛楁 | 绫诲瀷 | 璇存槑 | UI 娑堣垂浣嶇疆 |
 | ---- | ---- | ---- | ------------ |
-| `state` | string | 设备状态，常见值 `IDLE/RUNNING/PAUSED/FAULT` | 页头运行状态、DriveInfo 卡片 |
-| `run_mode` / `runMode` | string | 当前运行模式 | DeviceInfo 卡片 |
-| `serial_number` / `serialNumber` | string | 机台序列号 | DeviceInfo 卡片 |
-| `tool_usage` / `toolUsage` | string/number | 刀具使用率 | DeviceInfo 卡片 |
-| `tool_life` / `toolLifetime` | string | 刀具寿命 | DeviceInfo 卡片 |
-| `particle_count` / `particleTotal` | number | 粒子总量 | CuttingStatistics |
-| `plane_height` / `planeHeight` | number/string | 平面高度 | CuttingStatistics |
-| `feed_rate` / `cutting_speed` | number | 切削速度（mm/s） | DriveInfo 卡片 |
-| `travel_speed` / `motion_speed` | number | 移动速度 | DriveInfo 卡片 |
-| `spindle_rpm` | number | 主轴转速 | DriveInfo + 折线图 |
-| `spindle_torque` | number | 主轴扭矩 | DriveInfo + 折线图 |
-| `seriesA` | number | 转速曲线备用值；若存在则用于 `Datas.StatusDatas.seriesA` | RpmChart |
-| `seriesB` | number | 扭矩曲线备用值 | TorqueChart |
-| `alerts` | array | 形式 `[{level, message}]` 的告警列表 | 测试窗口日志，自行扩展 |
+| `state` | string | 璁惧鐘舵€侊紝甯歌鍊?`IDLE/RUNNING/PAUSED/FAULT` | 椤靛ご杩愯鐘舵€併€丏riveInfo 鍗＄墖 |
+| `run_mode` / `runMode` | string | 褰撳墠杩愯妯″紡 | DeviceInfo 鍗＄墖 |
+| `serial_number` / `serialNumber` | string | 鏈哄彴搴忓垪鍙?| DeviceInfo 鍗＄墖 |
+| `particle_count` / `particleTotal` | number | 绮掑瓙鎬婚噺 | CuttingStatistics |
+| `plane_height` / `planeHeight` | number/string | 骞抽潰楂樺害 | CuttingStatistics |
+| `feed_rate` / `cutting_speed` | number | 鍒囧墛閫熷害锛坢m/s锛?| DriveInfo 鍗＄墖 |
+| `travel_speed` / `motion_speed` | number | 绉诲姩閫熷害 | DriveInfo 鍗＄墖 |
+| `spindle_rpm` | number | 涓昏酱杞€?| DriveInfo + 鎶樼嚎鍥?|
+| `spindle_torque` | number | 涓昏酱鎵煩 | DriveInfo + 鎶樼嚎鍥?|
+| `seriesA` | number | 杞€熸洸绾垮鐢ㄥ€硷紱鑻ュ瓨鍦ㄥ垯鐢ㄤ簬 `Datas.StatusDatas.seriesA` | RpmChart |
+| `seriesB` | number | 鎵煩鏇茬嚎澶囩敤鍊?| TorqueChart |
+| `alerts` | array | 褰㈠紡 `[{level, message}]` 鐨勫憡璀﹀垪琛?| 娴嬭瘯绐楀彛鏃ュ織锛岃嚜琛屾墿灞?|
 
-### 1.2 位置与姿态
-
-- `position`: 对象 `{ "x": float, "y": float, "z": float, "theta": float }`。DriveInfo 卡片逐项显示，缺失时以 `-` 填充。
-
-### 1.3 指示灯状态
-
-多个容器皆可提供灯光状态，`StatusLightAlarmView` 会按顺序查找：
-
-- `statusLights`, `lightStates`, `lights`, `light_status`, `lightState`, `extras`，以及顶层对象本身。  
-  每个容器中的 key 允许命名变体（例如 `camera_state`、`cameraStatus` 被视作 `camera`）。
-- 标准键值：`camera`, `spindle`, `device`, `interlock`, `server`。取值可为 `RUNNING/READY/FAULT/WARNING` 等字符串或布尔值。
-
+### 1.2 浣嶇疆涓庡Э鎬?
+- `position`: 瀵硅薄 `{ "x": float, "y": float, "z": float, "theta": float }`銆侱riveInfo 鍗＄墖閫愰」鏄剧ず锛岀己澶辨椂浠?`-` 濉厖銆?
+### 1.3 鎸囩ず鐏姸鎬?
+澶氫釜瀹瑰櫒鐨嗗彲鎻愪緵鐏厜鐘舵€侊紝`StatusLightAlarmView` 浼氭寜椤哄簭鏌ユ壘锛?
+- `statusLights`, `lightStates`, `lights`, `light_status`, `lightState`, `extras`锛屼互鍙婇《灞傚璞℃湰韬€? 
+  姣忎釜瀹瑰櫒涓殑 key 鍏佽鍛藉悕鍙樹綋锛堜緥濡?`camera_state`銆乣cameraStatus` 琚浣?`camera`锛夈€?- 鏍囧噯閿€硷細`camera`, `spindle`, `device`, `interlock`, `server`銆傚彇鍊煎彲涓?`RUNNING/READY/FAULT/WARNING` 绛夊瓧绗︿覆鎴栧竷灏斿€笺€?
 ### 1.4 其他兼容字段
 
-`DeviceInfoData.applySnapshot()` 会尝试兼容下列别名：
+DeviceInfoData.applySnapshot() 会尝试兼容下列别名：
 
-- `runMode` ↔ `run_mode`；`serialNumber` ↔ `serial_number`。
-- `toolModel` / `tool_model` / `toolName`。
-- `toolDiameter` / `cutter_diameter`。
-- `toolLifetime` / `tool_life`。
-- `toolUsage` / `tool_usage`。
-- `planeHeight` / `plane_height`。
-- `particleTotal` / `particle_count`。
+- runMode / run_mode；serialNumber / serial_number。
+- planeHeight / plane_height。
+- particleTotal / particle_count。
 
-### 1.5 示例载荷
+ToolInfoData.applySnapshot() 会尝试兼容下列别名：
+
+- toolModel / tool_model / toolName。
+- toolDiameter / tool_diameter / cutter_diameter。
+- toolLifetime / tool_life。
+- toolUsage / tool_usage。
+### 1.5 绀轰緥杞借嵎
 
 ```json
 {
@@ -77,56 +68,58 @@ WebSocket `/ws/status` 周期推送的载荷会被 `Datas.StatusDatas.ingest()` 
 
 ---
 
-## 2. 切削数据（`GET /cutting` + `/cutting/test_payload`）
+## 2. 鍒囧墛鏁版嵁锛坄GET /cutting` + `/cutting/test_payload`锛?
+`Datas.CuttingDatas.update()` 娑堣垂 `/api/cutting` 鐨?JSON锛屽苟涓?`CuttingStatisticsView.qml` 鎻愪緵缁熻鎸囨爣銆?
+| 瀛楁 | 绫诲瀷 | 璇存槑 |
+| ---- | ---- | ---- |
+| `feed_rate` | number | 鍒囧墛閫熷害锛坢m/s锛?|
+| `downfeed_target` | number | 鐩爣杩涚粰閲?|
+| `downfeed_current` | number | 褰撳墠绱杩涚粰閲?|
+| `removal_current` | number | 宸插垏鍓婁綋绉紙mm鲁锛?|
+| `removal_expected` | number | 棰勮鎬诲垏鍓婁綋绉?|
+| `torque` | number | 褰撳墠鎵煩 |
+| `torque_max` | number | 鍘嗗彶鏈€澶ф壄鐭╋紙鍚庣浼氳嚜鍔ㄧ淮鎸佹渶澶у€硷級 |
+| `elapsed_sec` | number | 绱鑰楁椂锛堢锛?|
 
-`Datas.CuttingDatas.update()` 消费 `/api/cutting` 的 JSON，并为 `CuttingStatisticsView.qml` 提供统计指标。
+> `Datas.CuttingDatas.removalRemaining = removal_expected - removal_current`锛沗CuttingStatisticsView` 涔熶細璺熻釜 `maxFeedRate`锛屽綋鏂?`feed_rate` 鏇村ぇ鏃舵洿鏂般€?
+---
 
+## 3. 刀具信息（GET /toolInfo）
+UI 通过 ApiClient.toolInfo() 获取刀具卡片字段，Datas.ToolInfoData 会消费以下键值：
 | 字段 | 类型 | 说明 |
 | ---- | ---- | ---- |
-| `feed_rate` | number | 切削速度（mm/s） |
-| `downfeed_target` | number | 目标进给量 |
-| `downfeed_current` | number | 当前累计进给量 |
-| `removal_current` | number | 已切削体积（mm³） |
-| `removal_expected` | number | 预计总切削体积 |
-| `torque` | number | 当前扭矩 |
-| `torque_max` | number | 历史最大扭矩（后端会自动维持最大值） |
-| `elapsed_sec` | number | 累计耗时（秒） |
-
-> `Datas.CuttingDatas.removalRemaining = removal_expected - removal_current`；`CuttingStatisticsView` 也会跟踪 `maxFeedRate`，当新 `feed_rate` 更大时更新。
-
----
-
-## 3. 配置&元数据
-
-UI 仍依赖以下 REST 接口获取额外信息，生成的字段与 `DeviceInfoData` 兼容：
-
-| 接口 | 说明 | 关键字段 |
+| tool_model / toolModel | string | 刀具型号（字符串，包含配置表中的名称或代号） |
+| tool_diameter / toolDiameter | string | 刀具直径（可包含单位文本） |
+| tool_usage / toolUsage | string/number | 累计使用时长或百分比 |
+| tool_life / toolLifetime | string | 预期寿命 |
+## 4. 閰嶇疆&鍏冩暟鎹?
+UI 浠嶄緷璧栦互涓?REST 鎺ュ彛鑾峰彇棰濆淇℃伅锛岀敓鎴愮殑瀛楁涓?`DeviceInfoData` 鍏煎锛?
+| 鎺ュ彛 | 璇存槑 | 鍏抽敭瀛楁 |
 | ---- | ---- | -------- |
-| `GET /config/meta` | 硬件/工装元数据 | `board_serial`, `cutter_diameter`, `tool_life`, `particle_count`, `plane_height` |
-| `GET /config/settings` | 刀具表等配置 | `tool_table[0].name / code` 用于推导 `toolModel` |
+| `GET /config/meta` | 纭欢/宸ヨ鍏冩暟鎹?| `board_serial`, `cutter_diameter`, `tool_life`, `particle_count`, `plane_height` |
+| `GET /config/settings` | 鍒€鍏疯〃绛夐厤缃?| `tool_table[0].name / code` 鐢ㄤ簬鎺ㄥ `toolModel` |
 
 ---
 
-## 4. 主控程序命令行摘要
+## 5. 涓绘帶绋嬪簭鍛戒护琛屾憳瑕?
+`python -m app.controller.main` 閫氳繃 REST 灏嗕笂杩板瓧娈垫敞鍏ュ悗绔紝鍙€夊弬鏁帮細
 
-`python -m app.controller.main` 通过 REST 将上述字段注入后端，可选参数：
-
-| 参数 | 默认值 | 说明 |
+| 鍙傛暟 | 榛樿鍊?| 璇存槑 |
 | ---- | ------ | ---- |
-| `--base` | `http://127.0.0.1:8010/api` | API 基地址 |
 | `--scenario` | `app/controller/sample_scenarios.json` | 场景文件，可多次指定 |
-| `--merge` | `False` | 是否增量合并字段 |
 | `--loop` | `False` | 循环播放 |
 | `--interval` | `2.0` | 未开启 `--respect-delay` 时的默认间隔 |
 | `--respect-delay` | `False` | 使用场景中定义的 `delay` |
-| `--reset-on-exit` | `False` | 退出时自动调用 `DELETE` 清理覆盖 |
+| `--rpc-server` | `app.config.RPC_LISTEN_ENDPOINT` | ZeroRPC 数据上行目标 |
+| `--rpc-listen` | `app.config.RPC_CONTROL_ENDPOINT` | 控制命令监听地址 |
+| `--rpc-timeout` | `app.config.RPC_TIMEOUT` | ZeroRPC 调用超时时间 |
 
 ---
 
-## 5. 开发提示
+## 6. 寮€鍙戞彁绀?
+1. **瀛楁鍏煎绛栫暐**锛歎I 缁勪欢浼氬皾璇曞绉嶅懡鍚嶅埆鍚嶏紝濡傞渶鎵╁睍鏂扮殑瀛楁锛屽缓璁繚鎸侀┘宄?涓嬪垝绾夸袱绉嶅啓娉曞吋瀹广€?2. **浣嶇疆涓庡Э鎬?*锛歚position` 鏈彁渚涙煇鍧愭爣鏃?UI 浼氭樉绀?`-`銆傝嫢濮挎€佸瓧娈典笉闇€瑕侊紝鍙渷鐣ャ€?3. **鎸囩ず鐏?*锛氬瓧绗︿覆涓嶅尯鍒嗗ぇ灏忓啓锛屽父鐢ㄦ槧灏勶細`RUNNING/READY/FAULT/WARNING` 鈫?姝ｅ父/璀﹀憡/鎶ヨ锛屽竷灏斿€?`true/false` 鈫?姝ｅ父/鎶ヨ銆?4. **娴嬭瘯鍏ュ彛**锛歎I F12 娴嬭瘯绐楀彛鐨勨€滄祴璇曟暟鎹敞鍏モ€濋潰鏉垮氨鏄笂杩版帴鍙ｇ殑璋冪敤灏佽锛岃瀵熸寜閽姩浣滄湁鍔╀簬纭鏍煎紡銆?
 
-1. **字段兼容策略**：UI 组件会尝试多种命名别名，如需扩展新的字段，建议保持驼峰/下划线两种写法兼容。
-2. **位置与姿态**：`position` 未提供某坐标时 UI 会显示 `-`。若姿态字段不需要，可省略。
-3. **指示灯**：字符串不区分大小写，常用映射：`RUNNING/READY/FAULT/WARNING` → 正常/警告/报警，布尔值 `true/false` → 正常/报警。
-4. **测试入口**：UI F12 测试窗口的“测试数据注入”面板就是上述接口的调用封装，观察按钮动作有助于确认格式。
+
+
+
 

@@ -1,5 +1,12 @@
 ﻿from __future__ import annotations
 
+try:
+    from gevent import monkey as _gevent_monkey
+except ImportError:  # pragma: no cover - zerorpc installs gevent
+    _gevent_monkey = None
+else:  # pragma: no cover - side effect only
+    _gevent_monkey.patch_all()
+
 import signal
 import sys
 from types import ModuleType
@@ -55,6 +62,8 @@ def _bootstrap_api_modules(log, provider: CameraImageProvider, orch, motion: IMo
         api_control,
         api_config,
         api_path,
+        api_tool,
+        api_vision,
     )
     from app.server.api.ws import ws_code, ws_logs, ws_status
     # Inject image provider if available
@@ -144,6 +153,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 
 
 

@@ -1,35 +1,131 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
-from sqlalchemy import create_engine
+from typing import Any, Dict, Iterable, Tuple
+
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Engine
+from sqlalchemy.engine.url import URL, make_url
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+LOG = logging.getLogger(__name__)
 
-def _db_path() -> Path:
-    """返回 SQLite 数据库文件路径（中文注释）。若无目录则创建。"""
+PRIMARY_DB_URL = "mysql+pymysql://mz:123456@192.168.2.32/MzPoliShineDB?charset=utf8mb4"
+FALLBACK_DB_URL = "mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4"
+
+
+def _sqlite_path() -> Path:
+    """Return the local SQLite file path and ensure the directory exists."""
     root = Path(__file__).resolve().parents[2]
     db_dir = root / "database"
     db_dir.mkdir(parents=True, exist_ok=True)
     return db_dir / "test.db"
 
 
-DATABASE_URL = f"sqlite:///{_db_path()}"
-
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    future=True,
-)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
-Base = declarative_base()
+def _render_url(url: URL) -> str:
+    return url.render_as_string(hide_password=True)
 
 
-def get_engine():
-    """获取 SQLAlchemy Engine（中文注释）。"""
+def _build_engine(url: URL) -> Engine:
+    kwargs: Dict[str, Any] = {"future": True, "pool_pre_ping": True}
+    backend = url.get_backend_name()
+    if backend.startswith("mysql"):
+        kwargs["pool_recycle"] = 1800
+        kwargs["connect_args"] = {"connect_timeout": 3}
+    elif backend == "sqlite":
+        kwargs["connect_args"] = {"check_same_thread": False}
+    return create_engine(url, **kwargs)
+
+
+def _is_unknown_database(exc: OperationalError) -> bool:
+    message = str(exc).lower()
+    if "unknown database" in message:
+        return True
+    args = getattr(exc.orig, "args", ())
+    if args:
+        code = args[0]
+        if code in (1049, "1049"):
+            return True
+    return False
+
+
+def _create_database(url: URL) -> None:
+    database = url.database
+    if not database:
+        return
+    server_url = url.set(database=None)
+    server_engine = _build_engine(server_url)
+    try:
+        with server_engine.connect() as conn:
+            conn.execute(
+                text(f"CREATE DATABASE IF NOT EXISTS `{database}` DEFAULT CHARACTER SET utf8mb4")
+            )
+            conn.commit()
+    finally:
+        server_engine.dispose()
+
+
+def _attempt_connect(url: URL, label: str) -> Engine:
+    LOG.debug("Trying %s database %s", label, _render_url(url))
+    engine = _build_engine(url)
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except OperationalError as exc:
+        if _is_unknown_database(exc):
+            LOG.info("Database %s missing; attempting to create.", _render_url(url))
+            _create_database(url)
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+        else:
+            engine.dispose()
+            raise
     return engine
 
 
+def _initialise_engine() -> Tuple[Engine, str]:
+    candidates: Iterable[Tuple[str, URL]] = (
+        ("primary", make_url(PRIMARY_DB_URL)),
+        ("fallback", make_url(FALLBACK_DB_URL)),
+    )
+    last_error: Exception | None = None
+    for label, url in candidates:
+        try:
+            engine = _attempt_connect(url, label)
+            LOG.info("Connected to %s database: %s", label, _render_url(url))
+            return engine, _render_url(url)
+        except (OperationalError, SQLAlchemyError) as exc:
+            LOG.warning("Unable to connect to %s database (%s): %s", label, _render_url(url), exc)
+            last_error = exc
+        except Exception as exc:  # pragma: no cover - defensive path
+            LOG.exception("Unexpected error connecting to %s database %s", label, _render_url(url))
+            last_error = exc
+    if last_error:
+        LOG.warning("Falling back to local SQLite due to previous errors: %s", last_error)
+    sqlite_url = make_url(f"sqlite:///{_sqlite_path()}")
+    engine = _build_engine(sqlite_url)
+    return engine, _render_url(sqlite_url)
+
+
+ENGINE, DATABASE_URL = _initialise_engine()
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE, future=True)
+Base = declarative_base()
+
+
+def get_engine() -> Engine:
+    """Return the active SQLAlchemy engine."""
+    return ENGINE
+
+
 def init_db() -> None:
-    """初始化数据库（中文注释）：导入模型并创建表。"""
-    Base.metadata.create_all(bind=engine)
+    """Initialise database schema if models are available."""
+    Base.metadata.create_all(bind=ENGINE)
+    try:
+        from app.db.models import MzPoliShineDB
+
+        MzPoliShineDB.Base.metadata.create_all(bind=ENGINE)
+    except Exception as exc:  # pragma: no cover - optional import for autogenerated models
+        LOG.debug("Optional MzPoliShineDB models not initialised: %s", exc)

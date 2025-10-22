@@ -7,10 +7,11 @@ from app.core.state_machine import ProcState
 from app.domain.status import get_status_service
 from app.devices.motion_base import IMotionController
 from app.process.orchestrator import Orchestrator
-from app.server.models import ControlCommand, ControlResult, LogEntry, StatusModel
+from app.server.models import ControlCommand, ControlResult, CuttingSnapshot, LogEntry, StatusModel, ToolInfoSnapshot
 from app.server.utils import logs
 
 from .base import BusinessService
+from .tool_info import ToolInfoAssembler
 
 
 class RuntimeBusinessService(BusinessService):
@@ -20,6 +21,7 @@ class RuntimeBusinessService(BusinessService):
         self._status_service = get_status_service()
         self._motion = motion
         self._orchestrator = orchestrator
+        self._tool_info = ToolInfoAssembler()
 
     async def fetch_status(self) -> StatusModel:
         payload = await asyncio.to_thread(self._status_service.fetch_status)
@@ -81,3 +83,31 @@ class RuntimeBusinessService(BusinessService):
                     pass
         logs.push("INFO", "control", "Soft stop requested")
         return ControlResult.success("Stop acknowledged")
+
+    async def fetch_cutting(self) -> CuttingSnapshot:
+        provider = getattr(self._status_service, "fetch_cutting", None)
+        if callable(provider):
+            try:
+                payload = await asyncio.to_thread(provider)
+                if isinstance(payload, CuttingSnapshot):
+                    return payload
+                return CuttingSnapshot.from_mapping(payload)
+            except Exception:
+                pass
+
+        if self._orchestrator is not None:
+            builder = getattr(self._orchestrator, "get_cutting_snapshot", None)
+            if callable(builder):
+                try:
+                    payload = await asyncio.to_thread(builder)
+                    if isinstance(payload, CuttingSnapshot):
+                        return payload
+                    return CuttingSnapshot.from_mapping(payload)
+                except Exception:
+                    pass
+
+        return CuttingSnapshot()
+
+    async def fetch_tool_info(self) -> ToolInfoSnapshot:
+        status_payload = await asyncio.to_thread(self._status_service.fetch_status)
+        return await asyncio.to_thread(self._tool_info.build, status_payload)
