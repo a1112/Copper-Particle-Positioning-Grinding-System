@@ -49,70 +49,26 @@ paths:
                       theta: { type: number }
                   spindle_rpm:
                     type: number
-  /run/start:
+  /control:
     post:
-      summary: Start run (set READY)
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Ok' }
-  /run/stop:
-    post:
-      summary: Stop run (set IDLE)
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Ok' }
-  /motion/set_speed:
-    post:
-      summary: Set motion speed
+      summary: Dispatch control command
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/MotionSpeed' }
+            schema: { $ref: '#/components/schemas/ControlCommand' }
       responses:
         '200':
-          description: OK
+          description: Control command accepted
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Ok' }
-  /motion/jog:
-    post:
-      summary: Jog motion
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/JogCmd' }
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Ok' }
-  /motion/home:
-    post:
-      summary: Home all axes
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Ok' }
-  /motion/set_work_origin:
-    post:
-      summary: Set work origin
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Ok' }
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+                  message: { type: string }
+                  details: { type: object }
+                  action: { type: string, example: run.start }
   /ui/start:
     post:
       summary: Launch UI process
