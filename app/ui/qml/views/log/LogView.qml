@@ -47,7 +47,7 @@ BaseCard {
         spacing: 2
         model: Datas.LogDatas.filteredLogs
 
-        delegate: Item {
+        delegate: ItemDelegate {
           width: list.width
           property string rawLevel: level !== undefined ? level : (Level !== undefined ? Level : "")
           property string levelText: String(rawLevel).toUpperCase()
@@ -82,7 +82,7 @@ BaseCard {
           RowLayout {
             id: contentRow
             anchors.fill: parent
-            anchors.margins: 8
+
             spacing: 10
 
             Label {
@@ -147,9 +147,4 @@ BaseCard {
     }
   }
 }
-
-
-
-
-
 
