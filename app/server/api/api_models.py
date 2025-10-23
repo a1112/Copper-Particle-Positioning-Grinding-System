@@ -1,15 +1,11 @@
-from pydantic import BaseModel
+from typing import Any, Dict
+
+from pydantic import BaseModel, Field
 
 
-class MotionSpeed(BaseModel):
-    v_fast: float
-    v_work: float
-
-
-class JogCmd(BaseModel):
-    axis: str
-    direction: int
-    speed: float = 10.0
+class ControlCommandPayload(BaseModel):
+    action: str
+    params: Dict[str, Any] = Field(default_factory=dict)
 
 
 class GroupCreate(BaseModel):

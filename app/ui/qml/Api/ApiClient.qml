@@ -22,15 +22,15 @@ QtObject {
   }
 
   // Convenience APIs
-  function startRun(onOk, onErr){ post('/run/start', {}, onOk, onErr) }
-  function stopRun(onOk, onErr){ post('/run/stop', {}, onOk, onErr) }
-  function setSpeed(vFast, vWork, onOk, onErr){ post('/motion/set_speed', { v_fast: vFast, v_work: vWork }, onOk, onErr) }
-  function jog(axis, dir, speed, onOk, onErr){ post('/motion/jog', { axis: axis, direction: dir, speed: speed }, onOk, onErr) }
-  function home(onOk, onErr){ post('/motion/home', {}, onOk, onErr) }
-  function setWorkOrigin(onOk, onErr){ post('/motion/set_work_origin', {}, onOk, onErr) }
+  function startRun(onOk, onErr){ control('run.start', {}, onOk, onErr) }
+  function stopRun(onOk, onErr){ control('run.stop', {}, onOk, onErr) }
+  function setSpeed(vFast, vWork, onOk, onErr){ control('motion.set_speed', { v_fast: vFast, v_work: vWork }, onOk, onErr) }
+  function jog(axis, dir, speed, onOk, onErr){ control('motion.jog', { axis: axis, direction: dir, speed: speed }, onOk, onErr) }
+  function home(onOk, onErr){ control('motion.home', {}, onOk, onErr) }
+  function setWorkOrigin(onOk, onErr){ control('motion.set_work_origin', {}, onOk, onErr) }
   function status(onOk, onErr){ get('/status', onOk, onErr) }
   function configSettings(onOk, onErr){ get('/config/settings', onOk, onErr) }
-  function toolInfo(onOk, onErr){ get('/toolInfo', onOk, onErr) }
+  function toolList(onOk, onErr){ get('/toolList', onOk, onErr) }
   function calibration(onOk, onErr){ get('/vision/calibration', onOk, onErr) }
   // Test images
   function listTestImages(onOk, onErr){ get('/test/images', onOk, onErr) }

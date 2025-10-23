@@ -27,10 +27,10 @@ QtObject {
   }
 
   function reset(){
-    try { Api.ApiClient.post('/control/reset', {}, function(){}, function(){}) } catch(e){}
+    try { Api.ApiClient.control('reset', {}, function(){}, function(){}) } catch(e){}
   }
 
   function estop(){
-    try { Api.ApiClient.post('/control/estop', {}, function(){}, function(){}) } catch(e){}
+    try { Api.ApiClient.control('estop', {}, function(){}, function(){}) } catch(e){}
   }
 }

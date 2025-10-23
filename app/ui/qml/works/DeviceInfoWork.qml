@@ -1,4 +1,4 @@
-pragma Singleton
+﻿pragma Singleton
 import QtQuick
 import "../Api" as Api
 import "../datas" as Datas
@@ -27,7 +27,7 @@ QtObject {
   function refresh() {
     _fetchStatus()
     _fetchMeta()
-    _fetchToolInfo()
+    _fetchtoolList()
   }
 
   function _fetchStatus() {
@@ -82,17 +82,18 @@ QtObject {
     })
   }
 
-  function _fetchToolInfo() {
-    Api.ApiClient.toolInfo(function(payload) {
+  function _fetchtoolList() {
+    Api.ApiClient.toolList(function(payload) {
       try {
         if (!payload)
           return
-        Datas.ToolInfoData.applySnapshot(payload)
+        Datas.toolListData.applySnapshot(payload)
       } catch (err) {
-        console.warn("DeviceInfoWork toolInfo apply failed", err)
+        console.warn("DeviceInfoWork toolList apply failed", err)
       }
     }, function(status, message) {
-      console.warn("DeviceInfoWork toolInfo error", status, message)
+      console.warn("DeviceInfoWork toolList error", status, message)
     })
   }
 }
+
