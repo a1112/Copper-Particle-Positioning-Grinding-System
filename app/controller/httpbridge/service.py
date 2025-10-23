@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional
 from .client import HttpControllerClient
 from .server import HttpControllerServer
 
-log = logging.getLogger("controller.http.service")
+log = logging.getLogger("controller.httpbridge.service")
 
 ControlHandler = Callable[[str, Dict[str, Any]], Mapping[str, Any]]
 

@@ -16,6 +16,8 @@ from app.rpc.common import (
 )
 
 from .store import RpcDataStore
+from app.server.data import get_backend
+from app.server.utils import logs
 
 log = logging.getLogger("app.rpc.server")
 
@@ -25,6 +27,25 @@ class RpcDataReceiver:
 
     def __init__(self, store: RpcDataStore) -> None:
         self._store = store
+
+    @staticmethod
+    def _mirror_entry(entry: Dict[str, Any]) -> None:
+        backend = None
+        try:
+            backend = get_backend()
+        except Exception:
+            backend = None
+        if backend is not None:
+            try:
+                backend.add_log(entry)
+                return
+            except Exception:
+                pass
+        level = str(entry.get("level", "INFO"))
+        name = str(entry.get("name", "rpc"))
+        msg = str(entry.get("msg", entry.get("message", "")))
+        ts = entry.get("ts")
+        logs.push(level, name, msg, ts=ts if isinstance(ts, (int, float)) else None)
 
     def push_status(self, payload: Any) -> Dict[str, Any]:
         data = coerce_mapping(payload)
@@ -41,13 +62,17 @@ class RpcDataReceiver:
         if isinstance(payload, dict) and "entries" in payload:
             entries = payload.get("entries")
         if isinstance(entries, dict):
-            self._store.append_log(dict(entries))
+            mapped_entry = dict(entries)
+            self._store.append_log(mapped_entry)
+            self._mirror_entry(mapped_entry)
             return {"ok": True}
 
         try:
             iterator = coerce_sequence(entries)
         except Exception:  # pragma: no cover - defensive fallback
-            self._store.append_log({"message": str(entries)})
+            entry = {"message": str(entries)}
+            self._store.append_log(entry)
+            self._mirror_entry(entry)
             return {"ok": True}
 
         mapped = []
@@ -60,9 +85,13 @@ class RpcDataReceiver:
         if not mapped:
             return {"ok": True}
         if len(mapped) == 1:
-            self._store.append_log(mapped[0])
+            entry = mapped[0]
+            self._store.append_log(entry)
+            self._mirror_entry(entry)
         else:
             self._store.extend_logs(mapped)
+            for entry in mapped:
+                self._mirror_entry(entry)
         return {"ok": True}
 
     def ping(self) -> Dict[str, Any]:

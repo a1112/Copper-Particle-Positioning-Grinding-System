@@ -7,7 +7,6 @@ from app.server.models import (
     ControlCommand,
     ControlResult,
     CuttingSnapshot,
-    LogEntry,
     StatusModel,
     ToolInfoSnapshot,
 )
@@ -21,9 +20,6 @@ class BusinessService(abc.ABC):
         """Return the latest machine status snapshot."""
 
     @abc.abstractmethod
-    async def fetch_logs(self, limit: Optional[int] = None) -> List[LogEntry]:
-        """Obtain recent log entries ordered from oldest to newest."""
-
     @abc.abstractmethod
     async def execute_control(self, command: ControlCommand) -> ControlResult:
         """Execute a control command emitted by the API."""
@@ -43,6 +39,10 @@ class BusinessService(abc.ABC):
     async def clear_cutting_override(self, keys: Optional[List[str]] = None) -> Dict[str, Any]:
         """Clear manual cutting overrides (optional)."""
         raise NotImplementedError("Cutting overrides are not supported by this backend")
+
+    def add_log(self, entry: Dict[str, Any]) -> None:
+        """Record a log entry inside the server buffer."""
+        raise NotImplementedError("Log injection is not supported by this backend")
 
     async def fetch_tool_info(self) -> ToolInfoSnapshot:
         """Return structured tool information (optional)."""

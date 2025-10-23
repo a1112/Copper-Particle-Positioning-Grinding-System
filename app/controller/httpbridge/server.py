@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, Mapping, Optional
 from fastapi import FastAPI
 import uvicorn
 
-log = logging.getLogger("controller.http.server")
+log = logging.getLogger("controller.httpbridge.server")
 
 ControlCallback = Callable[[str, Mapping[str, Any]], Mapping[str, Any]]
 

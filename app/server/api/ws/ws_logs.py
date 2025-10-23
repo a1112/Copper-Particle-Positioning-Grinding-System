@@ -8,7 +8,7 @@ from fastapi.logger import logger
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from ..api_core import ws_router
-from app.server.data import get_backend
+from app.server.utils import logs
 
 
 @ws_router.websocket("/ws/logs")
@@ -26,16 +26,13 @@ async def ws_logs(ws: WebSocket):
         except Exception:
             pass
 
-        backend = get_backend()
-        history_entries = await backend.fetch_logs()
-        history: List[Dict[str, Any]] = [entry.to_dict() for entry in history_entries]
+        history: List[Dict[str, Any]] = list(logs.as_list())
         await ws.send_json({"type": "history", "items": history})
         last_len = len(history)
         idle_ticks = 0
 
         while True:
-            current_entries = await backend.fetch_logs()
-            buf_list: List[Dict[str, Any]] = [entry.to_dict() for entry in current_entries]
+            buf_list = list(logs.as_list())
             if len(buf_list) < last_len:
                 # Buffer rotated/truncated; resend full snapshot
                 await ws.send_json({"type": "history", "items": buf_list})
@@ -50,7 +47,7 @@ async def ws_logs(ws: WebSocket):
             else:
                 # No new logs; emit a lightweight heartbeat periodically
                 idle_ticks += 1
-                if idle_ticks >= 6:  # ~3s at 0.5s interval
+                if idle_ticks >= 600:  # ~3s at 0.5s interval
                     hb = {"ts": time.time(), "level": "INFO", "name": "app", "msg": "heartbeat"}
                     await ws.send_json({"type": "append", "item": hb})
                     idle_ticks = 0

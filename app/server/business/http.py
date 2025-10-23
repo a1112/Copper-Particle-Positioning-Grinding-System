@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from app.server.models import (
     ControlCommand,
     ControlResult,
     CuttingSnapshot,
-    LogEntry,
     StatusModel,
     ToolInfoSnapshot,
 )
@@ -16,6 +15,7 @@ from .base import BusinessService
 from .tool_info import ToolInfoAssembler
 from app.server.httpbridge.client import HttpControlClient
 from app.server.httpbridge.store import HttpDataStore
+from app.server.utils import logs
 
 
 class HttpBusinessService(BusinessService):
@@ -29,16 +29,6 @@ class HttpBusinessService(BusinessService):
     async def fetch_status(self) -> StatusModel:
         payload = await asyncio.to_thread(self._store.get_status)
         return StatusModel.from_mapping(payload)
-
-    async def fetch_logs(self, limit: Optional[int] = None) -> List[LogEntry]:
-        entries = await asyncio.to_thread(self._store.get_logs)
-        if isinstance(entries, list):
-            raw_entries = entries
-        else:
-            raw_entries = list(entries)
-        if limit is not None and limit >= 0:
-            raw_entries = raw_entries[-limit:]
-        return [LogEntry.from_mapping(item) for item in raw_entries]
 
     async def execute_control(self, command: ControlCommand) -> ControlResult:
         try:
@@ -64,3 +54,9 @@ class HttpBusinessService(BusinessService):
         except Exception:
             pass
 
+    def add_log(self, entry: Dict[str, Any]) -> None:
+        level = str(entry.get("level", "INFO"))
+        name = str(entry.get("name", "http"))
+        msg = str(entry.get("msg", entry.get("message", "")))
+        ts = entry.get("ts")
+        logs.push(level, name, msg, ts=ts if isinstance(ts, (int, float)) else None)

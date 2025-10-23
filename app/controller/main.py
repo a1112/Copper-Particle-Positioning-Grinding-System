@@ -18,7 +18,7 @@ from app.config import (
     HTTP_TIMEOUT,
 )
 from app.controller.rpc.service import RpcControllerService
-from app.controller.http import HttpControllerService
+from app.controller.httpbridge import HttpControllerService
 
 LOG = logging.getLogger("controller")
 

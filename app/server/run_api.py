@@ -88,6 +88,10 @@ def main() -> None:
 
     mode = getattr(CONFIG, "data_mode", CONFIG.DATA_MODE)
     endpoint = getattr(CONFIG, "data_endpoint", CONFIG.DATA_ENDPOINT)
+    try:
+        log.info("API using data_mode=%s endpoint=%s", mode, endpoint or "N/A")
+    except Exception:
+        pass
     bindings, _service = bootstrap_environment(mode, endpoint=endpoint)
     motion = bindings.motion
     orch = bindings.orchestrator

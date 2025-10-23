@@ -10,7 +10,6 @@ from app.server.models import (
     ControlCommand,
     ControlResult,
     CuttingSnapshot,
-    LogEntry,
     StatusModel,
     ToolInfoSnapshot,
 )
@@ -33,12 +32,6 @@ class SimBusinessService(BusinessService):
     async def fetch_status(self) -> StatusModel:
         payload = await asyncio.to_thread(self._status_service.fetch_status)
         return StatusModel.from_mapping(payload)
-
-    async def fetch_logs(self, limit: Optional[int] = None) -> List[LogEntry]:
-        entries = await asyncio.to_thread(logs.as_list)
-        if limit is not None and limit >= 0:
-            entries = entries[-limit:]
-        return [LogEntry.from_mapping(item) for item in entries]
 
     async def execute_control(self, command: ControlCommand) -> ControlResult:
         logs.push("INFO", "control", f"[sim] command={command.action}")
@@ -69,6 +62,13 @@ class SimBusinessService(BusinessService):
         else:
             self._cutting_override.clear()
         return dict(self._cutting_override)
+
+    def add_log(self, entry: Dict[str, Any]) -> None:
+        level = str(entry.get("level", "INFO"))
+        name = str(entry.get("name", "sim"))
+        msg = str(entry.get("msg", entry.get("message", "")))
+        ts = entry.get("ts")
+        logs.push(level, name, msg, ts=ts if isinstance(ts, (int, float)) else None)
 
     def _build_cutting_payload(self) -> Dict[str, Any]:
         elapsed = time.monotonic() - self._cutting_start

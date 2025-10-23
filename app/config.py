@@ -52,7 +52,7 @@ def _env_int(name: str, default: int) -> int:
 DEBUG: bool = _env_bool("COPPER_DEBUG", _env_bool("DEBUG", False))
 
 # DATA MODE flag: determines whether simulated ("sim") or runtime/production ("runtime") backends are used.
-_DATA_MODE_RAW = _env_text("COPPER_DATA_MODE", _env_text("COPPER_RUNTIME_MODE", "sim")) or "sim"
+_DATA_MODE_RAW = _env_text("COPPER_DATA_MODE", _env_text("COPPER_RUNTIME_MODE", "http")) or "sim"
 DATA_MODE: str = _DATA_MODE_RAW.lower()
 
 # Optional endpoint for runtime/production data fetching.

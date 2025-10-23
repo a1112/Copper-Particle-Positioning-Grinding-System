@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import asyncio
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from app.core.state_machine import ProcState
 from app.domain.status import get_status_service
 from app.devices.motion_base import IMotionController
 from app.process.orchestrator import Orchestrator
-from app.server.models import ControlCommand, ControlResult, CuttingSnapshot, LogEntry, StatusModel, ToolInfoSnapshot
+from app.server.models import ControlCommand, ControlResult, CuttingSnapshot, StatusModel, ToolInfoSnapshot
 from app.server.utils import logs
 
 from .base import BusinessService
@@ -26,12 +26,6 @@ class RuntimeBusinessService(BusinessService):
     async def fetch_status(self) -> StatusModel:
         payload = await asyncio.to_thread(self._status_service.fetch_status)
         return StatusModel.from_mapping(payload)
-
-    async def fetch_logs(self, limit: Optional[int] = None) -> List[LogEntry]:
-        entries = await asyncio.to_thread(logs.as_list)
-        if limit is not None and limit >= 0:
-            entries = entries[-limit:]
-        return [LogEntry.from_mapping(item) for item in entries]
 
     async def execute_control(self, command: ControlCommand) -> ControlResult:
         action = command.action.lower()
@@ -111,3 +105,10 @@ class RuntimeBusinessService(BusinessService):
     async def fetch_tool_info(self) -> ToolInfoSnapshot:
         status_payload = await asyncio.to_thread(self._status_service.fetch_status)
         return await asyncio.to_thread(self._tool_info.build, status_payload)
+
+    def add_log(self, entry: Dict[str, Any]) -> None:
+        level = str(entry.get("level", "INFO"))
+        name = str(entry.get("name", "runtime"))
+        msg = str(entry.get("msg", entry.get("message", "")))
+        ts = entry.get("ts")
+        logs.push(level, name, msg, ts=ts if isinstance(ts, (int, float)) else None)
