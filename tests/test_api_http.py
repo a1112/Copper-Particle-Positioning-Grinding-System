@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import importlib
 import os
@@ -68,3 +68,14 @@ def test_config_settings_bundle(client):
     scan_section = next(section for section in data.get("job_sections", []) if section["name"] == "scan")
     scan_mode = next(item for item in scan_section.get("items", []) if item["key"] == "mode")
     assert isinstance(scan_mode.get("description"), str) and len(scan_mode["description"]) > 0
+
+def test_tool_list_endpoint(client):
+    r = client.get("/toolList")
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    if data:
+        sample = data[0]
+        assert isinstance(sample, dict)
+        assert "model" in sample
+        assert "diameter_mm" in sample
