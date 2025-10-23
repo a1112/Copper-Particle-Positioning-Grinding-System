@@ -3,30 +3,31 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional
 
-from .client import ControllerRpcClient
-from .server import ControllerRpcServer
+from .client import HttpControllerClient
+from .server import HttpControllerServer
 
-log = logging.getLogger("controller.rpc.service")
+log = logging.getLogger("controller.http.service")
 
 ControlHandler = Callable[[str, Dict[str, Any]], Mapping[str, Any]]
 
 
-class RpcControllerService:
-    """High-level helper binding the controller logic to the API server via gRPC."""
+class HttpControllerService:
+    """High-level helper binding the controller logic to the API server via HTTP."""
 
     def __init__(
         self,
         *,
-        listen_endpoint: str,
-        server_endpoint: str,
+        base_url: str,
+        control_host: str,
+        control_port: int,
         timeout: float = 5.0,
     ) -> None:
-        self._client = ControllerRpcClient(endpoint=server_endpoint, timeout=timeout)
+        self._client = HttpControllerClient(base_url=base_url, timeout=timeout)
         self._handlers: List[ControlHandler] = []
-        self._server = ControllerRpcServer(endpoint=listen_endpoint, callback=self._dispatch_control)
+        self._server = HttpControllerServer(host=control_host, port=control_port, callback=self._dispatch_control)
 
     def start(self) -> None:
-        """Start the inbound gRPC server so control commands can be received."""
+        """Start the inbound HTTP server so control commands can be received."""
         self._server.start()
 
     def stop(self) -> None:
@@ -67,3 +68,4 @@ class RpcControllerService:
                 mapped.setdefault("ok", True)
                 return mapped
         return {"ok": False, "message": "All handlers rejected request"}
+

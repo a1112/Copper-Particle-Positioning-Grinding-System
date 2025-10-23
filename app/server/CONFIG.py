@@ -1,16 +1,17 @@
-from pathlib import Path
+"""Compatibility shims for legacy imports.
 
-from app.config import DEBUG as GLOBAL_DEBUG, DATA_MODE, DATA_ENDPOINT
+Historically, server modules imported configuration from ``app.server.CONFIG``.
+Configuration now lives in ``app.config``, so this module simply proxies the
+attributes consumers expect.
+"""
 
-DEBUG = bool(GLOBAL_DEBUG)
+from app import config as _config
 
-testFolder = Path(__file__).parent.parent.parent / "TestData"
-
-app_host = "127.0.0.1"
-app_port = 8010
-log_level = "debug" if DEBUG else "info"
-# Data provider mode for API/UI (sim for simulation, runtime/comm for production).
-data_mode = DATA_MODE
-# Optional data endpoint when using runtime/production mode.
-data_endpoint = DATA_ENDPOINT
+DEBUG = _config.DEBUG
+testFolder = _config.testFolder
+app_host = _config.app_host
+app_port = _config.app_port
+log_level = _config.log_level
+data_mode = _config.data_mode
+data_endpoint = _config.data_endpoint
 

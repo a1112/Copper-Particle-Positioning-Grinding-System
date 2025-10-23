@@ -6,7 +6,13 @@ import logging
 from importlib import import_module
 from typing import Optional, Tuple, Type, TypeVar, Any
 
-from app.config import RPC_CONTROL_ENDPOINT, RPC_LISTEN_ENDPOINT, RPC_TIMEOUT
+from app.config import (
+    RPC_CONTROL_ENDPOINT,
+    RPC_LISTEN_ENDPOINT,
+    RPC_TIMEOUT,
+    HTTP_CONTROL_ENDPOINT,
+    HTTP_TIMEOUT,
+)
 from app.core.events import EventBus
 from app.devices.camera_base import ICamera
 from app.devices.motion_base import IMotionController
@@ -18,9 +24,12 @@ from app.domain.status.providers import SimStatusProvider, ProductionStatusProvi
 from app.process.orchestrator import Orchestrator
 from app.process.sim_executor import SimulatedProcessExecutor
 from app.process.sim_path_planner import SimulatedPathPlanner
-from app.server.business import BusinessService, RuntimeBusinessService, SimBusinessService, RpcBusinessService
+from app.server.business import BusinessService, RuntimeBusinessService, SimBusinessService, RpcBusinessService, HttpBusinessService
 from app.server.data import set_backend
 from app.server.rpc import RpcControlClient, RpcDataStore, RpcServerRunner, RpcStatusProvider
+from app.server.httpbridge.client import HttpControlClient
+from app.server.httpbridge.routes import set_store as set_http_store
+from app.server.httpbridge.store import HttpDataStore, HttpStatusProvider
 from app.vision.pipeline import VisionPipeline
 
 _LOGGER = logging.getLogger(__name__)
@@ -192,7 +201,7 @@ class RuntimeEnvironment(BaseEnvironment):
 
 
 class RpcEnvironment(BaseEnvironment):
-    """Environment that bridges the API to an external controller via ZeroRPC."""
+    """Environment that bridges the API to an external controller via gRPC."""
 
     mode = "rpc"
 
@@ -223,17 +232,40 @@ class RpcEnvironment(BaseEnvironment):
         set_backend(service)
         try:
             self._server_runner.start()
-            _LOGGER.info(
-                "RPC bridge enabled (listen=%s, upstream=%s, timeout=%ss)",
-                self._listen_endpoint,
-                self._control_endpoint,
-                self._timeout,
-            )
+            _LOGGER.info("RPC bridge enabled (listen=%s, upstream=%s, timeout=%ss)", self._listen_endpoint, self._control_endpoint, self._timeout)
         except Exception as exc:
-            _LOGGER.error("Failed to start ZeroRPC server at %s: %s", self._listen_endpoint, exc)
+            _LOGGER.error("Failed to start gRPC server at %s: %s", self._listen_endpoint, exc)
             raise
         setattr(bindings.orchestrator, "rpc_store", self._store)
         setattr(bindings.orchestrator, "rpc_runner", self._server_runner)
+        return service
+
+
+class HttpEnvironment(BaseEnvironment):
+    """Environment that bridges the API to an external controller via HTTP."""
+
+    mode = "http"
+
+    def __init__(self, *, control_endpoint: Optional[str] = None, timeout: Optional[float] = None) -> None:
+        super().__init__()
+        self._control_endpoint = control_endpoint or HTTP_CONTROL_ENDPOINT
+        self._timeout = HTTP_TIMEOUT if timeout is None else timeout
+        self._store = HttpDataStore()
+        self._control_client = HttpControlClient(endpoint=self._control_endpoint, timeout=self._timeout)
+
+    def create_motion(self, bus: EventBus) -> IMotionController:  # noqa: ARG002
+        return MotionSim()
+
+    def create_camera(self) -> ICamera:
+        return CameraSim()
+
+    def configure_backend(self, bindings: SystemBindings, *, endpoint: Optional[str] = None) -> BusinessService:  # noqa: ARG002
+        set_status_provider(HttpStatusProvider(self._store))
+        service = HttpBusinessService(self._store, self._control_client)
+        set_backend(service)
+        set_http_store(self._store)
+        _LOGGER.info("HTTP bridge enabled (control=%s, timeout=%ss)", self._control_endpoint, self._timeout)
+        setattr(bindings.orchestrator, "http_store", self._store)
         return service
 
 
@@ -241,8 +273,10 @@ def get_environment(mode: Optional[str] = None) -> BaseEnvironment:
     normalized = (mode or "sim").lower()
     if normalized in {"runtime", "production", "prod", "comm"}:
         return RuntimeEnvironment()
-    if normalized in {"rpc", "zerorpc"}:
+    if normalized in {"rpc", "grpc", "zerorpc"}:
         return RpcEnvironment()
+    if normalized in {"http", "rest"}:
+        return HttpEnvironment()
     return SimEnvironment()
 
 

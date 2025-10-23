@@ -6,7 +6,6 @@ from pathlib import Path
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
-from app.api.server import create_app
 from app.config import DATA_MODE, DATA_ENDPOINT
 from app.runtime.environment import bootstrap_environment
 from app.ui.src.highlighter import HighlighterBridge
@@ -58,7 +57,6 @@ def main() -> None:
         cam.close()
         sys.exit(-1)
 
-    app_api = create_app(provider, orch, motion)
     api_ctl = ApiController()
 
     settings_store = QSettings()
@@ -68,7 +66,6 @@ def main() -> None:
     except Exception:
         api_port = 8010
 
-    api_ctl.start(app_api, api_port)
 
     ret = app.exec()
     cam.stop_stream()

@@ -110,9 +110,9 @@ UI 浠嶄緷璧栦互涓?REST 鎺ュ彛鑾峰彇棰濆淇℃伅锛岀敓鎴�
 | `--loop` | `False` | 循环播放 |
 | `--interval` | `2.0` | 未开启 `--respect-delay` 时的默认间隔 |
 | `--respect-delay` | `False` | 使用场景中定义的 `delay` |
-| `--rpc-server` | `app.config.RPC_LISTEN_ENDPOINT` | ZeroRPC 数据上行目标 |
+| `--rpc-server` | `app.config.RPC_LISTEN_ENDPOINT` | gRPC 数据上行目标 |
 | `--rpc-listen` | `app.config.RPC_CONTROL_ENDPOINT` | 控制命令监听地址 |
-| `--rpc-timeout` | `app.config.RPC_TIMEOUT` | ZeroRPC 调用超时时间 |
+| `--rpc-timeout` | `app.config.RPC_TIMEOUT` | gRPC 调用超时时间 |
 
 ---
 

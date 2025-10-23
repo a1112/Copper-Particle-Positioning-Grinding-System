@@ -55,7 +55,7 @@ UI 经 `app/ui/qml/works` 建立到后端的 WebSocket 连接，实时同步状�
 1. **状态推送**：后端 `ws_status` 周期性调用业务服务的 `fetch_status()`，取得 `StatusModel`，推送给前端。`StatusDatas.ingest()` 更新最新消息，并驱动各视图刷新，如 `DriveInfoView`、`StatusLightAlarmView`、`ElevationAreaChart`。
 2. **日志推送**：`ws_logs` 从业务层读取日志队列，推送到 `LogDatas`。
 3. **控制指令**：UI 调用 `Api.ApiClient` 的 POST 方法，业务服务接收 `ControlCommand` 并委托核心运行层执行（如急停、回零）。
-5. **模拟与真实切换**：`app/server/data/context.py` 默认注入 `RpcBusinessService` 通过 ZeroRPC 汇聚数据，部署到真实设备时可切换为 `RuntimeBusinessService`。
+5. **模拟与真实切换**：`app/server/data/context.py` 默认注入 `RpcBusinessService` 通过 gRPC 汇聚数据，部署到真实设备时可切换为 `RuntimeBusinessService`。
 5. **模拟与真实切换**：`app/server/data/context.py` 默认注入 `SimBusinessService`，可在部署时切换为 `RuntimeBusinessService`，其内部使用真实设备和 `ProductionStatusProvider`。
 
 ### 新增：主控逻辑程序
@@ -63,7 +63,7 @@ UI 经 `app/ui/qml/works` 建立到后端的 WebSocket 连接，实时同步状�
 独立的主控程序位于 `app/controller/main.py`，核心职责：
 
 - 读取 JSON 场景文件（默认 `app/controller/sample_scenarios.json`），生成状态、位置、转速、切削量等完整载荷；
-- 通过 ZeroRPC 将状态与日志推送到 Server，再由 Server 通过 WebSocket 同步到 UI。
+- 通过 gRPC 将状态与日志推送到 Server，再由 Server 通过 WebSocket 同步到 UI。
 - 支持循环播放、按场景延时、退出时自动清理覆盖数据等运行模式，可用于联调或模拟产线工况。*** End Patch*** End Patch
 ## 4. 运行时序 (示意)
 

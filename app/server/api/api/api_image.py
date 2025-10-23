@@ -4,7 +4,7 @@ from typing import Any
 
 from fastapi import Response
 
-import CONFIG
+import app.config as CONFIG
 from ..api_core import image_router as router
 
 _override_png = CONFIG.testFolder / "images" / "1_IMG_Texture_8Bit.png"

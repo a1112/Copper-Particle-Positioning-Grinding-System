@@ -1,12 +1,5 @@
 from __future__ import annotations
 
-try:
-    from gevent import monkey as _gevent_monkey
-except ImportError:  # pragma: no cover - zerorpc installs gevent in normal deployments
-    _gevent_monkey = None
-else:  # pragma: no cover - side effect only
-    _gevent_monkey.patch_all()
-
 import argparse
 import asyncio
 import json
@@ -14,9 +7,18 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, AsyncIterator, Dict, Iterable, List, Optional, Mapping
+from urllib.parse import urlparse
 
-from app.config import RPC_CONTROL_ENDPOINT, RPC_LISTEN_ENDPOINT, RPC_TIMEOUT
+from app.config import (
+    RPC_CONTROL_ENDPOINT,
+    RPC_LISTEN_ENDPOINT,
+    RPC_TIMEOUT,
+    HTTP_BRIDGE_BASE,
+    HTTP_CONTROL_ENDPOINT,
+    HTTP_TIMEOUT,
+)
 from app.controller.rpc.service import RpcControllerService
+from app.controller.http import HttpControllerService
 
 LOG = logging.getLogger("controller")
 
@@ -63,18 +65,18 @@ class Scenario:
         )
 
 
-def _apply_scenario_rpc(service: RpcControllerService, scenario: Scenario) -> None:
+def _apply_scenario(service: Any, scenario: Scenario) -> None:
     status_payload = dict(scenario.status)
     status_payload.setdefault("label", scenario.name)
     ok_status = service.publish_status(status_payload)
-    LOG.info("Published status snapshot %s via RPC (ok=%s)", scenario.name, ok_status)
+    LOG.info("Published status snapshot %s (ok=%s)", scenario.name, ok_status)
 
     if scenario.cutting:
         ok_cutting = service.publish_cutting(scenario.cutting)
-        LOG.info("Published cutting snapshot %s via RPC (ok=%s)", scenario.name, ok_cutting)
+        LOG.info("Published cutting snapshot %s (ok=%s)", scenario.name, ok_cutting)
     if scenario.logs:
         ok_logs = service.publish_logs(scenario.logs)
-        LOG.info("Published %d log entries via RPC (ok=%s)", len(scenario.logs), ok_logs)
+        LOG.info("Published %d log entries (ok=%s)", len(scenario.logs), ok_logs)
 
 
 def _load_scenarios(paths: Iterable[Path]) -> List[Scenario]:
@@ -110,31 +112,42 @@ async def run_controller(args: argparse.Namespace) -> None:
     paths = [Path(item) for item in args.scenario]
     scenarios = _load_scenarios(paths)
 
-    service = RpcControllerService(
-        listen_endpoint=args.rpc_listen,
-        server_endpoint=args.rpc_server,
-        timeout=args.rpc_timeout,
-    )
+    transport = args.transport.lower()
+    if transport == "http":
+        parsed = urlparse(args.http_control)
+        host = parsed.hostname or "127.0.0.1"
+        port = parsed.port or 9001
+        service = HttpControllerService(
+            base_url=args.http_base,
+            control_host=host,
+            control_port=port,
+            timeout=args.http_timeout,
+        )
+        label = f"HTTP (bridge={args.http_base}, control={args.http_control})"
+    else:
+        service = RpcControllerService(
+            listen_endpoint=args.rpc_listen,
+            server_endpoint=args.rpc_server,
+            timeout=args.rpc_timeout,
+        )
+        label = f"gRPC (listen={args.rpc_listen}, upstream={args.rpc_server})"
+
     service.start()
-    LOG.info(
-        "RPC controller started (listen=%s, upstream=%s)",
-        args.rpc_listen,
-        args.rpc_server,
-    )
+    LOG.info("Controller started using %s", label)
 
     try:
         if not service.ping():
-            LOG.warning("Initial RPC ping failed; continuing regardless")
+            LOG.warning("Initial transport ping failed; continuing regardless")
         async for scenario in _cycle_scenarios(scenarios, args.loop):
-            _apply_scenario_rpc(service, scenario)
+            _apply_scenario(service, scenario)
             await asyncio.sleep(scenario.delay if args.respect_delay else args.interval)
     finally:
         service.stop()
-        LOG.info("RPC controller stopped")
+        LOG.info("Controller stopped")
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Standalone main-controller that drives the server simulator payloads over ZeroRPC.")
+    parser = argparse.ArgumentParser(description="Standalone main-controller that drives the server simulator payloads over gRPC or HTTP.")
     parser.add_argument(
         "-s",
         "--scenario",
@@ -160,20 +173,42 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Keep replaying scenarios in a loop until interrupted.",
     )
     parser.add_argument(
+        "--transport",
+        choices=["grpc", "http"],
+        default="grpc",
+        help="Transport used to push data to the API server (default: grpc).",
+    )
+    parser.add_argument(
         "--rpc-listen",
         default=RPC_CONTROL_ENDPOINT,
-        help=f"ZeroRPC endpoint where the controller listens for commands (default: {RPC_CONTROL_ENDPOINT}).",
+        help=f"gRPC endpoint where the controller listens for commands (default: {RPC_CONTROL_ENDPOINT}).",
     )
     parser.add_argument(
         "--rpc-server",
         default=RPC_LISTEN_ENDPOINT,
-        help=f"ZeroRPC endpoint exposed by the API server to receive telemetry (default: {RPC_LISTEN_ENDPOINT}).",
+        help=f"gRPC endpoint exposed by the API server to receive telemetry (default: {RPC_LISTEN_ENDPOINT}).",
     )
     parser.add_argument(
         "--rpc-timeout",
         type=float,
         default=RPC_TIMEOUT,
-        help=f"Timeout (seconds) for ZeroRPC requests (default: {RPC_TIMEOUT}).",
+        help=f"Timeout (seconds) for gRPC requests (default: {RPC_TIMEOUT}).",
+    )
+    parser.add_argument(
+        "--http-base",
+        default=HTTP_BRIDGE_BASE,
+        help=f"HTTP bridge base URL exposed by the API server (default: {HTTP_BRIDGE_BASE}).",
+    )
+    parser.add_argument(
+        "--http-control",
+        default=HTTP_CONTROL_ENDPOINT,
+        help=f"HTTP endpoint used by the API server to reach this controller (default: {HTTP_CONTROL_ENDPOINT}).",
+    )
+    parser.add_argument(
+        "--http-timeout",
+        type=float,
+        default=HTTP_TIMEOUT,
+        help=f"Timeout (seconds) for HTTP requests (default: {HTTP_TIMEOUT}).",
     )
     parser.add_argument(
         "--log-level",

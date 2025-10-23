@@ -2,88 +2,124 @@ from __future__ import annotations
 
 import logging
 import threading
-from typing import Any, Iterable, Mapping, Optional
+from typing import Any, Iterable, Mapping, Optional, Tuple
+
+import grpc
+
+from app.rpc.common import GRPC_CHANNEL_OPTIONS, deserialize_json, normalize_endpoint, serialize_json
 
 log = logging.getLogger("controller.rpc.client")
 
 
-def _load_zerorpc():
-    try:
-        import zerorpc  # type: ignore[import]
-    except ImportError as exc:  # pragma: no cover - optional dependency guard
-        raise RuntimeError("zerorpc is not installed. Install zerorpc to use the RPC controller mode.") from exc
-    return zerorpc
-
-
 class ControllerRpcClient:
-    """Client that pushes telemetry snapshots to the API server via ZeroRPC."""
+    """Client that pushes telemetry snapshots to the API server via gRPC."""
 
     def __init__(self, *, endpoint: str, timeout: float = 5.0) -> None:
         self._endpoint = endpoint
         self._timeout = timeout
         self._lock = threading.RLock()
-        self._client = None
+        self._channel: Optional[grpc.Channel] = None
+        self._push_status: Optional[Any] = None
+        self._push_cutting: Optional[Any] = None
+        self._push_logs: Optional[Any] = None
+        self._ping: Optional[Any] = None
 
-    def _ensure_client(self):
+    def _ensure_methods(self) -> Tuple[Any, Any, Any, Any]:
         with self._lock:
-            if self._client is not None:
-                return self._client
-            zerorpc = _load_zerorpc()
-            client = zerorpc.Client(timeout=self._timeout)
-            client.connect(self._endpoint)
-            self._client = client
-            log.info("Controller ZeroRPC client connected to %s", self._endpoint)
-            return client
+            if all((self._push_status, self._push_cutting, self._push_logs, self._ping)):
+                return self._push_status, self._push_cutting, self._push_logs, self._ping
+
+            address = normalize_endpoint(self._endpoint)
+            if not address:
+                raise RuntimeError("Telemetry endpoint is not configured.")
+
+            channel = grpc.insecure_channel(address, options=list(GRPC_CHANNEL_OPTIONS))
+            self._channel = channel
+            self._push_status = channel.unary_unary(
+                "/copper.rpc.TelemetryService/PushStatus",
+                request_serializer=serialize_json,
+                response_deserializer=deserialize_json,
+            )
+            self._push_cutting = channel.unary_unary(
+                "/copper.rpc.TelemetryService/PushCutting",
+                request_serializer=serialize_json,
+                response_deserializer=deserialize_json,
+            )
+            self._push_logs = channel.unary_unary(
+                "/copper.rpc.TelemetryService/PushLogs",
+                request_serializer=serialize_json,
+                response_deserializer=deserialize_json,
+            )
+            self._ping = channel.unary_unary(
+                "/copper.rpc.TelemetryService/Ping",
+                request_serializer=serialize_json,
+                response_deserializer=deserialize_json,
+            )
+            log.info("Controller gRPC client connected to %s", address)
+            return self._push_status, self._push_cutting, self._push_logs, self._ping
 
     def _reset(self) -> None:
         with self._lock:
-            client = self._client
-            self._client = None
-        if client is not None:
+            channel = self._channel
+            self._channel = None
+            self._push_status = None
+            self._push_cutting = None
+            self._push_logs = None
+            self._ping = None
+        if channel is not None:
             try:
-                client.close()
-            except Exception:  # pragma: no cover - best-effort
+                channel.close()
+            except Exception:  # pragma: no cover - best-effort cleanup
                 pass
 
     def push_status(self, payload: Mapping[str, Any]) -> bool:
-        client = self._ensure_client()
+        push_status, _, _, _ = self._ensure_methods()
         try:
-            response = client.push_status(dict(payload or {}))  # type: ignore[attr-defined]
+            response = push_status(dict(payload or {}), timeout=self._timeout)
         except Exception as exc:
             log.error("push_status failed: %s", exc)
             self._reset()
             raise
-        return bool(getattr(response, "get", lambda *_: False)("ok", True))
+        if isinstance(response, dict):
+            return bool(response.get("ok", True))
+        return bool(response)
 
     def push_cutting(self, payload: Mapping[str, Any]) -> bool:
-        client = self._ensure_client()
+        _, push_cutting, _, _ = self._ensure_methods()
         try:
-            response = client.push_cutting(dict(payload or {}))  # type: ignore[attr-defined]
+            response = push_cutting(dict(payload or {}), timeout=self._timeout)
         except Exception as exc:
             log.error("push_cutting failed: %s", exc)
             self._reset()
             raise
-        return bool(getattr(response, "get", lambda *_: False)("ok", True))
+        if isinstance(response, dict):
+            return bool(response.get("ok", True))
+        return bool(response)
 
     def push_logs(self, entries: Iterable[Mapping[str, Any]]) -> bool:
-        client = self._ensure_client()
+        _, _, push_logs, _ = self._ensure_methods()
         try:
-            response = client.push_logs(list(entries))  # type: ignore[attr-defined]
+            response = push_logs({"entries": list(entries)}, timeout=self._timeout)
         except Exception as exc:
             log.error("push_logs failed: %s", exc)
             self._reset()
             raise
-        return bool(getattr(response, "get", lambda *_: False)("ok", True))
+        if isinstance(response, dict):
+            return bool(response.get("ok", True))
+        return bool(response)
 
     def ping(self) -> bool:
-        client = self._ensure_client()
+        _, _, _, ping_call = self._ensure_methods()
         try:
-            result = client.ping()  # type: ignore[attr-defined]
-            return bool(result)
+            result = ping_call(None, timeout=self._timeout)
         except Exception as exc:
-            log.debug("ZeroRPC ping failed: %s", exc)
+            log.debug("gRPC ping failed: %s", exc)
             self._reset()
             return False
+        if isinstance(result, dict):
+            return bool(result.get("ok", True))
+        return bool(result)
 
     def close(self) -> None:
         self._reset()
+

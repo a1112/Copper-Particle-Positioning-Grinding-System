@@ -5,7 +5,7 @@ from typing import Optional
 
 import uvicorn
 
-from app.server import CONFIG
+import app.config as CONFIG
 
 
 class ApiController:
@@ -47,4 +47,3 @@ class ApiController:
     def restart(self, app, port: Optional[int] = None) -> None:
         self.stop()
         self.start(app, port)
-

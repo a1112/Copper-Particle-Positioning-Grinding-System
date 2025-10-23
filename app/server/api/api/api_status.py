@@ -13,7 +13,7 @@ async def status():
     status_model = await backend.fetch_status()
     payload = status_model.to_dict()
     try:
-        from app.server.CONFIG import DEBUG as _DBG  # type: ignore
+        from app.config import DEBUG as _DBG  # type: ignore
         payload["debug"] = bool(_DBG)
     except Exception:
         pass

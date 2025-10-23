@@ -1,5 +1,7 @@
 from fastapi import FastAPI, APIRouter
 
+from app.server.httpbridge.routes import bridge_router
+
 app = FastAPI(title="CopperSystem API")
 
 image_router = APIRouter(tags=["images"])
@@ -16,6 +18,7 @@ vision_router = APIRouter(tags=["vision"])
 
 
 def include_router():
+    app.include_router(bridge_router)
     app.include_router(image_router)
     app.include_router(test_router)
     app.include_router(motion_router)

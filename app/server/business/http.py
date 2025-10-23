@@ -13,15 +13,15 @@ from app.server.models import (
 )
 
 from .base import BusinessService
-from app.server.rpc import RpcControlClient, RpcDataStore
 from .tool_info import ToolInfoAssembler
+from app.server.httpbridge.client import HttpControlClient
+from app.server.httpbridge.store import HttpDataStore
 
 
-class RpcBusinessService(BusinessService):
-    """Business layer that proxies data/control via gRPC."""
+class HttpBusinessService(BusinessService):
+    """Business layer that proxies data/control via HTTP bridge."""
 
-    def __init__(self, store: RpcDataStore, client: RpcControlClient) -> None:
-        print("use RpcBusinessService")
+    def __init__(self, store: HttpDataStore, client: HttpControlClient) -> None:
         self._store = store
         self._client = client
         self._tool_info = ToolInfoAssembler()
@@ -42,9 +42,9 @@ class RpcBusinessService(BusinessService):
 
     async def execute_control(self, command: ControlCommand) -> ControlResult:
         try:
-            response = await asyncio.to_thread(self._client.handle_control, command.action, command.params)
+            response = await self._client.handle_control(command.action, command.params)
         except Exception as exc:
-            return ControlResult.failure(f"RPC control failed: {exc}", {"error": str(exc)})
+            return ControlResult.failure(f"HTTP control failed: {exc}", {"error": str(exc)})
         ok = bool(response.get("ok", True))
         message = str(response.get("message", "")) if isinstance(response, dict) else ""
         details = response.get("details", {}) if isinstance(response, dict) else {"raw": response}
@@ -58,8 +58,9 @@ class RpcBusinessService(BusinessService):
         status_payload = await asyncio.to_thread(self._store.get_status)
         return await asyncio.to_thread(self._tool_info.build, status_payload)
 
-    def close(self) -> None:
+    async def close(self) -> None:
         try:
-            self._client.close()
+            await self._client.close()
         except Exception:
             pass
+

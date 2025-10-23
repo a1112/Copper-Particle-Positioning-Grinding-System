@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 def _bootstrap_app() -> "tuple[object, object]":
     # Import core app and prepare module aliases expected by route modules
     from app.server.api import api_core as core
-    from app.server import CONFIG as real_config
+    import app.config as real_config
     import app.db as app_db
 
     # Expose legacy module names used by route files

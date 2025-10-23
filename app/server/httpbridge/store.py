@@ -5,8 +5,8 @@ from collections import deque
 from typing import Any, Deque, Dict, Iterable, Mapping
 
 
-class RpcDataStore:
-    """Thread-safe store keeping the latest snapshots pushed via gRPC."""
+class HttpDataStore:
+    """Thread-safe store keeping the latest snapshots pushed via HTTP bridge."""
 
     def __init__(self, *, log_capacity: int = 500) -> None:
         self._status: Dict[str, Any] = {}
@@ -50,11 +50,12 @@ class RpcDataStore:
             self._logs.clear()
 
 
-class RpcStatusProvider:
-    """Status provider that proxies data from :class:`RpcDataStore`."""
+class HttpStatusProvider:
+    """Status provider that proxies data from :class:`HttpDataStore`."""
 
-    def __init__(self, store: RpcDataStore) -> None:
+    def __init__(self, store: HttpDataStore) -> None:
         self._store = store
 
     def get_status(self) -> Dict[str, Any]:
         return self._store.get_status()
+

@@ -1,12 +1,5 @@
 from __future__ import annotations
 
-try:
-    from gevent import monkey as _gevent_monkey
-except ImportError:  # pragma: no cover - zerorpc installs gevent in production
-    _gevent_monkey = None
-else:  # pragma: no cover - side effect only
-    _gevent_monkey.patch_all()
-
 import argparse
 import logging
 import sys
@@ -20,13 +13,11 @@ LOG = logging.getLogger("controller.rpc.test")
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Minimal ZeroRPC connectivity test between controller and API."
-    )
+    parser = argparse.ArgumentParser(description="Minimal gRPC connectivity test between controller and API.")
     parser.add_argument(
         "--endpoint",
         default=RPC_LISTEN_ENDPOINT,
-        help=f"ZeroRPC endpoint exposed by the API server (default: {RPC_LISTEN_ENDPOINT}).",
+        help=f"gRPC endpoint exposed by the API server (default: {RPC_LISTEN_ENDPOINT}).",
     )
     parser.add_argument(
         "--timeout",

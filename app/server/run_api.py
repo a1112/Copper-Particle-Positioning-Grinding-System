@@ -1,12 +1,5 @@
 ﻿from __future__ import annotations
 
-try:
-    from gevent import monkey as _gevent_monkey
-except ImportError:  # pragma: no cover - zerorpc installs gevent
-    _gevent_monkey = None
-else:  # pragma: no cover - side effect only
-    _gevent_monkey.patch_all()
-
 import signal
 import sys
 from types import ModuleType
@@ -14,13 +7,12 @@ from typing import Any
 
 import uvicorn
 
-from app.config import DATA_MODE, DATA_ENDPOINT
+import app.config as CONFIG
 from app.devices.motion_base import IMotionController
 from app.runtime.environment import bootstrap_environment
 from app.ui.src.image_provider import CameraImageProvider
 from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
-from app.server import CONFIG
 from app.server.api.api_core import app, include_router
 from app.server.data import get_backend
 
@@ -94,8 +86,8 @@ def main() -> None:
     attach_root_handler()
     log = get_logger("cli")
 
-    mode = getattr(CONFIG, "data_mode", DATA_MODE)
-    endpoint = getattr(CONFIG, "data_endpoint", DATA_ENDPOINT)
+    mode = getattr(CONFIG, "data_mode", CONFIG.DATA_MODE)
+    endpoint = getattr(CONFIG, "data_endpoint", CONFIG.DATA_ENDPOINT)
     bindings, _service = bootstrap_environment(mode, endpoint=endpoint)
     motion = bindings.motion
     orch = bindings.orchestrator

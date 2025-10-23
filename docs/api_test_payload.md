@@ -1,6 +1,6 @@
 # 测试数据注入接口说明
 
-UI 测试窗口仍会通过下述 REST 接口把“虚拟产线数据”写入后端；独立主控程序 (`app/controller/main.py`) 则改为通过内置 ZeroRPC 网桥投递同样的内容，后端再统一向 WebSocket/HTTP 订阅者推送，从而驱动 UI 刷新。
+UI 测试窗口仍会通过下述 REST 接口把“虚拟产线数据”写入后端；独立主控程序 (`app/controller/main.py`) 则可通过 gRPC 或 HTTP 网桥投递同样的内容，后端再统一向 WebSocket/HTTP 订阅者推送，从而驱动 UI 刷新。HTTP 网桥基于 FastAPI `/bridge/*` 路由接受状态与日志数据。
 
 所有路径均挂载在 FastAPI 的 `status_router`、`path_router` 下，默认基础地址为 `http://<host>:<port>/api`（参见 `app/server/run_api.py` 中 `CONFIG.app_host/app_port` 配置）。
 
@@ -124,7 +124,7 @@ UI 测试窗口仍会通过下述 REST 接口把“虚拟产线数据”写入�
 
 ## 3. 示例：通过主控程序推送场景
 
-项目内置示例场景文件 `app/controller/sample_scenarios.json`，可通过以下命令循环推送（ZeroRPC 模式）：
+项目内置示例场景文件 `app/controller/sample_scenarios.json`，可通过以下命令循环推送（gRPC 模式）：
 
 ```powershell
 python -m app.controller.main --scenario app/controller/sample_scenarios.json --loop
@@ -133,9 +133,9 @@ python -m app.controller.main --scenario app/controller/sample_scenarios.json --
 命令行参数说明：
 
 - `--interval` / `--respect-delay`：控制场景播放节奏。
-- `--rpc-server`：API 端 ZeroRPC 监听地址（默认读取 `app.config.RPC_LISTEN_ENDPOINT`）。
-- `--rpc-listen`：主控自身用于接收控制命令的 ZeroRPC 地址（默认读取 `app.config.RPC_CONTROL_ENDPOINT`）。
-- `--rpc-timeout`：ZeroRPC 调用超时时间。
+- `--rpc-server`：API 端 gRPC 监听地址（默认读取 `app.config.RPC_LISTEN_ENDPOINT`）。
+- `--rpc-listen`：主控自身用于接收控制命令的 gRPC 地址（默认读取 `app.config.RPC_CONTROL_ENDPOINT`）。
+- `--rpc-timeout`：gRPC 调用超时时间。
 
 ---
 
