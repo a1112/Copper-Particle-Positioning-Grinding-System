@@ -8,11 +8,9 @@ from app.server.models import (
     ControlResult,
     CuttingSnapshot,
     StatusModel,
-    ToolInfoSnapshot,
 )
 
 from .base import BusinessService
-from .tool_info import ToolInfoAssembler
 from app.server.httpbridge.client import HttpControlClient
 from app.server.httpbridge.store import HttpDataStore
 from app.server.utils import logs
@@ -24,7 +22,6 @@ class HttpBusinessService(BusinessService):
     def __init__(self, store: HttpDataStore, client: HttpControlClient) -> None:
         self._store = store
         self._client = client
-        self._tool_info = ToolInfoAssembler()
 
     async def fetch_status(self) -> StatusModel:
         payload = await asyncio.to_thread(self._store.get_status)
@@ -43,10 +40,6 @@ class HttpBusinessService(BusinessService):
     async def fetch_cutting(self) -> CuttingSnapshot:
         payload = await asyncio.to_thread(self._store.get_cutting)
         return CuttingSnapshot.from_mapping(payload)
-
-    async def fetch_tool_info(self) -> ToolInfoSnapshot:
-        status_payload = await asyncio.to_thread(self._store.get_status)
-        return await asyncio.to_thread(self._tool_info.build, status_payload)
 
     async def close(self) -> None:
         try:

@@ -8,7 +8,6 @@ from app.server.models import (
     ControlResult,
     CuttingSnapshot,
     StatusModel,
-    ToolInfoSnapshot,
 )
 
 
@@ -43,7 +42,3 @@ class BusinessService(abc.ABC):
     def add_log(self, entry: Dict[str, Any]) -> None:
         """Record a log entry inside the server buffer."""
         raise NotImplementedError("Log injection is not supported by this backend")
-
-    async def fetch_tool_info(self) -> ToolInfoSnapshot:
-        """Return structured tool information (optional)."""
-        raise NotImplementedError("Tool info retrieval is not supported by this backend")

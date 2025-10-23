@@ -122,6 +122,11 @@ def get_engine() -> Engine:
 
 def init_db() -> None:
     """Initialise database schema if models are available."""
+    try:
+        from app.db.models.tool import ToolRecord  # noqa: F401
+    except Exception as exc:
+        LOG.debug("Optional tool models not initialised: %s", exc)
+
     Base.metadata.create_all(bind=ENGINE)
     try:
         from app.db.models import MzPoliShineDB

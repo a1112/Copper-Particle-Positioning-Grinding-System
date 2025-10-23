@@ -17,6 +17,10 @@ QtObject {
   // POST JSON
   function post(path, body, onOk, onErr){ Http.postJson(root, path, body, onOk, onErr, showError) }
 
+  function control(action,params,onOk, onErr){
+    post('/control', {"action":action,"params":params}, onOk, onErr)
+  }
+
   // Convenience APIs
   function startRun(onOk, onErr){ post('/run/start', {}, onOk, onErr) }
   function stopRun(onOk, onErr){ post('/run/stop', {}, onOk, onErr) }
