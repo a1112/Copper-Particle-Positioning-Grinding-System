@@ -8,8 +8,24 @@ import "works" as Works
 import "datas" as Datas
 
 ApplicationWindow {
-  // 主窗口对象
+  // main window
   id: rootWindow
+  property real baseFontPointSize: Qt.application.font.pointSize > 0 ? Qt.application.font.pointSize : 12
+
+  function applyFontScale() {
+    const scale = Cores.CoreSettings ? Cores.CoreSettings.fontScale : 1.0;
+    const base = baseFontPointSize > 0 ? baseFontPointSize : 12;
+    Qt.application.font = Qt.font({ pointSize: base * scale });
+  }
+
+  Component.onCompleted: applyFontScale()
+
+  Connections {
+    target: Cores.CoreSettings
+    function onFontScaleChanged() {
+      rootWindow.applyFontScale();
+    }
+  }
   // 采用暗色主题方案
   Material.theme: Material.Dark
   // 主色调取自 CoreStyle

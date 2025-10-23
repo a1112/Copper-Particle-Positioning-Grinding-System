@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 
 import "../../../cores" as Cores
@@ -54,7 +54,7 @@ Item {
       var offsetYRight = marginPx + (m + 1) * stepY
       positions.push({ x: imageWidth - marginPx, y: offsetYRight, edge: "right", index: m })
     }
-    positions
+    return positions
   }
 
   Repeater {
@@ -113,3 +113,4 @@ Item {
     }
   }
 }
+

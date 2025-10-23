@@ -9,7 +9,6 @@ from PySide6.QtQml import QQmlApplicationEngine
 from app.config import DATA_MODE, DATA_ENDPOINT
 from app.runtime.environment import bootstrap_environment
 from app.ui.src.highlighter import HighlighterBridge
-from app.ui.src.image_provider import CameraImageProvider
 from app.ui.src.localization import LocalizationManager, read_persisted_language
 from app.server.launcher import ApiController
 
@@ -35,13 +34,10 @@ def main() -> None:
     i18n = LocalizationManager(translations_dir, initial_language)
 
     engine = QQmlApplicationEngine()
-    provider = CameraImageProvider()
-    engine.addImageProvider("camera", provider)
 
     def on_frame(frame):
-        vision.on_frame(frame)
         try:
-            provider.set_frame(frame)
+            vision.on_frame(frame)
         except Exception:
             pass
 

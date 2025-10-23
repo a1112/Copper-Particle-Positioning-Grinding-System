@@ -11,5 +11,5 @@ Settings {
   property int refreshMs: 120
   // 默认界面语言
   property string language: "zh_CN"
+  property real fontScale: 1.0
 }
-

@@ -33,7 +33,7 @@ def _wrap_motion_module(controller: IMotionController) -> ModuleType:
     return proxy
 
 
-def _bootstrap_api_modules(log, provider: CameraImageProvider, orch, motion: IMotionController) -> None:
+def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
     """Eagerly import API/WS modules and inject runtime singletons they expect."""
     # Provide legacy module aliases expected by individual route modules.
     _ensure_module_alias("CONFIG", CONFIG)
@@ -126,7 +126,7 @@ def main() -> None:
             pass
 
     try:
-        _bootstrap_api_modules(log, provider, orch, motion)
+        _bootstrap_api_modules(log, orch, motion)
     except Exception as exc:
         if log:
             try:
