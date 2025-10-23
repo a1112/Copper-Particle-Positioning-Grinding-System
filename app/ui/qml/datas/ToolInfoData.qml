@@ -29,6 +29,20 @@ QtObject {
     return (minutes / 60).toFixed(1)
   }
 
+  function _statusLabel(value) {
+    var numeric = Number(value)
+    if (!isNaN(numeric)) {
+      if (numeric === 0)
+        return "闲置"
+      if (numeric === 1)
+        return "使用中"
+      if (numeric === 2)
+        return "维护"
+    }
+    return _toDisplay(value)
+  }
+
+
   function applySnapshot(payload) {
     if (!payload)
       return
@@ -39,6 +53,12 @@ QtObject {
         return
       }
       var first = payload[0] || {}
+      toolModel = "-"
+      toolDiameter = "-"
+      toolLength = "-"
+      toolUsage = "-"
+      toolLifetime = "-"
+      toolStatus = "-"
       if (first.model !== undefined)
         toolModel = _toDisplay(first.model)
       if (first.diameter_mm !== undefined)
@@ -49,8 +69,9 @@ QtObject {
         toolUsage = _minutesToHours(first.usage_minutes)
       if (first.service_life_minutes !== undefined)
         toolLifetime = _minutesToHours(first.service_life_minutes)
+      toolStatus = "-"
       if (first.status !== undefined)
-        toolStatus = _toDisplay(first.status)
+        toolStatus = _statusLabel(first.status)
       return
     }
 
@@ -83,6 +104,9 @@ QtObject {
       toolLifetime = _toDisplay(payload.toolLifetime)
     else if (payload.tool_life !== undefined)
       toolLifetime = _toDisplay(payload.tool_life)
+
+    if (payload.toolStatus !== undefined)
+      toolStatus = _statusLabel(payload.toolStatus)
   }
 
   function reset() {
@@ -95,4 +119,6 @@ QtObject {
     toolList = []
   }
 }
+
+
 

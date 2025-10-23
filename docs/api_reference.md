@@ -46,7 +46,7 @@
 
 | 方法 | 路径 | 说明 |
 | ---- | ---- | ---- |
-| GET | /toolInfo | 返回刀具型号、直径、使用时长和寿命等字段（ToolInfoSnapshot) |
+| GET | /toolList | 返回刀具列表（model/直径/长度/寿命等字段） |
 
 ---
 ## 3. 鍒囧墛鏁版嵁
@@ -190,5 +190,6 @@ websocat ws://127.0.0.1:8010/ws/status
 - 鐘舵€?鍒囧墛瀛楁鍏煎椹煎嘲涓庝笅鍒掔嚎鍛藉悕锛岃瑙?[UI 鏁版嵁濂戠害鏂囨。](ui_data_contracts.md)銆? 
 - 褰撴柊澧炲瓧娈垫椂锛岃鍚屾鏇存柊锛歚docs/ui_data_contracts.md`銆乣StatusDatas.qml`銆乣DeviceInfoData.qml`锛屽苟鑰冭檻鏇存柊涓绘帶鍦烘櫙鏂囦欢銆? 
 - 鑻ヤ娇鐢ㄧ紦瀛?浠ｇ悊锛岃娉ㄦ剰 `/status/test_payload` 绛夌鐐圭殑鐭椂鍐欐搷浣滀笉浼氳嚜鍔ㄦ帹閫佽嚦瀹㈡埛绔紝蹇呴』闈?WebSocket 鍒锋柊鎵嶅彲瑙併€?** End Patch
+
 
 

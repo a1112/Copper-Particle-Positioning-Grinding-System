@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -15,8 +15,10 @@ BaseCard {
 
   readonly property string toolModel: Datas.ToolInfoData.toolModel
   readonly property string toolDiameter: Datas.ToolInfoData.toolDiameter
+  readonly property string toolLength: Datas.ToolInfoData.toolLength
   readonly property string toolUsage: Datas.ToolInfoData.toolUsage
   readonly property string toolLifetime: Datas.ToolInfoData.toolLifetime
+  readonly property string toolStatus: Datas.ToolInfoData.toolStatus
 
   function formatWithUnit(value, unit) {
     if (!value)
@@ -57,6 +59,14 @@ BaseCard {
 
     InfoRowItem {
       Layout.fillWidth: true
+      titleText: qsTr("长度")
+      valueText: root.formatWithUnit(root.toolLength, "mm")
+      valueColor: Cores.CoreStyle.text
+      valueFont.pointSize: 14
+    }
+
+    InfoRowItem {
+      Layout.fillWidth: true
       titleText: qsTr("使用时长")
       valueText: root.formatWithUnit(root.toolUsage, "h")
       valueColor: Cores.CoreStyle.info
@@ -68,6 +78,14 @@ BaseCard {
       titleText: qsTr("预期寿命")
       valueText: root.formatWithUnit(root.toolLifetime, "h")
       valueColor: Cores.CoreStyle.warning
+      valueFont.pointSize: 14
+    }
+
+    InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("当前状态")
+      valueText: root.formatWithUnit(root.toolStatus, "")
+      valueColor: Cores.CoreStyle.text
       valueFont.pointSize: 14
     }
   }

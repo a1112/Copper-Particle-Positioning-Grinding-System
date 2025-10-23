@@ -84,14 +84,22 @@ ToolInfoData.applySnapshot() 会尝试兼容下列别名：
 > `Datas.CuttingDatas.removalRemaining = removal_expected - removal_current`锛沗CuttingStatisticsView` 涔熶細璺熻釜 `maxFeedRate`锛屽綋鏂?`feed_rate` 鏇村ぇ鏃舵洿鏂般€?
 ---
 
-## 3. 刀具信息（GET /toolInfo）
-UI 通过 ApiClient.toolInfo() 获取刀具卡片字段，Datas.ToolInfoData 会消费以下键值：
+## 3. 刀具信息（GET /toolList ）
+UI 通过 `ApiClient.toolList()` 获取最新的刀具列表数据，`Datas.ToolInfoData` 取首条记录填充卡片，其余记录保存在 `toolList` 数组便于扩展。
+
 | 字段 | 类型 | 说明 |
 | ---- | ---- | ---- |
-| tool_model / toolModel | string | 刀具型号（字符串，包含配置表中的名称或代号） |
-| tool_diameter / toolDiameter | string | 刀具直径（可包含单位文本） |
-| tool_usage / toolUsage | string/number | 累计使用时长或百分比 |
-| tool_life / toolLifetime | string | 预期寿命 |
+| `id` | integer | 主键 |
+| `model` | string | 刀具型号 |
+| `diameter_mm` | number | 刀具直径（mm） |
+| `length_mm` | number | 刀具长度（mm） |
+| `usage_minutes` | integer | 已使用时间（分钟） |
+| `service_life_minutes` | integer | 设计寿命（分钟） |
+| `status` | integer/string | 当前使用状态（0=闲置，1=使用中，2=维护；也可直接返回描述） |
+| `created_at` | string | 创建时间 ISO8601 字符串 |
+
+旧版 `/toolInfo` 接口返回的平面字段仍会被兼容解析，但推荐切换到 `/toolList`。
+
 ## 4. 閰嶇疆&鍏冩暟鎹?
 UI 浠嶄緷璧栦互涓?REST 鎺ュ彛鑾峰彇棰濆淇℃伅锛岀敓鎴愮殑瀛楁涓?`DeviceInfoData` 鍏煎锛?
 | 鎺ュ彛 | 璇存槑 | 鍏抽敭瀛楁 |
@@ -118,6 +126,7 @@ UI 浠嶄緷璧栦互涓?REST 鎺ュ彛鑾峰彇棰濆淇℃伅锛岀敓鎴�
 
 ## 6. 寮€鍙戞彁绀?
 1. **瀛楁鍏煎绛栫暐**锛歎I 缁勪欢浼氬皾璇曞绉嶅懡鍚嶅埆鍚嶏紝濡傞渶鎵╁睍鏂扮殑瀛楁锛屽缓璁繚鎸侀┘宄?涓嬪垝绾夸袱绉嶅啓娉曞吋瀹广€?2. **浣嶇疆涓庡Э鎬?*锛歚position` 鏈彁渚涙煇鍧愭爣鏃?UI 浼氭樉绀?`-`銆傝嫢濮挎€佸瓧娈典笉闇€瑕侊紝鍙渷鐣ャ€?3. **鎸囩ず鐏?*锛氬瓧绗︿覆涓嶅尯鍒嗗ぇ灏忓啓锛屽父鐢ㄦ槧灏勶細`RUNNING/READY/FAULT/WARNING` 鈫?姝ｅ父/璀﹀憡/鎶ヨ锛屽竷灏斿€?`true/false` 鈫?姝ｅ父/鎶ヨ銆?4. **娴嬭瘯鍏ュ彛**锛歎I F12 娴嬭瘯绐楀彛鐨勨€滄祴璇曟暟鎹敞鍏モ€濋潰鏉垮氨鏄笂杩版帴鍙ｇ殑璋冪敤灏佽锛岃瀵熸寜閽姩浣滄湁鍔╀簬纭鏍煎紡銆?
+
 
 
 

@@ -30,12 +30,19 @@ class HttpControllerServer:
         params = payload.get("params")
         if not isinstance(params, Mapping):
             params = {}
+        log.info("Controller HTTP server received action=%s params=%s", action, dict(params))
         try:
             response = dict(self._callback(action, params))
         except Exception as exc:
             log.exception("Control handler failure for action=%s: %s", action, exc)
             return {"ok": False, "error": str(exc)}
         response.setdefault("ok", True)
+        log.info(
+            "Controller HTTP server responded action=%s ok=%s message=%s",
+            action,
+            response.get("ok", True),
+            response.get("message", ""),
+        )
         return response
 
     async def _handle_ping(self) -> Dict[str, Any]:
