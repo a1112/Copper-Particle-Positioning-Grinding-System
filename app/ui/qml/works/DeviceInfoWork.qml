@@ -27,7 +27,7 @@ QtObject {
   function refresh() {
     _fetchStatus()
     _fetchMeta()
-    _fetchtoolList()
+    _fetchToolList()
   }
 
   function _fetchStatus() {
@@ -82,12 +82,12 @@ QtObject {
     })
   }
 
-  function _fetchtoolList() {
+  function _fetchToolList() {
     Api.ApiClient.toolList(function(payload) {
       try {
         if (!payload)
           return
-        Datas.toolListData.applySnapshot(payload)
+        Datas.ToolInfoData.applySnapshot(payload)
       } catch (err) {
         console.warn("DeviceInfoWork toolList apply failed", err)
       }
@@ -96,4 +96,5 @@ QtObject {
     })
   }
 }
+
 

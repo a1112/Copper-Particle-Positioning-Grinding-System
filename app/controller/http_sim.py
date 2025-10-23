@@ -42,24 +42,29 @@ class ControllerState:
 
 def _control_handler(state: ControllerState):
     def handler(action: str, params: Dict[str, object]) -> Dict[str, object]:
+        LOG.info("Simulator control handler received action=%s params=%s", action, dict(params))
         normalized = action.strip().lower()
         if not normalized:
             state.register_command(action, False, "Empty action")
+            LOG.warning("Simulator control handler rejected empty action")
             return {"ok": False, "message": "Empty action"}
 
         if normalized == "reset":
             state.spindle_rpm = 1100.0
             state.torque_bias = 0.2
             state.register_command(action, True, "Reset acknowledged")
+            LOG.info("Simulator control handler completed reset action")
             return {"ok": True, "message": "Reset acknowledged"}
 
         if normalized == "boost":
             state.spindle_rpm += 50.0
             state.torque_bias = min(state.torque_bias + 0.05, 0.6)
             state.register_command(action, True, "Boost applied")
+            LOG.info("Simulator control handler completed boost action")
             return {"ok": True, "message": "Boost applied"}
 
         state.register_command(action, False, f"Unsupported action: {action}")
+        LOG.warning("Simulator control handler does not support action=%s", action)
         return {"ok": False, "message": f"Unsupported action: {action}"}
 
     return handler
