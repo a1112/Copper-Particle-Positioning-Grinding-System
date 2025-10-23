@@ -54,18 +54,30 @@ class HttpControllerService:
         return self._client.ping()
 
     def _dispatch_control(self, action: str, params: Dict[str, Any]) -> Mapping[str, Any]:
+        log.info("Received control dispatch action=%s params=%s", action, dict(params))
         if not self._handlers:
             log.warning("No control handlers registered; ignoring action=%s", action)
             return {"ok": False, "message": "No handlers registered"}
         for handler in self._handlers:
+            handler_name = getattr(handler, "__name__", handler.__class__.__name__)
+            log.debug("Invoking control handler=%s action=%s", handler_name, action)
             try:
                 response = handler(action, params)
             except Exception as exc:  # pragma: no cover - surfaced to server
-                log.exception("Control handler raised an exception: %s", exc)
+                log.exception("Control handler %s raised an exception: %s", handler_name, exc)
                 continue
             if response:
                 mapped = dict(response)
                 mapped.setdefault("ok", True)
+                log.info(
+                    "Control handler response handler=%s action=%s ok=%s message=%s",
+                    handler_name,
+                    action,
+                    mapped.get("ok", True),
+                    mapped.get("message", ""),
+                )
                 return mapped
+            log.debug("Control handler %s returned empty response for action=%s", handler_name, action)
+        log.warning("All handlers rejected control request action=%s", action)
         return {"ok": False, "message": "All handlers rejected request"}
 

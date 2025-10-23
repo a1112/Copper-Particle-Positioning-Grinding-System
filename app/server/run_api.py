@@ -48,7 +48,6 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
     sys.modules["motion"] = motion_proxy
     from app.server.api.api import (
         api_image,
-        api_motion,
         api_status,
         api_cutting,
         api_control,

@@ -82,7 +82,6 @@ BaseCard {
           RowLayout {
             id: contentRow
             anchors.fill: parent
-
             spacing: 10
 
             Label {
