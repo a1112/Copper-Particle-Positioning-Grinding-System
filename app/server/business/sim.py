@@ -11,12 +11,10 @@ from app.server.models import (
     ControlResult,
     CuttingSnapshot,
     StatusModel,
-    ToolInfoSnapshot,
 )
 from app.server.utils import logs
 
 from .base import BusinessService
-from .tool_info import ToolInfoAssembler
 
 
 class SimBusinessService(BusinessService):
@@ -27,7 +25,6 @@ class SimBusinessService(BusinessService):
         self._cutting_start = time.monotonic()
         self._cutting_max_torque = 0.0
         self._cutting_override: Dict[str, Any] = {}
-        self._tool_info = ToolInfoAssembler()
 
     async def fetch_status(self) -> StatusModel:
         payload = await asyncio.to_thread(self._status_service.fetch_status)
@@ -40,10 +37,6 @@ class SimBusinessService(BusinessService):
     async def fetch_cutting(self) -> CuttingSnapshot:
         payload = self._build_cutting_payload()
         return CuttingSnapshot.from_mapping(payload)
-
-    async def fetch_tool_info(self) -> ToolInfoSnapshot:
-        status_payload = await asyncio.to_thread(self._status_service.fetch_status)
-        return await asyncio.to_thread(self._tool_info.build, status_payload)
 
     async def apply_cutting_override(self, payload: Dict[str, Any], *, merge: bool = False) -> Dict[str, Any]:
         if not merge:

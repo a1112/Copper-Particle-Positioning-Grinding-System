@@ -9,7 +9,6 @@ QtObject {
 
   function setSpeed(vFast, vWork){
     try { Api.ApiClient.setSpeed(vFast, vWork, function(){}, function(){}) } catch(e){}
-
   }
 
   function jog(axis, direction, speed){
