@@ -46,6 +46,10 @@ class RpcControllerService:
     def publish_cutting(self, payload: Mapping[str, Any]) -> bool:
         return self._client.push_cutting(payload)
 
+    def publish_program(self, payload: Mapping[str, Any]) -> bool:
+        log.warning("RPC transport does not support program publishing; payload dropped: %s", payload)
+        return False
+
     def publish_logs(self, entries: Iterable[Mapping[str, Any]]) -> bool:
         return self._client.push_logs(entries)
 

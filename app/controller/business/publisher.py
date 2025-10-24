@@ -19,6 +19,21 @@ def publish_scenario(service: Any, scenario: Scenario) -> None:
     if scenario.cutting:
         ok_cutting = service.publish_cutting(scenario.cutting)
         LOG.info("Published cutting snapshot %s (ok=%s)", scenario.name, ok_cutting)
+    if scenario.program is not None:
+        program_payload = {"program": list(scenario.program)}
+        if scenario.program_state:
+            program_payload["program_state"] = dict(scenario.program_state)
+        publish_program = getattr(service, "publish_program", None)
+        if callable(publish_program):
+            ok_program = publish_program(program_payload)
+            LOG.info(
+                "Published program snapshot %s (ok=%s lines=%d)",
+                scenario.name,
+                ok_program,
+                len(scenario.program),
+            )
+        else:
+            LOG.debug("Service %s does not support program publishing", service.__class__.__name__)
     if scenario.logs:
         ok_logs = service.publish_logs(scenario.logs)
         LOG.info("Published %d log entries (ok=%s)", len(scenario.logs), ok_logs)

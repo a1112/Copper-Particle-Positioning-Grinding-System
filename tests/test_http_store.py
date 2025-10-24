@@ -19,3 +19,11 @@ def test_http_data_store_roundtrip() -> None:
     assert logs[-1]["message"] == "three"
     assert len(logs) <= 2  # bounded by capacity
 
+    store.set_program(["G0 X0 Y0", "M30"])
+    assert store.get_program() == ["G0 X0 Y0", "M30"]
+    store.set_program_state({"state": "IDLE", "current": 1})
+    assert store.get_program_state()["state"] == "IDLE"
+
+    store.clear()
+    assert store.get_program() == []
+    assert store.get_program_state() == {}

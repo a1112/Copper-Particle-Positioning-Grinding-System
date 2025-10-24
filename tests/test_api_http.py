@@ -5,6 +5,10 @@ import os
 
 import pytest
 
+from app.server.api.ws.code_bus import bus
+from app.server.httpbridge.routes import set_store
+from app.server.httpbridge.store import HttpDataStore
+
 
 def test_root_docs_hint(client):
     r = client.get("/")
@@ -79,3 +83,24 @@ def test_tool_list_endpoint(client):
         assert isinstance(sample, dict)
         assert "model" in sample
         assert "diameter_mm" in sample
+
+
+def test_bridge_controller_program(client):
+    store = HttpDataStore()
+    set_store(store)
+
+    payload = {
+        "program": ["%", "M30"],
+        "program_state": {"state": "IDLE", "current": 1},
+    }
+    r = client.post("/bridge/controller", json=payload)
+    assert r.status_code == 200
+    data = r.json()
+    assert data.get("ok") is True
+    assert data.get("lines") == 2
+    assert store.get_program() == payload["program"]
+    assert store.get_program_state().get("state") == "IDLE"
+    assert bus.latest_program() == payload["program"]
+
+    # Clear program to avoid leaking state into other tests
+    client.post("/bridge/controller", json={"program": []})

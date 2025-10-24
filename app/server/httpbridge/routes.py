@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body
 
 from .store import HttpDataStore
 from app.server.data import get_backend
+from app.server.api.ws.code_bus import bus as code_bus
 from app.server.utils import logs
 
 log = logging.getLogger("app.httpbridge.routes")
@@ -52,6 +53,93 @@ async def push_status(payload: Any = Body(...), store: HttpDataStore = Depends(_
 async def push_cutting(payload: Dict[str, Any] = Body(...), store: HttpDataStore = Depends(_require_store)) -> Dict[str, Any]:
     store.update_cutting(payload or {})
     return {"ok": True}
+
+
+def _normalize_program_lines(source: Any) -> list[str]:
+    if source is None:
+        return []
+    if isinstance(source, (bytes, bytearray)):
+        text = source.decode("utf-8", errors="ignore")
+        raw_lines = text.splitlines()
+    elif isinstance(source, str):
+        raw_lines = source.splitlines()
+    else:
+        try:
+            iterator = list(source)
+        except TypeError as exc:
+            raise ValueError("Program must be a sequence of strings or a newline-delimited string") from exc
+        raw_lines = iterator
+    lines: list[str] = []
+    for item in raw_lines:
+        if item is None:
+            continue
+        text = str(item)
+        # Preserve empty lines but normalise Windows newline endings
+        if text.endswith("\r"):
+            text = text[:-1]
+        lines.append(text)
+    return lines
+
+
+@bridge_router.post("/controller")
+async def push_controller_program(
+    payload: Dict[str, Any] = Body(...),
+    store: HttpDataStore = Depends(_require_store),
+) -> Dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Controller payload must be an object")
+
+    program_source = payload.get("program")
+    if program_source is None:
+        program_source = payload.get("lines") or payload.get("gcode")
+    try:
+        program_lines = _normalize_program_lines(program_source)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    store.set_program(program_lines)
+
+    state_payload: Dict[str, Any] = {}
+    if isinstance(payload.get("program_state"), dict):
+        state_payload.update(payload["program_state"])
+
+    state_field = payload.get("state")
+    if isinstance(state_field, dict):
+        state_payload.update(state_field)
+    elif isinstance(state_field, str) and state_field:
+        state_payload["state"] = state_field
+
+    if "current" not in state_payload and payload.get("current") is not None:
+        state_payload["current"] = payload.get("current")
+
+    store.set_program_state(state_payload)
+
+    await code_bus.set_program(program_lines)
+    if state_payload:
+        state_name = str(state_payload.get("state", "")).strip() or "IDLE"
+        current_value = state_payload.get("current", -1)
+        try:
+            current_index = int(current_value)
+        except (TypeError, ValueError):
+            current_index = -1
+        await code_bus.set_state(state_name, current_index)
+
+    log.debug(
+        "Bridge controller program updated lines=%d state=%s current=%s",
+        len(program_lines),
+        state_payload.get("state"),
+        state_payload.get("current"),
+    )
+
+    response: Dict[str, Any] = {"ok": True, "lines": len(program_lines)}
+    if "state" in state_payload:
+        response["state"] = state_payload.get("state")
+    if "current" in state_payload:
+        try:
+            response["current"] = int(state_payload.get("current"))  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            pass
+    return response
 
 
 def _mirror_entry(entry: Dict[str, Any]) -> None:

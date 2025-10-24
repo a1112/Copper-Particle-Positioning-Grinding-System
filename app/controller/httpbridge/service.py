@@ -47,6 +47,9 @@ class HttpControllerService:
     def publish_cutting(self, payload: Mapping[str, Any]) -> bool:
         return self._client.push_cutting(payload)
 
+    def publish_program(self, payload: Mapping[str, Any]) -> bool:
+        return self._client.push_program(payload)
+
     def publish_logs(self, entries: Iterable[Mapping[str, Any]]) -> bool:
         return self._client.push_logs(entries)
 

@@ -15,6 +15,31 @@ class Scenario:
     cutting: Optional[Dict[str, Any]] = None
     delay: float = 1.0
     logs: Optional[List[Dict[str, Any]]] = None
+    program: Optional[List[str]] = None
+    program_state: Optional[Dict[str, Any]] = None
+
+    @staticmethod
+    def _normalize_program(source: Any) -> List[str]:
+        if source is None:
+            return []
+        if isinstance(source, (bytes, bytearray)):
+            source = source.decode("utf-8", errors="ignore")
+        if isinstance(source, str):
+            raw = source.splitlines()
+        else:
+            try:
+                raw = list(source)
+            except TypeError as exc:
+                raise ValueError("Program must be a string or a sequence of strings") from exc
+        lines: List[str] = []
+        for item in raw:
+            if item is None:
+                continue
+            text = str(item)
+            if text.endswith("\r"):
+                text = text[:-1]
+            lines.append(text)
+        return lines
 
     @classmethod
     def from_mapping(cls, payload: Dict[str, Any]) -> "Scenario":
@@ -39,12 +64,24 @@ class Scenario:
             if parsed:
                 logs = parsed
 
+        program: Optional[List[str]] = None
+        if "program" in payload or "gcode" in payload or "code" in payload:
+            source = payload.get("program", payload.get("gcode", payload.get("code")))
+            program = cls._normalize_program(source)
+
+        program_state_payload = payload.get("program_state") or payload.get("code_state")
+        program_state: Optional[Dict[str, Any]] = None
+        if isinstance(program_state_payload, Mapping):
+            program_state = dict(program_state_payload)
+
         return cls(
             name=name,
             status=dict(status_payload),
             cutting=dict(cutting_payload) if isinstance(cutting_payload, Mapping) else None,
             delay=delay,
             logs=logs,
+            program=program,
+            program_state=program_state,
         )
 
 

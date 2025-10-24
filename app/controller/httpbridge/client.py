@@ -66,6 +66,11 @@ class HttpControllerClient:
         data = response.json()
         return bool(data.get("ok", True) if isinstance(data, dict) else data)
 
+    def push_program(self, payload: Mapping[str, Any]) -> bool:
+        response = self._request("post", "/controller", json_payload=dict(payload or {}))
+        data = response.json()
+        return bool(data.get("ok", True) if isinstance(data, dict) else data)
+
     def push_logs(self, entries: Iterable[Mapping[str, Any]]) -> bool:
         response = self._request("post", "/logs", json_payload=list(entries))
         data = response.json()

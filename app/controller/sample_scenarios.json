@@ -54,6 +54,20 @@
         "torque_max": 0.62,
         "torque": 0.55,
         "elapsed_sec": 360
+      },
+      "program": [
+        "%",
+        "O2000 (Cutting Nominal)",
+        "G90 G21 G17",
+        "G0 X0.000 Y0.000 Z5.000",
+        "G1 X40.000 Y0.000 Z-0.200 F1200.0",
+        "G1 X40.000 Y40.000 Z-0.200",
+        "G0 Z5.000",
+        "M30"
+      ],
+      "program_state": {
+        "state": "RUNNING",
+        "current": 4
       }
     },
     {
