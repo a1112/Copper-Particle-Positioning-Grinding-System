@@ -28,3 +28,6 @@ coverage.xml
 .DS_Store
 Thumbs.db
 
+# Generated UI assets
+app/ui/rc_qml.py
+
