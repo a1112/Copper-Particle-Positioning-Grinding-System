@@ -42,6 +42,17 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
     except Exception:
         app_db = None
     else:
+        try:
+            app_db.init_db()
+            from app.db.seed import seed_tool_data
+
+            seed_tool_data(app_db.SessionLocal)
+        except Exception as exc:
+            if log:
+                try:
+                    log.warning("Database initialisation failed: %s", exc, exc_info=False)
+                except Exception:
+                    pass
         _ensure_module_alias("db", app_db)
 
     motion_proxy = _wrap_motion_module(motion)

@@ -43,6 +43,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--loop",
         action="store_true",
+        default=True,
         help="Keep replaying scenarios in a loop until interrupted.",
     )
     parser.add_argument(
