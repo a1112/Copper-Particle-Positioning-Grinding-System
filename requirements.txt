@@ -16,3 +16,4 @@ grpcio
 grpcio-tools
 cryptography
 requests
+MechEyeAPI

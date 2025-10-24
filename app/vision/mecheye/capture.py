@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Optional, Sequence
-
+import MechEye
 LOG = logging.getLogger(__name__)
 
 try:  # Optional deps for saving outputs
@@ -35,7 +35,7 @@ class MechEyeCapture:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        self._api = importlib.import_module("MechEyeAPI")
+        self._api = importlib.import_module("MechEye")
         self._device_cls = getattr(self._api, "Device", None)
         if self._device_cls is None:
             raise RuntimeError("MechEyeAPI.Device is unavailable; ensure MechEye SDK is installed.")
