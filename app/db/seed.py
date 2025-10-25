@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
 from app.db.models.tool import ToolRecord
+from app.db.models.MzPoliShineDB import WorkpieceTable
 
 LOG = logging.getLogger(__name__)
 
@@ -59,6 +60,40 @@ def seed_tool_data(session_factory: Iterable[Session] | None = None) -> None:
         if session is not None:
             session.rollback()
         LOG.warning("Tool data seeding failed: %s", exc, exc_info=False)
+    finally:
+        if session is not None:
+            session.close()
+
+
+def _default_workpiece() -> WorkpieceTable:
+    return WorkpieceTable(
+        w_workpiece_id="WP-DEMO-0001",
+        w_workpiece_type="DEMO",
+        w_material="Copper",
+        w_dimensions="100x100x10",
+        w_surface_requirement="Ra <= 0.2",
+        w_status=0,
+    )
+
+
+def seed_workpiece_data(session_factory: Iterable[Session] | None = None) -> None:
+    """Ensure workpiece_table has at least one demo row."""
+
+    factory = session_factory or SessionLocal
+    session: Session | None = None
+    try:
+        session = factory() if callable(factory) else next(iter(factory))
+        exists = session.execute(select(WorkpieceTable.id).limit(1)).first()
+        if exists:
+            return
+        record = _default_workpiece()
+        session.add(record)
+        session.commit()
+        LOG.info("Seeded default workpiece record id=%s code=%s", record.id, record.w_workpiece_id)
+    except Exception as exc:
+        if session is not None:
+            session.rollback()
+        LOG.warning("Workpiece data seeding failed: %s", exc, exc_info=False)
     finally:
         if session is not None:
             session.close()

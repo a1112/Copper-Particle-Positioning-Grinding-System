@@ -6,6 +6,10 @@ import "../cores" as Core
 QtObject {
   id: root
 
+  property int workpieceId: 0
+  property string workpieceCode: "-"
+  property string workpieceType: "-"
+
   property string serialNumber: "-"
   property string runMode: Core.CoreState.currentRunModelName
   property string runState: "-"
@@ -26,6 +30,8 @@ QtObject {
   function applySnapshot(payload) {
     if (!payload)
       return
+    if (payload.workpiece !== undefined)
+      applyWorkpiece(payload.workpiece)
     if (payload.serialNumber !== undefined)
       serialNumber = _toDisplay(payload.serialNumber)
     else if (payload.serial_number !== undefined)
@@ -48,7 +54,23 @@ QtObject {
       planeHeight = _toDisplay(payload.plane_height)
   }
 
+  function applyWorkpiece(workpiece) {
+    if (!workpiece)
+      return
+    if (workpiece.id !== undefined) {
+      workpieceId = workpiece.id
+      serialNumber = _toDisplay(workpiece.id)
+    }
+    if (workpiece.code !== undefined)
+      workpieceCode = _toDisplay(workpiece.code)
+    if (workpiece.type !== undefined)
+      workpieceType = _toDisplay(workpiece.type)
+  }
+
   function reset() {
+    workpieceId = 0
+    workpieceCode = "-"
+    workpieceType = "-"
     serialNumber = "-"
     runMode = Core.CoreState.currentRunModelName
     runState = "-"

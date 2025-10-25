@@ -524,6 +524,7 @@ async def run_controller(
     status_source: StatusSourceProtocol,
     fallback_source: Optional[StatusSourceProtocol] = None,
     task_writer: Optional[TaskQueueWriter] = None,
+    task_runner: Optional[object] = None,
 ) -> None:
     state = ControllerState(label=args.label)
     control_host, control_port = _parse_control_endpoint(args.http_control)
@@ -637,6 +638,12 @@ async def run_controller(
             except Exception as exc:
                 LOG.error("Control log flush failed: %s", exc)
 
+            if task_runner is not None:
+                try:
+                    await asyncio.to_thread(task_runner.tick)
+                except Exception as exc:
+                    LOG.error("Task runner tick failed: %s", exc)
+
             tick += 1
             try:
                 await asyncio.wait_for(stop_event.wait(), timeout=args.interval)
@@ -652,4 +659,3 @@ async def run_controller(
                 pass
         if task_writer is not None:
             task_writer.close()
-

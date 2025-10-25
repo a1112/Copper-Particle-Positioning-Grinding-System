@@ -14,6 +14,7 @@ Item {
   height: 50
   Layout.fillWidth: true
   property Item appWindow: null
+  property Item dataDialog: null
 
   Pane {
     anchors.fill: parent
@@ -57,6 +58,7 @@ Item {
     RunModelSelect {}
     FillItem {}
     EstopBtn {}
+    CaptureButton {}
     SemiAutoStartBtn { running: root.isRunning }
 
     DateTimeView { Layout.alignment: Qt.AlignVCenter }
@@ -77,5 +79,6 @@ Item {
 
   Menu.MainMenu {
     id: headMainMen
+    dataDialog: root.dataDialog
   }
 }

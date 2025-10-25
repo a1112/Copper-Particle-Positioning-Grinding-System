@@ -44,9 +44,10 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
     else:
         try:
             app_db.init_db()
-            from app.db.seed import seed_tool_data
+            from app.db.seed import seed_tool_data, seed_workpiece_data
 
             seed_tool_data(app_db.SessionLocal)
+            seed_workpiece_data(app_db.SessionLocal)
         except Exception as exc:
             if log:
                 try:
@@ -66,6 +67,7 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
         api_path,
         api_tool,
         api_vision,
+        api_data,
     )
     from app.server.api.ws import ws_code, ws_logs, ws_status
     # Inject image provider if available

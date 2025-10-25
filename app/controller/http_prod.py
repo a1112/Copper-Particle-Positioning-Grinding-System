@@ -3,8 +3,11 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
+from pathlib import Path
 from typing import Iterable, Optional
 
+from app import config as APP_CONFIG
+from app.controller.demo_task_runner import DemoTaskRunner
 from app.controller.http_common import (
     DbStatusSource,
     SimulatedStatusSource,
@@ -19,6 +22,7 @@ if useLocTest:
 else:
     PROD_DB_URL = "mysql+pymysql://remote_user:123456@192.168.1.214/MzPoliShineDB?charset=utf8mb4"
 LOG = logging.getLogger("controller.http_prod")
+SAVE_DATA_DIR = Path(APP_CONFIG.PROJECT_ROOT) / "SaveData"
 
 
 def main(argv: Optional[Iterable[str]] = None) -> None:
@@ -34,10 +38,16 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
     else:
         logging.getLogger().setLevel(logging.INFO)
 
+    task_runner = None
     try:
         status_source = DbStatusSource(args.db_url)
         fallback_source = SimulatedStatusSource()
         task_writer = TaskQueueWriter(status_source.session_factory, engine=status_source.engine)
+        task_runner = DemoTaskRunner(
+            status_source.session_factory,
+            save_dir=SAVE_DATA_DIR,
+            task_writer=task_writer,
+        )
     except Exception as exc:
         LOG.error("Unable to initialise production database source: %s", exc)
         raise SystemExit(1) from exc
@@ -49,6 +59,7 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
                 status_source=status_source,
                 fallback_source=fallback_source,
                 task_writer=task_writer,
+                task_runner=task_runner,
             )
         )
     except KeyboardInterrupt:

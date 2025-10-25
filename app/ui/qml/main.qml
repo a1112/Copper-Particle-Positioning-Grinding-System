@@ -30,8 +30,10 @@ App_Base {
   MainLayouts {
     anchors.fill: parent
     appWindow: win
+    dataDialog: dataEntryDialog
   }
 
+  DataEntryDialog { id: dataEntryDialog }
   GlobErrorDialog { id: errorDialog }
   TestImagesDialog { id: testDialog }
   SettingsDrawer { id: settingsDrawer }

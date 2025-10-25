@@ -1,7 +1,10 @@
 import QtQuick.Controls
 import QtQuick.Window
+import "../works" as Works
 
 Menu {
+    property Item dataDialog: null
+
     Menu{
         title: qsTr("界面功能")
         MenuItem {
@@ -26,6 +29,25 @@ Menu {
     Menu{
         title: qsTr("控制")
 
+    }
+
+    Menu{
+        title: qsTr("数据")
+        MenuItem {
+          text: qsTr("手动添加工件")
+          onTriggered: {
+            if (!dataDialog)
+              return
+            if (dataDialog.openWithReset)
+              dataDialog.openWithReset()
+            else if (dataDialog.open)
+              dataDialog.open()
+          }
+        }
+        MenuItem {
+          text: qsTr("刷新任务状态")
+          onTriggered: Works.TaskWork.refresh()
+        }
     }
 
     MenuItem {

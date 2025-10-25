@@ -15,6 +15,7 @@ path_router = APIRouter(tags=["path"])
 cutting_router = APIRouter(tags=["cutting"])
 tool_router = APIRouter(tags=["tool"])
 vision_router = APIRouter(tags=["vision"])
+data_router = APIRouter(tags=["data"])
 
 
 def include_router():
@@ -30,3 +31,4 @@ def include_router():
     app.include_router(path_router)
     app.include_router(tool_router)
     app.include_router(vision_router)
+    app.include_router(data_router)
