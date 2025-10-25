@@ -39,6 +39,7 @@ App_Base {
   SettingsDrawer { id: settingsDrawer }
   SettingPage{id: settingsPage}
   TestWindow{id:testWindow}
+
 }
 
 

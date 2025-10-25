@@ -87,6 +87,7 @@
         <file>qml/cores/qmldir</file>
         <file>qml/dialogs/GlobErrorDialog.qml</file>
         <file>qml/dialogs/TestImagesDialog.qml</file>
+        <file>qml/dialogs/DataEntryDialog.qml</file>
         <file>qml/main.qml</file>
         <file>qml/menu/SettingsDrawer.qml</file>
         <file>qml/minimal.qml</file>
@@ -149,6 +150,7 @@
         <file>qml/action/Shortcuts.qml</file>
         <file>qml/dialogs/EstopDialog.qml</file>
         <file>qml/pages/head/EstopBtn.qml</file>
+        <file>qml/pages/head/CaptureButton.qml</file>
         <file>qml/pages/head/RunModelSelect.qml</file>
         <file>qml/test/TestWindow.qml</file>
         <file>qml/datas/Datas.qml</file>
@@ -159,6 +161,7 @@
         <file>qml/datas/CodeDatas.qml</file>
         <file>qml/datas/CuttingDatas.qml</file>
         <file>qml/datas/CalibrationData.qml</file>
+        <file>qml/datas/TaskDatas.qml</file>
         <file>qml/datas/qmldir</file>
         <file>qml/works/CodeWork.qml</file>
         <file>qml/works/CuttingWork.qml</file>
@@ -166,6 +169,7 @@
         <file>qml/works/LogsWork.qml</file>
         <file>qml/works/StatusWork.qml</file>
         <file>qml/works/CalibrationWork.qml</file>
+        <file>qml/works/TaskWork.qml</file>
         <file>qml/works/Works.qml</file>
         <file>qml/works/qmldir</file>
         <file>qml/views/DriveInfo/head/InfoHeadView.qml</file>

@@ -5,30 +5,34 @@ import Qt5Compat.GraphicalEffects
 
 import "../../cores" as Cores
 import "../../Api" as Api
+import "../../datas" as Datas
+import "../../works" as Works
 
 Rectangle {
   id: startBtn
   property bool running: false
   property bool hovered: false
+  property bool busy: false
   readonly property color accentColor: running ? Cores.CoreStyle.danger : Cores.CoreStyle.success
   readonly property color baseColor: hovered
                                   ? Qt.darker(accentColor, running ? 1.05 : 1.15)
                                   : Qt.darker(accentColor, running ? 1.25 : 1.35)
   readonly property color highlightColor: Qt.lighter(accentColor, running ? 1.25 : 1.45)
   readonly property color labelColor: running ? "#f8fafc" : "#0f172a"
+  readonly property bool canStart: Datas.TaskDatas.executeReady
 
   Layout.alignment: Qt.AlignVCenter
   Layout.preferredWidth: visible ? width : 0
   Layout.preferredHeight: visible ? height : 0
   visible: Cores.CoreState.currentRunModelIndex === 1
-  enabled: true
+  enabled: !busy && (running || canStart)
   height: Math.max(36, parent ? parent.height * 0.8 : 36)
   width: height * 2.4
   radius: 8
   color: baseColor
   border.color: highlightColor
   border.width: 1.2
-  opacity: visible ? 1.0 : 0.0
+  opacity: visible ? (enabled ? 1.0 : 0.5) : 0.0
   layer.enabled: true
   layer.effect: DropShadow {
     horizontalOffset: 0
@@ -71,21 +75,50 @@ Rectangle {
   MouseArea {
     anchors.fill: parent
     hoverEnabled: true
+    enabled: startBtn.enabled
     cursorShape: Qt.PointingHandCursor
     onEntered: startBtn.hovered = true
     onExited: startBtn.hovered = false
     onClicked: {
+      if (startBtn.busy)
+        return
       if (running) {
-        Api.ApiClient.stopRun(function() {}, function(_, msg) {
-          var stopError = msg !== undefined ? msg : qsTr("停止失败")
-          Cores.CoreError.showError(stopError)
-        })
+        startBtn._stopRun()
       } else {
-        Api.ApiClient.startRun(function() {}, function(_, msg) {
-          var startError = msg !== undefined ? msg : qsTr("启动失败")
-          Cores.CoreError.showError(startError)
-        })
+        startBtn._startRunWithTask()
       }
     }
+  }
+
+  function _stopRun() {
+    busy = true
+    Api.ApiClient.stopRun(function() {
+      busy = false
+    }, function(_, msg) {
+      busy = false
+      var stopError = msg !== undefined ? msg : qsTr("停止失败")
+      Cores.CoreError.showError(stopError)
+    })
+  }
+
+  function _startRunWithTask() {
+    if (!Datas.TaskDatas.executeReady) {
+      Cores.CoreError.showError(qsTr("执行准备未就绪"))
+      return
+    }
+    busy = true
+    Works.TaskWork.enqueueExecute(Datas.TaskDatas.readyRecordId, Datas.TaskDatas.workpieceId, function() {
+      Api.ApiClient.startRun(function() {
+        busy = false
+      }, function(_, msg) {
+        busy = false
+        var startError = msg !== undefined ? msg : qsTr("启动失败")
+        Cores.CoreError.showError(startError)
+      })
+    }, function(_, msg) {
+      busy = false
+      var err = msg !== undefined ? msg : qsTr("执行任务创建失败")
+      Cores.CoreError.showError(err)
+    })
   }
 }

@@ -20,6 +20,9 @@ Item {
   // 实时数据视图名称
   readonly property string realViewName: CoreUI.dataViewModels[realViewIndex]
 
+  property int current2DShowIndex:0
+  readonly property string current2DShowName:CoreUI.allImageType[current2DShowIndex]
+
   Settings {
     id: st
     category: "CoreState"
