@@ -182,5 +182,6 @@
         <file>qml/views/DriveInfo/CuttingStatisticsView.qml</file>
         <file>qml/views/DriveInfo/SingleCutCommandStatusView.qml</file>
         <file>qml/views/ImageInfo/core/ImageDataCore.qml</file>
+        <file>qml/menu/MainMenu.qml</file>
     </qresource>
 </RCC>

@@ -1,17 +1,19 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Window
 import "../../cores" as Cores
 import "../../components/Base"
 import "../../components/btns"
 import "../../datas" as Datas
+import "../../menu" as Menu
 import "."
 
 Item {
   id: root
   height: 50
   Layout.fillWidth: true
-
+  property Item appWindow: null
 
   Pane {
     anchors.fill: parent
@@ -26,26 +28,54 @@ Item {
     spacing: 18
 
     Row { // logo + title icon
-      IconView { height: root.height; width: height*4;  }
+      spacing: 2
+      height: parent.height
+      Item{
+      width: 15
+      height: 1
+      }
+      ItemDelegateButtonBase {
+        id: mainMenuButton
+        height: parent.height
+        width: height
+        tipText: qsTr("主菜单")
+        source: Cores.CoreStyle.getIconSource("Menu.png")
+        onClicked: {
+          headMainMen.popup(mainMenuButton, 0, mainMenuButton.height)
+        }
+      }
+
+      IconView { height: root.height; width: height * 4 }
       // IconLabel { anchors.verticalCenter: parent.verticalCenter }
     }
 
     ViewChangeTabView {}
     FillItem {}
 
-
     TitleLabel {}
     FillItem {}
-    RunModelSelect{}
+    RunModelSelect {}
     FillItem {}
-    EstopBtn{}
+    EstopBtn {}
     SemiAutoStartBtn { running: root.isRunning }
 
     DateTimeView { Layout.alignment: Qt.AlignVCenter }
-    ItemDelegateButtonBase { source: Cores.CoreStyle.getIconSource("tool.png"); height: root.height; width: height*2; onClicked: settingsPage.open() }
-    ItemDelegateButtonBase { source: Cores.CoreStyle.getIconSource("setting.png"); height: root.height; width: height*2; onClicked: settingsDrawer.open() }
+    ItemDelegateButtonBase {
+      source: Cores.CoreStyle.getIconSource("tool.png")
+      height: root.height
+      width: height * 2
+      onClicked: settingsPage.open()
+    }
+    ItemDelegateButtonBase {
+      source: Cores.CoreStyle.getIconSource("setting.png")
+      height: root.height
+      width: height * 2
+      onClicked: settingsDrawer.open()
+    }
     Item { width: 10; height: 2 }
   }
+
+  Menu.MainMenu {
+    id: headMainMen
+  }
 }
-
-

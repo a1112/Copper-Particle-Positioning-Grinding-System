@@ -16,8 +16,9 @@ import "works" as Works
 import "test"
 
 App_Base {
-  // 应用根窗口实例
+  // 应用窗口实例
   id: win
+
   Component.onCompleted: {
     Api.ApiClient.root = win
     Api.ApiClient.showError = function(msg){ Cores.CoreError.showError(msg) }
@@ -26,15 +27,21 @@ App_Base {
   }
 
   // 主界面布局容器
-  MainLayouts { anchors.fill: parent }
+  MainLayouts {
+    anchors.fill: parent
+    appWindow: win
+  }
 
   GlobErrorDialog { id: errorDialog }
   TestImagesDialog { id: testDialog }
   SettingsDrawer { id: settingsDrawer }
   SettingPage{id: settingsPage}
   TestWindow{id:testWindow}
-
 }
+
+
+
+
 
 
 

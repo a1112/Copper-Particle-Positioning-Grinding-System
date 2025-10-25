@@ -8,8 +8,12 @@ import "foot"
 ColumnLayout {
   id: root
   spacing: 2
+  property Item appWindow: null
+  HeadView {
+    Layout.fillWidth: true
+    Layout.preferredHeight: 50
 
-  HeadView { Layout.fillWidth: true; Layout.preferredHeight: 50 }
+  }
 
   MainPages { Layout.fillWidth: true; Layout.fillHeight: true }
 
