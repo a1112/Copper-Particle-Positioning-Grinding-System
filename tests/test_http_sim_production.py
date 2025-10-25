@@ -3,9 +3,9 @@ from __future__ import annotations
 from decimal import Decimal
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
-from app.controller.http_common import ControllerState, DbStatusSource
+from app.controller.http_common import ControllerState, DbStatusSource, TaskQueueWriter
 from app.db.models import MzPoliShineDB
 
 
@@ -44,3 +44,21 @@ def test_production_status_source_build(tmp_path):
     assert state.run_mode == "REMOTE"
 
     source.close()
+
+
+def test_task_queue_writer_enqueue(tmp_path):
+    db_path = tmp_path / "queue.db"
+    engine = create_engine(f"sqlite:///{db_path}", future=True)
+    MzPoliShineDB.Base.metadata.create_all(engine)
+
+    writer = TaskQueueWriter(sessionmaker(bind=engine, future=True), engine=engine)
+    writer.enqueue(task_type="POLISH_START", device_id="DEVICE-01", params={"action": "run.start"})
+
+    with Session(engine) as session:
+        rows = session.query(MzPoliShineDB.HardwareTaskQueue).all()
+        assert len(rows) == 1
+        assert rows[0].task_type == "POLISH_START"
+        assert rows[0].device_id == "DEVICE-01"
+        assert rows[0].task_params["action"] == "run.start"
+
+    writer.close()

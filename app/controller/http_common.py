@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.parse import urlparse
+from uuid import uuid4
 
 import requests
 from sqlalchemy import create_engine, select
@@ -21,9 +22,10 @@ from app.config import HTTP_BRIDGE_BASE, HTTP_CONTROL_ENDPOINT, HTTP_TIMEOUT
 from app.controller.httpbridge import HttpControllerService
 
 try:
-    from app.db.models.MzPoliShineDB import StatusTable
+    from app.db.models.MzPoliShineDB import HardwareTaskQueue, StatusTable
 except Exception:  # pragma: no cover - optional dependency path
     StatusTable = None  # type: ignore[assignment]
+    HardwareTaskQueue = None  # type: ignore[assignment]
 
 LOG = logging.getLogger("controller.http")
 
@@ -173,6 +175,14 @@ class DbStatusSource(StatusSourceProtocol):
         self._session_factory = sessionmaker(bind=self._engine, future=True, expire_on_commit=False)
         LOG.info("DB status source connected to %s", self._mask_password(db_url))
 
+    @property
+    def engine(self) -> Engine:
+        return self._engine
+
+    @property
+    def session_factory(self) -> sessionmaker:
+        return self._session_factory
+
     @staticmethod
     def _mask_password(url: str) -> str:
         try:
@@ -317,6 +327,47 @@ class DbStatusSource(StatusSourceProtocol):
                 pass
 
 
+class TaskQueueWriter:
+    """Persist control commands into HardwareTaskQueue."""
+
+    def __init__(self, session_factory: sessionmaker, *, engine: Optional[Engine] = None, owns_engine: bool = False) -> None:
+        if HardwareTaskQueue is None:
+            raise RuntimeError("HardwareTaskQueue model unavailable; cannot enqueue tasks.")
+        self._session_factory = session_factory
+        self._engine = engine
+        self._owns_engine = owns_engine
+
+    @classmethod
+    def from_url(cls, db_url: str) -> "TaskQueueWriter":
+        connect_args: Dict[str, Any] = {}
+        if db_url.startswith("mysql"):
+            connect_args["connect_timeout"] = 3
+        engine = create_engine(db_url, future=True, pool_pre_ping=True, pool_recycle=1800, connect_args=connect_args)
+        session_factory = sessionmaker(bind=engine, future=True, expire_on_commit=False)
+        return cls(session_factory, engine=engine, owns_engine=True)
+
+    def enqueue(self, *, task_type: str, device_id: str, params: Optional[Dict[str, Any]] = None, priority: int = 0) -> None:
+        payload = {
+            "task_id": uuid4().hex,
+            "task_type": task_type,
+            "device_id": device_id,
+            "task_params": params or {},
+            "priority": priority,
+            "status": 0,
+        }
+        with self._session_factory() as session:
+            entry = HardwareTaskQueue(**payload)  # type: ignore[arg-type]
+            session.add(entry)
+            session.commit()
+
+    def close(self) -> None:
+        if self._owns_engine and self._engine is not None:
+            try:
+                self._engine.dispose()
+            except Exception:
+                pass
+
+
 def _build_cutting_payload(state: ControllerState, timestamp: float, cycle: float) -> Dict[str, object]:
     feed = 20.0 + 4.0 * math.sin(cycle * 0.33)
     downfeed_target = 0.75
@@ -347,7 +398,15 @@ def _flush_command_logs(service: HttpControllerService, state: ControllerState) 
     return len(entries)
 
 
-def _control_handler(state: ControllerState):
+def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWriter], *, device_id: str):
+    def _enqueue(task_type: str, params: Optional[Dict[str, Any]] = None) -> None:
+        if task_writer is None:
+            return
+        try:
+            task_writer.enqueue(task_type=task_type, device_id=device_id, params=params)
+        except Exception as exc:
+            LOG.error("Failed to enqueue hardware task %s: %s", task_type, exc)
+
     def handler(action: str, params: Dict[str, object]) -> Dict[str, object]:
         LOG.info("Control handler received action=%s params=%s", action, dict(params))
         normalized = action.strip().lower()
@@ -360,17 +419,20 @@ def _control_handler(state: ControllerState):
             state.torque_bias = 0.2
             state.stop_program()
             state.register_command(action, True, "Reset acknowledged")
+            _enqueue("RESET", {"action": action})
             return {"ok": True, "message": "Reset acknowledged"}
 
         if normalized == "boost":
             state.spindle_rpm += 50.0
             state.torque_bias = min(state.torque_bias + 0.05, 0.6)
             state.register_command(action, True, "Boost applied")
+            _enqueue("BOOST", {"action": action})
             return {"ok": True, "message": "Boost applied"}
 
         if normalized in {"run.start", "start"}:
             if state.start_program():
                 state.register_command(action, True, "Program playback started")
+                _enqueue("POLISH_START", {"action": action, "params": dict(params)})
                 return {"ok": True, "message": "Program playback started"}
             state.register_command(action, False, "No program loaded")
             return {"ok": False, "message": "Program not available"}
@@ -378,15 +440,23 @@ def _control_handler(state: ControllerState):
         if normalized in {"run.stop", "stop"}:
             state.stop_program()
             state.register_command(action, True, "Program playback stopped")
+            _enqueue("POLISH_STOP", {"action": action, "params": dict(params)})
             return {"ok": True, "message": "Program playback stopped"}
 
         state.register_command(action, False, f"Unsupported action: {action}")
+        _enqueue(normalized.upper(), {"action": action, "params": dict(params)})
         return {"ok": False, "message": f"Unsupported action: {action}"}
 
     return handler
 
 
-def build_parser(description: str, *, default_label: str, default_db_url: Optional[str] = None) -> argparse.ArgumentParser:
+def build_parser(
+    description: str,
+    *,
+    default_label: str,
+    default_db_url: Optional[str] = None,
+    default_device_id: str = "GRINDER-01",
+) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--label", default=default_label, help=f"Label field in status payloads (default: {default_label}).")
     parser.add_argument(
@@ -433,6 +503,11 @@ def build_parser(description: str, *, default_label: str, default_db_url: Option
             action="store_true",
             help="Ignore the configured database and emit purely simulated status data.",
         )
+    parser.add_argument(
+        "--device-id",
+        default=default_device_id,
+        help=f"Device identifier recorded in hardware task queue (default: {default_device_id}).",
+    )
     return parser
 
 
@@ -443,7 +518,13 @@ def _parse_control_endpoint(url: str) -> tuple[str, int]:
     return host, port
 
 
-async def run_controller(args: argparse.Namespace, *, status_source: StatusSourceProtocol, fallback_source: Optional[StatusSourceProtocol] = None) -> None:
+async def run_controller(
+    args: argparse.Namespace,
+    *,
+    status_source: StatusSourceProtocol,
+    fallback_source: Optional[StatusSourceProtocol] = None,
+    task_writer: Optional[TaskQueueWriter] = None,
+) -> None:
     state = ControllerState(label=args.label)
     control_host, control_port = _parse_control_endpoint(args.http_control)
     LOG.info(
@@ -469,7 +550,7 @@ async def run_controller(args: argparse.Namespace, *, status_source: StatusSourc
         control_port=control_port,
         timeout=args.http_timeout,
     )
-    service.register_control_handler(_control_handler(state))
+    service.register_control_handler(_control_handler(state, task_writer, device_id=args.device_id))
     service.start()
     LOG.info("Control listener ready at http://%s:%s/control", control_host, control_port)
 
@@ -569,5 +650,6 @@ async def run_controller(args: argparse.Namespace, *, status_source: StatusSourc
                 close_builder()
             except Exception:
                 pass
-
+        if task_writer is not None:
+            task_writer.close()
 

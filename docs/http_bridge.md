@@ -8,6 +8,7 @@
   1. `python -m app.controller.main --transport http`：读取场景文件循环推送；
   2. `python -m app.controller.http_sim`：默认连接测试库 `mysql+pymysql://mz:123456@192.168.2.32/MzPoliShineDB?charset=utf8mb4` 获取 `status_table`，也可通过 `--disable-db` 完全使用内置模拟数据；
   3. `python -m app.controller.http_prod`：绑定生产库 `mysql+pymysql://remote_user:123456@192.168.1.214/MzPoliShineDB?charset=utf8mb4`，实时读取 `status_table`。
+- 以上控制脚本会把 `run.start`/`run.stop` 等控制指令同步写入 `hardware_task_queue`（字段包含 task_id、task_type、task_params 等），便于后端/硬件调度记录命令流水。
 - 所有日志最终都会写入 `app.server.utils.logs` 的环形缓冲；WebSocket `/ws/logs` 会从该缓冲推送历史与增量，保证 UI 能实时看到 HTTP 模式下的日志。
 
 > 小提示：通过环境变量 `COPPER_HTTP_BRIDGE_BASE`、`COPPER_HTTP_CONTROL`、`COPPER_HTTP_TIMEOUT` 可以自定义桥接地址、控制端点和超时时间。

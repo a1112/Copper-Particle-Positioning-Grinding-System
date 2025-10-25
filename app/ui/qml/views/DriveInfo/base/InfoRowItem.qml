@@ -4,7 +4,7 @@ import QtQuick.Layouts
 
 RowLayout {
   id: row
-  spacing: 8
+  spacing: 2
 
   property alias titleText: titleLabel.text
   property alias valueText: valueLabel.text
