@@ -12,6 +12,7 @@ QtObject {
   property var seriesB: []
   property int seriesLimit: 1000
   property real maxSpindleRpm: 0
+  property bool controlEnabled: true
   signal messageReceived(var payload)
 
   function reset() {
@@ -22,6 +23,7 @@ QtObject {
     seriesA = []
     seriesB = []
     maxSpindleRpm = 0
+    controlEnabled = true
   }
 
   function pushSeries(target, value) {
@@ -39,6 +41,7 @@ QtObject {
     connected = true
     lastMsgTs = Date.now()
     lastMessage = payload
+    controlEnabled = resolveControlEnabled(payload)
 
     var rpmCandidate
     if (payload) {
@@ -67,5 +70,33 @@ QtObject {
     }
 
     messageReceived(payload)
+  }
+
+  function resolveControlEnabled(payload) {
+    if (!payload)
+      return controlEnabled
+
+    var modeCode = payload.control_mode_code !== undefined ? Number(payload.control_mode_code) : null
+    if (modeCode !== null && !isNaN(modeCode))
+      return modeCode === 1
+
+    var candidates = []
+    if (payload.control_mode !== undefined)
+      candidates.push(String(payload.control_mode))
+    if (payload.run_mode !== undefined)
+      candidates.push(String(payload.run_mode))
+    if (payload.runMode !== undefined)
+      candidates.push(String(payload.runMode))
+
+    for (var i = 0; i < candidates.length; ++i) {
+      var text = (candidates[i] || "").toString().trim().toUpperCase()
+      if (!text)
+        continue
+      if (text.indexOf("REMOTE") !== -1 || text === "HTTP")
+        return true
+      if (text === "LOCAL" || text === "LOCKED")
+        return false
+    }
+    return controlEnabled
   }
 }

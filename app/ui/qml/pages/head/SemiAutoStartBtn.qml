@@ -20,12 +20,13 @@ Rectangle {
   readonly property color highlightColor: Qt.lighter(accentColor, running ? 1.25 : 1.45)
   readonly property color labelColor: running ? "#f8fafc" : "#0f172a"
   readonly property bool canStart: Datas.TaskDatas.executeReady
+  readonly property bool controlEnabled: Datas.StatusDatas.controlEnabled
 
   Layout.alignment: Qt.AlignVCenter
   Layout.preferredWidth: visible ? width : 0
   Layout.preferredHeight: visible ? height : 0
   visible: Cores.CoreState.currentRunModelIndex === 1
-  enabled: !busy && (running || canStart)
+  enabled: !busy && (running || canStart) && controlEnabled
   height: Math.max(36, parent ? parent.height * 0.8 : 36)
   width: height * 2.4
   radius: 8

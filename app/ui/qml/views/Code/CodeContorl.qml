@@ -78,27 +78,27 @@ BaseCard {
 
       Btns.ActionButton {
         text: qsTr("启动")
-        enabled: root.hasProgram && root.runState !== "RUNNING"
+        enabled: Datas.StatusDatas.controlEnabled && root.hasProgram && root.runState !== "RUNNING"
         onClicked: startProgram()
       }
 
       Btns.ActionButton {
         text: qsTr("停止")
         danger: true
-        enabled: isRunningOrPaused()
+        enabled: Datas.StatusDatas.controlEnabled && isRunningOrPaused()
         onClicked: stopProgram()
       }
 
       Btns.ActionButton {
         text: qsTr("复位")
         danger: true
-        enabled: isRunningOrPaused()
+        enabled: Datas.StatusDatas.controlEnabled && isRunningOrPaused()
       }
 
       Btns.ActionButton {
         text: qsTr("重新执行")
         danger: true
-        enabled: isRunningOrPaused()
+        enabled: Datas.StatusDatas.controlEnabled && isRunningOrPaused()
       }
     }
   }

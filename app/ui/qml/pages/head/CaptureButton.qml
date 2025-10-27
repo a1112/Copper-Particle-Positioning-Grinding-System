@@ -11,10 +11,11 @@ Rectangle {
   property bool busy: false
   readonly property bool isFullAuto: Cores.CoreState.currentRunModelIndex === 0
   readonly property bool readyByStatus: captureBtn._statusReady()
+  readonly property bool controlEnabled: Datas.StatusDatas.controlEnabled
 
   Layout.alignment: Qt.AlignVCenter
   visible: !isFullAuto
-  enabled: !busy && !isFullAuto && readyByStatus && Datas.TaskDatas.captureReady
+  enabled: !busy && !isFullAuto && readyByStatus && Datas.TaskDatas.captureReady && controlEnabled
   implicitHeight: Math.max(34, parent ? parent.height * 0.75 : 34)
   implicitWidth: implicitHeight * 2.1
   radius: 8

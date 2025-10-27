@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import "../../Api" as Api
 import "../../cores" as Cores
 import "../../components/btns" as Btns
+import "../../datas" as Datas
 import "../Base"
 
 
@@ -66,12 +67,14 @@ RowLayout {
 
   Btns.ActionButton {
     text: qsTr("Run")
+    enabled: Datas.StatusDatas.controlEnabled
     onClicked: Api.ApiClient.startRun()
   }
 
   Btns.ActionButton {
     text: qsTr("Stop")
     danger: true
+    enabled: Datas.StatusDatas.controlEnabled
     onClicked: Api.ApiClient.stopRun()
   }
 }
