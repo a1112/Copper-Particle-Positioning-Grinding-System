@@ -30,6 +30,8 @@ Popup {
 
   property var commandModel: []
   property var alertModel: []
+  property var imageModel: []
+  property var pathModel: []
 
   background: Rectangle {
     radius: 14
@@ -287,6 +289,124 @@ Popup {
     return parts.length ? parts.join("  ") : "-"
   }
 
+  function asFileUrl(path) {
+    if (path === undefined || path === null)
+      return ""
+    var text = String(path)
+    if (!text.length)
+      return ""
+    if (text.indexOf("file:") === 0)
+      return text
+    var normalised = text.replace(/\\/g, "/")
+    if (normalised.length >= 2 && normalised.charAt(1) === ":")
+      normalised = normalised.charAt(0) + ":" + normalised.substring(1)
+    if (normalised.charAt(0) === "/")
+      return "file://" + normalised
+    return "file:///" + normalised
+  }
+
+  function coerceNumber(value, fallback) {
+    if (value === undefined || value === null || value === "")
+      return fallback
+    var num = Number(value)
+    return isNaN(num) ? fallback : num
+  }
+
+  function buildImageModel() {
+    var rows = []
+    var payload = Datas.TaskDatas.gcodeData || {}
+    var images = payload.image_files || payload.images || {}
+    if (Array.isArray(images)) {
+      images.forEach(function(item, index) {
+        var path = typeof item === "string" ? item : (item && item.path)
+        if (!path)
+          return
+        rows.push({
+          title: item && item.title ? safeText(item.title, qsTr("图像 %1").arg(index + 1)) : qsTr("图像 %1").arg(index + 1),
+          path: safeText(path, ""),
+          url: asFileUrl(path),
+        })
+      })
+    } else if (typeof images === "object") {
+      var mapping = [
+        { key: "color", title: qsTr("彩色") },
+        { key: "gray", title: qsTr("灰度") },
+        { key: "depth", title: qsTr("深度") },
+        { key: "normal", title: qsTr("法线") },
+      ]
+      for (var i = 0; i < mapping.length; ++i) {
+        var entry = mapping[i]
+        var val = images[entry.key]
+        if (!val)
+          continue
+        var rel = typeof val === "object" && val.path ? val.path : val
+        rows.push({
+          title: entry.title,
+          path: safeText(rel, ""),
+          url: asFileUrl(rel),
+        })
+      }
+      for (var key in images) {
+        if (!images.hasOwnProperty(key))
+          continue
+        var hasNamed = mapping.some(function(m) { return m.key === key })
+        if (hasNamed)
+          continue
+        var extra = images[key]
+        if (!extra)
+          continue
+        var extraPath = typeof extra === "object" && extra.path ? extra.path : extra
+        rows.push({
+          title: safeText(key, qsTr("图像")),
+          path: safeText(extraPath, ""),
+          url: asFileUrl(extraPath),
+        })
+      }
+    }
+    return rows
+  }
+
+  function buildPathModel() {
+    var rows = []
+    var payload = Datas.TaskDatas.gcodeData || {}
+    var preview = payload.path_preview || payload.pathPreview || payload.commands
+    var list = normalizeArray(preview)
+    if (!list.length && Array.isArray(payload.commands))
+      list = payload.commands
+    normalizeArray(list).forEach(function(item, index) {
+      if (item === undefined || item === null)
+        return
+      var row = {}
+      if (typeof item === "object") {
+        row.index = coerceNumber(readValue(item, ["index", "sequence", "id", "step"]), index + 1)
+        row.x = coerceNumber(readValue(item, ["x", "ex", "target_x", "offset_x"]), undefined)
+        row.y = coerceNumber(readValue(item, ["y", "ey", "target_y", "offset_y"]), undefined)
+        row.z = coerceNumber(readValue(item, ["z", "ez", "target_z", "offset_z"]), undefined)
+        row.velocity = coerceNumber(readValue(item, ["velocity", "feed", "v", "feed_rate"]), undefined)
+        row.command = safeText(readValue(item, ["command", "cmd", "name", "action"]), "")
+      } else {
+        row.index = index + 1
+        row.command = safeText(item, "")
+      }
+      row.indexText = row.index !== undefined ? row.index : index + 1
+      row.positionText = ""
+      var coords = []
+      if (row.x !== undefined)
+        coords.push("X " + Number(row.x).toFixed(3))
+      if (row.y !== undefined)
+        coords.push("Y " + Number(row.y).toFixed(3))
+      if (row.z !== undefined)
+        coords.push("Z " + Number(row.z).toFixed(3))
+      if (coords.length)
+        row.positionText = coords.join("  ")
+      row.velocityText = row.velocity !== undefined ? Number(row.velocity).toFixed(2) : "-"
+      if (!row.command && coords.length)
+        row.command = coords.join(" ")
+      rows.push(row)
+    })
+    return rows
+  }
+
   function buildCommandModel() {
     var rows = []
     var seq = 1
@@ -428,6 +548,8 @@ Popup {
   function rebuildDerived() {
     commandModel = buildCommandModel()
     alertModel = buildAlertModel()
+    imageModel = buildImageModel()
+    pathModel = buildPathModel()
   }
 
   Connections {
@@ -751,6 +873,135 @@ Popup {
                 visible: commandModel.length === 0
                 text: qsTr("当前流水号暂无控制指令，请等待采集任务完成后再试。")
                 color: Cores.CoreStyle.muted
+              }
+
+              ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 10
+
+                RowLayout {
+                  Layout.fillWidth: true
+                  spacing: 10
+                  Label {
+                    text: qsTr("采集图像预览")
+                    font.pixelSize: 18
+                    font.bold: true
+                    color: Cores.CoreStyle.text
+                  }
+                  Item { Layout.fillWidth: true }
+                  Label {
+                    text: Datas.TaskDatas.latestRecordId ? qsTr("记录 #%1").arg(Datas.TaskDatas.latestRecordId) : "-"
+                    color: Cores.CoreStyle.muted
+                  }
+                }
+
+                Flow {
+                  Layout.fillWidth: true
+                  spacing: 14
+                  Repeater {
+                    model: imageModel
+                    delegate: ColumnLayout {
+                      width: Math.min(260, commandColumn.width / 3)
+                      spacing: 6
+                      Rectangle {
+                        Layout.fillWidth: true
+                        height: width * 0.75
+                        radius: 8
+                        color: "#0f1722"
+                        border.color: "#1c2840"
+                        clip: true
+                        Image {
+                          anchors.fill: parent
+                          fillMode: Image.PreserveAspectFit
+                          source: modelData.url
+                        }
+                      }
+                      Label {
+                        text: modelData.title
+                        color: Cores.CoreStyle.text
+                        font.bold: true
+                      }
+                      Label {
+                        text: modelData.path
+                        color: Cores.CoreStyle.muted
+                        wrapMode: Text.WrapAnywhere
+                      }
+                    }
+                  }
+                  Label {
+                    visible: imageModel.length === 0
+                    text: qsTr("暂无采集图像，请先完成采集流程。")
+                    color: Cores.CoreStyle.muted
+                  }
+                }
+              }
+
+              ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                RowLayout {
+                  Layout.fillWidth: true
+                  spacing: 10
+                  Label {
+                    text: qsTr("路径预览")
+                    font.pixelSize: 18
+                    font.bold: true
+                    color: Cores.CoreStyle.text
+                  }
+                  Item { Layout.fillWidth: true }
+                  Label {
+                    text: pathModel.length ? qsTr("共 %1 段").arg(pathModel.length) : ""
+                    color: Cores.CoreStyle.muted
+                  }
+                }
+
+                Rectangle {
+                  Layout.fillWidth: true
+                  radius: 6
+                  color: "#141d2e"
+                  border.color: "#1f2c44"
+                  ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    spacing: 6
+                    Repeater {
+                      model: pathModel
+                      delegate: RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+                        Label {
+                          text: modelData.indexText
+                          color: Cores.CoreStyle.info
+                          font.bold: true
+                          Layout.preferredWidth: 40
+                        }
+                        Label {
+                          text: modelData.command
+                          color: Cores.CoreStyle.text
+                          Layout.fillWidth: true
+                          wrapMode: Text.Wrap
+                        }
+                        Label {
+                          text: modelData.positionText
+                          color: Cores.CoreStyle.muted
+                          Layout.preferredWidth: 220
+                          wrapMode: Text.WrapAnywhere
+                        }
+                        Label {
+                          text: modelData.velocityText
+                          color: Cores.CoreStyle.muted
+                          Layout.preferredWidth: 80
+                        }
+                      }
+                    }
+                    Label {
+                      visible: pathModel.length === 0
+                      text: qsTr("暂无路径信息，等待采集完成生成。")
+                      color: Cores.CoreStyle.muted
+                    }
+                  }
+                }
               }
             }
           }
