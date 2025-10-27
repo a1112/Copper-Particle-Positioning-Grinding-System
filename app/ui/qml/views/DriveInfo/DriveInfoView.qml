@@ -64,9 +64,9 @@ BaseCard {
 
   ColumnLayout {
     id: columnLayout
+  Layout.fillWidth: true
+    spacing: 5
 
-    spacing: 12
-    Layout.fillWidth: true
 
     RowLayout {
       Layout.fillWidth: true
@@ -81,7 +81,7 @@ BaseCard {
       Rectangle {
         width: 10
         height: 10
-        radius: 5
+        radius: 3
         color: Datas.StatusDatas.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger
       }
 
@@ -101,19 +101,24 @@ BaseCard {
     ColumnLayout {
       Layout.fillWidth: true
       RowLayout{
-        Layout.fillWidth: true
-      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("X"); valueText: formatNumber(resolvePosition("x"), "mm", 2) }
-      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("Y "); valueText: formatNumber(resolvePosition("y"), "mm", 2) }
-      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("Z "); valueText: formatNumber(resolvePosition("z"), "mm", 2) }
+      Layout.fillWidth: true
+      InfoRowItem {  titleText: qsTr("X"); valueText: formatNumber(resolvePosition("x"), "", 2) }
+      InfoRowItem {  titleText: qsTr("Y"); valueText: formatNumber(resolvePosition("y"), "", 2) }
+      InfoRowItem {  titleText: qsTr("Z"); valueText: formatNumber(resolvePosition("z"), "", 2) }
         }
 
-      Row{
-      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("主轴转速"); valueText: formatNumber(status.spindle_rpm, "rpm", 0); valueColor: Cores.CoreStyle.accent }
-      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("扭矩"); valueText: formatNumber(status.spindle_torque, "N·m", 2); valueColor: Cores.CoreStyle.info }
-      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("切削速度"); valueText: formatNumber(pickValue(status.feed_rate, status.cutting_speed), "mm/s", 2) }
-      InfoRowItem { Layout.fillWidth: true; Layout.columnSpan: 3; titleText: qsTr("移动速度"); valueText: formatNumber(pickValue(status.travel_speed, status.motion_speed), "mm/s", 2) }
-    }
+      RowLayout{
+        Layout.fillWidth: true
+      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("主轴转速"); valueText: formatNumber(status.spindle_rpm, "", 0); valueColor: Cores.CoreStyle.accent }
+      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("扭矩"); valueText: formatNumber(status.spindle_torque, "", 2); valueColor: Cores.CoreStyle.info }
 
+    }
+      RowLayout{
+        Layout.fillWidth: true
+        InfoRowItem { Layout.fillWidth: true; titleText: qsTr("切削速度"); valueText: formatNumber(pickValue(status.feed_rate, status.cutting_speed), "", 2) }
+        InfoRowItem { Layout.fillWidth: true; Layout.columnSpan: 3; titleText: qsTr("移速"); valueText: formatNumber(pickValue(status.travel_speed, status.motion_speed), "", 2) }
+
+      }
     RowLayout {
       Layout.fillWidth: true
       Layout.preferredHeight: 180

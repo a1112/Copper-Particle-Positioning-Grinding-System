@@ -13,8 +13,6 @@ RowLayout {
   property alias valueWrapMode: valueLabel.wrapMode
   property alias valueElide: valueLabel.elide
   property alias valueFont: valueLabel.font
-
-
   InfoTitleLabel { id: titleLabel }
   InfoValueLabel { id: valueLabel }
 }

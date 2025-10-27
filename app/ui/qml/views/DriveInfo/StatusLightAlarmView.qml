@@ -20,11 +20,11 @@ BaseCard {
     return payload
   }
   readonly property var indicatorEntries: [
-    ({ key: "camera", label: qsTr("相机状态") }),
-    ({ key: "spindle", label: qsTr("主轴状态") }),
-    ({ key: "device", label: qsTr("设备状态") }),
-    ({ key: "interlock", label: qsTr("互锁状态") }),
-    ({ key: "server", label: qsTr("服务器状态") })
+    ({ key: "camera", label: qsTr("相机") }),
+    ({ key: "spindle", label: qsTr("主轴") }),
+    ({ key: "device", label: qsTr("设备") }),
+    ({ key: "interlock", label: qsTr("互锁") }),
+    ({ key: "server", label: qsTr("服务器") })
   ]
 
   function _isEmptyValue(value) {
@@ -161,34 +161,33 @@ BaseCard {
     }
   }
 
-  implicitHeight: contentColumn.implicitHeight + 20
+  implicitHeight: contentColumn.implicitHeight + 5
 
   GridLayout {
     id: contentColumn
     columns: 3
-    columnSpacing: 18
-    rowSpacing: 14
+    columnSpacing: 5
+    rowSpacing: 5
     anchors.left: parent.left
     anchors.right: parent.right
-    anchors.margins: 12
+    anchors.margins: 2
 
     Repeater {
       model: root.indicatorEntries
 
-      delegate: ColumnLayout {
+      delegate: RowLayout {
         readonly property var stateInfo: root._normalizedValue(modelData.key)
-        Layout.fillWidth: true
-        spacing: 6
+
+        spacing: 1
 
         InfoTitleLabel {
           text: modelData.label
-          Layout.fillWidth: true
           horizontalAlignment: Text.AlignLeft
         }
 
         RowLayout {
           Layout.fillWidth: true
-          spacing: 10
+          spacing: 2
 
           Rectangle {
             width: 14
@@ -207,19 +206,7 @@ BaseCard {
           }
         }
 
-        Label {
-          text: {
-            if (stateInfo.raw === undefined)
-              return ""
-            if (stateInfo.raw === null)
-              return ""
-            return "(" + String(stateInfo.raw) + ")"
-          }
-          visible: text.length > 0 && stateInfo.tone !== "custom"
-          color: Cores.CoreStyle.muted
-          font.pixelSize: 11
-          Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-        }
+
       }
     }
   }

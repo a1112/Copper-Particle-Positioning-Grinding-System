@@ -188,5 +188,6 @@
         <file>qml/views/ImageInfo/core/ImageDataCore.qml</file>
         <file>qml/menu/MainMenu.qml</file>
         <file>qml/menu/states/StatePage.qml</file>
+        <file>qml/menu/states/StatePageCore.qml</file>
     </qresource>
 </RCC>
