@@ -88,6 +88,7 @@ Item {
     smooth: true
     fillMode: Image.PreserveAspectFit
     source: Cores.CoreState.current2dImageSource
+  }
   Item {
     id: overlayArea
     width: img.paintedWidth

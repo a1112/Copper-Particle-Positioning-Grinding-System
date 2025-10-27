@@ -62,6 +62,13 @@ Item {
     SemiAutoStartBtn { running: root.isRunning }
 
     DateTimeView { Layout.alignment: Qt.AlignVCenter }
+
+    ItemDelegateButtonBase {
+      source: Cores.CoreStyle.getIconSource("msg.png")
+      height: root.height
+      width: height * 2
+      onClicked: statePage.open()
+    }
     ItemDelegateButtonBase {
       source: Cores.CoreStyle.getIconSource("tool.png")
       height: root.height

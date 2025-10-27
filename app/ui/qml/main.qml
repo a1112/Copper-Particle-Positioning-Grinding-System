@@ -9,6 +9,7 @@ import "pages/main"
 import "dialogs"
 import "menu"
 import "menu/settings"
+import "menu/states"
 import "cores" as Cores
 import "Api" as Api
 import "datas" as Datas
@@ -38,6 +39,7 @@ App_Base {
   TestImagesDialog { id: testDialog }
   SettingsDrawer { id: settingsDrawer }
   SettingPage{id: settingsPage}
+  StatePage{id:statePage}
   TestWindow{id:testWindow}
 
 }

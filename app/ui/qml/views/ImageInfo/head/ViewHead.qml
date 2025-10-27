@@ -15,7 +15,7 @@ BaseHead {
         Base.ComboBoxBase{
             model: Cores.CoreUI.allImageType
             visible: Cores.CoreState.realViewName=="2D"
-            currentIndexChanged: Cores.CoreState.current2DShowIndex = index
+            onCurrentIndexChanged: Cores.CoreState.current2DShowIndex = currentIndex
         }
         Item { Layout.fillWidth: true }
         Label { text: "视图"; color: Cores.CoreStyle.text; font.pixelSize: 14 }
