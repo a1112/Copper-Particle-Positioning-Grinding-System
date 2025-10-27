@@ -239,6 +239,10 @@ class TaskTable(Base):
     t_progress: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(5, 2), server_default=text("'0.00'"), comment='进度百分比')
     t_estimated_time: Mapped[Optional[int]] = mapped_column(Integer, comment='预计耗时(秒)')
     t_actual_time: Mapped[Optional[int]] = mapped_column(Integer, comment='实际耗时(秒)')
+    t_workpiece_id: Mapped[Optional[int]] = mapped_column(BigInteger, default=None, comment='关联工件ID')
+    t_record_id: Mapped[Optional[int]] = mapped_column(BigInteger, default=None, comment='关联记录ID')
+    t_payload: Mapped[Optional[dict]] = mapped_column(JSON, default=None, comment='任务附加参数')
+    t_status_detail: Mapped[Optional[dict]] = mapped_column(JSON, default=None, comment='状态详情信息')
     created_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP'), comment='创建时间')
     updated_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), comment='更新时间')
 
