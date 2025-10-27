@@ -1,4 +1,4 @@
-﻿from typing import Optional
+from typing import Optional
 import datetime
 import decimal
 
@@ -42,7 +42,7 @@ class HardwareTaskQueue(Base):
         {'comment': '硬件控制任务轮询表'}
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment='主键ID', init=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment='主键ID')
     task_id: Mapped[str] = mapped_column(VARCHAR(64), nullable=False, comment='任务唯一标识')
     task_type: Mapped[str] = mapped_column(VARCHAR(50), nullable=False, comment='任务类型：POLISH_START/ POLISH_STOP/ TEMPERATURE_SET/ PRESSURE_ADJUST等')
     device_id: Mapped[str] = mapped_column(VARCHAR(50), nullable=False, comment='设备标识')
@@ -56,8 +56,8 @@ class HardwareTaskQueue(Base):
     end_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, default=None, comment='实际结束时间')
     result_message: Mapped[Optional[str]] = mapped_column(TEXT, default=None, comment='执行结果信息')
     created_by: Mapped[Optional[str]] = mapped_column(VARCHAR(50), default=None, comment='创建者')
-    created_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP'), comment='创建时间', init=False)
-    updated_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), comment='更新时间', init=False)
+    created_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP'), comment='创建时间')
+    updated_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), comment='更新时间')
 
 
 class MaintenanceTable(Base):
@@ -252,7 +252,7 @@ class WorkpieceTable(Base):
         {'comment': '工件信息表'}
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment='主键ID', init=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment='主键ID')
     w_workpiece_id: Mapped[str] = mapped_column(String(50, 'utf8mb4_unicode_ci'), nullable=False, comment='工件编号')
     w_workpiece_type: Mapped[Optional[str]] = mapped_column(String(50, 'utf8mb4_unicode_ci'), comment='工件类型')
     w_material: Mapped[Optional[str]] = mapped_column(String(50, 'utf8mb4_unicode_ci'), comment='材料')
@@ -262,4 +262,4 @@ class WorkpieceTable(Base):
     w_roughness_actual: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(5, 3), default=None, comment='实际粗糙度')
     w_status: Mapped[Optional[int]] = mapped_column(TINYINT, default=0, server_default=text("'0'"), comment='状态（0-待加工，1-加工中，2-已完成，3-不合格）')
     w_task_id: Mapped[Optional[int]] = mapped_column(BigInteger, default=None, comment='关联任务ID')
-    created_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP'), comment='创建时间', init=False)
+    created_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP'), comment='创建时间')
