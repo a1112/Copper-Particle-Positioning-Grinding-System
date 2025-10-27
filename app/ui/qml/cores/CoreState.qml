@@ -23,6 +23,8 @@ Item {
   property int current2DShowIndex:0
   readonly property string current2DShowName:CoreUI.allImageType[current2DShowIndex]
 
+  property string current2dImageSource: Api.Urls.api("image/test") + "?type="+current2DShowName+"&ts=" + Date.now()
+
   Settings {
     id: st
     category: "CoreState"

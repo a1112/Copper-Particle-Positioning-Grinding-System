@@ -87,9 +87,7 @@ Item {
     cache: false
     smooth: true
     fillMode: Image.PreserveAspectFit
-    source: Api.Urls.api("image.png") + "?ts=" + Date.now()
-  }
-
+    source: Cores.CoreState.current2dImageSource
   Item {
     id: overlayArea
     width: img.paintedWidth

@@ -46,3 +46,58 @@
 - Audit logs for sensitive data; avoid secrets in scripts or `TestData/`.
 - When adding devices, capture representative telemetry in `TestData/` and note validation steps in the PR.
 
+---
+
+# 仓库指南
+
+## 项目结构与模块组织
+
+- 核心运行时位于 `app/`。
+- `app/core/`：事件与状态机。
+- `app/devices/`：真实与模拟驱动。
+- `app/process/`：研磨流程编排。
+- `app/vision/`：标定与检测。
+- `app/ui/`：PySide6/QML 组件。
+- `app/api/`：公共 API，FastAPI 入口为 `app/server/run_api.py`。
+- `configs/`：配置模板与示例。
+- `TestData/`：固定装置与代表性遥测数据。
+- `runs/`：运行期产物（推送前需清理）。
+- `scripts/`：自动化脚本。
+- `tests/`：单元 / 集成测试。
+
+## 构建、测试与开发命令
+
+- 创建虚拟环境（PowerShell）：`python -m venv .venv`，然后 `. .venv/Scripts/Activate.ps1`。
+- 安装依赖：`pip install -r requirements.txt`。
+- 启动完整模拟器与 UI：`python -m app.main`。
+- 仅运行 API 服务：`python -m app.server.run_api`。
+- 重新构建 QML 资源：`powershell -File scripts/build_rcc.ps1`。
+- API 冒烟检查：`python scripts/smoke_api.py`。
+- 运行测试：`python -m pytest`。
+
+## 编码风格与命名规范
+
+- 遵循 PEP 8，使用 4 空格缩进；对公共接口添加类型提示。
+- 模块、函数与文件名使用 `snake_case`；类与 QML 使用 `PascalCase`（例如 `LineChart.qml`）。
+- 提交前使用 `black` 或 `ruff format` 格式化。
+- 保持 QML 声明式：对外属性优先使用 `alias`，尽量减少命令式 JS。
+
+## 测试指南
+
+- 测试运行器：`pytest`。新增测试文件命名为 `tests/test_<feature>.py`。
+- 优先使用 `TestData/` 中的确定性固定装置。
+- 通过 `tests/ws_logs_demo.py` 验证 WebSocket 流程。
+- 工作流变更后通过 `python scripts/smoke_api.py` 确认冒烟覆盖。
+
+## 提交与 PR 指南
+
+- 使用规范化提交（例如 `feat(ui): add drag handle`、`fix(core): guard idle transition`）。
+- 压缩 WIP 提交；描述行为变化并关联需求 / Issue。
+- UI/QML 变更需附截图或动图，并记录模拟器 / 硬件验证。
+- 推送前清理 `runs/` 输出。
+
+## 安全与配置提示
+
+- 不要直接修改 `configs/` 模板——复制后使用相对路径。
+- 审核日志，避免在脚本或 `TestData/` 中泄露敏感数据。
+- 新增设备时，在 `TestData/` 中补充代表性遥测，并在 PR 中记录验证步骤。
