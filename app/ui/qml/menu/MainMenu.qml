@@ -3,8 +3,6 @@ import QtQuick.Window
 import "../works" as Works
 
 Menu {
-    property Item dataDialog: null
-
     Menu{
         title: qsTr("界面功能")
         MenuItem {
@@ -36,12 +34,10 @@ Menu {
         MenuItem {
           text: qsTr("手动添加工件")
           onTriggered: {
-            if (!dataDialog)
-              return
-            if (dataDialog.openWithReset)
-              dataDialog.openWithReset()
-            else if (dataDialog.open)
-              dataDialog.open()
+            if (dataEntryDialog.openWithReset)
+              dataEntryDialog.openWithReset()
+            else if (dataEntryDialog.open)
+              dataEntryDialog.open()
           }
         }
         MenuItem {

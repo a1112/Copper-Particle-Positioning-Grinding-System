@@ -13,9 +13,6 @@ Item {
   id: root
   height: 50
   Layout.fillWidth: true
-  property Item appWindow: null
-  property Item dataDialog: null
-
   Pane {
     anchors.fill: parent
     background: Rectangle { color: Cores.CoreStyle.surface; border.color: Cores.CoreStyle.border }
@@ -86,6 +83,5 @@ Item {
 
   Menu.MainMenu {
     id: headMainMen
-    dataDialog: root.dataDialog
   }
 }

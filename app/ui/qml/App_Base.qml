@@ -2,7 +2,6 @@
 import QtQuick.Controls.Material
 import QtQuick.Window
 import "cores" as Cores
-import "action"
 import "dialogs"
 import "works" as Works
 import "datas" as Datas
@@ -49,9 +48,5 @@ ApplicationWindow {
   // 窗口标题
   title: Cores.Core.title
 
-  EstopDialog {
-    id: estopDialog
-  }
 
-  Shortcuts {}
 }

@@ -15,6 +15,7 @@ import "Api" as Api
 import "datas" as Datas
 import "works" as Works
 import "test"
+import "action"
 
 App_Base {
   // 应用窗口实例
@@ -30,8 +31,6 @@ App_Base {
   // 主界面布局容器
   MainLayouts {
     anchors.fill: parent
-    appWindow: win
-    dataDialog: dataEntryDialog
   }
 
   DataEntryDialog { id: dataEntryDialog }
@@ -41,7 +40,8 @@ App_Base {
   SettingPage{id: settingsPage}
   StatePage{id:statePage}
   TestWindow{id:testWindow}
-
+  EstopDialog {id: estopDialog}
+  Shortcuts {}
 }
 
 
