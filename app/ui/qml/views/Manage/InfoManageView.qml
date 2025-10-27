@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import "head"
 import "../../cores" as Cores
+import "cores"
 
 ColumnLayout {
   id: root

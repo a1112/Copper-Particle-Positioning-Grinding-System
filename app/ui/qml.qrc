@@ -176,10 +176,8 @@
         <file>qml/components/Card/CardHead.qml</file>
         <file>qml/views/Manage/InfoManageView.qml</file>
         <file>qml/views/Manage/CodeManageView.qml</file>
-        <file>qml/views/Manage/InfoViewCore.qml</file>
         <file>qml/views/Manage/head/InfoHeadView.qml</file>
         <file>qml/views/Manage/head/FilterMenu.qml</file>
-        <file>qml/views/Manage/CodeViewCore.qml</file>
         <file>qml/views/DriveInfo/base/InfoRowItem.qml</file>
         <file>qml/views/DriveInfo/base/InfoTitleLabel.qml</file>
         <file>qml/views/DriveInfo/base/InfoValueLabel.qml</file>
@@ -189,5 +187,8 @@
         <file>qml/menu/MainMenu.qml</file>
         <file>qml/menu/states/StatePage.qml</file>
         <file>qml/menu/states/StatePageCore.qml</file>
+        <file>qml/views/Manage/FootManageView.qml</file>
+        <file>qml/views/Manage/cores/CodeViewCore.qml</file>
+        <file>qml/views/Manage/cores/InfoViewCore.qml</file>
     </qresource>
 </RCC>

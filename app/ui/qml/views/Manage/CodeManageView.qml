@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import "head"
-
+import "cores"
 // Make CodeManageView follow the same core-driven structure as InfoViewCore/InfoManageView
 ColumnLayout {
   id: root

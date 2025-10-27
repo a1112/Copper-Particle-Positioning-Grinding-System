@@ -42,10 +42,11 @@ Item {
         SplitView.preferredWidth: 500
       }
     }
-
+    Manage.FootManageView{}
     SplitView {
       SplitView.fillWidth: true
       SplitView.preferredHeight: 265
+
       Log.LogView {
         SplitView.fillHeight: true
         SplitView.fillWidth: true

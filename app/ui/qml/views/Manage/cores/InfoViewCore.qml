@@ -7,32 +7,32 @@ QtObject {
     {
       key: "runState",
       title: qsTr("运行信息"),
-      source: Qt.resolvedUrl("../DriveInfo/RunStateInfoView.qml")
+      source: Qt.resolvedUrl("../../DriveInfo/RunStateInfoView.qml")
     },
     {
       key: "toolInfo",
       title: qsTr("刀具信息"),
-      source: Qt.resolvedUrl("../DriveInfo/ToolInfoView.qml")
+      source: Qt.resolvedUrl("../../DriveInfo/ToolInfoView.qml")
     },
     {
       key: "driveMetrics",
       title: qsTr("运行数据"),
-      source: Qt.resolvedUrl("../DriveInfo/DriveInfoView.qml")
+      source: Qt.resolvedUrl("../../DriveInfo/DriveInfoView.qml")
     },
     {
       key: "statusLights",
       title: qsTr("报警状态"),
-      source: Qt.resolvedUrl("../DriveInfo/StatusLightAlarmView.qml")
+      source: Qt.resolvedUrl("../../DriveInfo/StatusLightAlarmView.qml")
     },
     {
       key: "torqueChart",
       title: qsTr("扭矩曲线"),
-      source: Qt.resolvedUrl("../Charts/TorqueChart.qml")
+      source: Qt.resolvedUrl("../../Charts/TorqueChart.qml")
     },
     {
       key: "elevationChart",
       title: qsTr("高度趋势"),
-      source: Qt.resolvedUrl("../Charts/ElevationAreaChart.qml")
+      source: Qt.resolvedUrl("../../Charts/ElevationAreaChart.qml")
     }
   ]
 
