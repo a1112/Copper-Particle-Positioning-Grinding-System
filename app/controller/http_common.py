@@ -8,6 +8,9 @@ import signal
 import time
 from dataclasses import dataclass, field
 from decimal import Decimal
+import json
+from datetime import datetime, date
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -29,6 +32,46 @@ except Exception:  # pragma: no cover - optional dependency path
     HardwareTaskQueue = None  # type: ignore[assignment]
 
 LOG = logging.getLogger("controller.http")
+
+
+def _json_default(obj: Any) -> Any:
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    if isinstance(obj, Decimal):
+        return float(obj)
+    return str(obj)
+
+
+class HttpBridgeFileLogger:
+    """Append structured controller telemetry to date-partitioned log files."""
+
+    def __init__(self, root: Path, *, encoding: str = "utf-8") -> None:
+        self._root = Path(root)
+        self._encoding = encoding
+        self._root.mkdir(parents=True, exist_ok=True)
+
+    def write(self, category: str, payload: Any, **extra: Any) -> None:
+        entry: Dict[str, Any] = {
+            "recorded_at": datetime.now().isoformat(timespec="seconds"),
+            "payload": payload,
+        }
+        if extra:
+            entry.update(extra)
+        self._append(category, entry)
+
+    def write_many(self, category: str, payloads: Iterable[Any], **extra: Any) -> None:
+        for item in payloads:
+            self.write(category, item, **extra)
+
+    def _append(self, category: str, entry: Dict[str, Any]) -> None:
+        safe_category = category or "logs"
+        category_dir = self._root / safe_category
+        category_dir.mkdir(parents=True, exist_ok=True)
+        filename = f"{datetime.now():%Y-%m-%d}.log"
+        path = category_dir / filename
+        with path.open("a", encoding=self._encoding) as fh:
+            json.dump(entry, fh, ensure_ascii=False, default=_json_default)
+            fh.write("\n")
 
 
 @dataclass
@@ -381,6 +424,7 @@ class TaskQueueWriter:
         workpiece_id: Optional[int] = None,
         record_id: Optional[int] = None,
     ) -> None:
+        print("log_control_task")
         """Insert a task_table row describing the control command."""
         params = params or {}
         with self._session_factory() as session:
@@ -442,12 +486,24 @@ def _build_cutting_payload(state: ControllerState, timestamp: float, cycle: floa
     }
 
 
-def _flush_command_logs(service: HttpControllerService, state: ControllerState) -> int:
+def _flush_command_logs(
+    service: HttpControllerService,
+    state: ControllerState,
+    file_logger: Optional[HttpBridgeFileLogger] = None,
+) -> int:
     if not state.command_log:
         return 0
     entries: List[Dict[str, object]] = list(state.command_log)
     state.command_log.clear()
-    service.publish_logs(entries)
+    ok = False
+    try:
+        ok = service.publish_logs(entries)
+    finally:
+        if file_logger:
+            file_logger.write_many(
+                "control",
+                ({**entry, "published": bool(ok)} for entry in entries),
+            )
     return len(entries)
 
 
@@ -579,6 +635,7 @@ async def run_controller(
     fallback_source: Optional[StatusSourceProtocol] = None,
     task_writer: Optional[TaskQueueWriter] = None,
     task_runner: Optional[object] = None,
+    file_logger: Optional[HttpBridgeFileLogger] = None,
 ) -> None:
     state = ControllerState(label=args.label)
     control_host, control_port = _parse_control_endpoint(args.http_control)
@@ -643,8 +700,12 @@ async def run_controller(
                     ok_status,
                     status_payload.get("spindle_rpm", 0.0),
                 )
+                if file_logger:
+                    file_logger.write("status", status_payload, ok=bool(ok_status))
             except Exception as exc:
                 LOG.error("Status push failed: %s", exc)
+                if file_logger:
+                    file_logger.write("status", status_payload, ok=False, error=str(exc))
                 await asyncio.sleep(args.interval)
                 continue
 
@@ -657,8 +718,12 @@ async def run_controller(
                     cutting_payload.get("torque", 0.0),
                     cutting_payload.get("elapsed_sec", 0.0),
                 )
+                if file_logger:
+                    file_logger.write("cutting", cutting_payload, ok=bool(ok_cutting))
             except Exception as exc:
                 LOG.error("Cutting push failed: %s", exc)
+                if file_logger:
+                    file_logger.write("cutting", cutting_payload, ok=False, error=str(exc))
                 await asyncio.sleep(args.interval)
                 continue
 
@@ -669,8 +734,12 @@ async def run_controller(
                 try:
                     ok_program = service.publish_program(program_snapshot)
                     LOG.info("Program push ok=%s current=%s", ok_program, program_snapshot["program_state"].get("current"))
+                    if file_logger:
+                        file_logger.write("program", program_snapshot, ok=bool(ok_program))
                 except Exception as exc:
                     LOG.error("Program push failed: %s", exc)
+                    if file_logger:
+                        file_logger.write("program", program_snapshot, ok=False, error=str(exc))
 
             if tick % args.log_every == 0:
                 log_entry = {
@@ -682,11 +751,15 @@ async def run_controller(
                 try:
                     ok_log = service.publish_logs([log_entry])
                     LOG.info("Heartbeat log push ok=%s cycle=%d", ok_log, tick)
+                    if file_logger:
+                        file_logger.write("logs", log_entry, ok=bool(ok_log))
                 except Exception as exc:
                     LOG.error("Heartbeat log push failed: %s", exc)
+                    if file_logger:
+                        file_logger.write("logs", log_entry, ok=False, error=str(exc))
 
             try:
-                flushed = _flush_command_logs(service, state)
+                flushed = _flush_command_logs(service, state, file_logger=file_logger)
                 if flushed:
                     LOG.info("Flushed %d control log entries", flushed)
             except Exception as exc:

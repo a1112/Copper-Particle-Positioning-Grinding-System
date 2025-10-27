@@ -10,6 +10,7 @@ from app import config as APP_CONFIG
 from app.controller.demo_task_runner import DemoTaskRunner
 from app.controller.http_common import (
     DbStatusSource,
+    HttpBridgeFileLogger,
     SimulatedStatusSource,
     TaskQueueWriter,
     build_parser,
@@ -23,6 +24,7 @@ else:
     PROD_DB_URL = "mysql+pymysql://remote_user:123456@192.168.1.214/MzPoliShineDB?charset=utf8mb4"
 LOG = logging.getLogger("controller.http_prod")
 SAVE_DATA_DIR = Path(APP_CONFIG.PROJECT_ROOT) / "SaveData"
+LOG_BASE_DIR = Path(APP_CONFIG.PROJECT_ROOT) / "logs" / "controller" / "httpbridge"
 
 
 def main(argv: Optional[Iterable[str]] = None) -> None:
@@ -39,6 +41,8 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         logging.getLogger().setLevel(logging.INFO)
 
     task_runner = None
+    file_logger = HttpBridgeFileLogger(LOG_BASE_DIR)
+
     try:
         status_source = DbStatusSource(args.db_url)
         fallback_source = SimulatedStatusSource()
@@ -60,6 +64,7 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
                 fallback_source=fallback_source,
                 task_writer=task_writer,
                 task_runner=task_runner,
+                file_logger=file_logger,
             )
         )
     except KeyboardInterrupt:
