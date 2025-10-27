@@ -13,13 +13,14 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 import requests
-from sqlalchemy import create_engine, select
+from sqlalchemy import MetaData, Table, create_engine, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import HTTP_BRIDGE_BASE, HTTP_CONTROL_ENDPOINT, HTTP_TIMEOUT
 from app.controller.httpbridge import HttpControllerService
+from app.common.tasks import TaskStatus, TaskType
 
 try:
     from app.db.models.MzPoliShineDB import HardwareTaskQueue, StatusTable
@@ -336,6 +337,8 @@ class TaskQueueWriter:
         self._session_factory = session_factory
         self._engine = engine
         self._owns_engine = owns_engine
+        self._metadata = MetaData()
+        self._task_table: Optional[Table] = None
 
     @classmethod
     def from_url(cls, db_url: str) -> "TaskQueueWriter":
@@ -359,6 +362,56 @@ class TaskQueueWriter:
             entry = HardwareTaskQueue(**payload)  # type: ignore[arg-type]
             session.add(entry)
             session.commit()
+
+    def _ensure_task_table(self, session: Session) -> Optional[Table]:
+        if self._task_table is not None:
+            return self._task_table
+        try:
+            self._task_table = Table("task_table", self._metadata, autoload_with=session.bind)
+        except SQLAlchemyError as exc:
+            LOG.error("Unable to reflect task_table: %s", exc)
+            self._task_table = None
+        return self._task_table
+
+    def log_control_task(
+        self,
+        *,
+        action: str,
+        params: Optional[Dict[str, Any]] = None,
+        workpiece_id: Optional[int] = None,
+        record_id: Optional[int] = None,
+    ) -> None:
+        """Insert a task_table row describing the control command."""
+        params = params or {}
+        with self._session_factory() as session:
+            table = self._ensure_task_table(session)
+            if table is None:
+                return
+            columns = table.c
+            payload: Dict[str, Any] = {
+                "t_task_name": f"control:{action}",
+                "t_task_type": int(TaskType.CONTROL),
+            }
+            if "t_status" in columns:
+                payload["t_status"] = int(TaskStatus.PENDING)
+            if "t_priority" in columns:
+                payload["t_priority"] = 1
+            if "t_progress" in columns:
+                payload["t_progress"] = 0
+            if "t_workpiece_id" in columns:
+                payload["t_workpiece_id"] = workpiece_id
+            if "t_record_id" in columns:
+                payload["t_record_id"] = record_id
+            if "t_payload" in columns:
+                payload["t_payload"] = {"action": action, "params": params}
+            if "t_status_detail" in columns:
+                payload["t_status_detail"] = {"source": "http_prod", "state": "queued"}
+            try:
+                session.execute(table.insert().values(**payload))
+                session.commit()
+            except SQLAlchemyError as exc:
+                session.rollback()
+                LOG.error("Failed to log control task action=%s: %s", action, exc)
 
     def close(self) -> None:
         if self._owns_engine and self._engine is not None:
@@ -399,11 +452,12 @@ def _flush_command_logs(service: HttpControllerService, state: ControllerState) 
 
 
 def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWriter], *, device_id: str):
-    def _enqueue(task_type: str, params: Optional[Dict[str, Any]] = None) -> None:
+    def _enqueue(task_type: str, params: Optional[Dict[str, Any]] = None, *, action: str, workpiece_id: Optional[int] = None, record_id: Optional[int] = None) -> None:
         if task_writer is None:
             return
         try:
             task_writer.enqueue(task_type=task_type, device_id=device_id, params=params)
+            task_writer.log_control_task(action=action, params=params, workpiece_id=workpiece_id, record_id=record_id)
         except Exception as exc:
             LOG.error("Failed to enqueue hardware task %s: %s", task_type, exc)
 
@@ -419,20 +473,20 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
             state.torque_bias = 0.2
             state.stop_program()
             state.register_command(action, True, "Reset acknowledged")
-            _enqueue("RESET", {"action": action})
+            _enqueue("RESET", {"action": action}, action=action)
             return {"ok": True, "message": "Reset acknowledged"}
 
         if normalized == "boost":
             state.spindle_rpm += 50.0
             state.torque_bias = min(state.torque_bias + 0.05, 0.6)
             state.register_command(action, True, "Boost applied")
-            _enqueue("BOOST", {"action": action})
+            _enqueue("BOOST", {"action": action}, action=action)
             return {"ok": True, "message": "Boost applied"}
 
         if normalized in {"run.start", "start"}:
             if state.start_program():
                 state.register_command(action, True, "Program playback started")
-                _enqueue("POLISH_START", {"action": action, "params": dict(params)})
+                _enqueue("POLISH_START", {"action": action, "params": dict(params)}, action=action)
                 return {"ok": True, "message": "Program playback started"}
             state.register_command(action, False, "No program loaded")
             return {"ok": False, "message": "Program not available"}
@@ -440,11 +494,11 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
         if normalized in {"run.stop", "stop"}:
             state.stop_program()
             state.register_command(action, True, "Program playback stopped")
-            _enqueue("POLISH_STOP", {"action": action, "params": dict(params)})
+            _enqueue("POLISH_STOP", {"action": action, "params": dict(params)}, action=action)
             return {"ok": True, "message": "Program playback stopped"}
 
         state.register_command(action, False, f"Unsupported action: {action}")
-        _enqueue(normalized.upper(), {"action": action, "params": dict(params)})
+        _enqueue(normalized.upper(), {"action": action, "params": dict(params)}, action=action)
         return {"ok": False, "message": f"Unsupported action: {action}"}
 
     return handler

@@ -5,6 +5,7 @@ from decimal import Decimal
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.common.tasks import TaskStatus, TaskType
 from app.controller.http_common import ControllerState, DbStatusSource, TaskQueueWriter
 from app.db.models import MzPoliShineDB
 
@@ -60,5 +61,24 @@ def test_task_queue_writer_enqueue(tmp_path):
         assert rows[0].task_type == "POLISH_START"
         assert rows[0].device_id == "DEVICE-01"
         assert rows[0].task_params["action"] == "run.start"
+
+    writer.close()
+
+
+def test_task_queue_writer_logs_control(tmp_path):
+    db_path = tmp_path / "control.db"
+    engine = create_engine(f"sqlite:///{db_path}", future=True)
+    MzPoliShineDB.Base.metadata.create_all(engine)
+
+    writer = TaskQueueWriter(sessionmaker(bind=engine, future=True), engine=engine)
+    writer.log_control_task(action="run.start", params={"speed": 120})
+
+    with Session(engine) as session:
+        rows = session.query(MzPoliShineDB.TaskTable).all()
+        assert len(rows) == 1
+        entry = rows[0]
+        assert entry.t_task_name == "control:run.start"
+        assert entry.t_task_type == int(TaskType.CONTROL)
+        assert entry.t_status == int(TaskStatus.PENDING)
 
     writer.close()

@@ -3,9 +3,9 @@
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
@@ -126,6 +126,34 @@ def create_workpiece(payload: WorkpieceCreatePayload, session: Session = Depends
     session.commit()
     session.refresh(record)
     return {'ok': True, 'workpiece': _serialize_workpiece(record)}
+
+
+@router.get('/data/workpieces')
+def list_workpieces(
+    limit: int = Query(default=20, ge=1, le=100),
+    session: Session = Depends(get_db_session),
+) -> Dict[str, Any]:
+    rows = (
+        session.execute(
+            select(WorkpieceTable)
+            .order_by(desc(WorkpieceTable.id))
+            .limit(limit)
+        )
+        .scalars()
+        .all()
+    )
+    total = session.execute(select(func.count()).select_from(WorkpieceTable)).scalar_one()
+    return {'workpieces': [_serialize_workpiece(row) for row in rows], 'total': total}
+
+
+@router.delete('/data/workpieces/{workpiece_id}')
+def delete_workpiece(workpiece_id: int, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
+    row = session.get(WorkpieceTable, workpiece_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail='Workpiece not found')
+    session.delete(row)
+    session.commit()
+    return {'ok': True, 'workpiece_id': workpiece_id}
 
 
 def _ensure_save_dir(record_id: int) -> Path:

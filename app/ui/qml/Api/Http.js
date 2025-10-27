@@ -76,4 +76,38 @@ function postJson(root, path, obj, onOk, onErr, showError){
   }
 }
 
+function del(root, path, onOk, onErr, showError){
+  var xhr = new XMLHttpRequest()
+  var timedOut = false
+  var to = _makeTimer(root, timeoutMs, function(){
+    timedOut = true
+    try{ xhr.abort() }catch(e){}
+    var msg = 'DELETE ' + path + ' ��ʱ(' + timeoutMs + 'ms)'
+    showError && showError(msg)
+    onErr && onErr(408, msg)
+  })
+  xhr.open('DELETE', base + path)
+  xhr.onreadystatechange = function(){
+    if (xhr.readyState === XMLHttpRequest.DONE){
+      try{ to.stop(); to.destroy() }catch(e){}
+      if (timedOut) return
+      if (xhr.status>=200 && xhr.status<300){
+        var resp = {}
+        try{ resp = JSON.parse(xhr.responseText) }catch(e){}
+        onOk && onOk(resp)
+      }else{
+        var msg = 'DELETE ' + path + ' ʧ��: ' + xhr.status + ' ' + xhr.responseText
+        showError && showError(msg)
+        onErr && onErr(xhr.status, xhr.responseText)
+      }
+    }
+  }
+  try{ xhr.send() }catch(e){
+    try{ to.stop(); to.destroy() }catch(e2){}
+    var msg = 'DELETE ' + path + ' �쳣: ' + e
+    showError && showError(msg)
+    onErr && onErr(-1, String(e))
+  }
+}
+
 

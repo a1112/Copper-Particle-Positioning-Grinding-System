@@ -16,6 +16,8 @@ QtObject {
   function get(path, onOk, onErr){ Http.get(root, path, onOk, onErr, showError) }
   // POST JSON
   function post(path, body, onOk, onErr){ Http.postJson(root, path, body, onOk, onErr, showError) }
+  // DELETE
+  function del(path, onOk, onErr){ Http.del(root, path, onOk, onErr, showError) }
 
   function control(action,params,onOk, onErr){
     post('/control', {"action":action,"params":params}, onOk, onErr)
