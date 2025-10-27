@@ -178,7 +178,7 @@ BaseCard {
       delegate: RowLayout {
         readonly property var stateInfo: root._normalizedValue(modelData.key)
 
-        spacing: 1
+        spacing: 20
 
         InfoTitleLabel {
           text: modelData.label
@@ -205,8 +205,6 @@ BaseCard {
             Layout.fillWidth: true
           }
         }
-
-
       }
     }
   }

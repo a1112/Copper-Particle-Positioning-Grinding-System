@@ -218,6 +218,7 @@ class DbStatusSource(StatusSourceProtocol):
         )
         self._session_factory = sessionmaker(bind=self._engine, future=True, expire_on_commit=False)
         LOG.info("DB status source connected to %s", self._mask_password(db_url))
+        self._ensure_default_row()
 
     @property
     def engine(self) -> Engine:
@@ -349,6 +350,34 @@ class DbStatusSource(StatusSourceProtocol):
         result = session.execute(stmt)
         return result.scalar_one_or_none()
 
+    def _ensure_default_row(self) -> None:
+        if StatusTable is None:
+            return
+        try:
+            with self._session_factory() as session:
+                row = self._fetch_status(session)
+                if row is not None:
+                    session.rollback()
+                    return
+                seed = StatusTable(  # type: ignore[call-arg]
+                    id=1,
+                    c_run_status=0,
+                    c_alarm_status=0,
+                    c_control_mode=0,
+                    c_machine_mode=0,
+                    s_spindle_speed=0,
+                    s_feed_speed=0,
+                    s_point_motion_speed=0,
+                    status_time=datetime.utcnow(),
+                    created_time=datetime.utcnow(),
+                    updated_time=datetime.utcnow(),
+                )
+                session.add(seed)
+                session.commit()
+                LOG.info("Inserted default StatusTable row as seed entry")
+        except Exception as exc:  # pragma: no cover - best effort bootstrap
+            LOG.warning("Unable to seed StatusTable default row: %s", exc)
+
     def build(self, state: ControllerState, timestamp: float, cycle: float) -> Dict[str, Any]:  # noqa: ARG002
         try:
             with self._session_factory() as session:
@@ -356,7 +385,12 @@ class DbStatusSource(StatusSourceProtocol):
         except SQLAlchemyError as exc:
             raise RuntimeError(f"Failed to query StatusTable: {exc}") from exc
         if row is None:
-            raise RuntimeError("StatusTable currently has no records")
+            session.rollback()
+            self._ensure_default_row()
+            with self._session_factory() as retry_session:
+                row = self._fetch_status(retry_session)
+            if row is None:
+                raise RuntimeError("StatusTable currently has no records")
 
         payload = self._row_to_payload(row, timestamp=timestamp, label=state.label)
         state.run_mode = payload.get("run_mode", state.run_mode)
