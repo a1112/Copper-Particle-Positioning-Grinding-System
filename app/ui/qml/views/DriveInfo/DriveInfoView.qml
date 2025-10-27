@@ -12,6 +12,7 @@ import "base"
 BaseCard {
   id: root
   Layout.fillWidth: true
+  implicitWidth: Math.max(columnLayout.implicitWidth, chartsRow.implicitWidth)
   readonly property var status: {
     var payload = Datas.StatusDatas.lastMessage
     if (payload === undefined)
@@ -64,10 +65,8 @@ BaseCard {
 
   ColumnLayout {
     id: columnLayout
-  Layout.fillWidth: true
+    width: parent.width
     spacing: 5
-
-
     RowLayout {
       Layout.fillWidth: true
       spacing: 10
@@ -90,7 +89,8 @@ BaseCard {
         color: Datas.StatusDatas.connected ? Cores.CoreStyle.success : Cores.CoreStyle.danger
       }
 
-      Item { Layout.fillWidth: true }
+      Item { Layout.fillWidth: true
+              height:1 }
 
       Label {
         text: qsTr("状态: %1").arg(formatText(status.state))
@@ -100,44 +100,83 @@ BaseCard {
 
     ColumnLayout {
       Layout.fillWidth: true
-      RowLayout{
-      Layout.fillWidth: true
-      InfoRowItem {  titleText: qsTr("X"); valueText: formatNumber(resolvePosition("x"), "", 2) }
-      InfoRowItem {  titleText: qsTr("Y"); valueText: formatNumber(resolvePosition("y"), "", 2) }
-      InfoRowItem {  titleText: qsTr("Z"); valueText: formatNumber(resolvePosition("z"), "", 2) }
+      spacing: 8
+
+      RowLayout {
+        Layout.fillWidth: true
+        spacing: 8
+        InfoRowItem {
+          Layout.fillWidth: true
+          titleText: qsTr("X")
+          valueText: formatNumber(resolvePosition("x"), "", 2)
+        }
+        InfoRowItem {
+          Layout.fillWidth: true
+          titleText: qsTr("Y")
+          valueText: formatNumber(resolvePosition("y"), "", 2)
+        }
+        InfoRowItem {
+          Layout.fillWidth: true
+          titleText: qsTr("Z")
+          valueText: formatNumber(resolvePosition("z"), "", 2)
+        }
+      }
+
+      RowLayout {
+        Layout.fillWidth: true
+        spacing: 8
+        InfoRowItem {
+          Layout.fillWidth: true
+          titleText: qsTr("主轴转速")
+          valueText: formatNumber(status.spindle_rpm, "", 0)
+          valueColor: Cores.CoreStyle.accent
+        }
+        InfoRowItem {
+          Layout.fillWidth: true
+          titleText: qsTr("扭矩")
+          valueText: formatNumber(status.spindle_torque, "", 2)
+          valueColor: Cores.CoreStyle.info
+        }
+      }
+
+      RowLayout {
+        Layout.fillWidth: true
+        spacing: 8
+        InfoRowItem {
+          Layout.fillWidth: true
+          titleText: qsTr("切削速度")
+          valueText: formatNumber(pickValue(status.feed_rate, status.cutting_speed), "", 2)
+        }
+        InfoRowItem {
+          Layout.fillWidth: true
+          titleText: qsTr("移速")
+          valueText: formatNumber(pickValue(status.travel_speed, status.motion_speed), "", 2)
+        }
+      }
+
+      RowLayout {
+        id: chartsRow
+        Layout.fillWidth: true
+        Layout.preferredHeight: 180
+        spacing: 12
+
+        Charts.RpmChart {
+          id: rpmChart
+          Layout.fillWidth: true
+          Layout.preferredHeight: 180
+          series: Datas.StatusDatas.seriesA
         }
 
-      RowLayout{
-        Layout.fillWidth: true
-      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("主轴转速"); valueText: formatNumber(status.spindle_rpm, "", 0); valueColor: Cores.CoreStyle.accent }
-      InfoRowItem { Layout.fillWidth: true; titleText: qsTr("扭矩"); valueText: formatNumber(status.spindle_torque, "", 2); valueColor: Cores.CoreStyle.info }
-
-    }
-      RowLayout{
-        Layout.fillWidth: true
-        InfoRowItem { Layout.fillWidth: true; titleText: qsTr("切削速度"); valueText: formatNumber(pickValue(status.feed_rate, status.cutting_speed), "", 2) }
-        InfoRowItem { Layout.fillWidth: true; Layout.columnSpan: 3; titleText: qsTr("移速"); valueText: formatNumber(pickValue(status.travel_speed, status.motion_speed), "", 2) }
-
-      }
-    RowLayout {
-      Layout.fillWidth: true
-      Layout.preferredHeight: 180
-      spacing: 12
-
-      Charts.RpmChart {
-        id: rpmChart
-        Layout.fillWidth: true
-        Layout.preferredHeight: 180
-        series: Datas.StatusDatas.seriesA
-      }
-
-      Charts.TorqueChart {
-        id: torqueChart
-        Layout.fillWidth: true
-        Layout.preferredHeight: 180
-        series: Datas.StatusDatas.seriesB
+        Charts.TorqueChart {
+          id: torqueChart
+          Layout.fillWidth: true
+          Layout.preferredHeight: 180
+          series: Datas.StatusDatas.seriesB
+        }
       }
     }
+
+
   }
 
   Connections {
@@ -147,5 +186,4 @@ BaseCard {
       torqueChart.repaint()
     }
   }
-}
 }

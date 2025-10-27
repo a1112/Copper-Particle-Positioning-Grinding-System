@@ -10,4 +10,5 @@ Label {
   elide: Text.ElideRight
   horizontalAlignment: Text.AlignHCenter
   verticalAlignment: Text.AlignVCenter
+  font.bold: true
 }
