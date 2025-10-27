@@ -12,7 +12,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 LOG = logging.getLogger(__name__)
 
-PRIMARY_DB_URL = "mysql+pymysql://mz:123456@192.168.2.32/MzPoliShineDB?charset=utf8mb4"
+# PRIMARY_DB_URL = "mysql+pymysql://mz:123456@192.168.2.32/MzPoliShineDB?charset=utf8mb4"
 FALLBACK_DB_URL = "mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4"
 
 
@@ -87,7 +87,7 @@ def _attempt_connect(url: URL, label: str) -> Engine:
 
 def _initialise_engine() -> Tuple[Engine, str]:
     candidates: Iterable[Tuple[str, URL]] = (
-        ("primary", make_url(PRIMARY_DB_URL)),
+        ("primary", make_url(FALLBACK_DB_URL)),
         ("fallback", make_url(FALLBACK_DB_URL)),
     )
     last_error: Exception | None = None
