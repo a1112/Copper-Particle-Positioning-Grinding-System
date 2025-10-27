@@ -1,102 +1,92 @@
 ﻿# 系统架构说明
 
-## 1. 总体结构
+## 1. 分层结构
 
-系统采用“三层”组织：
+系统按“前端展示 → API 网关 → 核心流程”的方式组织：
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                  用户界面层 (UI/QML)                  │
-│  - app/ui/qml/*: 界面视图、数据单例、异步工人            │
-│  - app/ui/src/*: Python 桥接、图像处理                 │
-│  - app/ui/cmake: C++ 编译版本，提升安全与运行速度         │
-└──────────────▲───────────────────────────┬──────────┘
-               │ WebSocket/HTTP JSON       │
-┌──────────────┴───────────────────────────▼──────────┐
-│               后端服务层 (FastAPI)                    │
-│  - app/server/api: REST + WebSocket                 │
-│  - app/server/business: 业务服务（Sim/Runtime）       │
-│  - app/domain/status: 状态提供者/仓储/服务             │
-└──────────────▲───────────────────────────┬──────────┘
-               │ 驱动接口调用   / 数据库      │
-┌──────────────┴───────────────────────────▼──────────┐
-│               核心运行层 (Core/Devices)               │
-│  - app/core: 状态机、配方、事件总线                     │
-│  - app/process: 工艺编排与任务流                       │
-│  - app/devices: 真实与模拟驱动实现                     │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                     用户界面（PySide6/QML）             │
+│  - app/ui/qml/*: 视图、图表、数据模型、异步工作器        │
+│  - app/ui/src/*: Python ↔ QML 桥接、模型封装             │
+│  - app/ui/cmake: 可选的 C++ 扩展（性能焦点）             │
+└─────────────────────────────────────────────────────────┘
+                 │ WebSocket / HTTP JSON
+┌─────────────────────────────────────────────────────────┐
+│                     服务层（FastAPI）                   │
+│  - app/server/api: REST + WebSocket                     │
+│  - app/server/business: 业务服务（Sim / Runtime）        │
+│  - app/domain/status: 状态提供器 / 聚合 / 转换            │
+└─────────────────────────────────────────────────────────┘
+                 │ 设备接口 / 数据库
+┌─────────────────────────────────────────────────────────┐
+│                  核心流程与设备层                       │
+│  - app/core: 状态机、事件系统                           │
+│  - app/process: 研磨流程编排                            │
+│  - app/devices: 真实/模拟驱动实现                       │
+└─────────────────────────────────────────────────────────┘
 ```
 
-UI 经 `app/ui/qml/works` 建立到后端的 WebSocket 连接，实时同步状态与日志；控制指令通过 REST 发送到业务服务，由业务层协调核心运行层执行。
-
+UI 中 `app/ui/qml/works` 目录的 Work 对象负责建立 WebSocket 连接，实时同步状态、日志与控制命令；REST 指令由 `Api.ApiClient` 发送到业务层，业务层再调用设备层执行。
 
 ## 2. 模块职责
 
-### 2.1 核心运行层
-- `app/core/state_machine.py`：加工状态机及事件转移。
-- `app/process/orchestrator.py`：调度加工步骤、与设备交互。
-- `app/devices/*`：封装主轴、运动、相机等设备接口，区分真实/模拟实现。
+### 2.1 核心流程与设备层
+- `app/core/state_machine.py`：统一配置状态转换与事件。
+- `app/process/orchestrator.py`：调度研磨步骤、刀具补偿、设备联动。
+- `app/devices/*`：封装 IO、运动控制、相机等设备接口，包含真实与模拟实现。
 
-### 2.2 后端服务层
-- `app/server/api`：FastAPI 应用入口、REST 控制、WebSocket 状态推送。
-- `app/server/business`：业务服务抽象，`SimBusinessService` 与 `RuntimeBusinessService` 对应模拟/真实环境。
-- `app/domain/status`：状态数据服务，整合不同 `StatusProvider`（模拟、生产）并向业务层提供统一接口。
+### 2.2 服务层
+- `app/server/api`：FastAPI 应用，暴露 REST / WebSocket。
+- `app/server/business`：`SimBusinessService`、`RuntimeBusinessService` 等负责协调数据流。
+- `app/domain/status`：状态聚合器，整合不同 `StatusProvider`（模拟、生产、录播等），向 UI 输出统一结构。
 
 ### 2.3 UI 层
-- `app/ui/qml/views`：界面组件（如 DriveInfo、Charts、Manage）。
-- `app/ui/qml/datas`：单例数据模型（`StatusDatas`, `CuttingDatas`）。
-- `app/ui/qml/works`：WebSocket 工作者，负责连接后端并更新数据模型。
-- `app/ui/src/qml_bridge.py`：Python 向 QML 暴露的桥接对象。  
-- `app/ui/qml.qrc` + `scripts/build_rcc.ps1`：QML 资源编译。
+- `app/ui/qml/views`：界面组件（DriveInfo、Charts、Manage 等）。
+- `app/ui/qml/datas`：数据模型（`StatusDatas`、`CuttingDatas` 等），负责解析 API 响应。
+- `app/ui/qml/works`：异步任务，维护 WebSocket 连接、防抖与重连策略。
+- `app/ui/src/qml_bridge.py`：Python 与 QML 的桥接对象。
+- `app/ui/qml.qrc` + `scripts/build_rcc.ps1`：QML 资源打包脚本。
 
+## 3. 关键数据流
 
-## 3. 数据流与关键交互
+1. **状态推送**：`ws_status` → `BusinessService.fetch_status()` → `StatusModel` → `StatusDatas.ingest()` → `DriveInfoView` / `StatusLightAlarmView` / 图表刷新。
+2. **日志推送**：`ws_logs` → `LogDatas`，供 UI 测试面板查看历史与增量。
+3. **控制命令**：UI 调用 `Api.ApiClient` 的 `POST /control/*`，业务层生成 `ControlCommand` 并路由至设备层执行（急停、复位、停止等）。
+4. **数据源切换**：`app/server/data/context.py` 根据配置注入 `SimBusinessService`、`RpcBusinessService` 或 `RuntimeBusinessService`，并切换 `StatusProvider`。
 
-1. **状态推送**：后端 `ws_status` 周期性调用业务服务的 `fetch_status()`，取得 `StatusModel`，推送给前端。`StatusDatas.ingest()` 更新最新消息，并驱动各视图刷新，如 `DriveInfoView`、`StatusLightAlarmView`、`ElevationAreaChart`。
-2. **日志推送**：`ws_logs` 从业务层读取日志队列，推送到 `LogDatas`。
-3. **控制指令**：UI 调用 `Api.ApiClient` 的 POST 方法，业务服务接收 `ControlCommand` 并委托核心运行层执行（如急停、回零）。
-5. **模拟与真实切换**：`app/server/data/context.py` 默认注入 `RpcBusinessService` 通过 gRPC 汇聚数据，部署到真实设备时可切换为 `RuntimeBusinessService`。
-5. **模拟与真实切换**：`app/server/data/context.py` 默认注入 `SimBusinessService`，可在部署时切换为 `RuntimeBusinessService`，其内部使用真实设备和 `ProductionStatusProvider`。
+### 主控器逻辑简述
 
-### 新增：主控逻辑程序
+`app/controller/main.py` 负责：
+- 读取 JSON 场景（默认 `app/controller/sample_scenarios.json`），生成状态、轨迹、日志等事件序列。
+- 通过 gRPC/HTTP 把状态与日志推送至服务器，服务器再通过 WebSocket 同步给 UI。
+- 支持循环播放、尊重场景内延迟、自动退出或持续运行模式。
 
-独立的主控程序位于 `app/controller/main.py`，核心职责：
-
-- 读取 JSON 场景文件（默认 `app/controller/sample_scenarios.json`），生成状态、位置、转速、切削量等完整载荷；
-- 通过 gRPC 将状态与日志推送到 Server，再由 Server 通过 WebSocket 同步到 UI。
-- 支持循环播放、按场景延时、退出时自动清理覆盖数据等运行模式，可用于联调或模拟产线工况。*** End Patch*** End Patch
-## 4. 运行时序 (示意)
+## 4. 典型时序（简化）
 
 ```
-UI.InfoManageView      Works.StatusWork     ws_status         BusinessService      StatusProvider
-      |                       |                 |                      |                    |
-      |<--QML load------------|                 |                      |                    |
-      |                       |----connect----->|                      |                    |
-      |                       |                 |----fetch_status----->|                    |
-      |                       |                 |                      |----get_status----->|
-      |                       |                 |<---StatusModel-------|<---status dict-----|
-      |<--Datas.StatusDatas---|                 |                      |                    |
-      |   repaint charts      |                 |                      |                    |
+UI.InfoManageView      Works.StatusWork     ws_status     BusinessService     StatusProvider
+      |                       |                 |                 |                 |
+      |<--load QML-----------|                 |                 |                 |
+      |                       |----connect----->|                 |                 |
+      |                       |                 |----fetch------->|                 |
+      |                       |                 |                 |----get--------->|
+      |                       |                 |<---StatusModel--|<---status dict--|
+      |<--StatusDatas.ingest--|                 |                 |                 |
+      |   repaint charts      |                 |                 |                 |
 ```
 
+## 5. 构建与运行
 
-## 5. 部署要点
-
-- **后端**：`python -m app.server.run_api` 启动 FastAPI；可通过环境变量或配置指定使用的业务服务/状态提供者。
-- **前端**：`python -m app.main` 启动 PySide6/QML 应用；确保已执行 `pip install -r requirements.txt`。
-- **静态资源**：修改 QML 后需运行 `powershell -File scripts/build_rcc.ps1` 以重生成 `qml.rcc`（若使用预编译资源）。
-- **测试**：`python -m pytest`；对 API 可额外运行 `python scripts/smoke_api.py`。
-
+- **后端**：`python -m app.server.run_api`，通过环境变量或 CLI 选择业务服务 / 状态提供者。
+- **前端**：`python -m app.main`，确保已执行 `pip install -r requirements.txt`。
+- **资源**：修改 QML 后运行 `powershell -File scripts/build_rcc.ps1` 生成 `qml.rcc`。
+- **测试**：`python -m pytest` 或 `python scripts/smoke_api.py`。
 
 ## 6. 后续改进建议
 
-1. **契约统一**：现前端对状态灯、剖面数据存在多字段兼容逻辑，建议在 `StatusModel` 中新增显式字段并文档化，降低耦合。
-2. **WebSocket 节流**：对大数据（如剖面点集）可采用缓存+按需推送，避免每帧重复发送；前端 `StatusDatas` 也可加入差分更新策略。
-3. **配置化注入**：通过配置文件或环境变量决定启用的 `BusinessService`、`StatusProvider`，并在 `app/server/run_api.py` 中自动加载。
-4. **多语言支持**：利用 `qsTr()` 与 `.ts` 翻译文件，统一字符串编码，消除历史乱码问题。
-5. **文档化流程**：补充设备接入说明、接口契约文档及序列图，方便新成员快速理解整体协作方式。
-
-本说明将随代码迭代更新，建议在引入新模块或重构时同步维护。
-
-
-
+1. **字段统一**：持续收敛 `StatusModel` 字段，避免前端解析多套命名。
+2. **WebSocket 压测**：评估推送频率与 UI 回执，必要时引入批量合并。
+3. **可插拔数据源**：通过配置文件/命令行显式选择 `BusinessService` 与 `StatusProvider`，方便切换真实设备。
+4. **多语言支持**：继续通过 `qsTr()` + `.ts` 文件维护文案，消除历史乱码。
+5. **文档同步**：把硬件接口、通信协议等技术文件集中在 `docs/export/`，保持与代码版本一致。

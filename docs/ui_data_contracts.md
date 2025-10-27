@@ -1,48 +1,56 @@
-﻿# UI <-> API 鏁版嵁濂戠害璇存槑
+﻿# UI <-> API 数据契约说明
 
-鏈枃妗ｆ眹鎬?UI 涓庡悗绔箣闂寸洰鍓嶄娇鐢ㄧ殑涓昏 JSON 瀛楁锛屼究浜?API銆佷富鎺х▼搴忔垨鑷姩鍖栬剼鏈敓鎴?妯℃嫙鏁版嵁鏃跺榻愭牸寮忋€傞櫎闈炵壒鍒鏄庯紝鎵€鏈夎矾寰勫潎浠?`http://<host>:<port>/api` 涓哄墠缂€銆?
+本文档汇总 UI 与后端之间使用的主要 JSON 字段，方便 API、主控程序或自动化脚本在生成模拟数据时保持一致。除特别说明，所有路径均以 `http://<host>:<port>/api` 为前缀。
+
 ---
 
-## 1. 鐘舵€佹暟鎹紙`/ws/status` + `/status/test_payload`锛?
-WebSocket `/ws/status` 鍛ㄦ湡鎺ㄩ€佺殑杞借嵎浼氳 `Datas.StatusDatas.ingest()` / `DriveInfoView.qml` / `StatusLightAlarmView.qml` 绛夌粍浠舵秷璐广€備富鎺х▼搴忔垨娴嬭瘯绐楀彛鍙€氳繃 `POST /status/test_payload` 鍐欏叆鍚屾牱鐨勫瓧娈点€?
-### 1.1 椤跺眰瀛楁
+## 1. 状态数据（`/ws/status` + `/status/test_payload`）
 
-| 瀛楁 | 绫诲瀷 | 璇存槑 | UI 娑堣垂浣嶇疆 |
+WebSocket `/ws/status` 周期推送的载荷会被 `Datas.StatusDatas.ingest()`、`DriveInfoView.qml`、`StatusLightAlarmView.qml` 等组件消费。`POST /status/test_payload` 可写入相同字段用于调试。
+
+### 1.1 顶层字段
+
+| 字段 | 类型 | 说明 | UI 消费位置 |
 | ---- | ---- | ---- | ------------ |
-| `state` | string | 璁惧鐘舵€侊紝甯歌鍊?`IDLE/RUNNING/PAUSED/FAULT` | 椤靛ご杩愯鐘舵€併€丏riveInfo 鍗＄墖 |
-| `run_mode` / `runMode` | string | 褰撳墠杩愯妯″紡 | DeviceInfo 鍗＄墖 |
-| `serial_number` / `serialNumber` | string | 鏈哄彴搴忓垪鍙?| DeviceInfo 鍗＄墖 |
-| `particle_count` / `particleTotal` | number | 绮掑瓙鎬婚噺 | CuttingStatistics |
-| `plane_height` / `planeHeight` | number/string | 骞抽潰楂樺害 | CuttingStatistics |
-| `feed_rate` / `cutting_speed` | number | 鍒囧墛閫熷害锛坢m/s锛?| DriveInfo 鍗＄墖 |
-| `travel_speed` / `motion_speed` | number | 绉诲姩閫熷害 | DriveInfo 鍗＄墖 |
-| `spindle_rpm` | number | 涓昏酱杞€?| DriveInfo + 鎶樼嚎鍥?|
-| `spindle_torque` | number | 涓昏酱鎵煩 | DriveInfo + 鎶樼嚎鍥?|
-| `seriesA` | number | 杞€熸洸绾垮鐢ㄥ€硷紱鑻ュ瓨鍦ㄥ垯鐢ㄤ簬 `Datas.StatusDatas.seriesA` | RpmChart |
-| `seriesB` | number | 鎵煩鏇茬嚎澶囩敤鍊?| TorqueChart |
-| `alerts` | array | 褰㈠紡 `[{level, message}]` 鐨勫憡璀﹀垪琛?| 娴嬭瘯绐楀彛鏃ュ織锛岃嚜琛屾墿灞?|
+| `state` | string | 设备状态，常见 `IDLE/RUNNING/PAUSED/FAULT` | 页头状态标签、DriveInfo 卡片 |
+| `run_mode` / `runMode` | string | 当前运行模式 | DeviceInfo 卡片 |
+| `serial_number` / `serialNumber` | string | 机台序列号 | DeviceInfo 卡片 |
+| `particle_count` / `particleTotal` | number | 粒子总量 | CuttingStatistics |
+| `plane_height` / `planeHeight` | number/string | 平面高度 | CuttingStatistics |
+| `feed_rate` / `cutting_speed` | number | 切削速度（mm/s） | DriveInfo 卡片 |
+| `travel_speed` / `motion_speed` | number | 移动速度 | DriveInfo 卡片 |
+| `spindle_rpm` | number | 主轴转速 | DriveInfo + RpmChart |
+| `spindle_torque` | number | 主轴扭矩 | DriveInfo + TorqueChart |
+| `seriesA` | number | 转速曲线备用值 | RpmChart |
+| `seriesB` | number | 扭矩曲线备用值 | TorqueChart |
+| `alerts` | array | `[{level, message}]` 告警列表 | 测试窗口日志 |
 
-### 1.2 浣嶇疆涓庡Э鎬?
-- `position`: 瀵硅薄 `{ "x": float, "y": float, "z": float, "theta": float }`銆侱riveInfo 鍗＄墖閫愰」鏄剧ず锛岀己澶辨椂浠?`-` 濉厖銆?
-### 1.3 鎸囩ず鐏姸鎬?
-澶氫釜瀹瑰櫒鐨嗗彲鎻愪緵鐏厜鐘舵€侊紝`StatusLightAlarmView` 浼氭寜椤哄簭鏌ユ壘锛?
-- `statusLights`, `lightStates`, `lights`, `light_status`, `lightState`, `extras`锛屼互鍙婇《灞傚璞℃湰韬€? 
-  姣忎釜瀹瑰櫒涓殑 key 鍏佽鍛藉悕鍙樹綋锛堜緥濡?`camera_state`銆乣cameraStatus` 琚浣?`camera`锛夈€?- 鏍囧噯閿€硷細`camera`, `spindle`, `device`, `interlock`, `server`銆傚彇鍊煎彲涓?`RUNNING/READY/FAULT/WARNING` 绛夊瓧绗︿覆鎴栧竷灏斿€笺€?
-### 1.4 其他兼容字段
+### 1.2 位置与姿态
 
-DeviceInfoData.applySnapshot() 会尝试兼容下列别名：
+- `position`: `{ "x": float, "y": float, "z": float, "theta": float }`。DriveInfo 卡片逐项显示，缺失时以 `-` 填充。
 
-- runMode / run_mode；serialNumber / serial_number。
-- planeHeight / plane_height。
-- particleTotal / particle_count。
+### 1.3 指示灯状态
 
-ToolInfoData.applySnapshot() 会尝试兼容下列别名：
+多个容器都可以提供灯光状态，`StatusLightAlarmView` 会按顺序查找以下键：`statusLights`, `lightStates`, `lights`, `light_status`, `lightState`, `extras` 以及顶层对象本身。 
 
-- toolModel / tool_model / toolName。
-- toolDiameter / tool_diameter / cutter_diameter。
-- toolLifetime / tool_life。
-- toolUsage / tool_usage。
-### 1.5 绀轰緥杞借嵎
+- 标准键值：`camera`, `spindle`, `device`, `interlock`, `server`。
+- 取值可为 `RUNNING/READY/FAULT/WARNING` 等字符串，也可为布尔值。命名允许变体（例如 `camera_state`、`cameraStatus` 会被归一到 `camera`）。
+
+### 1.4 信息映射（DeviceInfoData / ToolInfoData）
+
+`DeviceInfoData.applySnapshot()` 会尝试匹配以下字段：
+- `runMode / run_mode`
+- `serialNumber / serial_number`
+- `planeHeight / plane_height`
+- `particleTotal / particle_count`
+
+`ToolInfoData.applySnapshot()` 会匹配：
+- `toolModel / tool_model / toolName`
+- `toolDiameter / tool_diameter / cutter_diameter`
+- `toolLifetime / tool_life`
+- `toolUsage / tool_usage`
+
+### 1.5 示例载荷
 
 ```json
 {
@@ -60,75 +68,52 @@ ToolInfoData.applySnapshot() 会尝试兼容下列别名：
     "device": "RUNNING",
     "interlock": true,
     "server": true
-  },
-  "seriesA": 2350,
-  "seriesB": 0.58
+  }
 }
 ```
 
 ---
 
-## 2. 鍒囧墛鏁版嵁锛坄GET /cutting` + `/cutting/test_payload`锛?
-`Datas.CuttingDatas.update()` 娑堣垂 `/api/cutting` 鐨?JSON锛屽苟涓?`CuttingStatisticsView.qml` 鎻愪緵缁熻鎸囨爣銆?
-| 瀛楁 | 绫诲瀷 | 璇存槑 |
-| ---- | ---- | ---- |
-| `feed_rate` | number | 鍒囧墛閫熷害锛坢m/s锛?|
-| `downfeed_target` | number | 鐩爣杩涚粰閲?|
-| `downfeed_current` | number | 褰撳墠绱杩涚粰閲?|
-| `removal_current` | number | 宸插垏鍓婁綋绉紙mm鲁锛?|
-| `removal_expected` | number | 棰勮鎬诲垏鍓婁綋绉?|
-| `torque` | number | 褰撳墠鎵煩 |
-| `torque_max` | number | 鍘嗗彶鏈€澶ф壄鐭╋紙鍚庣浼氳嚜鍔ㄧ淮鎸佹渶澶у€硷級 |
-| `elapsed_sec` | number | 绱鑰楁椂锛堢锛?|
+## 2. 切削数据（`/cutting` + `/cutting/test_payload`）
 
-> `Datas.CuttingDatas.removalRemaining = removal_expected - removal_current`锛沗CuttingStatisticsView` 涔熶細璺熻釜 `maxFeedRate`锛屽綋鏂?`feed_rate` 鏇村ぇ鏃舵洿鏂般€?
----
-
-## 3. 刀具信息（GET /toolList ）
-UI 通过 `ApiClient.toolList()` 获取最新的刀具列表数据，`Datas.ToolInfoData` 取首条记录填充卡片，其余记录保存在 `toolList` 数组便于扩展。
+`CuttingWork` 每 1s 轮询 `/cutting`，写入 `CuttingDatas` 并驱动统计面板。
 
 | 字段 | 类型 | 说明 |
 | ---- | ---- | ---- |
-| `id` | integer | 主键 |
-| `model` | string | 刀具型号 |
-| `diameter_mm` | number | 刀具直径（mm） |
-| `length_mm` | number | 刀具长度（mm） |
-| `usage_minutes` | integer | 已使用时间（分钟） |
-| `service_life_minutes` | integer | 设计寿命（分钟） |
-| `status` | integer/string | 当前使用状态（0=闲置，1=使用中，2=维护；也可直接返回描述） |
-| `created_at` | string | 创建时间 ISO8601 字符串 |
+| `feed_rate` | number | 进给速度（mm/s）|
+| `downfeed_target` | number | 目标下刀量（mm）|
+| `downfeed_current` | number | 当前下刀量（mm）|
+| `removal_current` | number | 当前去除量（mm³ 或 μm）|
+| `removal_expected` | number | 计划去除量 |
+| `torque` | number | 当前扭矩 |
+| `torque_max` | number | 历史最大扭矩（用于峰值提醒）|
+| `elapsed_sec` | number | 已加工时长 |
 
-旧版 `/toolInfo` 接口返回的平面字段仍会被兼容解析，但推荐切换到 `/toolList`。
-
-## 4. 閰嶇疆&鍏冩暟鎹?
-UI 浠嶄緷璧栦互涓?REST 鎺ュ彛鑾峰彇棰濆淇℃伅锛岀敓鎴愮殑瀛楁涓?`DeviceInfoData` 鍏煎锛?
-| 鎺ュ彛 | 璇存槑 | 鍏抽敭瀛楁 |
-| ---- | ---- | -------- |
-| `GET /config/meta` | 纭欢/宸ヨ鍏冩暟鎹?| `board_serial`, `cutter_diameter`, `tool_life`, `particle_count`, `plane_height` |
-| `GET /config/settings` | 鍒€鍏疯〃绛夐厤缃?| `tool_table[0].name / code` 鐢ㄤ簬鎺ㄥ `toolModel` |
+当字段缺失时，UI 会保留上一帧或以 `0`/`-` 填充。
 
 ---
 
-## 5. 涓绘帶绋嬪簭鍛戒护琛屾憳瑕?
-`python -m app.controller.main` 閫氳繃 REST 灏嗕笂杩板瓧娈垫敞鍏ュ悗绔紝鍙€夊弬鏁帮細
+## 3. 配置 / 元数据（`/config/meta`）
 
-| 鍙傛暟 | 榛樿鍊?| 璇存槑 |
-| ---- | ------ | ---- |
-| `--scenario` | `app/controller/sample_scenarios.json` | 场景文件，可多次指定 |
-| `--loop` | `False` | 循环播放 |
-| `--interval` | `2.0` | 未开启 `--respect-delay` 时的默认间隔 |
-| `--respect-delay` | `False` | 使用场景中定义的 `delay` |
-| `--rpc-server` | `app.config.RPC_LISTEN_ENDPOINT` | gRPC 数据上行目标 |
-| `--rpc-listen` | `app.config.RPC_CONTROL_ENDPOINT` | 控制命令监听地址 |
-| `--rpc-timeout` | `app.config.RPC_TIMEOUT` | gRPC 调用超时时间 |
+配置接口为静态信息，主要绑定以下视图：
+
+| 字段 | 说明 | 消费位置 |
+| ---- | ---- | ---- |
+| `board_serial` | 控制板序列号 | DeviceInfo |
+| `machine_model` | 机床型号 | DeviceInfo |
+| `cutter_diameter` | 刀具直径 | ToolInfo |
+| `tool_life` | 额定寿命 | ToolInfo |
+| `coolant` | 冷却方式 | StatusOverview |
+| `nodes` | 引用 `MzPoliShine.km` 导图的层级描述 | InfoManage/Meta 对话框 |
+
+该接口也会透出 `tool_table`、`table_limits` 等配置，供流程控制或算法模块加载。
 
 ---
 
-## 6. 寮€鍙戞彁绀?
-1. **瀛楁鍏煎绛栫暐**锛歎I 缁勪欢浼氬皾璇曞绉嶅懡鍚嶅埆鍚嶏紝濡傞渶鎵╁睍鏂扮殑瀛楁锛屽缓璁繚鎸侀┘宄?涓嬪垝绾夸袱绉嶅啓娉曞吋瀹广€?2. **浣嶇疆涓庡Э鎬?*锛歚position` 鏈彁渚涙煇鍧愭爣鏃?UI 浼氭樉绀?`-`銆傝嫢濮挎€佸瓧娈典笉闇€瑕侊紝鍙渷鐣ャ€?3. **鎸囩ず鐏?*锛氬瓧绗︿覆涓嶅尯鍒嗗ぇ灏忓啓锛屽父鐢ㄦ槧灏勶細`RUNNING/READY/FAULT/WARNING` 鈫?姝ｅ父/璀﹀憡/鎶ヨ锛屽竷灏斿€?`true/false` 鈫?姝ｅ父/鎶ヨ銆?4. **娴嬭瘯鍏ュ彛**锛歎I F12 娴嬭瘯绐楀彛鐨勨€滄祴璇曟暟鎹敞鍏モ€濋潰鏉垮氨鏄笂杩版帴鍙ｇ殑璋冪敤灏佽锛岃瀵熸寜閽姩浣滄湁鍔╀簬纭鏍煎紡銆?
+## 4. 编写模拟数据的要点
 
-
-
-
-
-
+1. 字段名支持驼峰与下划线，建议两种命名同时输出，便于前端兼容。
+2. 时间戳统一使用秒级浮点或 ISO8601 字符串；UI 侧会优先解析浮点值。
+3. 在测试脚本中调用 `POST /status/test_payload?merge=true` / `POST /cutting/test_payload?merge=true` 可在不影响其余字段的情况下局部更新。
+4. WebSocket 在断线时会自动回放最新一次的快照，务必保证 JSON 可被重复解析。
+5. 添加新字段时同步更新：`docs/ui_data_contracts.md`、`StatusDatas.qml`、`CuttingDatas.qml` 以及相关单元测试。
