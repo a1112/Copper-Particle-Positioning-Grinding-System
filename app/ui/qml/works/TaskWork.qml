@@ -30,6 +30,19 @@ QtObject {
         Datas.TaskDatas.applyState(payload)
         if (payload && payload.workpiece)
           Datas.DeviceInfoData.applyWorkpiece(payload.workpiece)
+        if (payload && payload.gcode) {
+          var gcode = payload.gcode
+          var commands = []
+          if (Array.isArray(gcode)) {
+            commands = gcode
+          } else if (gcode && Array.isArray(gcode.commands)) {
+            commands = gcode.commands
+          }
+          if (commands.length)
+            Datas.CodeDatas.lines = commands
+          else if (payload && payload.gcode !== undefined)
+            Datas.CodeDatas.lines = []
+        }
       } catch (err) {
         console.warn("TaskWork refresh parse failed", err)
       }
@@ -45,6 +58,30 @@ QtObject {
     if (!body.record_id && workpieceId)
       body.workpiece_id = workpieceId
     Api.ApiClient.post("/data/tasks/execute", body, function(resp) {
+      refresh()
+      if (onOk)
+        onOk(resp)
+    }, function(status, message) {
+      if (onErr)
+        onErr(status, message)
+    })
+  }
+
+  function clearCommands(onOk, onErr) {
+    Api.ApiClient.del("/data/tasks/control", function(resp) {
+      refresh()
+      if (onOk)
+        onOk(resp)
+    }, function(status, message) {
+      if (onErr)
+        onErr(status, message)
+    })
+  }
+
+  function deleteCommand(id, onOk, onErr) {
+    if (!id)
+      return
+    Api.ApiClient.del("/data/tasks/control/" + encodeURIComponent(id), function(resp) {
       refresh()
       if (onOk)
         onOk(resp)

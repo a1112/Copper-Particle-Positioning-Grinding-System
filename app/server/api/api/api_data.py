@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import desc, func, select
+from sqlalchemy import delete, desc, func, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
@@ -86,14 +86,17 @@ def _get_workpiece(session: Session, workpiece_id: Optional[int]) -> WorkpieceTa
 
 
 def _serialize_task(row: TaskTable) -> Dict[str, Any]:
+    payload = row.t_payload or {}
     return {
         'id': row.id,
         'name': row.t_task_name,
         'type': row.t_task_type,
         'status': row.t_status,
+        'priority': row.t_priority,
         'workpiece_id': row.t_workpiece_id,
         'record_id': row.t_record_id,
-        'payload': row.t_payload or {},
+        'payload': payload,
+        'command': payload.get('action'),
         'status_detail': row.t_status_detail or {},
         'created_time': row.created_time.isoformat() if row.created_time else None,
         'updated_time': row.updated_time.isoformat() if row.updated_time else None,
@@ -251,15 +254,50 @@ def task_state_summary(session: Session = Depends(get_db_session)) -> Dict[str, 
     capture_ready = bool(latest_capture and latest_capture.t_status == int(TaskStatus.COMPLETED))
     execute_ready = capture_ready and not execute_active
 
+    control_rows = (
+        session.execute(
+            select(TaskTable)
+            .where(TaskTable.t_task_type == int(TaskType.CONTROL))
+            .order_by(desc(TaskTable.id))
+        )
+        .scalars()
+        .all()
+    )
+    control_commands = [_serialize_task(row) for row in control_rows]
+
+    gcode_payload: Any = None
+    if record and record.r_algorithm_data:
+        gcode_payload = record.r_algorithm_data
+
     return {
         'workpiece': _serialize_workpiece(workpiece) if workpiece else None,
         'latest_record': record.id if record else None,
         'capture': _serialize_task(latest_capture) if latest_capture else None,
         'execute': _serialize_task(latest_execute) if latest_execute else None,
         'control': _serialize_task(latest_control) if latest_control else None,
+        'command_list': control_commands,
         'ready': {
             'capture': not bool(capture_active),
             'execute': execute_ready,
             'record_id': record.id if record else None,
         },
+        'gcode': gcode_payload,
     }
+
+
+@router.delete('/data/tasks/control/{task_id}')
+def delete_control_task(task_id: int, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
+    row = session.get(TaskTable, task_id)
+    if row is None or row.t_task_type != int(TaskType.CONTROL):
+        raise HTTPException(status_code=404, detail='Control task not found')
+    session.delete(row)
+    session.commit()
+    return {'ok': True, 'task_id': task_id}
+
+
+@router.delete('/data/tasks/control')
+def clear_control_tasks(session: Session = Depends(get_db_session)) -> Dict[str, Any]:
+    stmt = delete(TaskTable).where(TaskTable.t_task_type == int(TaskType.CONTROL))
+    result = session.execute(stmt)
+    session.commit()
+    return {'ok': True, 'deleted': result.rowcount or 0}

@@ -295,55 +295,44 @@ Popup {
         return
       var row = {
         sequence: seq++,
-        source: sourceLabel || "-"
+        source: sourceLabel || '-',
+        id: undefined
       }
-      if (typeof entry === "string") {
-        row.commandText = safeText(entry, "-")
-      } else if (typeof entry === "object") {
-        row.sequence = readValue(entry, ["sequence", "seq", "order", "index", "step"]) || row.sequence
+      if (typeof entry === 'string') {
+        row.commandText = safeText(entry, '-')
+      } else if (typeof entry === 'object') {
+        row.id = readValue(entry, ['id', 'task_id', 'taskId']) || row.id
+        row.sequence = readValue(entry, ['sequence', 'seq', 'order', 'index', 'step']) || row.sequence
         row.commandText = safeText(
-              readValue(entry, ["command", "cmd", "command_text", "text", "instruction", "display"]),
-              "-"
+              readValue(entry, ['command', 'cmd', 'command_text', 'text', 'instruction', 'display', 'action', 'name']),
+              '-'
             )
-        var payload = entry.payload && typeof entry.payload === "object" ? entry.payload : entry
-        row.ex = asNumber(readValue(payload, ["ex", "dx", "offset_x", "offsetX", "x"]))
-        row.ey = asNumber(readValue(payload, ["ey", "dy", "offset_y", "offsetY", "y"]))
-        row.ez = asNumber(readValue(payload, ["ez", "dz", "offset_z", "offsetZ", "z", "depth"]))
-        row.rpm = asNumber(readValue(payload, ["spindle_rpm", "rpm", "r", "speed_rpm"]))
-        row.velocity = asNumber(readValue(payload, ["velocity", "feed", "feed_rate", "feedRate", "v"]))
-        row.statusRaw = readValue(entry, ["status", "state", "phase", "result"])
-        row.timestampRaw = readValue(entry, ["timestamp", "ts", "time", "created_time", "updated_time"])
-        row.message = safeText(readValue(entry, ["message", "msg", "detail", "note"]), "")
-        row.source = safeText(readValue(entry, ["source", "origin", "from"]), row.source)
+        var payload = entry.payload && typeof entry.payload === 'object' ? entry.payload : entry
+        row.ex = asNumber(readValue(payload, ['ex', 'dx', 'offset_x', 'offsetX', 'x']))
+        row.ey = asNumber(readValue(payload, ['ey', 'dy', 'offset_y', 'offsetY', 'y']))
+        row.ez = asNumber(readValue(payload, ['ez', 'dz', 'offset_z', 'offsetZ', 'z', 'depth']))
+        row.rpm = asNumber(readValue(payload, ['spindle_rpm', 'rpm', 'r', 'speed_rpm']))
+        row.velocity = asNumber(readValue(payload, ['velocity', 'feed', 'feed_rate', 'feedRate', 'v']))
+        row.statusRaw = readValue(entry, ['status', 'state', 'phase', 'result'])
+        row.timestampRaw = readValue(entry, ['timestamp', 'ts', 'time', 'created_time', 'updated_time'])
+        row.message = safeText(readValue(entry, ['message', 'msg', 'detail', 'note']), '')
+        row.source = safeText(readValue(entry, ['source', 'origin', 'from']), row.source)
+        if (!row.commandText || row.commandText === '-')
+          row.commandText = safeText(readValue(payload, ['action', 'command']), '-')
       } else {
-        row.commandText = safeText(entry, "-")
+        row.commandText = safeText(entry, '-')
       }
-      row.statusText = row.statusRaw ? taskStatusText(row.statusRaw) : "-"
+      if (row.id === undefined)
+        row.id = row.sequence
+      if (row.id !== undefined)
+        row.sequence = row.id
+      row.statusText = row.statusRaw ? taskStatusText(row.statusRaw) : '-'
       row.statusTone = statusColor(row.statusRaw)
       row.timestamp = formatTimestamp(row.timestampRaw)
       rows.push(row)
     }
 
-    var payloadCommands = controlTask && controlTask.payload ? controlTask.payload.commands : null
-    normalizeArray(payloadCommands).forEach(function(cmd) { appendEntry(cmd, qsTr("控制任务")); })
-
-    var statusKeys = [
-      "control_commands",
-      "controlCommands",
-      "commands",
-      "commandQueue",
-      "command_queue",
-      "command_history",
-      "commandHistory",
-      "instruction_list",
-      "instructionList",
-      "instructions"
-    ]
-    for (var i = 0; i < statusKeys.length; ++i) {
-      var key = statusKeys[i]
-      if (statusSnapshot[key] !== undefined)
-        normalizeArray(statusSnapshot[key]).forEach(function(item) { appendEntry(item, qsTr("状态快照")); })
-    }
+    normalizeArray(Datas.TaskDatas.controlCommands).forEach(function(cmd) { appendEntry(cmd, qsTr('任务指令')); })
     return rows
   }
 
@@ -651,15 +640,21 @@ Popup {
 
               RowLayout {
                 Layout.fillWidth: true
+                spacing: 10
                 Label {
-                  text: qsTr("控制指令队列")
+                  text: qsTr('任务指令列表')
                   font.pixelSize: 18
                   font.bold: true
                   color: Cores.CoreStyle.text
                 }
                 Item { Layout.fillWidth: true }
+                Button {
+                  text: qsTr('清空指令')
+                  enabled: commandModel.length > 0 && Datas.StatusDatas.controlEnabled
+                  onClicked: Works.TaskWork.clearCommands()
+                }
                 Label {
-                  text: commandModel.length ? qsTr("共 %1 条").arg(commandModel.length) : qsTr("暂无指令")
+                  text: commandModel.length ? qsTr('共 %1 条').arg(commandModel.length) : qsTr('暂无指令')
                   color: Cores.CoreStyle.muted
                 }
               }
@@ -675,16 +670,16 @@ Popup {
                   anchors.fill: parent
                   anchors.margins: 8
                   spacing: 12
-                  Label { text: qsTr("序号"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 60 }
-                  Label { text: qsTr("指令"); color: Cores.CoreStyle.muted; Layout.fillWidth: true }
-                  Label { text: qsTr("位移(mm)"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 140 }
-                  Label { text: qsTr("转速"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 90 }
-                  Label { text: qsTr("速度"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 90 }
-                  Label { text: qsTr("状态"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 100 }
-                  Label { text: qsTr("时间"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 160 }
-                  Label { text: qsTr("备注"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 180 }
+                  Label { text: qsTr('序号'); color: Cores.CoreStyle.muted; Layout.preferredWidth: 60 }
+                  Label { text: qsTr('指令'); color: Cores.CoreStyle.muted; Layout.fillWidth: true }
+                  Label { text: qsTr('位移(mm)'); color: Cores.CoreStyle.muted; Layout.preferredWidth: 140 }
+                  Label { text: qsTr('转速'); color: Cores.CoreStyle.muted; Layout.preferredWidth: 90 }
+                  Label { text: qsTr('进给'); color: Cores.CoreStyle.muted; Layout.preferredWidth: 90 }
+                  Label { text: qsTr('状态'); color: Cores.CoreStyle.muted; Layout.preferredWidth: 100 }
+                  Label { text: qsTr('时间'); color: Cores.CoreStyle.muted; Layout.preferredWidth: 160 }
+                  Label { text: qsTr('备注'); color: Cores.CoreStyle.muted; Layout.preferredWidth: 180 }
+                  Label { text: qsTr('操作'); color: Cores.CoreStyle.muted; Layout.preferredWidth: 80 }
                 }
-              }
 
               Repeater {
                 model: commandModel
@@ -741,6 +736,12 @@ Popup {
                       color: Cores.CoreStyle.muted
                       wrapMode: Text.Wrap
                       Layout.preferredWidth: 180
+                    }
+                    Button {
+                      text: qsTr('删除')
+                      enabled: Datas.StatusDatas.controlEnabled && modelData && modelData.id
+                      Layout.preferredWidth: 80
+                      onClicked: Works.TaskWork.deleteCommand(modelData.id)
                     }
                   }
                 }

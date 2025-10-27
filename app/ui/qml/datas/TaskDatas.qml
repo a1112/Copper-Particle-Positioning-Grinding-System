@@ -15,6 +15,8 @@ QtObject {
   property var executeTask: ({})
   property var controlTask: ({})
   property var readyState: ({})
+  property var controlCommands: []
+  property var gcodeData: ({})
 
   property bool captureReady: true
   property bool executeReady: true
@@ -31,6 +33,8 @@ QtObject {
     executeTask = ({})
     controlTask = ({})
     readyState = ({})
+    controlCommands = []
+    gcodeData = ({})
     captureReady = true
     executeReady = true
     controlReady = true
@@ -42,6 +46,21 @@ QtObject {
     if (typeof input === "object")
       return input
     return ({ value: input })
+  }
+
+  function _normalizeList(value) {
+    if (value === undefined || value === null)
+      return []
+    if (Array.isArray(value))
+      return value
+    if (typeof value === "object") {
+      if (Array.isArray(value.items))
+        return value.items
+      if (Array.isArray(value.list))
+        return value.list
+      return [value]
+    }
+    return [value]
   }
 
   function applyState(payload) {
@@ -65,6 +84,8 @@ QtObject {
     executeTask = _clone(payload.execute)
     controlTask = _clone(payload.control)
     readyState = _clone(payload.ready)
+    controlCommands = _normalizeList(payload.command_list)
+    gcodeData = payload && payload.gcode ? payload.gcode : ({})
 
     captureReady = !!(readyState.capture !== false)
     executeReady = !!readyState.execute
