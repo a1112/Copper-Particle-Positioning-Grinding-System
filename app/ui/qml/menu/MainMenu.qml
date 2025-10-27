@@ -61,16 +61,16 @@ Menu {
     MenuSeparator { }
 
     MenuItem {
-      text: (appWindow && appWindow.visibility === Window.FullScreen)
+      text: (win && win.visibility === Window.FullScreen)
             ? qsTr("全屏")
             : qsTr("进入全屏")
       onTriggered: {
-        if (!appWindow)
+        if (!win)
           return
-        if (appWindow.visibility === Window.FullScreen)
-          appWindow.showMaximized()
+        if (win.visibility === Window.FullScreen)
+          win.showMaximized()
         else
-          appWindow.showFullScreen()
+          win.showFullScreen()
       }
     }
 
