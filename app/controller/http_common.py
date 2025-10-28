@@ -283,11 +283,7 @@ class DbStatusSource(StatusSourceProtocol):
         motion_speed = self._to_float(row.s_point_motion_speed) or 0.0
         temperature = self._to_float(row.s_temperature)
 
-        position = (
-            self._parse_xyz(row.p_work_position)
-            if row.p_work_position
-            else self._parse_xyz(row.p_absolute_position)
-        )
+        position = self._parse_xyz(row.p_absolute_position)
 
         lights = {
             "controller": "RUNNING",
@@ -397,13 +393,13 @@ class DbStatusSource(StatusSourceProtocol):
                 heartbeat_dt = heartbeat
             lag = max(0.0, (now_dt - heartbeat_dt).total_seconds())
 
+        timeout = max(self._runner_timeout, 1.0)
         health: Dict[str, Any] = {
             "status": "unknown",
             "lag_seconds": round(lag, 3) if lag is not None else None,
             "last_heartbeat": heartbeat.isoformat() if heartbeat else None,
             "timeout_seconds": timeout,
         }
-        timeout = max(self._runner_timeout, 1.0)
         alert_key = "task_runner_offline"
 
         if lag is None:
@@ -413,7 +409,7 @@ class DbStatusSource(StatusSourceProtocol):
             self._emit_runner_alert(payload, health, alert_key)
         elif lag > timeout:
             health["status"] = "error"
-            health["message"] = f"任务执行程序已离线 (延迟 {lag:.1f}s)"
+            health["message"] = f"任务执行程序已离线（延迟 {lag:.1f}s）"
             health["alert_key"] = alert_key
             self._emit_runner_alert(payload, health, alert_key)
             payload["lights"]["controller"] = "FAULT"
@@ -534,7 +530,7 @@ class TaskQueueWriter:
     @classmethod
     def _friendly_action_name(cls, action: str) -> str:
         key = cls._normalise_action(action)
-        return cls.ACTION_NAME_MAP.get(key, action or "控制指令")
+        return cls.ACTION_NAME_MAP.get(key, action or "鎺у埗鎸囦护")
 
     def log_control_task(
         self,

@@ -33,6 +33,11 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         default_label="http-prod",
         default_db_url=PROD_DB_URL,
     )
+    parser.add_argument(
+        "--spawn-demo-runner",
+        action="store_true",
+        help="同时启动内置 DemoTaskRunner（默认关闭，需要单独运行 demo_task_runner）。",
+    )
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     if not logging.getLogger().handlers:
@@ -47,11 +52,15 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         status_source = DbStatusSource(args.db_url)
         fallback_source = SimulatedStatusSource()
         task_writer = TaskQueueWriter(status_source.session_factory, engine=status_source.engine)
-        task_runner = DemoTaskRunner(
-            status_source.session_factory,
-            save_dir=SAVE_DATA_DIR,
-            task_writer=task_writer,
-        )
+        if getattr(args, "spawn_demo_runner", False):
+            task_runner = DemoTaskRunner(
+                status_source.session_factory,
+                save_dir=SAVE_DATA_DIR,
+                task_writer=task_writer,
+            )
+            LOG.info("Inline DemoTaskRunner 已启用 (--spawn-demo-runner)。")
+        else:
+            LOG.info("未启用内置 DemoTaskRunner，请单独运行 `python -m app.controller.demo_task_runner`。")
     except Exception as exc:
         LOG.error("Unable to initialise production database source: %s", exc)
         raise SystemExit(1) from exc

@@ -473,7 +473,7 @@ class DemoTaskRunner:
         row = session.execute(select(StatusTable).limit(1)).scalar_one_or_none()
         if row is None:
             return False
-        row.status_time = datetime.utcnow()
+        row.status_time = datetime.now()
         return True
 
     def _build_demo_path(self, commands: list[dict]) -> list[dict]:
