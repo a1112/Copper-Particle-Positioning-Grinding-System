@@ -26,9 +26,10 @@ from app.controller.httpbridge import HttpControllerService
 from app.common.tasks import TaskStatus, TaskType
 
 try:
-    from app.db.models.MzPoliShineDB import HardwareTaskQueue, StatusTable
+    from app.db.models.MzPoliShineDB import CuttingStatusTable, HardwareTaskQueue, StatusTable
 except Exception:  # pragma: no cover - optional dependency path
     StatusTable = None  # type: ignore[assignment]
+    CuttingStatusTable = None
     HardwareTaskQueue = None  # type: ignore[assignment]
 
 LOG = logging.getLogger("controller.http")
@@ -608,25 +609,39 @@ class TaskQueueWriter:
                 pass
 
 
-def _build_cutting_payload(state: ControllerState, timestamp: float, cycle: float) -> Dict[str, object]:
-    feed = 20.0 + 4.0 * math.sin(cycle * 0.33)
-    downfeed_target = 0.75
-    downfeed_current = downfeed_target * (0.5 + 0.5 * (1 + math.sin(cycle * 0.1)) / 2)
-    removal_expected = 120.0
-    removal_current = removal_expected * (0.3 + 0.2 * (1 + math.sin(cycle * 0.08)))
-    torque = state.torque_bias + 0.12 * abs(math.sin(cycle * 0.55))
+def _read_cutting_payload(session_factory: sessionmaker) -> Dict[str, object]:
+    if CuttingStatusTable is None:
+        raise RuntimeError("CuttingStatusTable model unavailable; ensure database models are generated")
 
-    return {
-        "ts": timestamp,
+    with session_factory() as session:
+        row = session.execute(select(CuttingStatusTable).limit(1)).scalar_one_or_none()
+
+    if row is None:
+        raise RuntimeError("CuttingStatusTable currently has no records")
+
+    def _scalar(value: Optional[Decimal | float | int]) -> float:
+        if value is None:
+            return 0.0
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0.0
+
+    feed = _scalar(row.feed_rate)
+    torque = _scalar(row.torque)
+    elapsed = _scalar(row.elapsed_sec)
+    spindle_rpm = _scalar(row.spindle_rpm)
+
+    payload: Dict[str, object] = {
+        "ts": time.time(),
         "feed_rate": round(feed, 3),
-        "downfeed_target": round(downfeed_target, 3),
-        "downfeed_current": round(downfeed_current, 3),
-        "removal_current": round(removal_current, 3),
-        "removal_expected": round(removal_expected, 3),
-        "torque_max": round(max(torque, state.torque_bias + 0.15), 3),
         "torque": round(torque, 3),
-        "elapsed_sec": round(cycle, 2),
+        "torque_max": round(torque, 3),
+        "elapsed_sec": round(elapsed, 3),
     }
+    if spindle_rpm:
+        payload["spindle_rpm"] = round(spindle_rpm, 2)
+    return payload
 
 
 def _flush_command_logs(
@@ -837,6 +852,10 @@ async def run_controller(
     service.start()
     LOG.info("Control listener ready at http://%s:%s/control", control_host, control_port)
 
+    session_factory = getattr(status_source, "session_factory", None)
+    if session_factory is None:
+        raise RuntimeError("Status source does not expose session_factory; cutting telemetry requires database access.")
+
     stop_event = asyncio.Event()
 
     def _signal_handler(*_: Any) -> None:
@@ -856,13 +875,13 @@ async def run_controller(
             try:
                 status_payload = status_source.build(state, timestamp, cycle)
             except Exception as exc:
-                LOG.error("Status build failed: %s", exc)
-                if fallback_source is not None:
-                    status_payload = fallback_source.build(state, timestamp, cycle)
-                else:
-                    await asyncio.sleep(args.interval)
-                    continue
-            cutting_payload = _build_cutting_payload(state, timestamp, cycle)
+                LOG.exception("Status build failed and fallback is disabled.")
+                raise
+            try:
+                cutting_payload = _read_cutting_payload(session_factory)
+            except Exception as exc:
+                LOG.exception("Cutting payload build failed.")
+                raise
 
             try:
                 ok_status = service.publish_status(status_payload)
@@ -957,3 +976,8 @@ async def run_controller(
                 pass
         if task_writer is not None:
             task_writer.close()
+
+
+
+
+

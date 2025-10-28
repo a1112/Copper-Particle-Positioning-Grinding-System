@@ -49,6 +49,32 @@
 
 ### 2.2 关键字段说明
 
+- `cutting_status_table`（新增，单条记录）用于向 HTTP 控制器提供切削实时数据，字段如下：
+  - `feed_rate`：进给速度（mm/s）
+  - `torque`：主轴扭矩（N·m）
+  - `elapsed_sec`：累计执行时长（秒）
+  - `spindle_rpm`：主轴转速（rpm）
+  - `updated_time` / `created_time`
+
+  该表主键恒定为 1，运行前请手动插入初始数据，并在需要时更新这些数值。
+  示例建表 / 初始化 SQL：
+
+  ```sql
+  CREATE TABLE IF NOT EXISTS cutting_status_table (
+      id BIGINT PRIMARY KEY CHECK (id = 1),
+      feed_rate DECIMAL(10,3) NOT NULL DEFAULT 0,
+      torque DECIMAL(10,3) NOT NULL DEFAULT 0,
+      elapsed_sec DECIMAL(10,3) NOT NULL DEFAULT 0,
+      spindle_rpm DECIMAL(10,2) NOT NULL DEFAULT 0,
+      created_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  );
+
+  INSERT INTO cutting_status_table (id, feed_rate, torque, elapsed_sec, spindle_rpm)
+  VALUES (1, 0, 0, 0, 0)
+  ON DUPLICATE KEY UPDATE updated_time = NOW();
+  ```
+
 - `task_table.t_payload`：CAPTURE 保存目标目录与备注；CONTROL 保存 `commands`；EXECUTE 保存关联 `record_id`。
 - `task_table.t_status_detail`：记录 `phase`、`started_at`、`updated_at`、`finished_at` 等细节，供 UI 展示。
 - `record_table.r_algorithm_data`：包含 `commands`（控制命令列表）、`path_preview`（路径可视化数据）、`artifact_folder`（文件夹路径）等。
