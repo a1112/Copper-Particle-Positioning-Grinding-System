@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.db.models.MzPoliShineDB import CuttingStatusTable, WorkpieceTable
+from app.db.models.MzPoliShineDB import CuttingStatusTable, StatusTable, WorkpieceTable
 from app.db.models.tool_record import ToolRecord
 
 LOG = logging.getLogger(__name__)
@@ -71,8 +71,10 @@ def _default_workpiece() -> WorkpieceTable:
         w_workpiece_id="WP-DEMO-0001",
         w_workpiece_type="DEMO",
         w_material="Copper",
-        w_dimensions="100x100x10",
+        w_dimensions="100,100,10",
         w_surface_requirement="Ra <= 0.2",
+        w_roughness_required=decimal.Decimal("0.200"),
+        w_roughness_actual=decimal.Decimal("0.000"),
         w_status=0,
     )
 
@@ -95,6 +97,55 @@ def seed_workpiece_data(session_factory: Iterable[Session] | None = None) -> Non
         if session is not None:
             session.rollback()
         LOG.warning("Workpiece data seeding failed: %s", exc, exc_info=False)
+    finally:
+        if session is not None:
+            session.close()
+
+
+def _default_status() -> StatusTable:
+    return StatusTable(
+        id=1,
+        c_run_status=0,
+        c_alarm_status=0,
+        c_control_mode=0,
+        c_machine_mode=0,
+        s_temperature=decimal.Decimal("0.00"),
+        s_spindle_speed=0,
+        s_feed_speed=0,
+        s_point_motion_speed=0,
+        s_tool_diameter=decimal.Decimal("0.00"),
+        s_line_spacing=decimal.Decimal("0.00"),
+        s_total_cutting_depth=decimal.Decimal("0.00"),
+        s_clearance_speed=0,
+        s_work_surface_height=decimal.Decimal("0.00"),
+        s_cutting_depth=decimal.Decimal("0.00"),
+        s_step_distance=decimal.Decimal("0.00"),
+        f_fixture_status=0,
+        p_absolute_position="0,0,0",
+        p_relative_position="0,0,0",
+        p_work_position="0,0,0",
+        p_remaining_distance="0,0,0",
+    )
+
+
+def seed_status_data(session_factory: Iterable[Session] | None = None) -> None:
+    """Ensure status_table contains its singleton monitoring record."""
+
+    factory = session_factory or SessionLocal
+    session: Session | None = None
+    try:
+        session = factory() if callable(factory) else next(iter(factory))
+        exists = session.execute(select(StatusTable.id).limit(1)).first()
+        if exists:
+            return
+        record = _default_status()
+        session.add(record)
+        session.commit()
+        LOG.info("Seeded default status record id=%s", record.id)
+    except Exception as exc:
+        if session is not None:
+            session.rollback()
+        LOG.warning("Status data seeding failed: %s", exc, exc_info=False)
     finally:
         if session is not None:
             session.close()

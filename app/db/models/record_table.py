@@ -15,6 +15,7 @@ class RecordTable(Base):
     )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment='主键ID')
+    workpiece_id = mapped_column(BigInteger, comment='workpiece_id')
     r_progress_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='进度数据')
     r_camera_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='相机数据')
     r_algorithm_data: Mapped[Optional[dict]] = mapped_column(JSON, comment='算法数据')

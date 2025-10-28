@@ -15,6 +15,7 @@ from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
 from app.server.api.api_core import app, include_router
 from app.server.data import get_backend
+from db.seed import seed_cutting_status_data
 
 
 def _ensure_module_alias(name: str, module: Any) -> None:
@@ -48,6 +49,7 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
 
             seed_tool_data(app_db.SessionLocal)
             seed_workpiece_data(app_db.SessionLocal)
+            seed_cutting_status_data()
         except Exception as exc:
             if log:
                 try:
@@ -71,10 +73,6 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
     )
     from app.server.api.ws import ws_code, ws_logs, ws_status
     # Inject image provider if available
-    try:
-        setattr(api_image, "provider", provider)
-    except Exception:
-        pass
     include_router()
 
     async def _status_fn():
