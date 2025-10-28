@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import decimal
 import logging
 from typing import Iterable, Sequence
 
@@ -7,8 +8,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.db.models.tool import ToolRecord
-from app.db.models.MzPoliShineDB import WorkpieceTable
+from app.db.models.MzPoliShineDB import CuttingStatusTable, WorkpieceTable
+from app.db.models.tool_record import ToolRecord
 
 LOG = logging.getLogger(__name__)
 
@@ -94,6 +95,39 @@ def seed_workpiece_data(session_factory: Iterable[Session] | None = None) -> Non
         if session is not None:
             session.rollback()
         LOG.warning("Workpiece data seeding failed: %s", exc, exc_info=False)
+    finally:
+        if session is not None:
+            session.close()
+
+
+def _default_cutting_status() -> CuttingStatusTable:
+    return CuttingStatusTable(
+        id=1,
+        feed_rate=decimal.Decimal("0.000"),
+        torque=decimal.Decimal("0.000"),
+        elapsed_sec=decimal.Decimal("0.000"),
+        spindle_rpm=decimal.Decimal("0.00"),
+    )
+
+
+def seed_cutting_status_data(session_factory: Iterable[Session] | None = None) -> None:
+    """Ensure cutting_status_table contains a default row required by status polling."""
+
+    factory = session_factory or SessionLocal
+    session: Session | None = None
+    try:
+        session = factory() if callable(factory) else next(iter(factory))
+        exists = session.execute(select(CuttingStatusTable.id).limit(1)).first()
+        if exists:
+            return
+        record = _default_cutting_status()
+        session.add(record)
+        session.commit()
+        LOG.info("Seeded default cutting status record id=%s", record.id)
+    except Exception as exc:
+        if session is not None:
+            session.rollback()
+        LOG.warning("Cutting status data seeding failed: %s", exc, exc_info=False)
     finally:
         if session is not None:
             session.close()

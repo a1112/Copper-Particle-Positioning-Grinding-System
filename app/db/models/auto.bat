@@ -1,1 +1,1 @@
-sqlacodegen --generator dataclasses "mysql+pymysql://remote_user:123456@192.168.1.214/MzPoliShineDB?charset=utf8mb4" > MzPoliShineDB2.py
+sqlacodegen --generator dataclasses "mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4" > MzPoliShineDB2.py

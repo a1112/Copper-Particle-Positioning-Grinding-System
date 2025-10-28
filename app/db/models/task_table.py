@@ -39,7 +39,7 @@ class TaskTable(Base):
         TINYINT,
         default=0,
         server_default=text("'0'"),
-        comment="任务状态（0-待执行，1-执行中，2-已完成，3-暂停，4-取消）",
+        comment="",
     )
     t_progress: Mapped[Optional[decimal.Decimal]] = mapped_column(
         DECIMAL(5, 2), server_default=text("'0.00'"), comment="进度百分比"

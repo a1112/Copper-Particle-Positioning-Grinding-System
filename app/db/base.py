@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 from typing import Any, Dict, Iterable, Tuple
 
@@ -12,8 +13,15 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 LOG = logging.getLogger(__name__)
 
-# PRIMARY_DB_URL = "mysql+pymysql://mz:123456@192.168.2.32/MzPoliShineDB?charset=utf8mb4"
-FALLBACK_DB_URL = "mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4"
+PRIMARY_DB_URL = os.getenv(
+    "PRIMARY_DB_URL",
+    "mysql+pymysql://mz:123456@192.168.2.32/MzPoliShineDB?charset=utf8mb4",
+)
+LOCAL_DB_URL = os.getenv(
+    "LOCAL_DB_URL",
+    "mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
+)
+ENV_DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 def _sqlite_path() -> Path:
@@ -85,11 +93,33 @@ def _attempt_connect(url: URL, label: str) -> Engine:
     return engine
 
 
+def _is_loc_environment() -> bool:
+    """Determine whether to use the local database connection."""
+    for value in (
+        os.getenv("IS_LOC"),
+        os.getenv("APP_ENV"),
+        os.getenv("ENV"),
+        os.getenv("RUN_ENV"),
+    ):
+        if not value:
+            continue
+        lowered = value.strip().lower()
+        if lowered in {"loc", "local", "1", "true", "yes"}:
+            return True
+    return False
+
+
+def _select_db_url() -> Tuple[str, URL]:
+    if ENV_DATABASE_URL:
+        return "env", make_url(ENV_DATABASE_URL)
+    if _is_loc_environment():
+        return "local", make_url(LOCAL_DB_URL)
+    return "primary", make_url(PRIMARY_DB_URL)
+
+
 def _initialise_engine() -> Tuple[Engine, str]:
-    candidates: Iterable[Tuple[str, URL]] = (
-        ("primary", make_url(FALLBACK_DB_URL)),
-        ("fallback", make_url(FALLBACK_DB_URL)),
-    )
+    label, url = _select_db_url()
+    candidates: Iterable[Tuple[str, URL]] = ((label, url),)
     last_error: Exception | None = None
     for label, url in candidates:
         try:

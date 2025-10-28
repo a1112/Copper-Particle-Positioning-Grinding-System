@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..api_core import tool_router as router
 from app.db import SessionLocal
-from app.db.models.tool import ToolRecord
+from app.db.models.tool_record import ToolRecord
 
 
 def get_db_session():
