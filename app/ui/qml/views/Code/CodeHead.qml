@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -67,7 +67,7 @@ RowLayout {
 
   Btns.ActionButton {
     text: qsTr("Run")
-    enabled: Datas.StatusDatas.controlEnabled
+    enabled: Datas.StatusDatas.controlEnabled && !Datas.TaskDatas.alarmLocked
     onClicked: Api.ApiClient.startRun()
   }
 
@@ -79,3 +79,5 @@ RowLayout {
   }
 }
 }
+
+

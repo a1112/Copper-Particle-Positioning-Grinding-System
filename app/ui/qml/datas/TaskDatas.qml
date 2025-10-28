@@ -21,6 +21,8 @@ QtObject {
   property bool captureReady: true
   property bool executeReady: true
   property bool controlReady: true
+  property int alarmMaxLevel: 0
+  property bool alarmLocked: false
 
   function reset() {
     workpieceId = 0
@@ -38,6 +40,8 @@ QtObject {
     captureReady = true
     executeReady = true
     controlReady = true
+    alarmMaxLevel = 0
+    alarmLocked = false
   }
 
   function _clone(input) {
@@ -90,5 +94,12 @@ QtObject {
     captureReady = !!(readyState.capture !== false)
     executeReady = !!readyState.execute
     controlReady = !!(readyState.control === undefined || readyState.control)
+    if (payload.alarm_max_level !== undefined) {
+      var maxLevelValue = Number(payload.alarm_max_level)
+      alarmMaxLevel = isNaN(maxLevelValue) ? 0 : maxLevelValue
+    } else {
+      alarmMaxLevel = 0
+    }
+    alarmLocked = !!payload.alarm_requires_reset
   }
 }

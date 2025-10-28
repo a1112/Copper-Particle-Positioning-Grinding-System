@@ -14,6 +14,7 @@ Rectangle {
   border.color: "#1f2a3b"
   anchors.margins: 0
   height: 50
+  required property var statePageCore
   RowLayout {
     id:row
     anchors.fill: parent

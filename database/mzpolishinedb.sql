@@ -231,6 +231,33 @@ CREATE TABLE `record_table`  (
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for alarm_table
+-- ----------------------------
+DROP TABLE IF EXISTS `alarm_table`;
+CREATE TABLE `alarm_table`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `record_id` bigint NOT NULL COMMENT '关联记录ID',
+  `alarm_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '报警类型',
+  `alarm_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '报警代码',
+  `alarm_message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '报警信息',
+  `alarm_level` tinyint NOT NULL DEFAULT 0 COMMENT '报警等级',
+  `handled_status` tinyint NOT NULL DEFAULT 0 COMMENT '处理状态（0-未处理，1-处理中，2-已处理）',
+  `alarm_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '报警时间',
+  `handled_time` datetime NULL DEFAULT NULL COMMENT '处理时间',
+  `handler` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '处理人',
+  `created_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_record_id`(`record_id` ASC) USING BTREE,
+  INDEX `idx_alarm_level`(`alarm_level` ASC) USING BTREE,
+  CONSTRAINT `fk_alarm_record` FOREIGN KEY (`record_id`) REFERENCES `record_table` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '报警信息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of alarm_table
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for status_table
 -- ----------------------------
 DROP TABLE IF EXISTS `status_table`;

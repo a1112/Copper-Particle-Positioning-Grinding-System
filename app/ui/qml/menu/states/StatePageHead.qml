@@ -10,6 +10,7 @@ RowLayout {
   Layout.fillWidth: true
   height: 26
   spacing: 10
+  required property var statePageCore
   Label {
     text: qsTr("指令状态与报警中心")
     font.pixelSize: 22

@@ -1,7 +1,8 @@
 ﻿from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -9,12 +10,13 @@ from sqlalchemy import delete, desc, func, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.db.models.MzPoliShineDB import RecordTable, TaskTable, WorkpieceTable
+from app.db.models.MzPoliShineDB import AlarmTable, RecordTable, TaskTable, WorkpieceTable
 from app.server.api.api_core import data_router as router
 from app.common.tasks import TaskStatus, TaskType
 from app import config
 
 SAVE_DATA_DIR = Path(config.PROJECT_ROOT) / 'SaveData'
+CRITICAL_ALARM_LEVEL = 3
 
 
 def get_db_session():
@@ -43,6 +45,9 @@ class ExecuteRequestPayload(BaseModel):
     record_id: Optional[int] = None
     workpiece_id: Optional[int] = None
 
+
+class AlarmResetPayload(BaseModel):
+    handler: Optional[str] = None
 
 def _serialize_workpiece(row: WorkpieceTable) -> Dict[str, Any]:
     return {
@@ -100,6 +105,21 @@ def _serialize_task(row: TaskTable) -> Dict[str, Any]:
         'status_detail': row.t_status_detail or {},
         'created_time': row.created_time.isoformat() if row.created_time else None,
         'updated_time': row.updated_time.isoformat() if row.updated_time else None,
+    }
+
+
+def _serialize_alarm(row: AlarmTable) -> Dict[str, Any]:
+    return {
+        'id': row.id,
+        'record_id': row.record_id,
+        'type': row.alarm_type,
+        'code': row.alarm_code,
+        'message': row.alarm_message,
+        'level': row.alarm_level,
+        'handled_status': row.handled_status,
+        'alarm_time': row.alarm_time.isoformat() if row.alarm_time else None,
+        'handled_time': row.handled_time.isoformat() if row.handled_time else None,
+        'handler': row.handler,
     }
 
 
@@ -228,6 +248,46 @@ def enqueue_execute_task(payload: ExecuteRequestPayload, session: Session = Depe
     return {'ok': True, 'task': _serialize_task(task)}
 
 
+@router.get('/data/records/{record_id}/alarms')
+def list_record_alarms(record_id: int, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
+    record = session.get(RecordTable, record_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail='Record not found')
+    return _alarm_summary_for_record(session, record_id)
+
+
+@router.post('/data/records/{record_id}/alarms/reset')
+def reset_record_alarms(record_id: int, payload: AlarmResetPayload, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
+    record = session.get(RecordTable, record_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail='Record not found')
+    rows: List[AlarmTable] = (
+        session.execute(
+            select(AlarmTable)
+            .where(AlarmTable.record_id == record_id)
+            .where(AlarmTable.handled_status < 2)
+        )
+        .scalars()
+        .all()
+    )
+    if not rows:
+        summary = _alarm_summary_for_record(session, record_id)
+        return {'ok': True, 'updated': 0, 'alarm_summary': summary}
+
+    now = datetime.utcnow()
+    handler = (payload.handler or '').strip() or None
+    updated = 0
+    for item in rows:
+        item.handled_status = 2
+        item.handled_time = now
+        if handler:
+            item.handler = handler
+        updated += 1
+    session.commit()
+    summary = _alarm_summary_for_record(session, record_id)
+    return {'ok': True, 'updated': updated, 'alarm_summary': summary}
+
+
 def _latest_task(session: Session, task_type: TaskType) -> Optional[TaskTable]:
     return (
         session.execute(
@@ -238,6 +298,30 @@ def _latest_task(session: Session, task_type: TaskType) -> Optional[TaskTable]:
         .scalars()
         .first()
     )
+
+
+def _alarm_summary_for_record(session: Session, record_id: Optional[int]) -> Dict[str, Any]:
+    if not record_id:
+        return {'alarms': [], 'max_level': 0, 'requires_reset': False}
+    rows: List[AlarmTable] = (
+        session.execute(
+            select(AlarmTable)
+            .where(AlarmTable.record_id == record_id)
+            .order_by(desc(AlarmTable.alarm_time))
+        )
+        .scalars()
+        .all()
+    )
+    max_level = 0
+    requires_reset = False
+    alarms: List[Dict[str, Any]] = []
+    for row in rows:
+        level = int(row.alarm_level or 0)
+        max_level = max(max_level, level)
+        if level >= CRITICAL_ALARM_LEVEL and int(row.handled_status or 0) < 2:
+            requires_reset = True
+        alarms.append(_serialize_alarm(row))
+    return {'alarms': alarms, 'max_level': max_level, 'requires_reset': requires_reset}
 
 
 @router.get('/data/tasks/state')
@@ -269,6 +353,8 @@ def task_state_summary(session: Session = Depends(get_db_session)) -> Dict[str, 
     if record and record.r_algorithm_data:
         gcode_payload = record.r_algorithm_data
 
+    alarm_summary = _alarm_summary_for_record(session, record.id if record else None)
+
     return {
         'workpiece': _serialize_workpiece(workpiece) if workpiece else None,
         'latest_record': record.id if record else None,
@@ -282,6 +368,8 @@ def task_state_summary(session: Session = Depends(get_db_session)) -> Dict[str, 
             'record_id': record.id if record else None,
         },
         'gcode': gcode_payload,
+        'alarm_max_level': alarm_summary['max_level'],
+        'alarm_requires_reset': alarm_summary['requires_reset'],
     }
 
 

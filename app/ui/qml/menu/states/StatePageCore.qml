@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import "../../cores" as Cores
 import "../../datas" as Datas
 import "../../works" as Works
@@ -8,6 +8,7 @@ Item {
     property bool refreshing: false
     property bool resetting: false
     property string actionMessage: ""
+    property int alarmResetLevel: 3
 
     readonly property var captureTask: safeTask(Datas.TaskDatas.captureTask)
     readonly property var executeTask: safeTask(Datas.TaskDatas.executeTask)
@@ -16,12 +17,13 @@ Item {
     readonly property var statusSnapshot: statusPayload()
 
     property var commandModel: []
-    property var alertModel: []
+    property var alarmModel: []
     property var imageModel: []
     property var pathModel: []
 
     function refreshData() {
       Works.TaskWork.refresh()
+      refreshAlarms()
       refreshing = true
       Api.ApiClient.status(function(payload) {
         refreshing = false
@@ -33,9 +35,11 @@ Item {
         } catch (err) {
           console.warn("StatePage ingest failed", err)
         }
+        refreshAlarms()
       }, function(status, message) {
         refreshing = false
-        showAction(qsTr("刷新失败: %1").arg(message || status))
+               showAction(qsTr("刷新失败: %1").arg(message || status))
+        refreshAlarms()
       })
     }
 
@@ -43,17 +47,89 @@ Item {
       if (resetting)
         return
       resetting = true
-      Api.ApiClient.control("reset", {}, function(resp) {
+      var recordId = Datas.TaskDatas.latestRecordId || 0
+      function finalize(message) {
         resetting = false
-        showAction(qsTr("复位命令已下发"))
+        if (message)
+          showAction(message)
+        refreshAlarms()
+      }
+      Api.ApiClient.control("reset", {}, function(resp) {
+        var successMessage = qsTr("复位命令已下发")
         if (resp && resp.status)
           console.debug("reset response", resp)
+        if (recordId > 0) {
+          Api.ApiClient.post("/data/records/" + recordId + "/alarms/reset", { handler: "operator" }, function(_) {
+            finalize(successMessage)
+          }, function(status, message) {
+            finalize(qsTr("\u62a5\u8b66\u72b6\u6001\u672a\u66f4\u65b0: %1").arg(message || status))
+          })
+        } else {
+          finalize(successMessage)
+        }
       }, function(status, message) {
-        resetting = false
-        showAction(qsTr("复位失败: %1").arg(message || status))
+        finalize(qsTr("复位失败: %1").arg(message || status))
+      })
+    }
+    function refreshAlarms() {
+      var recordId = Datas.TaskDatas.latestRecordId || 0
+      if (!recordId) {
+        applyAlarmResponse({ alarms: [], max_level: 0, requires_reset: false })
+        return
+      }
+      Api.ApiClient.get("/data/records/" + recordId + '/alarms', function(resp) {
+        applyAlarmResponse(resp || {})
+      }, function(status, message) {
+        console.warn('AlarmPanel refresh failed', status, message)
+        applyAlarmResponse({ alarms: [], max_level: 0, requires_reset: false })
       })
     }
 
+    function applyAlarmResponse(payload) {
+      var alarms = (payload && payload.alarms) ? payload.alarms : []
+      var mapped = []
+      normalizeArray(alarms).forEach(function(item) {
+        mapped.push(buildAlarmRow(item))
+      })
+      alarmModel = mapped
+      var maxLevel = Number(payload && (payload.max_level !== undefined ? payload.max_level : payload.maxLevel))
+      if (isNaN(maxLevel))
+        maxLevel = 0
+      Datas.TaskDatas.alarmMaxLevel = maxLevel
+      Datas.TaskDatas.alarmLocked = !!(payload && (payload.requires_reset || payload.requiresReset))
+    }
+
+    function buildAlarmRow(entry) {
+      if (!entry)
+        return {}
+      var code = safeText(readValue(entry, ['code', 'alarm_code']), '')
+      var message = safeText(readValue(entry, ['message', 'alarm_message']), '-')
+      var source = safeText(readValue(entry, ['type', 'alarm_type']), '')
+      var levelValue = Number(readValue(entry, ['level', 'alarm_level']))
+      if (isNaN(levelValue))
+        levelValue = 0
+      var handledStatus = Number(readValue(entry, ['handled_status', 'status']))
+      if (isNaN(handledStatus))
+        handledStatus = 0
+      var handled = handledStatus >= 2
+      var timestamp = readValue(entry, ['alarm_time', 'time', 'timestamp', 'created_time'])
+      var handler = safeText(readValue(entry, ['handler', 'operator', 'handled_by']), '')
+      return {
+        id: readValue(entry, ['id']) || 0,
+        recordId: readValue(entry, ['record_id']) || Datas.TaskDatas.latestRecordId,
+        code: code,
+        message: message,
+        source: source,
+        level: levelValue,
+        levelText: alertLevelText(levelValue),
+        tone: alertLevelColor(levelValue),
+        timestamp: formatTimestamp(timestamp),
+        handler: handler,
+        handled: handled,
+        statusText: handled ? qsTr('已处理') : (handledStatus === 1 ? qsTr('处理中') : qsTr('未处理')),
+        statusTone: handled ? Cores.CoreStyle.success : (levelValue >= alarmResetLevel ? Cores.CoreStyle.danger : Cores.CoreStyle.warning)
+      }
+    }
     function showAction(text) {
       actionMessage = text || ""
       actionTimer.restart()
@@ -131,9 +207,9 @@ Item {
 
     function readySummary() {
       var parts = []
-      parts.push(qsTr("采集: %1").arg(Datas.TaskDatas.captureReady ? qsTr("就绪") : qsTr("等待")))
-      parts.push(qsTr("执行: %1").arg(Datas.TaskDatas.executeReady ? qsTr("就绪") : qsTr("等待")))
-      parts.push(qsTr("控制: %1").arg(Datas.TaskDatas.controlReady ? qsTr("就绪") : qsTr("等待")))
+      parts.push(qsTr("采集: %1").arg(Datas.TaskDatas.captureReady ? qsTr("就绪华") : qsTr("等待緟")))
+      parts.push(qsTr("执行: %1").arg(Datas.TaskDatas.executeReady ? qsTr("就绪华") : qsTr("等待緟")))
+      parts.push(qsTr("控制: %1").arg(Datas.TaskDatas.controlReady ? qsTr("就绪华") : qsTr("等待緟")))
       return parts.join(" | ")
     }
 
@@ -161,7 +237,7 @@ Item {
       var upper = text.toUpperCase()
       switch (upper) {
       case "PENDING":
-        return qsTr("排队中")
+        return qsTr("未知)
       case "RUNNING":
         return qsTr("执行中")
       case "COMPLETED":
@@ -429,11 +505,23 @@ Item {
         rows.push(row)
       }
 
-      normalizeArray(Datas.TaskDatas.controlCommands).forEach(function(cmd) { appendEntry(cmd, qsTr('任务指令')); })
+      normalizeArray(Datas.TaskDatas.controlCommands).forEach(function(cmd) { appendEntry(cmd, qsTr('浠诲姟鎸囦护')); })
       return rows
     }
 
     function alertLevelColor(level) {
+      if (level === undefined || level === null)
+        return Cores.CoreStyle.muted
+      var numeric = Number(level)
+      if (!isNaN(numeric)) {
+        if (numeric >= alarmResetLevel)
+          return Cores.CoreStyle.danger
+        if (numeric >= 2)
+          return Cores.CoreStyle.warning
+        if (numeric >= 1)
+          return Cores.CoreStyle.info
+        return Cores.CoreStyle.muted
+      }
       var upper = String(level || "").toUpperCase()
       switch (upper) {
       case "ERROR":
@@ -452,79 +540,34 @@ Item {
     }
 
     function alertLevelText(level) {
+      var numeric = Number(level)
+      if (!isNaN(numeric)) {
+        if (numeric >= alarmResetLevel)
+          return qsTr('报警')
+        if (numeric >= 2)
+          return qsTr('预警')
+        if (numeric >= 1)
+          return qsTr('提示')
+        return qsTr('通知')
+      }
       var upper = String(level || "").toUpperCase()
       switch (upper) {
       case "ERROR":
       case "FAULT":
       case "CRITICAL":
-        return qsTr("报警")
+        return qsTr('报警')
       case "WARN":
       case "WARNING":
-        return qsTr("预警")
+        return qsTr('预警')
       case "INFO":
       case "NOTICE":
-        return qsTr("提示")
+        return qsTr('提示')
       default:
-        return safeText(level, qsTr("未知"))
+        return safeText(level, qsTr('未知'))
       }
     }
-
-    function buildAlertModel() {
-      var rows = []
-      var keys = ["alerts", "alarms", "alarm_list", "alarmList", "warnings", "errors", "messages"]
-      for (var i = 0; i < keys.length; ++i) {
-        var key = keys[i]
-        var list = statusSnapshot[key]
-        normalizeArray(list).forEach(function(entry) {
-          var row = {}
-          if (typeof entry === "string") {
-            row.message = safeText(entry, "-")
-            row.level = "INFO"
-          } else if (typeof entry === "object") {
-            row.level = readValue(entry, ["level", "severity", "type"]) || "INFO"
-            row.message = safeText(readValue(entry, ["message", "msg", "detail", "description", "text"]), "-")
-            row.code = safeText(readValue(entry, ["code", "fault", "id"]), "")
-            row.timestamp = formatTimestamp(readValue(entry, ["timestamp", "ts", "time"]))
-            row.source = safeText(readValue(entry, ["source", "origin"]), "")
-          }
-          if (!row.message)
-            row.message = "-"
-          row.levelText = alertLevelText(row.level)
-          row.tone = alertLevelColor(row.level)
-          if (!row.timestamp)
-            row.timestamp = formatTimestamp(statusSnapshot.status_time)
-          rows.push(row)
-        })
-      }
-      var faultCode = statusSnapshot.fault_code || statusSnapshot.faultCode
-      var faultMessage = statusSnapshot.fault_message || statusSnapshot.faultMessage
-      if (faultCode || faultMessage) {
-        rows.push({
-          level: "ERROR",
-          levelText: alertLevelText("ERROR"),
-          tone: alertLevelColor("ERROR"),
-          code: safeText(faultCode, ""),
-          message: safeText(faultMessage, qsTr("控制器报告设备故障")),
-          timestamp: formatTimestamp(statusSnapshot.status_time),
-          source: "StatusTable"
-        })
-      }
-      if (!rows.length && String(statusSnapshot.state || "").toUpperCase() === "FAULT") {
-        rows.push({
-          level: "ERROR",
-          levelText: alertLevelText("ERROR"),
-          tone: alertLevelColor("ERROR"),
-          message: qsTr("设备处于故障状态"),
-          timestamp: formatTimestamp(statusSnapshot.status_time || Date.now()),
-          source: "Controller"
-        })
-      }
-      return rows
-    }
-
     function rebuildDerived() {
       commandModel = buildCommandModel()
-      alertModel = buildAlertModel()
       imageModel = buildImageModel()
       pathModel = buildPathModel()
     }
@@ -541,5 +584,6 @@ Item {
       function onExecuteTaskChanged() { root.rebuildDerived() }
       function onControlTaskChanged() { root.rebuildDerived() }
       function onReadyStateChanged() { root.rebuildDerived() }
+      function onLatestRecordIdChanged() { refreshAlarms() }
     }
 }

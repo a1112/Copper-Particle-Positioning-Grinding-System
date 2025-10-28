@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
@@ -26,7 +26,7 @@ Rectangle {
   Layout.preferredWidth: visible ? width : 0
   Layout.preferredHeight: visible ? height : 0
   visible: Cores.CoreState.currentRunModelIndex === 1
-  enabled: !busy && (running || canStart) && controlEnabled
+  enabled: !busy && controlEnabled && (running || (!Datas.TaskDatas.alarmLocked && canStart))
   height: Math.max(36, parent ? parent.height * 0.8 : 36)
   width: height * 2.4
   radius: 8
@@ -63,7 +63,7 @@ Rectangle {
       opacity: running ? 0.85 : 1.0
     }
     Label {
-      text: running ? qsTr("停止") : qsTr("启动")
+      text: running ? qsTr("运行中") : qsTr("未运行")
       color: labelColor
       font.bold: true
       font.pixelSize: startBtn.height * 0.38
@@ -97,7 +97,7 @@ Rectangle {
       busy = false
     }, function(_, msg) {
       busy = false
-      var stopError = msg !== undefined ? msg : qsTr("停止失败")
+      var stopError = msg !== undefined ? msg : qsTr("stopRun 执行失败")
       Cores.CoreError.showError(stopError)
     })
   }
@@ -113,13 +113,15 @@ Rectangle {
         busy = false
       }, function(_, msg) {
         busy = false
-        var startError = msg !== undefined ? msg : qsTr("启动失败")
+        var startError = msg !== undefined ? msg : qsTr("startRun 调用失败！")
         Cores.CoreError.showError(startError)
       })
     }, function(_, msg) {
       busy = false
-      var err = msg !== undefined ? msg : qsTr("执行任务创建失败")
+      var err = msg !== undefined ? msg : qsTr("enqueueExecute 调用失败！")
       Cores.CoreError.showError(err)
     })
   }
 }
+
+

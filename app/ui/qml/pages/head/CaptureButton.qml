@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../cores" as Cores
@@ -15,7 +15,7 @@ Rectangle {
 
   Layout.alignment: Qt.AlignVCenter
   visible: !isFullAuto
-  enabled: !busy && !isFullAuto && readyByStatus && Datas.TaskDatas.captureReady && controlEnabled
+  enabled: !busy && !isFullAuto && readyByStatus && Datas.TaskDatas.captureReady && controlEnabled && !Datas.TaskDatas.alarmLocked
   implicitHeight: Math.max(34, parent ? parent.height * 0.75 : 34)
   implicitWidth: implicitHeight * 2.1
   radius: 8
@@ -83,3 +83,4 @@ Rectangle {
     })
   }
 }
+
