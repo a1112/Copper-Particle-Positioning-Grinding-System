@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 import "head"
 import "cores"
+import "../Code"
 // Make CodeManageView follow the same core-driven structure as InfoViewCore/InfoManageView
 ColumnLayout {
   id: root
@@ -24,7 +25,6 @@ ColumnLayout {
   ScrollView {
     Layout.fillWidth: true
     Layout.fillHeight: true
-
     contentItem: Flickable {
       id: flick
       clip: true
@@ -53,7 +53,10 @@ ColumnLayout {
         }
       }
     }
-
     ScrollBar.vertical: ScrollBar { }
   }
+  CodeView{
+    Layout.fillHeight: true
+  }
+  CodeContorl{}
 }

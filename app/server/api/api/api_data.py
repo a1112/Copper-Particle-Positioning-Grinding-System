@@ -100,6 +100,9 @@ def _get_workpiece(session: Session, workpiece_id: Optional[int]) -> WorkpieceTa
 
 def _serialize_task(row: TaskTable) -> Dict[str, Any]:
     payload = row.t_payload or {}
+    if not isinstance(payload, dict):
+        payload = {"value": payload}
+    params = payload.get("params") if isinstance(payload.get("params"), dict) else payload.get("params")
     return {
         'id': row.id,
         'name': row.t_task_name,
@@ -110,6 +113,11 @@ def _serialize_task(row: TaskTable) -> Dict[str, Any]:
         'record_id': row.t_record_id,
         'payload': payload,
         'command': payload.get('action'),
+        'command_key': payload.get('action_key'),
+        'command_name': payload.get('action_name'),
+        'command_params': params,
+        'queued_at': payload.get('queued_at'),
+        'remark': payload.get('remark') or payload.get('note'),
         'status_detail': row.t_status_detail or {},
         'created_time': row.created_time.isoformat() if row.created_time else None,
         'updated_time': row.updated_time.isoformat() if row.updated_time else None,

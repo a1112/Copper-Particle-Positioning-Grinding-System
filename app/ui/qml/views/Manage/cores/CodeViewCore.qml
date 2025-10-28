@@ -16,19 +16,19 @@ QtObject {
       title: qsTr("单次切削状态"),
       source: Qt.resolvedUrl("../../DriveInfo/SingleCutCommandStatusView.qml")
     },
-    {
-      key: "codeEditor",
-      title: qsTr("代码编辑"),
-      source: Qt.resolvedUrl("../../Code/CodeView.qml")
-    },
-    {
-      key: "codeControls",
-      title: qsTr("运行控制"),
-      source: Qt.resolvedUrl("../../Code/CodeContorl.qml")
-    },
+    // {
+    //   key: "codeEditor",
+    //   title: qsTr("代码编辑"),
+    //   source: Qt.resolvedUrl("../../Code/CodeView.qml")
+    // },
+    // {
+    //   key: "codeControls",
+    //   title: qsTr("运行控制"),
+    //   source: Qt.resolvedUrl("../../Code/CodeContorl.qml")
+    // },
   ]
 
-  property var selectedKeys: ["codeEditor", "codeControls", "cuttingStats", "singleCutStatus"]
+  property var selectedKeys: ["codeEditor", "cuttingStats", "singleCutStatus"]
   property var selectedViews: []
 
   signal selectionChanged()

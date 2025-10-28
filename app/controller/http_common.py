@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass, field
 from decimal import Decimal
 import json
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.parse import urlparse
@@ -219,6 +219,9 @@ class DbStatusSource(StatusSourceProtocol):
         self._session_factory = sessionmaker(bind=self._engine, future=True, expire_on_commit=False)
         LOG.info("DB status source connected to %s", self._mask_password(db_url))
         self._ensure_default_row()
+        self._runner_timeout = 10.0
+        self._runner_fault_active = False
+        self._last_runner_alert_key: Optional[str] = None
 
     @property
     def engine(self) -> Engine:
@@ -315,6 +318,8 @@ class DbStatusSource(StatusSourceProtocol):
             "machine_mode_code": row.c_machine_mode,
             "alarm_active": bool(row.c_alarm_status),
         }
+        payload["state_code"] = state_name
+        payload["state_value"] = row.c_run_status
 
         if temperature is not None:
             payload["spindle_temperature"] = round(temperature, 2)
@@ -343,6 +348,7 @@ class DbStatusSource(StatusSourceProtocol):
         fixture_bits = getattr(row, "f_fixture_status", None)
         if fixture_bits is not None:
             payload["fixture_status_bits"] = int(fixture_bits)
+        self._apply_runner_health(row=row, payload=payload)
         return payload
 
     def _fetch_status(self, session: Session) -> Optional[StatusTable]:
@@ -378,6 +384,62 @@ class DbStatusSource(StatusSourceProtocol):
         except Exception as exc:  # pragma: no cover - best effort bootstrap
             LOG.warning("Unable to seed StatusTable default row: %s", exc)
 
+    def _apply_runner_health(self, *, row: StatusTable, payload: Dict[str, Any]) -> None:
+        heartbeat = getattr(row, "updated_time", None) or getattr(row, "status_time", None)
+        now_dt = datetime.utcnow()
+        lag: Optional[float] = None
+        if heartbeat is not None:
+            heartbeat_dt = heartbeat
+            try:
+                if heartbeat_dt.tzinfo is not None:
+                    heartbeat_dt = heartbeat_dt.astimezone(timezone.utc).replace(tzinfo=None)
+            except Exception:
+                heartbeat_dt = heartbeat
+            lag = max(0.0, (now_dt - heartbeat_dt).total_seconds())
+
+        health: Dict[str, Any] = {
+            "status": "unknown",
+            "lag_seconds": round(lag, 3) if lag is not None else None,
+            "last_heartbeat": heartbeat.isoformat() if heartbeat else None,
+            "timeout_seconds": timeout,
+        }
+        timeout = max(self._runner_timeout, 1.0)
+        alert_key = "task_runner_offline"
+
+        if lag is None:
+            health["status"] = "error"
+            health["message"] = "任务执行程序心跳未知"
+            health["alert_key"] = alert_key
+            self._emit_runner_alert(payload, health, alert_key)
+        elif lag > timeout:
+            health["status"] = "error"
+            health["message"] = f"任务执行程序已离线 (延迟 {lag:.1f}s)"
+            health["alert_key"] = alert_key
+            self._emit_runner_alert(payload, health, alert_key)
+            payload["lights"]["controller"] = "FAULT"
+            payload["lights"]["motion"] = "FAULT"
+            payload["lights"]["device"] = "FAULT"
+            payload["lights"]["spindle"] = "FAULT"
+            payload["state"] = "离线"
+        else:
+            health["status"] = "ok"
+            health["alert_key"] = None
+            if self._runner_fault_active:
+                health["recovered"] = True
+            self._runner_fault_active = False
+            self._last_runner_alert_key = None
+        payload["task_runner_health"] = health
+
+    def _emit_runner_alert(self, payload: Dict[str, Any], health: Dict[str, Any], alert_key: str) -> None:
+        message = health.get("message") or "任务执行程序已离线"
+        alerts = payload.setdefault("alerts", [])
+        if not any(alert.get("code") == alert_key for alert in alerts):
+            alerts.append({"level": "error", "message": message, "code": alert_key})
+        if not self._runner_fault_active or self._last_runner_alert_key != alert_key:
+            self._runner_fault_active = True
+            self._last_runner_alert_key = alert_key
+
+
     def build(self, state: ControllerState, timestamp: float, cycle: float) -> Dict[str, Any]:  # noqa: ARG002
         try:
             with self._session_factory() as session:
@@ -407,6 +469,21 @@ class DbStatusSource(StatusSourceProtocol):
 
 class TaskQueueWriter:
     """Persist control commands into HardwareTaskQueue."""
+
+    ACTION_NAME_MAP: Dict[str, str] = {
+        "capture": "采集",
+        "start": "开始执行",
+        "run.start": "开始执行",
+        "run.stop": "停止执行",
+        "stop": "停止执行",
+        "estop": "急停",
+        "reset": "复位",
+        "motion.set_speed": "设置速度",
+        "motion.set_work_origin": "设置工件原点",
+        "motion.home": "回零",
+        "motion.jog": "点动",
+        "boost": "性能提升",
+    }
 
     def __init__(self, session_factory: sessionmaker, *, engine: Optional[Engine] = None, owns_engine: bool = False) -> None:
         if HardwareTaskQueue is None:
@@ -450,6 +527,15 @@ class TaskQueueWriter:
             self._task_table = None
         return self._task_table
 
+    @classmethod
+    def _normalise_action(cls, action: str) -> str:
+        return str(action or "").strip().lower()
+
+    @classmethod
+    def _friendly_action_name(cls, action: str) -> str:
+        key = cls._normalise_action(action)
+        return cls.ACTION_NAME_MAP.get(key, action or "控制指令")
+
     def log_control_task(
         self,
         *,
@@ -458,16 +544,18 @@ class TaskQueueWriter:
         workpiece_id: Optional[int] = None,
         record_id: Optional[int] = None,
     ) -> None:
-        print("log_control_task")
         """Insert a task_table row describing the control command."""
-        params = params or {}
+        params = dict(params or {})
+        now = time.time()
+        action_key = self._normalise_action(action)
+        action_name = self._friendly_action_name(action)
         with self._session_factory() as session:
             table = self._ensure_task_table(session)
             if table is None:
                 return
             columns = table.c
             payload: Dict[str, Any] = {
-                "t_task_name": f"control:{action}",
+                "t_task_name": f"control:{action_key or 'command'}",
                 "t_task_type": int(TaskType.CONTROL),
             }
             if "t_status" in columns:
@@ -481,12 +569,37 @@ class TaskQueueWriter:
             if "t_record_id" in columns:
                 payload["t_record_id"] = record_id
             if "t_payload" in columns:
-                payload["t_payload"] = {"action": action, "params": params}
+                payload["t_payload"] = {
+                    "action": action,
+                    "action_key": action_key,
+                    "action_name": action_name,
+                    "params": params,
+                    "queued_at": now,
+                    "workpiece_id": workpiece_id,
+                    "record_id": record_id,
+                }
             if "t_status_detail" in columns:
-                payload["t_status_detail"] = {"source": "http_prod", "state": "queued"}
+                payload["t_status_detail"] = {
+                    "source": "http_prod",
+                    "state": "queued",
+                    "updated_at": now,
+                }
             try:
-                session.execute(table.insert().values(**payload))
+                result = session.execute(table.insert().values(**payload))
                 session.commit()
+                inserted_id = None
+                if result and hasattr(result, "inserted_primary_key"):
+                    pk = result.inserted_primary_key
+                    if pk:
+                        inserted_id = pk[0]
+                LOG.info(
+                    "Logged control task action=%s name=%s record=%s workpiece=%s task_id=%s",
+                    action,
+                    action_name,
+                    record_id,
+                    workpiece_id,
+                    inserted_id,
+                )
             except SQLAlchemyError as exc:
                 session.rollback()
                 LOG.error("Failed to log control task action=%s: %s", action, exc)
@@ -551,6 +664,32 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
         except Exception as exc:
             LOG.error("Failed to enqueue hardware task %s: %s", task_type, exc)
 
+    def _coerce_int(value: Any) -> Optional[int]:
+        try:
+            if value is None or value == "":
+                return None
+            candidate = int(value)
+        except (TypeError, ValueError):
+            return None
+        return candidate
+
+    def _resolve_identifiers(payload: Dict[str, object]) -> tuple[Optional[int], Optional[int]]:
+        if not isinstance(payload, dict):
+            return None, None
+        record_candidates = (
+            payload.get("record_id"),
+            payload.get("recordId"),
+            payload.get("record"),
+        )
+        workpiece_candidates = (
+            payload.get("workpiece_id"),
+            payload.get("workpieceId"),
+            payload.get("workpiece"),
+        )
+        record_value = next((candidate for candidate in record_candidates if _coerce_int(candidate) is not None), None)
+        workpiece_value = next((candidate for candidate in workpiece_candidates if _coerce_int(candidate) is not None), None)
+        return _coerce_int(record_value), _coerce_int(workpiece_value)
+
     def handler(action: str, params: Dict[str, object]) -> Dict[str, object]:
         LOG.info("Control handler received action=%s params=%s", action, dict(params))
         normalized = action.strip().lower()
@@ -558,25 +697,27 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
             state.register_command(action, False, "Empty action")
             return {"ok": False, "message": "Empty action"}
 
+        record_id, workpiece_id = _resolve_identifiers(params or {})
+
         if normalized == "reset":
             state.spindle_rpm = 1100.0
             state.torque_bias = 0.2
             state.stop_program()
             state.register_command(action, True, "Reset acknowledged")
-            _enqueue("RESET", {"action": action}, action=action)
+            _enqueue("RESET", {"action": action}, action=action, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Reset acknowledged"}
 
         if normalized == "boost":
             state.spindle_rpm += 50.0
             state.torque_bias = min(state.torque_bias + 0.05, 0.6)
             state.register_command(action, True, "Boost applied")
-            _enqueue("BOOST", {"action": action}, action=action)
+            _enqueue("BOOST", {"action": action}, action=action, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Boost applied"}
 
         if normalized in {"run.start", "start"}:
             if state.start_program():
                 state.register_command(action, True, "Program playback started")
-                _enqueue("POLISH_START", {"action": action, "params": dict(params)}, action=action)
+                _enqueue("POLISH_START", {"action": action, "params": dict(params)}, action=action, workpiece_id=workpiece_id, record_id=record_id)
                 return {"ok": True, "message": "Program playback started"}
             state.register_command(action, False, "No program loaded")
             return {"ok": False, "message": "Program not available"}
@@ -584,11 +725,11 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
         if normalized in {"run.stop", "stop"}:
             state.stop_program()
             state.register_command(action, True, "Program playback stopped")
-            _enqueue("POLISH_STOP", {"action": action, "params": dict(params)}, action=action)
+            _enqueue("POLISH_STOP", {"action": action, "params": dict(params)}, action=action, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Program playback stopped"}
 
         state.register_command(action, False, f"Unsupported action: {action}")
-        _enqueue(normalized.upper(), {"action": action, "params": dict(params)}, action=action)
+        _enqueue(normalized.upper(), {"action": action, "params": dict(params)}, action=action, workpiece_id=workpiece_id, record_id=record_id)
         return {"ok": False, "message": f"Unsupported action: {action}"}
 
     return handler

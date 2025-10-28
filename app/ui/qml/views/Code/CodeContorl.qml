@@ -65,7 +65,7 @@ BaseCard {
       spacing: 12
 
       Label {
-        text: qsTr("程序控制")
+        text: qsTr("控制")
         font.bold: true
         color: Cores.CoreStyle.text
         Layout.fillWidth: true
@@ -94,7 +94,6 @@ BaseCard {
         danger: true
         enabled: Datas.StatusDatas.controlEnabled && isRunningOrPaused()
       }
-
       Btns.ActionButton {
         text: qsTr("重新执行")
         danger: true

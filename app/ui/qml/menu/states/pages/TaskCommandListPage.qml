@@ -5,7 +5,8 @@ import QtQuick.Layouts
 import "../../../cores" as Cores
 import "../../../datas" as Datas
 import "../../../works" as Works
-import "../../../components/btns" as  Btn
+import "../../../components/btns" as Btn
+
 ScrollView {
   id: root
   required property var statePageCore
@@ -36,18 +37,22 @@ ScrollView {
         RowLayout {
           Layout.fillWidth: true
           spacing: 10
+
           Label {
             text: qsTr("命令列表")
             font.pixelSize: 18
             font.bold: true
             color: Cores.CoreStyle.text
           }
+
           Item { Layout.fillWidth: true }
+
           Button {
             text: qsTr("清空命令")
             enabled: statePageCore.commandModel.length > 0 && Datas.StatusDatas.controlEnabled && !Datas.TaskDatas.alarmLocked
             onClicked: Works.TaskWork.clearCommands()
           }
+
           Label {
             text: statePageCore.commandModel.length ? qsTr("共 %1 条").arg(statePageCore.commandModel.length) : qsTr("无命令")
             color: Cores.CoreStyle.muted
@@ -66,12 +71,13 @@ ScrollView {
             anchors.fill: parent
             anchors.margins: 8
             spacing: 12
-            Label { text: qsTr("序号"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 60 }
-            Label { text: qsTr("指令"); color: Cores.CoreStyle.muted; Layout.fillWidth: true }
-            Label { text: qsTr("位移 (mm)"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 140 }
-            Label { text: qsTr("转速"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 90 }
-            Label { text: qsTr("速度"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 90 }
-            Label { text: qsTr("状态"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 100 }
+
+            Label { text: qsTr("序号"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 70 }
+            Label { text: qsTr("指令"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 130 }
+            Label { text: qsTr("指令名称"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 140 }
+            Label { text: qsTr("指令参数"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 200 }
+            Label { text: qsTr("执行详情"); color: Cores.CoreStyle.muted; Layout.fillWidth: true }
+            Label { text: qsTr("执行状态"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 120 }
             Label { text: qsTr("时间"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 160 }
             Label { text: qsTr("备注"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 180 }
             Label { text: qsTr("操作"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 80 }
@@ -93,47 +99,63 @@ ScrollView {
               anchors.margins: 8
               spacing: 12
 
-              Label { text: modelData.sequence; color: Cores.CoreStyle.text; Layout.preferredWidth: 60 }
+              Label { text: modelData.sequence; color: Cores.CoreStyle.text; Layout.preferredWidth: 70 }
+
               Label {
-                text: modelData.commandText
+                text: modelData.commandKey
                 color: Cores.CoreStyle.text
+                wrapMode: Text.Wrap
+                Layout.preferredWidth: 130
+              }
+
+              Label {
+                text: modelData.commandName
+                color: Cores.CoreStyle.text
+                wrapMode: Text.Wrap
+                Layout.preferredWidth: 140
+              }
+
+              Text {
+                text: modelData.paramsText
+                color: Cores.CoreStyle.text
+                textFormat: Text.PlainText
+                wrapMode: Text.Wrap
+                Layout.preferredWidth: 200
+                maximumLineCount: 6
+                elide: Text.ElideRight
+              }
+
+              Text {
+                text: modelData.detailText
+                color: Cores.CoreStyle.text
+                textFormat: Text.PlainText
                 wrapMode: Text.Wrap
                 Layout.fillWidth: true
+                maximumLineCount: 8
+                elide: Text.ElideRight
               }
-              Label {
-                text: statePageCore.displacementText(modelData)
-                color: Cores.CoreStyle.text
-                Layout.preferredWidth: 140
-                wrapMode: Text.Wrap
-              }
-              Label {
-                text: modelData.rpm !== undefined ? modelData.rpm.toFixed(1) : "-"
-                color: Cores.CoreStyle.text
-                Layout.preferredWidth: 90
-              }
-              Label {
-                text: modelData.velocity !== undefined ? modelData.velocity.toFixed(2) : "-"
-                color: Cores.CoreStyle.text
-                Layout.preferredWidth: 90
-              }
+
               Label {
                 text: modelData.statusText
                 color: modelData.statusTone
                 font.bold: true
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: 120
               }
+
               Label {
-                text: modelData.timestamp
+                text: modelData.timeText
                 color: Cores.CoreStyle.muted
                 Layout.preferredWidth: 160
                 wrapMode: Text.WrapAnywhere
               }
+
               Label {
-                text: modelData.message ? modelData.message : modelData.source
+                text: modelData.remark
                 color: Cores.CoreStyle.muted
                 wrapMode: Text.Wrap
                 Layout.preferredWidth: 180
               }
+
               Btn.ActionButton {
                 text: qsTr("删除")
                 enabled: Datas.StatusDatas.controlEnabled && !Datas.TaskDatas.alarmLocked && modelData && modelData.id
@@ -146,7 +168,7 @@ ScrollView {
 
         Label {
           visible: statePageCore.commandModel.length === 0
-          text: qsTr("当前流水线暂无控制指令，待采集完成后可用。")
+          text: qsTr("当前流水号暂无控制命令，待采集完成后可用。")
           color: Cores.CoreStyle.muted
         }
       }

@@ -198,5 +198,6 @@
         <file>qml/views/Manage/cores/InfoViewCore.qml</file>
         <file>qml/menu/states/StatePageInfo.qml</file>
         <file>qml/menu/states/StatePageHead.qml</file>
+        <file>qml/views/Code/CodeRunOneItem.qml</file>
     </qresource>
 </RCC>

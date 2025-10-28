@@ -50,6 +50,7 @@ class DemoTaskRunner:
             changed |= self._advance_capture(session)
             changed |= self._advance_control(session)
             changed |= self._advance_execute(session)
+            changed |= self._heartbeat_status_table(session)
             if changed:
                 session.commit()
             else:
@@ -117,6 +118,7 @@ class DemoTaskRunner:
             if task.t_status == int(TaskStatus.PENDING):
                 detail["phase"] = "capturing"
                 detail["started_at"] = now
+                detail["updated_at"] = now
                 task.t_status = int(TaskStatus.RUNNING)
                 task.t_status_detail = detail
                 self._mark_record_stage(session, task.t_record_id, "capture_running")
@@ -131,6 +133,10 @@ class DemoTaskRunner:
                 continue
             started_at = float(detail.get("started_at", 0.0))
             if started_at and now - started_at < self._capture_duration:
+                if detail.get("updated_at", 0.0) != now:
+                    detail["updated_at"] = now
+                    task.t_status_detail = detail
+                    changed = True
                 continue
             self._complete_capture_task(session, task, detail)
             changed = True
@@ -151,6 +157,7 @@ class DemoTaskRunner:
             if task.t_status == int(TaskStatus.PENDING):
                 detail["phase"] = "control"
                 detail["started_at"] = now
+                detail["updated_at"] = now
                 task.t_status = int(TaskStatus.RUNNING)
                 task.t_status_detail = detail
                 self._update_status_table(session, run_status=2, machine_mode=3)
@@ -163,6 +170,10 @@ class DemoTaskRunner:
                 continue
             started_at = float(detail.get("started_at", 0.0))
             if started_at and now - started_at < self._control_duration:
+                if detail.get("updated_at", 0.0) != now:
+                    detail["updated_at"] = now
+                    task.t_status_detail = detail
+                    changed = True
                 continue
             self._complete_control_task(session, task, detail)
             changed = True
@@ -183,6 +194,7 @@ class DemoTaskRunner:
             if task.t_status == int(TaskStatus.PENDING):
                 detail["phase"] = "execute"
                 detail["started_at"] = now
+                detail["updated_at"] = now
                 task.t_status = int(TaskStatus.RUNNING)
                 task.t_status_detail = detail
                 self._update_status_table(session, run_status=2, machine_mode=4)
@@ -196,6 +208,10 @@ class DemoTaskRunner:
                 continue
             started_at = float(detail.get("started_at", 0.0))
             if started_at and now - started_at < self._execute_duration:
+                if detail.get("updated_at", 0.0) != now:
+                    detail["updated_at"] = now
+                    task.t_status_detail = detail
+                    changed = True
                 continue
             self._complete_execute_task(session, task, detail)
             changed = True
@@ -225,6 +241,7 @@ class DemoTaskRunner:
             record.r_warning_data = {"level": "info", "message": "Demo capture pipeline finished"}
         detail["phase"] = "completed"
         detail["finished_at"] = time.time()
+        detail["updated_at"] = time.time()
         task.t_status = int(TaskStatus.COMPLETED)
         task.t_status_detail = detail
         self._update_status_table(session, run_status=1, machine_mode=2)
@@ -267,6 +284,7 @@ class DemoTaskRunner:
     def _complete_control_task(self, session: Session, task: TaskTable, detail: dict) -> None:
         detail["phase"] = "completed"
         detail["finished_at"] = time.time()
+        detail["updated_at"] = time.time()
         task.t_status = int(TaskStatus.COMPLETED)
         task.t_status_detail = detail
         commands = (task.t_payload or {}).get("commands") or []
@@ -293,6 +311,7 @@ class DemoTaskRunner:
     def _complete_execute_task(self, session: Session, task: TaskTable, detail: dict) -> None:
         detail["phase"] = "completed"
         detail["finished_at"] = time.time()
+        detail["updated_at"] = time.time()
         task.t_status = int(TaskStatus.COMPLETED)
         task.t_status_detail = detail
         self._update_status_table(session, run_status=1, machine_mode=1)
@@ -447,6 +466,15 @@ class DemoTaskRunner:
         finally:
             if owns_session:
                 session.close()
+
+    def _heartbeat_status_table(self, session: Session) -> bool:
+        if StatusTable is None:
+            return False
+        row = session.execute(select(StatusTable).limit(1)).scalar_one_or_none()
+        if row is None:
+            return False
+        row.status_time = datetime.utcnow()
+        return True
 
     def _build_demo_path(self, commands: list[dict]) -> list[dict]:
         points: list[dict] = []

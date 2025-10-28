@@ -17,7 +17,7 @@ Rectangle {
   opacity: root.isRunning ? 1.0 : 0.5
   RowLayout { anchors.fill: parent; anchors.margins: 6; spacing: 6
     Image { source: Cores.CoreStyle.getIconSource("close.png"); fillMode: Image.PreserveAspectFit; Layout.preferredWidth: estopBtn.height*0.6; Layout.preferredHeight: estopBtn.height*0.6 }
-    Label { text: "急停"; color: "white"; font.bold: true }
+    Label { text: "软急停"; color: "white"; font.bold: true }
   }
   MouseArea { anchors.fill: parent; enabled: root.isRunning; onClicked: estopDialog.open() }
 }

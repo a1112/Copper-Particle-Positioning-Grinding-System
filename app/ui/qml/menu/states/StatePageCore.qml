@@ -20,6 +20,8 @@ Item {
     property var alarmModel: []
     property var imageModel: []
     property var pathModel: []
+    property var runnerHealth: ({})
+    property string lastRunnerAlertKey: ""
 
     function refreshData() {
       Works.TaskWork.refresh()
@@ -237,7 +239,8 @@ Item {
       var upper = text.toUpperCase()
       switch (upper) {
       case "PENDING":
-        return qsTr("未知")
+      case "QUEUED":
+        return qsTr("排队中")
       case "RUNNING":
         return qsTr("执行中")
       case "COMPLETED":
@@ -268,7 +271,14 @@ Item {
           break
         }
       }
-      var text = String(value || "").toUpperCase()
+      if (value === "离线")
+        return Cores.CoreStyle.danger
+      var rawText = String(value || "")
+      if (rawText === "离线")
+        return Cores.CoreStyle.danger
+      var text = rawText.toUpperCase()
+      if (text === "OFFLINE" || text === "RUNNER_FAULT")
+        return Cores.CoreStyle.danger
       if (text === "PENDING")
         return Cores.CoreStyle.warning
       if (text === "RUNNING")
@@ -329,6 +339,56 @@ Item {
           return source[key]
       }
       return undefined
+    }
+
+    function friendlyCommandName(action) {
+      var mapping = {
+        "capture": qsTr("采集"),
+        "run.start": qsTr("开始执行"),
+        "start": qsTr("开始执行"),
+        "run.stop": qsTr("停止执行"),
+        "stop": qsTr("停止执行"),
+        "run.pause": qsTr("暂停"),
+        "pause": qsTr("暂停"),
+        "run.resume": qsTr("继续执行"),
+        "resume": qsTr("继续执行"),
+        "estop": qsTr("急停"),
+        "reset": qsTr("复位"),
+        "motion.set_speed": qsTr("设置速度"),
+        "motion.set_work_origin": qsTr("设置工件原点"),
+        "motion.home": qsTr("回零"),
+        "motion.jog": qsTr("点动"),
+        "boost": qsTr("性能提升"),
+      }
+      var key = String(action || "").toLowerCase()
+      if (mapping[key] !== undefined)
+        return mapping[key]
+      if (!key.length)
+        return qsTr("控制指令")
+      return safeText(action, qsTr("控制指令"))
+    }
+
+    function formatJson(value) {
+      if (value === undefined || value === null)
+        return "-"
+      if (typeof value === "string") {
+        var trimmed = value.trim()
+        return trimmed.length ? trimmed : "-"
+      }
+      if (typeof value === "number" || typeof value === "boolean")
+        return String(value)
+      try {
+        var text = JSON.stringify(value, null, 2)
+        if (!text || text === "{}" || text === "[]")
+          return "-"
+        return text
+      } catch (err) {
+        try {
+          return String(value)
+        } catch (error) {
+          return "-"
+        }
+      }
     }
 
     function displacementText(row) {
@@ -463,49 +523,49 @@ Item {
     function buildCommandModel() {
       var rows = []
       var seq = 1
-      function appendEntry(entry, sourceLabel) {
+      normalizeArray(Datas.TaskDatas.controlCommands).forEach(function(entry) {
         if (entry === undefined || entry === null)
           return
-        var row = {
-          sequence: seq++,
-          source: sourceLabel || '-',
-          id: undefined
-        }
-        if (typeof entry === 'string') {
-          row.commandText = safeText(entry, '-')
-        } else if (typeof entry === 'object') {
-          row.id = readValue(entry, ['id', 'task_id', 'taskId']) || row.id
-          row.sequence = readValue(entry, ['sequence', 'seq', 'order', 'index', 'step']) || row.sequence
-          row.commandText = safeText(
-                readValue(entry, ['command', 'cmd', 'command_text', 'text', 'instruction', 'display', 'action', 'name']),
-                '-'
-              )
-          var payload = entry.payload && typeof entry.payload === 'object' ? entry.payload : entry
-          row.ex = asNumber(readValue(payload, ['ex', 'dx', 'offset_x', 'offsetX', 'x']))
-          row.ey = asNumber(readValue(payload, ['ey', 'dy', 'offset_y', 'offsetY', 'y']))
-          row.ez = asNumber(readValue(payload, ['ez', 'dz', 'offset_z', 'offsetZ', 'z', 'depth']))
-          row.rpm = asNumber(readValue(payload, ['spindle_rpm', 'rpm', 'r', 'speed_rpm']))
-          row.velocity = asNumber(readValue(payload, ['velocity', 'feed', 'feed_rate', 'feedRate', 'v']))
-          row.statusRaw = readValue(entry, ['status', 'state', 'phase', 'result'])
-          row.timestampRaw = readValue(entry, ['timestamp', 'ts', 'time', 'created_time', 'updated_time'])
-          row.message = safeText(readValue(entry, ['message', 'msg', 'detail', 'note']), '')
-          row.source = safeText(readValue(entry, ['source', 'origin', 'from']), row.source)
-          if (!row.commandText || row.commandText === '-')
-            row.commandText = safeText(readValue(payload, ['action', 'command']), '-')
-        } else {
-          row.commandText = safeText(entry, '-')
-        }
-        if (row.id === undefined)
-          row.id = row.sequence
-        if (row.id !== undefined)
-          row.sequence = row.id
-        row.statusText = row.statusRaw ? taskStatusText(row.statusRaw) : '-'
-        row.statusTone = statusColor(row.statusRaw)
-        row.timestamp = formatTimestamp(row.timestampRaw)
+        var row = {}
+        row.id = readValue(entry, ['id', 'task_id', 'taskId'])
+        row.sequence = row.id !== undefined && row.id !== null ? row.id : seq++
+        var payload = entry.payload && typeof entry.payload === 'object' ? entry.payload : {}
+        var commandKey = safeText(readValue(entry, ['command_key', 'commandKey', 'command']), '')
+        if (!commandKey || commandKey === '-')
+          commandKey = safeText(readValue(payload, ['action_key', 'action']), commandKey)
+        row.commandKey = commandKey && commandKey.length ? commandKey : "-"
+        var commandName = safeText(readValue(entry, ['command_name', 'commandName']), '')
+        if (!commandName || commandName === '-')
+          commandName = safeText(payload.action_name, '')
+        row.commandName = commandName && commandName.length ? commandName : friendlyCommandName(row.commandKey)
+        var paramsSource = entry.command_params !== undefined ? entry.command_params : payload.params
+        row.paramsText = formatJson(paramsSource)
+        var statusDetail = entry.status_detail !== undefined ? entry.status_detail : entry.statusDetail
+        if (!statusDetail && entry.t_status_detail !== undefined)
+          statusDetail = entry.t_status_detail
+        row.detailText = formatJson(statusDetail)
+        row.statusRaw = readValue(entry, ['status', 'state', 'result'])
+        if (row.statusRaw === undefined && typeof statusDetail === "object")
+          row.statusRaw = readValue(statusDetail, ['state', 'status'])
+        if (row.statusRaw === undefined)
+          row.statusText = qsTr('未执行')
+        else
+          row.statusText = taskStatusText(row.statusRaw)
+        row.statusTone = statusColor(row.statusRaw !== undefined ? row.statusRaw : "PENDING")
+        var timeCandidate = readValue(entry, ['updated_time', 'updatedTime', 'created_time', 'createdTime', 'timestamp'])
+        if (!timeCandidate && typeof statusDetail === "object")
+          timeCandidate = readValue(statusDetail, ['updated_at', 'finished_at', 'started_at'])
+        if (!timeCandidate && payload.queued_at !== undefined)
+          timeCandidate = payload.queued_at
+        row.timeText = formatTimestamp(timeCandidate)
+        var remark = readValue(entry, ['remark', 'note'])
+        if (!remark && typeof payload === "object")
+          remark = payload.remark || payload.note
+        if (!remark && typeof statusDetail === "object")
+          remark = statusDetail && (statusDetail.message || statusDetail.detail)
+        row.remark = remark ? safeText(remark, "-") : "-"
         rows.push(row)
-      }
-
-      normalizeArray(Datas.TaskDatas.controlCommands).forEach(function(cmd) { appendEntry(cmd, qsTr('浠诲姟鎸囦护')); })
+      })
       return rows
     }
 
@@ -570,10 +630,37 @@ Item {
       commandModel = buildCommandModel()
       imageModel = buildImageModel()
       pathModel = buildPathModel()
+      var health = statusSnapshot.task_runner_health || statusSnapshot.taskRunnerHealth || runnerHealth
+      runnerHealth = (health && typeof health === "object") ? health : ({})
+    }
+
+    function processRunnerHealth(payload) {
+      var source = payload ? (payload.task_runner_health || payload.taskRunnerHealth) : null
+      var health = (source && typeof source === "object") ? source : ({})
+      if (health.alert_key === undefined && health.alertKey !== undefined)
+        health.alert_key = health.alertKey
+      runnerHealth = health
+      var key = ""
+      if (health.alert_key !== undefined && health.alert_key !== null) {
+        key = String(health.alert_key)
+      }
+      if (health.status === "error") {
+        if (!key.length)
+          key = "task_runner_offline"
+        if (lastRunnerAlertKey !== key) {
+          Cores.CoreError.showError(safeText(health.message, qsTr("任务执行程序离线")))
+          lastRunnerAlertKey = key
+        }
+      } else if (health.status === "ok") {
+        if (health.recovered && lastRunnerAlertKey)
+          showAction(qsTr("任务执行程序已恢复"))
+        lastRunnerAlertKey = ""
+      }
     }
     Connections {
       target: Datas.StatusDatas
-      function onMessageReceived(_) {
+      function onMessageReceived(payload) {
+        root.processRunnerHealth(payload)
         root.rebuildDerived()
       }
     }
