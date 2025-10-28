@@ -12,7 +12,7 @@ from .record_table import RecordTable
 from .status_table import StatusTable
 from .task_table import TaskTable
 from .workpiece_table import WorkpieceTable
-
+from .tool import ToolRecord
 __all__ = [
     "Base",
     "ActionTable",
@@ -28,4 +28,5 @@ __all__ = [
     "StatusTable",
     "TaskTable",
     "WorkpieceTable",
+    "ToolRecord"
 ]
