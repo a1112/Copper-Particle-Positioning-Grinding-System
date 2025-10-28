@@ -75,13 +75,30 @@ Rectangle {
     var payload = {}
     if (Datas.TaskDatas.workpieceId)
       payload.workpiece_id = Datas.TaskDatas.workpieceId
-    Api.ApiClient.post("/data/records/capture", payload, function(_) {
+    Api.ApiClient.post("/data/records/capture", payload, function(resp) {
       busy = false
-      Works.TaskWork.refresh()
+      var controlParams = {}
+      var recordId = 0
+      if (resp && resp.record && resp.record.id)
+        recordId = resp.record.id
+      else if (Datas.TaskDatas.readyRecordId > 0)
+        recordId = Datas.TaskDatas.readyRecordId
+      else if (Datas.TaskDatas.latestRecordId > 0)
+        recordId = Datas.TaskDatas.latestRecordId
+      if (recordId > 0)
+        controlParams.record_id = recordId
+      var workpieceId = payload.workpiece_id || Datas.TaskDatas.workpieceId
+      if (workpieceId > 0)
+        controlParams.workpiece_id = workpieceId
+      Api.ApiClient.control("capture", controlParams, function() {
+        Works.TaskWork.refresh()
+      }, function(_, errMessage) {
+        console.warn("capture control dispatch failed", errMessage)
+        Works.TaskWork.refresh()
+      })
     }, function(_, message) {
       busy = false
       Cores.CoreError.showError(message || qsTr("采集触发失败"))
     })
   }
 }
-

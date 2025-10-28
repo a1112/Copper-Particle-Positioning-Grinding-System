@@ -494,6 +494,7 @@ class TaskQueueWriter:
         self._owns_engine = owns_engine
         self._metadata = MetaData()
         self._task_table: Optional[Table] = None
+        self._hardware_table: Optional[Table] = None
 
     @classmethod
     def from_url(cls, db_url: str) -> "TaskQueueWriter":
@@ -513,6 +514,16 @@ class TaskQueueWriter:
             LOG.error("Unable to reflect task_table: %s", exc)
             self._task_table = None
         return self._task_table
+
+    def _ensure_hardware_table(self, session: Session) -> Optional[Table]:
+        if self._hardware_table is not None:
+            return self._hardware_table
+        try:
+            self._hardware_table = Table("hardware_task_queue", self._metadata, autoload_with=session.bind)
+        except SQLAlchemyError as exc:
+            LOG.error("Unable to reflect hardware_task_queue: %s", exc)
+            self._hardware_table = None
+        return self._hardware_table
 
     @classmethod
     def _normalise_action(cls, action: str) -> str:
@@ -563,35 +574,83 @@ class TaskQueueWriter:
     ) -> None:
         """Insert a hardware_task_queue row describing the command."""
         params = dict(params or {})
-        name_default, type_default = self._action_meta(action)
+        normalized = self._normalise_action(action)
+        name_default, type_default = self._action_meta(normalized)
         task_name = task_name_override or name_default
         task_type = task_type_override if task_type_override is not None else type_default
 
         payload_params: Dict[str, Any] = {
             "action": action,
             "params": params,
+            "task_name": task_name,
+            "queued_at": time.time(),
         }
         if workpiece_id is not None:
             payload_params["workpiece_id"] = workpiece_id
+        payload_params["action_key"] = normalized
 
         with self._session_factory() as session:
+            table = self._ensure_hardware_table(session)
+            if table is None:
+                return
             resolved_record_id = self._resolve_record_id(session, record_id)
             if resolved_record_id is not None:
                 payload_params.setdefault("record_id", resolved_record_id)
-            entry = HardwareTaskQueue(
-                record_id=resolved_record_id,
-                task_name=task_name,
-                task_type=task_type,
-                device_id=device_id,
-                task_params=payload_params,
-                priority=priority,
-                status=status,
-                status_params={"source": created_by or self.DEFAULT_CREATED_BY, "state": "queued"},
-                created_by=created_by or self.DEFAULT_CREATED_BY,
-            )
+            payload_params.setdefault("device_id", device_id)
+            columns = table.c
+
+            def _coerce_device(value: str) -> Any:
+                if "device_id" not in columns:
+                    return value
+                try:
+                    python_type = columns["device_id"].type.python_type  # type: ignore[attr-defined]
+                except Exception:
+                    return value
+                if python_type is int:
+                    numeric = "".join(ch for ch in str(value) if ch.isdigit())
+                    if numeric:
+                        try:
+                            return int(numeric)
+                        except (TypeError, ValueError):
+                            return 0
+                    return 0
+                return value
+
+            now = datetime.now()
+            row: Dict[str, Any] = {}
+
+            def _assign(column: str, value: Any) -> None:
+                if column not in columns:
+                    return
+                row[column] = value
+
+            if resolved_record_id is not None:
+                _assign("record_id", resolved_record_id)
+            _assign("task_name", task_name)
+            _assign("task_type", task_type)
+            _assign("device_id", _coerce_device(device_id))
+            _assign("task_params", payload_params)
+            _assign("priority", priority)
+            _assign("status", status)
+            if "status_params" in columns:
+                row["status_params"] = {"source": created_by or self.DEFAULT_CREATED_BY, "state": "queued"}
+            if "created_by" in columns:
+                row["created_by"] = created_by or self.DEFAULT_CREATED_BY
+            if "created_time" in columns:
+                row["created_time"] = now
+
+            if not row:
+                LOG.warning("No valid columns to insert for hardware task; action=%s", action)
+                return
+
             try:
-                session.add(entry)
+                result = session.execute(table.insert().values(**row))
                 session.commit()
+                inserted_id = None
+                if result and hasattr(result, "inserted_primary_key"):
+                    pk = result.inserted_primary_key
+                    if pk:
+                        inserted_id = pk[0]
                 LOG.info(
                     "Enqueued hardware task action=%s name=%s type=%s device=%s record=%s id=%s",
                     action,
@@ -599,7 +658,7 @@ class TaskQueueWriter:
                     task_type,
                     device_id,
                     resolved_record_id,
-                    entry.id,
+                    inserted_id,
                 )
             except SQLAlchemyError as exc:
                 session.rollback()
@@ -760,15 +819,21 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
     def _enqueue(action: str, params: Optional[Dict[str, Any]] = None, *, workpiece_id: Optional[int] = None, record_id: Optional[int] = None) -> None:
         if task_writer is None:
             return
+        payload = {}
+        if params:
+            try:
+                payload = dict(params)
+            except Exception:
+                payload = {}
         try:
             task_writer.enqueue_control_action(
                 action=action,
                 device_id=device_id,
-                params=params,
+                params=payload,
                 workpiece_id=workpiece_id,
                 record_id=record_id,
             )
-            task_writer.log_control_task(action=action, params=params, workpiece_id=workpiece_id, record_id=record_id)
+            task_writer.log_control_task(action=action, params=payload, workpiece_id=workpiece_id, record_id=record_id)
         except Exception as exc:
             LOG.error("Failed to enqueue hardware task %s: %s", action, exc)
 
@@ -812,20 +877,20 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
             state.torque_bias = 0.2
             state.stop_program()
             state.register_command(action, True, "Reset acknowledged")
-            _enqueue(action, dict(params) if params else None, workpiece_id=workpiece_id, record_id=record_id)
+            _enqueue(action, params, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Reset acknowledged"}
 
         if normalized == "boost":
             state.spindle_rpm += 50.0
             state.torque_bias = min(state.torque_bias + 0.05, 0.6)
             state.register_command(action, True, "Boost applied")
-            _enqueue(action, dict(params) if params else None, workpiece_id=workpiece_id, record_id=record_id)
+            _enqueue(action, params, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Boost applied"}
 
         if normalized in {"run.start", "start"}:
             if state.start_program():
                 state.register_command(action, True, "Program playback started")
-                _enqueue(action, dict(params), workpiece_id=workpiece_id, record_id=record_id)
+                _enqueue(action, params, workpiece_id=workpiece_id, record_id=record_id)
                 return {"ok": True, "message": "Program playback started"}
             state.register_command(action, False, "No program loaded")
             return {"ok": False, "message": "Program not available"}
@@ -833,11 +898,11 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
         if normalized in {"run.stop", "stop"}:
             state.stop_program()
             state.register_command(action, True, "Program playback stopped")
-            _enqueue(action, dict(params), workpiece_id=workpiece_id, record_id=record_id)
+            _enqueue(action, params, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Program playback stopped"}
 
         state.register_command(action, False, f"Unsupported action: {action}")
-        fallback_params = dict(params)
+        fallback_params = dict(params or {})
         fallback_params["normalized_action"] = normalized
         _enqueue(action, fallback_params, workpiece_id=workpiece_id, record_id=record_id)
         return {"ok": False, "message": f"Unsupported action: {action}"}
