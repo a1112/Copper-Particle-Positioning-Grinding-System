@@ -36,9 +36,10 @@ Popup {
   ColumnLayout {
     anchors.fill: parent
     anchors.margins: 24
-    spacing: 16
+    spacing: 5
 
     StatePageHead{}
+
     StatePageInfo{}
 
     TabBar {
