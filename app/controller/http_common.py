@@ -484,6 +484,15 @@ class TaskQueueWriter:
         "motion.jog": ("点动", 8),
         "motion.set_speed": ("设置速度", 9),
         "boost": ("性能提升", 10),
+        "manual.single_frame_capture": ("单帧采集", 40),
+        "manual.preprocess_roi_cluster": ("预处理 (ROI+聚类)", 41),
+        "manual.defect_detection": ("缺陷检测", 42),
+        "manual.defect_detection_secondary": ("缺陷检测", 43),
+        "manual.c5_upload": ("c5.上传指令", 44),
+        "manual.run_command": ("运行指令", 45),
+        "manual.clear_upload": ("清除上传的指令", 46),
+        "manual.initialize": ("初始化", 47),
+        "manual.initialize_secondary": ("初始化", 48),
     }
 
     def __init__(self, session_factory: sessionmaker, *, engine: Optional[Engine] = None, owns_engine: bool = False) -> None:
@@ -871,6 +880,23 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
             return {"ok": False, "message": "Empty action"}
 
         record_id, workpiece_id = _resolve_identifiers(params or {})
+
+        manual_action_messages: Dict[str, str] = {
+            "manual.single_frame_capture": "Manual single-frame capture dispatched",
+            "manual.preprocess_roi_cluster": "Manual preprocessing dispatched",
+            "manual.defect_detection": "Manual defect detection dispatched",
+            "manual.defect_detection_secondary": "Manual defect detection (secondary) dispatched",
+            "manual.c5_upload": "Manual C5 upload dispatched",
+            "manual.run_command": "Manual run command dispatched",
+            "manual.clear_upload": "Manual clear uploaded command dispatched",
+            "manual.initialize": "Manual initialization dispatched",
+            "manual.initialize_secondary": "Manual initialization (secondary) dispatched",
+        }
+        if normalized in manual_action_messages:
+            message = manual_action_messages[normalized]
+            state.register_command(action, True, message)
+            _enqueue(action, params, workpiece_id=workpiece_id, record_id=record_id)
+            return {"ok": True, "message": message}
 
         if normalized == "reset":
             state.spindle_rpm = 1100.0
