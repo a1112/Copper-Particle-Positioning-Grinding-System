@@ -38,7 +38,29 @@ ApplicationWindow {
         { label: qsTr("关闭系统"), endpoint: "system/shutdown", method: "POST" },
         { label: qsTr("获取状态摘要"), endpoint: "status/summary", method: "GET" },
         { label: qsTr("复位故障"), endpoint: "system/reset_faults", method: "POST" },
-        { label: qsTr("重新加载配置"), endpoint: "config/reload", method: "POST" }
+        { label: qsTr("重新加载配置"), endpoint: "config/reload", method: "POST" },
+        {
+            label: qsTr("报警测试"),
+            endpoint: "diagnostics/alarms/test",
+            method: "POST",
+            payload: function() {
+                return {
+                    message: "UI测试报警 " + Qt.formatDateTime(new Date(), "hh:mm:ss"),
+                    level: 3
+                }
+            },
+            onSuccess: function(resp) {
+                var alarm = resp && resp.alarm ? resp.alarm : null
+                if (alarm) {
+                    window.appendLog(qsTr("报警写入成功: %1 %2").arg(alarm.code || "-").arg(alarm.message || "-"))
+                } else {
+                    window.appendLog(qsTr("报警写入成功: %1").arg(JSON.stringify(resp || {})))
+                }
+            },
+            onError: function(status, message) {
+                window.appendLog(qsTr("报警写入失败(%1): %2").arg(status).arg(message))
+            }
+        }
     ]
 
     readonly property var processActions: [
@@ -378,9 +400,23 @@ ApplicationWindow {
             }
         }
 
-        var payload = action.payload !== undefined ? action.payload : {}
+        var payload = {}
+        if (action.payload !== undefined) {
+            if (typeof action.payload === "function") {
+                try {
+                    payload = action.payload()
+                } catch (payloadErr) {
+                    window.appendLog(qsTr("生成请求体失败: %1").arg(payloadErr))
+                    payload = {}
+                }
+            } else {
+                payload = action.payload
+            }
+        }
         var method = action.method !== undefined ? action.method : "GET"
-        performApiRequest(endpoint, method, payload)
+        var successHandler = action.onSuccess !== undefined ? action.onSuccess : null
+        var errorHandler = action.onError !== undefined ? action.onError : null
+        performApiRequest(endpoint, method, payload, successHandler, errorHandler)
     }
 
     function triggerUiAction(action) {

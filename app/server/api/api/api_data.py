@@ -49,6 +49,14 @@ class ExecuteRequestPayload(BaseModel):
 class AlarmResetPayload(BaseModel):
     handler: Optional[str] = None
 
+
+class AlarmTestPayload(BaseModel):
+    record_id: Optional[int] = None
+    alarm_type: Optional[str] = Field(default=None, alias='type')
+    alarm_code: Optional[str] = Field(default=None, alias='code')
+    alarm_message: Optional[str] = Field(default=None, alias='message')
+    alarm_level: int = Field(default=3, ge=0, le=10)
+
 def _serialize_workpiece(row: WorkpieceTable) -> Dict[str, Any]:
     return {
         'id': row.id,
@@ -287,6 +295,40 @@ def reset_record_alarms(record_id: int, payload: AlarmResetPayload, session: Ses
     summary = _alarm_summary_for_record(session, record_id)
     return {'ok': True, 'updated': updated, 'alarm_summary': summary}
 
+
+@router.post('/diagnostics/alarms/test')
+def create_test_alarm(payload: AlarmTestPayload, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
+    record: Optional[RecordTable] = None
+    if payload.record_id:
+        record = session.get(RecordTable, payload.record_id)
+        if record is None:
+            raise HTTPException(status_code=404, detail='Record not found')
+    if record is None:
+        record = session.execute(select(RecordTable).order_by(desc(RecordTable.id))).scalars().first()
+        if record is None:
+            workpiece = _ensure_default_workpiece(session)
+            record = RecordTable(
+                workpiece_id=workpiece.id,
+                r_progress_data={'stage': 'test_alarm'},
+            )
+            session.add(record)
+            session.flush()
+    now = datetime.utcnow()
+    level = int(payload.alarm_level or 0)
+    alarm = AlarmTable(
+        record_id=record.id,
+        alarm_type=(payload.alarm_type or 'TEST'),
+        alarm_code=(payload.alarm_code or f'TEST-{now.strftime("%H%M%S")}'),
+        alarm_message=(payload.alarm_message or 'Test alarm generated from diagnostics button'),
+        alarm_level=level,
+        handled_status=0,
+        alarm_time=now,
+    )
+    session.add(alarm)
+    session.commit()
+    session.refresh(alarm)
+    summary = _alarm_summary_for_record(session, record.id)
+    return {'ok': True, 'alarm': _serialize_alarm(alarm), 'alarm_summary': summary}
 
 def _latest_task(session: Session, task_type: TaskType) -> Optional[TaskTable]:
     return (

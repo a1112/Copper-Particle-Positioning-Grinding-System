@@ -31,3 +31,4 @@ Thumbs.db
 # Generated UI assets
 app/ui/rc_qml.py
 
+/SaveData/
