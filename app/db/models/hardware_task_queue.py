@@ -18,6 +18,7 @@ class HardwareTaskQueue(Base):
     )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment='主键ID')
+    record_id: Mapped[Optional[int]] = mapped_column( BigInteger, default=None, comment="关联记录ID")
     task_name: Mapped[str] = mapped_column(String(64, 'utf8mb4_unicode_ci'), nullable=False, comment='任务名称')
     task_type: Mapped[int] = mapped_column(Integer, nullable=False, comment='任务类型：1-开始抛光, 2-停止抛光, 3-温度设置, 4-压力调整等')
     device_id: Mapped[int] = mapped_column(Integer, nullable=False, comment='设备标识ID')
