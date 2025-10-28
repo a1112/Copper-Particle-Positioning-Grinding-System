@@ -47,11 +47,11 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         status_source = DbStatusSource(args.db_url)
         fallback_source = SimulatedStatusSource()
         task_writer = TaskQueueWriter(status_source.session_factory, engine=status_source.engine)
-        task_runner = DemoTaskRunner(
-            status_source.session_factory,
-            save_dir=SAVE_DATA_DIR,
-            task_writer=task_writer,
-        )
+        # task_runner = DemoTaskRunner(
+        #     status_source.session_factory,
+        #     save_dir=SAVE_DATA_DIR,
+        #     task_writer=task_writer,
+        # )
     except Exception as exc:
         LOG.error("Unable to initialise production database source: %s", exc)
         raise SystemExit(1) from exc

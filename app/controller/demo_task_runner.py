@@ -1,17 +1,23 @@
 from __future__ import annotations
 
+import argparse
 import json
+import logging
 import shutil
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Iterable, Optional
 
-from sqlalchemy import select
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
+from app import config as APP_CONFIG
 from app.common.tasks import ControlInstruction, TaskStatus, TaskType
 from app.db.models.MzPoliShineDB import RecordTable, StatusTable, TaskTable, WorkpieceTable
+
+
+LOG = logging.getLogger("controller.demo_task_runner")
 
 
 class DemoTaskRunner:
@@ -82,13 +88,16 @@ class DemoTaskRunner:
             )
             session.add(row)
             changed = True
+            LOG.info("StatusTable seeded with REMOTE control mode (id=1).")
         else:
             if row.c_control_mode != 1:
                 row.c_control_mode = 1
                 changed = True
+                LOG.info("StatusTable control_mode -> REMOTE")
             if row.c_run_status is None or row.c_run_status == 0:
                 row.c_run_status = 1
                 changed = True
+                LOG.info("StatusTable run_status -> READY")
             if changed:
                 row.status_time = datetime.utcnow()
         return changed
@@ -112,6 +121,12 @@ class DemoTaskRunner:
                 task.t_status_detail = detail
                 self._mark_record_stage(session, task.t_record_id, "capture_running")
                 self._update_status_table(session, run_status=2, machine_mode=2)
+                LOG.info(
+                    "Capture task started (task_id=%s record_id=%s workpiece=%s)",
+                    task.id,
+                    task.t_record_id,
+                    task.t_workpiece_id,
+                )
                 changed = True
                 continue
             started_at = float(detail.get("started_at", 0.0))
@@ -139,6 +154,11 @@ class DemoTaskRunner:
                 task.t_status = int(TaskStatus.RUNNING)
                 task.t_status_detail = detail
                 self._update_status_table(session, run_status=2, machine_mode=3)
+                LOG.info(
+                    "Control task running (task_id=%s record_id=%s)",
+                    task.id,
+                    task.t_record_id,
+                )
                 changed = True
                 continue
             started_at = float(detail.get("started_at", 0.0))
@@ -167,6 +187,11 @@ class DemoTaskRunner:
                 task.t_status_detail = detail
                 self._update_status_table(session, run_status=2, machine_mode=4)
                 self._mark_record_stage(session, task.t_record_id, "execute_running")
+                LOG.info(
+                    "Execute task running (task_id=%s record_id=%s)",
+                    task.id,
+                    task.t_record_id,
+                )
                 changed = True
                 continue
             started_at = float(detail.get("started_at", 0.0))
@@ -203,6 +228,12 @@ class DemoTaskRunner:
         task.t_status = int(TaskStatus.COMPLETED)
         task.t_status_detail = detail
         self._update_status_table(session, run_status=1, machine_mode=2)
+        LOG.info(
+            "Capture task completed (task_id=%s record_id=%s artifacts=%s)",
+            task.id,
+            task.t_record_id,
+            artifacts.get("folder"),
+        )
 
         control_exists = session.execute(
             select(TaskTable)
@@ -225,6 +256,13 @@ class DemoTaskRunner:
             t_status_detail={"phase": "queued"},
         )
         session.add(control_task)
+        LOG.info(
+            "Control task created (task_id=%s source_task=%s record_id=%s commands=%d)",
+            control_task.id,
+            task.id,
+            task.t_record_id,
+            len(commands),
+        )
 
     def _complete_control_task(self, session: Session, task: TaskTable, detail: dict) -> None:
         detail["phase"] = "completed"
@@ -245,6 +283,12 @@ class DemoTaskRunner:
             )
             self._enqueue_control_command(instruction, index=index, total=len(commands))
         self._update_status_table(session, run_status=1, machine_mode=3)
+        LOG.info(
+            "Control task completed (task_id=%s record_id=%s commands=%d)",
+            task.id,
+            task.t_record_id,
+            len(commands),
+        )
 
     def _complete_execute_task(self, session: Session, task: TaskTable, detail: dict) -> None:
         detail["phase"] = "completed"
@@ -253,6 +297,11 @@ class DemoTaskRunner:
         task.t_status_detail = detail
         self._update_status_table(session, run_status=1, machine_mode=1)
         self._mark_record_stage(session, task.t_record_id, "execute_completed")
+        LOG.info(
+            "Execute task completed (task_id=%s record_id=%s)",
+            task.id,
+            task.t_record_id,
+        )
 
     # --------------------------------------------------------------- utilities
 
@@ -271,6 +320,11 @@ class DemoTaskRunner:
         image_dir = folder / "image"
         image_dir.mkdir(parents=True, exist_ok=True)
         images = self._copy_sample_images(image_dir)
+        LOG.info(
+            "Capture artifacts prepared at %s (images=%d)",
+            folder,
+            len(images),
+        )
         return {
             "folder": str(folder),
             "algorithm_file": str(analysis_file),
@@ -317,9 +371,11 @@ class DemoTaskRunner:
             dest = target_dir / f"{alias}.png"
             try:
                 shutil.copyfile(source, dest)
+                LOG.debug("Copied sample image %s -> %s", source, dest)
             except FileNotFoundError:
                 with dest.open("wb") as fh:
                     fh.write(b"")
+                LOG.warning("Sample image missing (%s); created empty placeholder at %s", source, dest)
             result[alias] = str(dest)
         return result
 
@@ -411,3 +467,60 @@ class DemoTaskRunner:
             last_x = x
             last_y = y
         return points
+
+
+def _parse_cli_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run the DemoTaskRunner against a database for local testing.")
+    parser.add_argument(
+        "--db-url",
+        default="mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
+        help="SQLAlchemy URL for the MzPoliShineDB database (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--save-dir",
+        default=str(Path(APP_CONFIG.PROJECT_ROOT) / "SaveData"),
+        help="Directory for generated capture artifacts (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--interval",
+        type=float,
+        default=1.0,
+        help="Seconds to sleep between tick iterations (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--ticks",
+        type=int,
+        default=0,
+        help="Number of tick iterations to run (0 means run indefinitely).",
+    )
+    return parser.parse_args(list(argv) if argv is not None else None)
+
+
+def _run_cli(argv: Optional[Iterable[str]] = None) -> None:
+    args = _parse_cli_args(argv)
+    engine = create_engine(args.db_url, future=True, pool_pre_ping=True, pool_recycle=1800)
+    session_factory = sessionmaker(bind=engine, future=True, expire_on_commit=False)
+    runner = DemoTaskRunner(session_factory, save_dir=Path(args.save_dir))
+    tick_count = 0
+    if not logging.getLogger().handlers:
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+    LOG.info("DemoTaskRunner CLI starting (db=%s save_dir=%s ticks=%s interval=%.2fs)", args.db_url, args.save_dir, args.ticks or "∞", args.interval)
+    try:
+        while True:
+            runner.tick()
+            tick_count += 1
+            LOG.debug("Tick #%d complete", tick_count)
+            if args.ticks and tick_count >= args.ticks:
+                break
+            time.sleep(max(args.interval, 0.05))
+    except KeyboardInterrupt:
+        LOG.info("DemoTaskRunner interrupted by user after %d ticks", tick_count)
+    finally:
+        LOG.info("DemoTaskRunner shutting down")
+        engine.dispose()
+
+
+if __name__ == "__main__":
+    _run_cli()

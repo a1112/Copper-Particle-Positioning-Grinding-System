@@ -190,5 +190,7 @@
         <file>qml/views/Manage/FootManageView.qml</file>
         <file>qml/views/Manage/cores/CodeViewCore.qml</file>
         <file>qml/views/Manage/cores/InfoViewCore.qml</file>
+        <file>qml/menu/states/StstRPageHead.qml</file>
+        <file>qml/menu/states/StatePageInfo.qml</file>
     </qresource>
 </RCC>
