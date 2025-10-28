@@ -52,26 +52,29 @@ ScrollView {
             ({ title: qsTr("控制任务"), task: statePageCore.controlTask, ready: Datas.TaskDatas.controlReady })
           ]
 
-          delegate: ColumnLayout {
+          delegate:Item{
             Layout.fillWidth: true
-            spacing: 6
-
-            Label {
-              text: modelData.title + " · " + (modelData.ready ? qsTr("就绪") : qsTr("等待"))
-              font.pixelSize: 16
-              font.bold: true
-              color: modelData.ready ? Cores.CoreStyle.success : Cores.CoreStyle.warning
+            height: col_item.height
+            Frame{
+              anchors.fill: parent
             }
+            ColumnLayout {
+              id:col_item
+              spacing: 2
+              Label {
+                text: modelData.title + " · " + (modelData.ready ? qsTr("就绪") : qsTr("等待"))
+                font.pixelSize: 16
+                font.bold: true
+                color: modelData.ready ? Cores.CoreStyle.success : Cores.CoreStyle.warning
+              }
 
-            Rectangle {
-              Layout.fillWidth: true
-              radius: 8
-              color: "#111a28"
-              border.color: "#1d2a3f"
+              Item{
+                height: 2
+              }
 
               ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 14
+                Layout.fillWidth: true
+                anchors.margins: 2
                 spacing: 10
 
                 RowLayout {
@@ -108,13 +111,13 @@ ScrollView {
                     Layout.fillWidth: true
                   }
                 }
-
                 Label {
                   text: statePageCore.detailText(modelData.task)
                   color: Cores.CoreStyle.muted
                   wrapMode: Text.Wrap
                 }
               }
+
             }
           }
         }

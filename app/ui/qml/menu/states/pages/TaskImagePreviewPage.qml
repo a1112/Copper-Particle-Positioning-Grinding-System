@@ -18,14 +18,15 @@ ScrollView {
   contentItem: Flickable {
     id: commandFlick
     clip: true
+    width: parent.width
     contentWidth: width
     contentHeight: commandColumn.implicitHeight
     boundsBehavior: Flickable.StopAtBounds
 
     ColumnLayout {
       id: commandColumn
-      width: commandFlick.width - 12
-      spacing: 20
+      width: commandFlick.width - 10
+      spacing: 10
 
       ColumnLayout {
         Layout.fillWidth: true
@@ -56,7 +57,6 @@ ScrollView {
             delegate: ColumnLayout {
               width: Math.min(260, commandColumn.width / 3)
               spacing: 6
-
               Rectangle {
                 Layout.fillWidth: true
                 height: width * 0.75

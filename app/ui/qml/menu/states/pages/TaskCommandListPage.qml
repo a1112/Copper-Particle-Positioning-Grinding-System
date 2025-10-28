@@ -5,7 +5,7 @@ import QtQuick.Layouts
 import "../../../cores" as Cores
 import "../../../datas" as Datas
 import "../../../works" as Works
-
+import "../../../components/btns" as  Btn
 ScrollView {
   id: root
   required property var statePageCore
@@ -16,16 +16,17 @@ ScrollView {
   clip: true
   ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-  contentItem: Flickable {
+  Flickable {
     id: commandFlick
     clip: true
+    width: root.width
     contentWidth: width
     contentHeight: commandColumn.implicitHeight
     boundsBehavior: Flickable.StopAtBounds
 
     ColumnLayout {
       id: commandColumn
-      width: commandFlick.width - 12
+      width: commandFlick.width - 10
       spacing: 20
 
       ColumnLayout {
@@ -133,7 +134,7 @@ ScrollView {
                 wrapMode: Text.Wrap
                 Layout.preferredWidth: 180
               }
-              Button {
+              Btn.ActionButton {
                 text: qsTr("删除")
                 enabled: Datas.StatusDatas.controlEnabled && !Datas.TaskDatas.alarmLocked && modelData && modelData.id
                 Layout.preferredWidth: 80

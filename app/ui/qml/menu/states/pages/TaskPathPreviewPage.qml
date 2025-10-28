@@ -10,12 +10,12 @@ ScrollView {
 
   Layout.fillWidth: true
   Layout.fillHeight: true
-
   clip: true
   ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
   contentItem: Flickable {
     id: commandFlick
+    width: parent.width
     clip: true
     contentWidth: width
     contentHeight: commandColumn.implicitHeight
@@ -28,7 +28,7 @@ ScrollView {
 
       ColumnLayout {
         Layout.fillWidth: true
-        spacing: 8
+        spacing: 2
 
         RowLayout {
           Layout.fillWidth: true
@@ -46,14 +46,10 @@ ScrollView {
           }
         }
 
-        Rectangle {
-          Layout.fillWidth: true
-          radius: 6
-          color: "#141d2e"
-          border.color: "#1f2c44"
 
           ColumnLayout {
-            anchors.fill: parent
+            id:col
+            Layout.fillWidth: true
             anchors.margins: 12
             spacing: 6
 
@@ -95,7 +91,7 @@ ScrollView {
               color: Cores.CoreStyle.muted
             }
           }
-        }
+
       }
     }
   }
