@@ -75,10 +75,12 @@ BaseCard {
     setProgram(lines)
   }
   height: contentColumn.height
-  Column {
+
+
+  ColumnLayout {
     id: contentColumn
     spacing: 10
-    width: parent.width
+    anchors.fill: parent
     CodeViews.CodeHead {
       width: parent.width
       codeConnected: root.codeConnected
@@ -89,7 +91,8 @@ BaseCard {
     Item {
       width: parent.width
       Layout.fillWidth: true
-      height: list.contentHeight>400?420:list.contentHeight+15
+      Layout.fillHeight: true
+      // height: list.contentHeight>400?420:list.contentHeight+15
 
       clip: true
       Frame{

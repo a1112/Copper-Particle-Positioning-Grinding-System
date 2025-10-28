@@ -24,8 +24,8 @@ ColumnLayout {
   // Content area: render selected views
   ScrollView {
     Layout.fillWidth: true
-    Layout.fillHeight: true
-    contentItem: Flickable {
+    height: flick.height
+    Flickable {
       id: flick
       clip: true
       contentWidth: width
@@ -55,6 +55,8 @@ ColumnLayout {
     }
     ScrollBar.vertical: ScrollBar { }
   }
+
+
   CodeView{
     Layout.fillHeight: true
   }

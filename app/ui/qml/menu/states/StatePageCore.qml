@@ -201,6 +201,13 @@ Item {
       return Datas.TaskDatas.workpieceCode || "-"
     }
 
+    function currentRecordIdText() {
+      var recordId = Datas.TaskDatas.latestRecordId || 0
+      if (recordId && recordId > 0)
+        return "#" + recordId
+      return qsTr("未生成记录")
+    }
+
     function workpieceLabel() {
       var code = safeText(Datas.TaskDatas.workpieceCode, "-")
       var type = safeText(Datas.TaskDatas.workpieceType, "-")
@@ -209,9 +216,9 @@ Item {
 
     function readySummary() {
       var parts = []
-      parts.push(qsTr("采集: %1").arg(Datas.TaskDatas.captureReady ? qsTr("就绪华") : qsTr("等待緟")))
-      parts.push(qsTr("执行: %1").arg(Datas.TaskDatas.executeReady ? qsTr("就绪华") : qsTr("等待緟")))
-      parts.push(qsTr("控制: %1").arg(Datas.TaskDatas.controlReady ? qsTr("就绪华") : qsTr("等待緟")))
+      parts.push(qsTr("采集: %1").arg(Datas.TaskDatas.captureReady ? qsTr("就绪") : qsTr("等待")))
+      parts.push(qsTr("执行: %1").arg(Datas.TaskDatas.executeReady ? qsTr("就绪") : qsTr("等待")))
+      parts.push(qsTr("控制: %1").arg(Datas.TaskDatas.controlReady ? qsTr("就绪") : qsTr("等待")))
       return parts.join(" | ")
     }
 

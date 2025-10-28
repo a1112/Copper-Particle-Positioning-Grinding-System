@@ -171,30 +171,6 @@ BaseCard {
     anchors.right: parent.right
     anchors.margins: padding
     spacing: 10
-
-    InfoRowItem {
-      Layout.fillWidth: true
-      titleText: qsTr("切削深度")
-      valueText: root.depthStatus()
-      valueColor: Cores.CoreStyle.accent
-    }
-
-    InfoRowItem {
-      Layout.fillWidth: true
-      titleText: qsTr("起始坐标")
-      valueText: root.formatPoint(root.extractPoint(Datas.CuttingDatas.last, "start", "s"))
-      valueColor: Cores.CoreStyle.text
-      valueWrapMode: Text.WrapAnywhere
-    }
-
-    InfoRowItem {
-      Layout.fillWidth: true
-      titleText: qsTr("终点坐标")
-      valueText: root.formatPoint(root.extractPoint(Datas.CuttingDatas.last, "end", "e"))
-      valueColor: Cores.CoreStyle.text
-      valueWrapMode: Text.WrapAnywhere
-    }
-
     InfoRowItem {
       Layout.fillWidth: true
       titleText: qsTr("指令信息")
@@ -202,5 +178,31 @@ BaseCard {
       valueColor: Cores.CoreStyle.info
       valueWrapMode: Text.Wrap
     }
-  }
+    InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("切削深度")
+      valueText: root.depthStatus()
+      valueColor: Cores.CoreStyle.accent
+    }
+    RowLayout{
+            Layout.fillWidth: true
+
+      InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("起始")
+      valueText: root.formatPoint(root.extractPoint(Datas.CuttingDatas.last, "start", "s"))
+      valueColor: Cores.CoreStyle.text
+      valueWrapMode: Text.WrapAnywhere
+    }
+
+    InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("终点")
+      valueText: root.formatPoint(root.extractPoint(Datas.CuttingDatas.last, "end", "e"))
+      valueColor: Cores.CoreStyle.text
+      valueWrapMode: Text.WrapAnywhere
+    }
+    }
+
+    }
 }
