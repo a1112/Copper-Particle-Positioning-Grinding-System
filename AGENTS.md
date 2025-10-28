@@ -46,6 +46,10 @@
 - Audit logs for sensitive data; avoid secrets in scripts or `TestData/`.
 - When adding devices, capture representative telemetry in `TestData/` and note validation steps in the PR.
 
+## Encoding Notes
+- Store Chinese UI copy in QML/JS via `qsTr("\uXXXXâ€¦")` so the literals stay stable across shells and locales.
+- When documentation must contain raw Chinese characters, save the file as UTF-8 (no BOM) to avoid mojibake on Windows.
+
 ---
 
 # ä»“åº“æŒ‡å—
@@ -101,3 +105,7 @@
 - ä¸è¦ç›´æ¥ä¿®æ”¹ `configs/` æ¨¡æ¿â€”â€”å¤åˆ¶åä½¿ç”¨ç›¸å¯¹è·¯å¾„ã€‚
 - å®¡æ ¸æ—¥å¿—ï¼Œé¿å…åœ¨è„šæœ¬æˆ– `TestData/` ä¸­æ³„éœ²æ•æ„Ÿæ•°æ®ã€‚
 - æ–°å¢è®¾å¤‡æ—¶ï¼Œåœ¨ `TestData/` ä¸­è¡¥å……ä»£è¡¨æ€§é¥æµ‹ï¼Œå¹¶åœ¨ PR ä¸­è®°å½•éªŒè¯æ­¥éª¤ã€‚
+## ±àÂë×¢ÒâÊÂÏî
+
+- QML/JS ÖĞÈôĞèÖĞÎÄÇëÊ¹ÓÃ qsTr(\"\uXXXX¡­\") µÄĞÎÊ½±£´æ£¬±ÜÃâÔÚ²»Í¬ Shell/²Ù×÷ÏµÍ³ Locale ÏÂ³öÏÖÂÒÂë¡£
+- ÎÄµµÀàÎÄ¼şÈç¹ûÖ±½ÓÊéĞ´ÖĞÎÄ£¬ÇëÒÔ UTF-8£¨ÎŞ BOM£©±àÂë±£´æ£¬·ÀÖ¹¿çÆ½Ì¨²é¿´Ê±µÄ×Ö·ûËğ»µ¡£

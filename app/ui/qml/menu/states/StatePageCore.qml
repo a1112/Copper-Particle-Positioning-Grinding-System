@@ -237,7 +237,7 @@ Item {
       var upper = text.toUpperCase()
       switch (upper) {
       case "PENDING":
-        return qsTr("未知)
+        return qsTr("未知")
       case "RUNNING":
         return qsTr("执行中")
       case "COMPLETED":

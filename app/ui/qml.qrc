@@ -188,6 +188,10 @@
         <file>qml/menu/states/StatePage.qml</file>
         <file>qml/menu/states/StatePageCore.qml</file>
         <file>qml/menu/states/TaskStatusPanel.qml</file>
+        <file>qml/menu/states/pages/TaskStatusSummaryPage.qml</file>
+        <file>qml/menu/states/pages/TaskCommandListPage.qml</file>
+        <file>qml/menu/states/pages/TaskImagePreviewPage.qml</file>
+        <file>qml/menu/states/pages/TaskPathPreviewPage.qml</file>
         <file>qml/menu/states/AlarmPanel.qml</file>
         <file>qml/views/Manage/FootManageView.qml</file>
         <file>qml/views/Manage/cores/CodeViewCore.qml</file>
