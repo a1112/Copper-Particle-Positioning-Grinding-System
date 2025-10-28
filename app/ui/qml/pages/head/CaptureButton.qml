@@ -9,13 +9,13 @@ import "../../works" as Works
 Rectangle {
   id: captureBtn
   property bool busy: false
-  readonly property bool isFullAuto: Cores.CoreState.currentRunModelIndex === 0
+  readonly property bool isFullAuto:Cores.CoreState.currentRunModelIndex === 0
   readonly property bool readyByStatus: captureBtn._statusReady()
   readonly property bool controlEnabled: Datas.StatusDatas.controlEnabled
 
   Layout.alignment: Qt.AlignVCenter
   visible: !isFullAuto
-  enabled: !busy && !isFullAuto && readyByStatus && Datas.TaskDatas.captureReady && controlEnabled && !Datas.TaskDatas.alarmLocked
+  enabled: Datas.StatusDatas.forceEnableControls|( !busy && !isFullAuto && readyByStatus && Datas.TaskDatas.captureReady && controlEnabled && !Datas.TaskDatas.alarmLocked)
   implicitHeight: Math.max(34, parent ? parent.height * 0.75 : 34)
   implicitWidth: implicitHeight * 2.1
   radius: 8
@@ -33,7 +33,7 @@ Rectangle {
 
   MouseArea {
     anchors.fill: parent
-    enabled: captureBtn.enabled
+    enabled: Datas.StatusDatas.forceEnableControls|captureBtn.enabled
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: captureBtn.triggerCapture()
@@ -68,6 +68,7 @@ Rectangle {
   }
 
   function triggerCapture() {
+    console.log("triggerCapture")
     if (busy)
       return
     busy = true

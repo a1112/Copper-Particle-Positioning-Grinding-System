@@ -12,7 +12,9 @@ QtObject {
   property var seriesB: []
   property int seriesLimit: 1000
   property real maxSpindleRpm: 0
-  property bool controlEnabled: true
+  property bool forceEnableControls: false
+  property bool internalControlEnabled: true
+  property bool controlEnabled: forceEnableControls || internalControlEnabled
   signal messageReceived(var payload)
 
   function reset() {
@@ -23,7 +25,8 @@ QtObject {
     seriesA = []
     seriesB = []
     maxSpindleRpm = 0
-    controlEnabled = true
+    internalControlEnabled = true
+    forceEnableControls = false
   }
 
   function pushSeries(target, value) {
@@ -41,7 +44,7 @@ QtObject {
     connected = true
     lastMsgTs = Date.now()
     lastMessage = payload
-    controlEnabled = resolveControlEnabled(payload)
+    internalControlEnabled = resolveControlEnabled(payload)
 
     var rpmCandidate
     if (payload) {
@@ -74,7 +77,7 @@ QtObject {
 
   function resolveControlEnabled(payload) {
     if (!payload)
-      return controlEnabled
+      return internalControlEnabled
 
     var modeCode = payload.control_mode_code !== undefined ? Number(payload.control_mode_code) : null
     if (modeCode !== null && !isNaN(modeCode))
@@ -97,6 +100,6 @@ QtObject {
       if (text === "LOCAL" || text === "LOCKED")
         return false
     }
-    return controlEnabled
+    return internalControlEnabled;
   }
 }

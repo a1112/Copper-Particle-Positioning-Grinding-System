@@ -15,11 +15,11 @@ LOG = logging.getLogger(__name__)
 
 PRIMARY_DB_URL = os.getenv(
     "PRIMARY_DB_URL",
-    "mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
+    "mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
 )
 LOCAL_DB_URL = os.getenv(
     "LOCAL_DB_URL",
-    "mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
+    "mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
 )
 ENV_DATABASE_URL = os.getenv("DATABASE_URL")
 

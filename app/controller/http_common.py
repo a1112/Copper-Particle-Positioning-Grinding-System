@@ -13,7 +13,6 @@ from datetime import datetime, date, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.parse import urlparse
-from uuid import uuid4
 
 import requests
 from sqlalchemy import MetaData, Table, create_engine, select
@@ -26,11 +25,12 @@ from app.controller.httpbridge import HttpControllerService
 from app.common.tasks import TaskStatus, TaskType
 
 try:
-    from app.db.models.MzPoliShineDB import CuttingStatusTable, HardwareTaskQueue, StatusTable
+    from app.db.models.MzPoliShineDB import CuttingStatusTable, HardwareTaskQueue, RecordTable, StatusTable
 except Exception:  # pragma: no cover - optional dependency path
     StatusTable = None  # type: ignore[assignment]
     CuttingStatusTable = None
     HardwareTaskQueue = None  # type: ignore[assignment]
+    RecordTable = None  # type: ignore[assignment]
 
 LOG = logging.getLogger("controller.http")
 
@@ -467,19 +467,23 @@ class DbStatusSource(StatusSourceProtocol):
 class TaskQueueWriter:
     """Persist control commands into HardwareTaskQueue."""
 
-    ACTION_NAME_MAP: Dict[str, str] = {
-        "capture": "采集",
-        "start": "开始执行",
-        "run.start": "开始执行",
-        "run.stop": "停止执行",
-        "stop": "停止执行",
-        "estop": "急停",
-        "reset": "复位",
-        "motion.set_speed": "设置速度",
-        "motion.set_work_origin": "设置工件原点",
-        "motion.home": "回零",
-        "motion.jog": "点动",
-        "boost": "性能提升",
+    DEFAULT_TASK_NAME = "控制指令"
+    DEFAULT_TASK_TYPE = 99
+    DEFAULT_CREATED_BY = "http_prod"
+
+    ACTION_META: Dict[str, tuple[str, int]] = {
+        "capture": ("采集", 5),
+        "start": ("开始", 1),
+        "run.start": ("开始", 1),
+        "run.stop": ("停止", 2),
+        "stop": ("停止", 2),
+        "estop": ("急停", 3),
+        "reset": ("初始化", 4),
+        "motion.home": ("回归零位", 6),
+        "motion.set_work_origin": ("设置工件原点", 7),
+        "motion.jog": ("点动", 8),
+        "motion.set_speed": ("设置速度", 9),
+        "boost": ("性能提升", 10),
     }
 
     def __init__(self, session_factory: sessionmaker, *, engine: Optional[Engine] = None, owns_engine: bool = False) -> None:
@@ -500,20 +504,6 @@ class TaskQueueWriter:
         session_factory = sessionmaker(bind=engine, future=True, expire_on_commit=False)
         return cls(session_factory, engine=engine, owns_engine=True)
 
-    def enqueue(self, *, task_type: str, device_id: str, params: Optional[Dict[str, Any]] = None, priority: int = 0) -> None:
-        payload = {
-            "task_id": uuid4().hex,
-            "task_type": task_type,
-            "device_id": device_id,
-            "task_params": params or {},
-            "priority": priority,
-            "status": 0,
-        }
-        with self._session_factory() as session:
-            entry = HardwareTaskQueue(**payload)  # type: ignore[arg-type]
-            session.add(entry)
-            session.commit()
-
     def _ensure_task_table(self, session: Session) -> Optional[Table]:
         if self._task_table is not None:
             return self._task_table
@@ -530,8 +520,109 @@ class TaskQueueWriter:
 
     @classmethod
     def _friendly_action_name(cls, action: str) -> str:
+        name, _ = cls._action_meta(action)
+        return name
+
+    @classmethod
+    def _friendly_action_type(cls, action: str) -> int:
+        _, type_code = cls._action_meta(action)
+        return type_code
+
+    @classmethod
+    def _action_meta(cls, action: str) -> tuple[str, int]:
         key = cls._normalise_action(action)
-        return cls.ACTION_NAME_MAP.get(key, action or "鎺у埗鎸囦护")
+        return cls.ACTION_META.get(key, (cls.DEFAULT_TASK_NAME, cls.DEFAULT_TASK_TYPE))
+
+    def _resolve_record_id(self, session: Session, explicit: Optional[int]) -> Optional[int]:
+        if explicit is not None:
+            return explicit
+        if RecordTable is None:
+            return None
+        try:
+            latest = session.execute(
+                select(RecordTable.id).order_by(RecordTable.created_time.desc()).limit(1)
+            ).scalar_one_or_none()
+        except SQLAlchemyError as exc:
+            LOG.error("Unable to resolve latest record_id: %s", exc)
+            return None
+        return latest
+
+    def enqueue_control_action(
+        self,
+        *,
+        action: str,
+        device_id: str,
+        params: Optional[Dict[str, Any]] = None,
+        record_id: Optional[int] = None,
+        workpiece_id: Optional[int] = None,
+        priority: int = 0,
+        created_by: str = DEFAULT_CREATED_BY,
+        status: int = 0,
+        task_name_override: Optional[str] = None,
+        task_type_override: Optional[int] = None,
+    ) -> None:
+        """Insert a hardware_task_queue row describing the command."""
+        params = dict(params or {})
+        name_default, type_default = self._action_meta(action)
+        task_name = task_name_override or name_default
+        task_type = task_type_override if task_type_override is not None else type_default
+
+        payload_params: Dict[str, Any] = {
+            "action": action,
+            "params": params,
+        }
+        if workpiece_id is not None:
+            payload_params["workpiece_id"] = workpiece_id
+
+        with self._session_factory() as session:
+            resolved_record_id = self._resolve_record_id(session, record_id)
+            if resolved_record_id is not None:
+                payload_params.setdefault("record_id", resolved_record_id)
+            entry = HardwareTaskQueue(
+                record_id=resolved_record_id,
+                task_name=task_name,
+                task_type=task_type,
+                device_id=device_id,
+                task_params=payload_params,
+                priority=priority,
+                status=status,
+                status_params={"source": created_by or self.DEFAULT_CREATED_BY, "state": "queued"},
+                created_by=created_by or self.DEFAULT_CREATED_BY,
+            )
+            try:
+                session.add(entry)
+                session.commit()
+                LOG.info(
+                    "Enqueued hardware task action=%s name=%s type=%s device=%s record=%s id=%s",
+                    action,
+                    task_name,
+                    task_type,
+                    device_id,
+                    resolved_record_id,
+                    entry.id,
+                )
+            except SQLAlchemyError as exc:
+                session.rollback()
+                LOG.error("Failed to enqueue hardware task action=%s: %s", action, exc)
+
+    def enqueue(
+        self,
+        *,
+        task_type: str,
+        device_id: str,
+        params: Optional[Dict[str, Any]] = None,
+        priority: int = 0,
+        created_by: str = DEFAULT_CREATED_BY,
+    ) -> None:
+        """Backward-compatible API used by the demo runner (task_type interpreted as action key)."""
+        action = task_type
+        self.enqueue_control_action(
+            action=action,
+            device_id=device_id,
+            params=params,
+            priority=priority,
+            created_by=created_by,
+        )
 
     def log_control_task(
         self,
@@ -666,14 +757,20 @@ def _flush_command_logs(
 
 
 def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWriter], *, device_id: str):
-    def _enqueue(task_type: str, params: Optional[Dict[str, Any]] = None, *, action: str, workpiece_id: Optional[int] = None, record_id: Optional[int] = None) -> None:
+    def _enqueue(action: str, params: Optional[Dict[str, Any]] = None, *, workpiece_id: Optional[int] = None, record_id: Optional[int] = None) -> None:
         if task_writer is None:
             return
         try:
-            task_writer.enqueue(task_type=task_type, device_id=device_id, params=params)
+            task_writer.enqueue_control_action(
+                action=action,
+                device_id=device_id,
+                params=params,
+                workpiece_id=workpiece_id,
+                record_id=record_id,
+            )
             task_writer.log_control_task(action=action, params=params, workpiece_id=workpiece_id, record_id=record_id)
         except Exception as exc:
-            LOG.error("Failed to enqueue hardware task %s: %s", task_type, exc)
+            LOG.error("Failed to enqueue hardware task %s: %s", action, exc)
 
     def _coerce_int(value: Any) -> Optional[int]:
         try:
@@ -715,20 +812,20 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
             state.torque_bias = 0.2
             state.stop_program()
             state.register_command(action, True, "Reset acknowledged")
-            _enqueue("RESET", {"action": action}, action=action, workpiece_id=workpiece_id, record_id=record_id)
+            _enqueue(action, dict(params) if params else None, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Reset acknowledged"}
 
         if normalized == "boost":
             state.spindle_rpm += 50.0
             state.torque_bias = min(state.torque_bias + 0.05, 0.6)
             state.register_command(action, True, "Boost applied")
-            _enqueue("BOOST", {"action": action}, action=action, workpiece_id=workpiece_id, record_id=record_id)
+            _enqueue(action, dict(params) if params else None, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Boost applied"}
 
         if normalized in {"run.start", "start"}:
             if state.start_program():
                 state.register_command(action, True, "Program playback started")
-                _enqueue("POLISH_START", {"action": action, "params": dict(params)}, action=action, workpiece_id=workpiece_id, record_id=record_id)
+                _enqueue(action, dict(params), workpiece_id=workpiece_id, record_id=record_id)
                 return {"ok": True, "message": "Program playback started"}
             state.register_command(action, False, "No program loaded")
             return {"ok": False, "message": "Program not available"}
@@ -736,11 +833,13 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
         if normalized in {"run.stop", "stop"}:
             state.stop_program()
             state.register_command(action, True, "Program playback stopped")
-            _enqueue("POLISH_STOP", {"action": action, "params": dict(params)}, action=action, workpiece_id=workpiece_id, record_id=record_id)
+            _enqueue(action, dict(params), workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Program playback stopped"}
 
         state.register_command(action, False, f"Unsupported action: {action}")
-        _enqueue(normalized.upper(), {"action": action, "params": dict(params)}, action=action, workpiece_id=workpiece_id, record_id=record_id)
+        fallback_params = dict(params)
+        fallback_params["normalized_action"] = normalized
+        _enqueue(action, fallback_params, workpiece_id=workpiece_id, record_id=record_id)
         return {"ok": False, "message": f"Unsupported action: {action}"}
 
     return handler
@@ -976,8 +1075,3 @@ async def run_controller(
                 pass
         if task_writer is not None:
             task_writer.close()
-
-
-
-
-

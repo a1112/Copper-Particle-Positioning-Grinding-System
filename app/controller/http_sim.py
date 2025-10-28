@@ -13,7 +13,7 @@ from app.controller.http_common import (
     run_controller,
 )
 
-SIM_DB_URL = "mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4"
+SIM_DB_URL = "mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4"
 LOG = logging.getLogger("controller.http_sim")
 
 

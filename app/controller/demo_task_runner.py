@@ -501,7 +501,7 @@ def _parse_cli_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the DemoTaskRunner against a database for local testing.")
     parser.add_argument(
         "--db-url",
-        default="mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
+        default="mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
         help="SQLAlchemy URL for the MzPoliShineDB database (default: %(default)s).",
     )
     parser.add_argument(

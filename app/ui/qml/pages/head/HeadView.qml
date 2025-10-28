@@ -19,7 +19,7 @@ Item {
   }
 
   // Running state from status socket
-  readonly property bool isRunning: (Datas.StatusDatas.lastMessage && Datas.StatusDatas.lastMessage.state) === "RUNNING"
+  readonly property bool isRunning: Datas.StatusDatas.forceEnableControls|(Datas.StatusDatas.lastMessage && Datas.StatusDatas.lastMessage.state) === "RUNNING"
 
   RowLayout {
     anchors.fill: parent
@@ -64,19 +64,34 @@ Item {
       source: Cores.CoreStyle.getIconSource("msg.png")
       height: root.height
       width: height * 2
-      onClicked: statePage.open()
+      enabled: Datas.StatusDatas.controlEnabled || Datas.StatusDatas.forceEnableControls
+      onClicked: {
+        if (!Datas.StatusDatas.controlEnabled && !Datas.StatusDatas.forceEnableControls)
+          return
+        statePage.open()
+      }
     }
     ItemDelegateButtonBase {
       source: Cores.CoreStyle.getIconSource("tool.png")
       height: root.height
       width: height * 2
-      onClicked: settingsPage.open()
+      enabled: Datas.StatusDatas.controlEnabled || Datas.StatusDatas.forceEnableControls
+      onClicked: {
+        if (!Datas.StatusDatas.controlEnabled && !Datas.StatusDatas.forceEnableControls)
+          return
+        settingsPage.open()
+      }
     }
     ItemDelegateButtonBase {
       source: Cores.CoreStyle.getIconSource("setting.png")
       height: root.height
       width: height * 2
-      onClicked: settingsDrawer.open()
+      enabled: Datas.StatusDatas.controlEnabled || Datas.StatusDatas.forceEnableControls
+      onClicked: {
+        if (!Datas.StatusDatas.controlEnabled && !Datas.StatusDatas.forceEnableControls)
+          return
+        settingsDrawer.open()
+      }
     }
     Item { width: 10; height: 2 }
   }
