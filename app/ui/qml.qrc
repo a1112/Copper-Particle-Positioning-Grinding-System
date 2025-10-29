@@ -113,6 +113,7 @@
         <file>qml/views/Log/LogView.qml</file>
         <file>qml/views/Code/CodeView.qml</file>
         <file>qml/views/Base/BaseCard.qml</file>
+        <file>qml/views/Base/qmldir</file>
         <file>qml/views/Charts/TorqueChart.qml</file>
         <file>qml/views/Charts/ElevationAreaChart.qml</file>
         <file>qml/views/Charts/RpmChart.qml</file>
@@ -205,7 +206,9 @@
         <file>qml/menu/states/StatePageInfo.qml</file>
         <file>qml/menu/states/StatePageHead.qml</file>
         <file>qml/views/Code/CodeRunOneItem.qml</file>
+        <file>qml/views/Code/qmldir</file>
         <file>qml/views/Task/TaskView.qml</file>
+        <file>qml/views/Task/qmldir</file>
         <file>qml/views/Manage/mix/CodeTaskFlip.qml</file>
         <file>qml/views/Manage/cores/FootViewCode.qml</file>
         <file>qml/views/Manage/cores/BaseCore.qml</file>

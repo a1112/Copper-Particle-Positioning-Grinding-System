@@ -57,11 +57,6 @@ ColumnLayout {
     ScrollBar.vertical: ScrollBar { }
   }
 
-
-  // CodeView{
-  //   Layout.fillHeight: true
-  // }
-
   CodeTaskFlip{
       Layout.fillWidth: true
       Layout.fillHeight: true

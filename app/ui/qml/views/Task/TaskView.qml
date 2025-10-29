@@ -11,6 +11,7 @@ import "../../works" as Works
 // TaskView presents the three-stage demo pipeline (capture/execute/control) using TaskDatas.
 Base.BaseCard {
   id: root
+  signal requestCodeView()
   Layout.fillWidth: true
   implicitWidth: contentColumn.implicitWidth + 24
   implicitHeight: contentColumn.implicitHeight + 24
@@ -235,14 +236,11 @@ Base.BaseCard {
       margins: 12
     }
     spacing: 4
-    TaskHead{}
-    TaskBody{
-
-
-    }
-    Repeater {
-      model: stageModel
-
+    TaskHead { }
+    TaskBody {
+      id: taskBody
+      stageModel: root.stageModel
+      onRequestCodeView: root.requestCodeView()
     }
   }
 }

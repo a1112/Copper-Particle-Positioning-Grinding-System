@@ -1,0 +1,4 @@
+TaskView 1.0 TaskView.qml
+TaskBody 1.0 TaskBody.qml
+TaskHead 1.0 TaskHead.qml
+TaskItem 1.0 TaskItem.qml

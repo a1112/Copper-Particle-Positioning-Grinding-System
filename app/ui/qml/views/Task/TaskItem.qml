@@ -1,14 +1,19 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
 import "../../cores" as Cores
 Item {
+  id: root
 
+  signal requestCodeView()
 
   readonly property var stage: modelData
   readonly property var task: taskForKey(stage.key)
   readonly property bool available: hasTask(task)
   readonly property bool ready: stageReady(stage)
+  readonly property bool showCodeSwitch: stage.key === "execute"
+
   Pane{
     anchors.fill: parent
     Material.elevation: 4
@@ -59,6 +64,14 @@ Item {
         text: ready ? qsTr("就绪") : qsTr("等待")
         color: ready ? Cores.CoreStyle.success : Cores.CoreStyle.warning
         font.bold: true
+      }
+
+      ToolButton {
+        visible: showCodeSwitch
+        text: "\u2192"
+        Layout.preferredWidth: 32
+        Layout.preferredHeight: 28
+        onClicked: root.requestCodeView()
       }
     }
 
