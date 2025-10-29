@@ -1,50 +1,62 @@
 import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
+import "../../Task" as TaskViews
+import "../../Code" as CodeViews
 
-import "../../../cores" as Cores
-import "../../../components/Base" as BaseComponents
-import "../../Task"
-import "../../Code"
-// Flipable container toggling between the code view and the task pipeline view.
+// Flipable container toggling between task status overview and code viewer.
 Flipable {
   id: flipable
-  property bool showingCode: true
-  property bool flipped: true
+  property bool showingCode: false
+
+  readonly property bool showingTask: !showingCode
 
   transform: Rotation {
-    id: rotation
-    origin.x: flipable.width/2
-    origin.y: flipable.height/2
-    axis.x: 0; axis.y: 1; axis.z: 0     // set axis.y to 1 to rotate around y-axis
-    angle: 0    // the default angle
-  }
-  states: State {
-    name: "back"
-    PropertyChanges { target: rotation; angle: 180 }
-    when: flipable.flipped
+    origin.x: flipable.width / 2
+    origin.y: flipable.height / 2
+    axis.y: 1
+    angle: flipable.showingCode ? 0 : 180
+    Behavior on angle { NumberAnimation { duration: 400; easing.type: Easing.InOutQuad } }
   }
 
-  transitions: Transition {
-    NumberAnimation { target: rotation; property: "angle"; duration: 600 }
-  }
   front: Item {
     anchors.fill: parent
-    CodeView{
+
+    CodeViews.CodeView {
+      id: codeView
       anchors.fill: parent
+      onRequestBack: flipable.showTask()
     }
   }
 
   back: Item {
     id: backSide
     anchors.fill: parent
-    TaskView{
+    transform: Rotation {
+      origin.x: backSide.width / 2
+      origin.y: backSide.height / 2
+      axis.y: 1
+      angle: 180
+    }
+
+    TaskViews.TaskView {
+      id: taskView
       anchors.fill: parent
+      onRequestCodeView: flipable.showCode()
     }
   }
 
+  function showTask() {
+    if (!flipable.showingCode)
+      return
+    flipable.showingCode = false
+  }
+
+  function showCode() {
+    if (flipable.showingCode)
+      return
+    flipable.showingCode = true
+  }
+
   function toggle() {
-    showingCode = !showingCode
-    flipable.flipped = !flipable.flipped
+    flipable.showingCode = !flipable.showingCode
   }
 }

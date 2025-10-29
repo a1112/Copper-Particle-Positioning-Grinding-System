@@ -2,37 +2,44 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
+
 import "../../cores" as Cores
+
 Item {
   id: root
 
   signal requestCodeView()
 
+  property var taskContext: null
+
   readonly property var stage: modelData
-  readonly property var task: taskForKey(stage.key)
-  readonly property bool available: hasTask(task)
-  readonly property bool ready: stageReady(stage)
+  readonly property var task: taskContext && taskContext.taskForKey ? taskContext.taskForKey(stage.key) : ({})
+  readonly property bool available: taskContext && taskContext.hasTask ? taskContext.hasTask(task) : false
+  readonly property bool ready: taskContext && taskContext.stageReady ? taskContext.stageReady(stage) : false
   readonly property bool showCodeSwitch: stage.key === "execute"
 
-  Pane{
+  Pane {
     anchors.fill: parent
     Material.elevation: 4
   }
 
-  height: col.height
+  height: columnLayout.implicitHeight + 8
+
   ColumnLayout {
-    id:col
+    id: columnLayout
     width: parent.width
-    spacing: 3
+    spacing: 6
+
     RowLayout {
       Layout.fillWidth: true
-      spacing: 2
+      spacing: 8
 
       Rectangle {
         width: 28
         height: 28
         radius: 14
         color: Cores.CoreStyle.primary
+
         Label {
           anchors.centerIn: parent
           text: String(index + 1)
@@ -69,8 +76,6 @@ Item {
       ToolButton {
         visible: showCodeSwitch
         text: "\u2192"
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 28
         onClicked: root.requestCodeView()
       }
     }
@@ -85,8 +90,8 @@ Item {
       }
 
       Label {
-        text: statusText(task)
-        color: statusColor(task)
+        text: taskContext && taskContext.statusText ? taskContext.statusText(task) : "-"
+        color: taskContext && taskContext.statusColor ? taskContext.statusColor(task) : Cores.CoreStyle.muted
         font.bold: true
       }
 
@@ -98,7 +103,7 @@ Item {
       }
 
       Label {
-        text: taskIdText(task)
+        text: taskContext && taskContext.taskIdText ? taskContext.taskIdText(task) : "-"
         color: Cores.CoreStyle.text
       }
 
@@ -108,7 +113,7 @@ Item {
       }
 
       Label {
-        text: recordText(task)
+        text: taskContext && taskContext.recordText ? taskContext.recordText(task) : "-"
         color: Cores.CoreStyle.text
       }
     }
@@ -123,7 +128,7 @@ Item {
       }
 
       Label {
-        text: phaseText(task)
+        text: taskContext && taskContext.phaseText ? taskContext.phaseText(task) : "-"
         color: Cores.CoreStyle.text
         Layout.fillWidth: true
         wrapMode: Text.NoWrap
@@ -136,7 +141,7 @@ Item {
       }
 
       Label {
-        text: available ? timeText(task, ["created_time", "createdTime", "queued_at", "queuedAt"]) : "-"
+        text: (available && taskContext && taskContext.timeText) ? taskContext.timeText(task, ["created_time", "createdTime", "queued_at", "queuedAt"]) : "-"
         color: Cores.CoreStyle.text
       }
 
@@ -146,15 +151,15 @@ Item {
       }
 
       Label {
-        text: available ? timeText(task, ["updated_time", "updatedTime", "finished_at", "finishedAt", "status_time", "statusTime"]) : "-"
+        text: (available && taskContext && taskContext.timeText) ? taskContext.timeText(task, ["updated_time", "updatedTime", "finished_at", "finishedAt", "status_time", "statusTime"]) : "-"
         color: Cores.CoreStyle.text
       }
     }
 
     Label {
       Layout.fillWidth: true
-      text: detailText(task)
-      color: available ? Cores.CoreStyle.muted : Cores.CoreStyle.muted
+      text: taskContext && taskContext.detailText ? taskContext.detailText(task) : "-"
+      color: Cores.CoreStyle.muted
       wrapMode: Text.WordWrap
     }
   }
