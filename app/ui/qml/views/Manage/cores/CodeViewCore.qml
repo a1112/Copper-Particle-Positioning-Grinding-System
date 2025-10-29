@@ -1,7 +1,7 @@
 import QtQuick
 
 // Core object providing selectable subviews (mirrors InfoViewCore API)
-QtObject {
+BaseCore {
   id: codeCore
 
   property var views: [

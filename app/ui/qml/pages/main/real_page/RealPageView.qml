@@ -42,25 +42,28 @@ Item {
         SplitView.preferredWidth: 500
       }
     }
-    Manage.FootManageView{}
-
-    SplitView {
-      SplitView.fillWidth: true
-      SplitView.preferredHeight: 265
-
-      Log.LogView {
-        SplitView.fillHeight: true
+    Manage.FootManageView{
         SplitView.fillWidth: true
-      }
-      Charts.ElevationAreaChart {
-        SplitView.fillHeight: true
-        SplitView.preferredWidth: 520
-      }
-      Ctrl.PTZControl {
-        SplitView.fillHeight: true
-        SplitView.preferredWidth: 450
-      }
+        SplitView.preferredHeight: 265
     }
+
+    // SplitView {
+    //   SplitView.fillWidth: true
+    //   SplitView.preferredHeight: 265
+
+    //   Log.LogView {
+    //     SplitView.fillHeight: true
+    //     SplitView.fillWidth: true
+    //   }
+    //   Charts.ElevationAreaChart {
+    //     SplitView.fillHeight: true
+    //     SplitView.preferredWidth: 520
+    //   }
+    //   Ctrl.PTZControl {
+    //     SplitView.fillHeight: true
+    //     SplitView.preferredWidth: 450
+    //   }
+    // }
   }
 }
 

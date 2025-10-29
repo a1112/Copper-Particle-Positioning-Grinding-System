@@ -8,6 +8,7 @@ import "../../datas" as Datas
 import "../../js/fmt.js" as Fmt
 import "../../works" as Works
 
+// TaskView presents the three-stage demo pipeline (capture/execute/control) using TaskDatas.
 Base.BaseCard {
   id: root
 
@@ -16,6 +17,7 @@ Base.BaseCard {
   implicitHeight: contentColumn.implicitHeight + 24
 
   readonly property var stageModel: [
+    // Each entry maps to the corresponding TaskDatas payload and display metadata.
     ({ key: "capture", title: qsTr("采集任务"), subtitle: qsTr("3D图像采集 -> 算法处理"), readyFlag: "captureReady" }),
     ({ key: "execute", title: qsTr("执行任务"), subtitle: qsTr("路径执行"), readyFlag: "executeReady" }),
     ({ key: "control", title: qsTr("校验任务"), subtitle: qsTr("采集图像 -> 验证"), readyFlag: "controlReady" })
@@ -223,6 +225,7 @@ Base.BaseCard {
 
   Connections {
     target: Cores.CoreCurrent
+    // Re-trigger polling when the selected record changes in CoreCurrent.
     function onRecordChanged() { Works.TaskWork.refresh() }
   }
 

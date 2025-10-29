@@ -1,6 +1,6 @@
 ﻿import QtQuick
 
-QtObject {
+BaseCore {
   id: root
 
   property var views: [
