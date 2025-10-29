@@ -1,9 +1,9 @@
-﻿import QtQuick
+import QtQuick
 
 BaseCore {
   id: root
 
-  property var views: [
+  views: [
     {
       key: "runState",
       title: qsTr("运行信息"),
@@ -16,86 +16,25 @@ BaseCore {
     },
     {
       key: "driveMetrics",
-      title: qsTr("运行数据"),
+      title: qsTr("设备状态"),
       source: Qt.resolvedUrl("../../DriveInfo/DriveInfoView.qml")
     },
     {
       key: "statusLights",
-      title: qsTr("报警状态"),
+      title: qsTr("状态指示"),
       source: Qt.resolvedUrl("../../DriveInfo/StatusLightAlarmView.qml")
     },
     {
       key: "torqueChart",
-      title: qsTr("扭矩曲线"),
+      title: qsTr("扭矩趋势"),
       source: Qt.resolvedUrl("../../Charts/TorqueChart.qml")
     },
     {
       key: "elevationChart",
-      title: qsTr("高度趋势"),
+      title: qsTr("高度剖面"),
       source: Qt.resolvedUrl("../../Charts/ElevationAreaChart.qml")
     }
   ]
 
-  property var selectedKeys: ["statusLights","driveMetrics","toolInfo", "runState"]
-  property var selectedViews: []
-
-  signal selectionChanged()
-
-  function isSelected(key) {
-    if (!key)
-      return false
-    return selectedKeys.indexOf(key) !== -1
-  }
-
-  function setSelected(key, enabled) {
-    if (!key)
-      return
-    var idx = selectedKeys.indexOf(key)
-    if (enabled && idx === -1) {
-      var next = selectedKeys.slice()
-      next.push(key)
-      selectedKeys = next
-      updateSelected()
-    } else if (!enabled && idx !== -1) {
-      var removed = selectedKeys.slice()
-      removed.splice(idx, 1)
-      selectedKeys = removed
-      updateSelected()
-    }
-  }
-
-  function toggle(key) {
-    setSelected(key, !isSelected(key))
-  }
-
-  function getView(key) {
-    for (var i = 0; i < views.length; ++i) {
-      if (views[i].key === key)
-        return views[i]
-    }
-    return null
-  }
-
-  function updateSelected() {
-    var next = []
-    for (var i = 0; i < views.length; ++i) {
-      var entry = views[i]
-      if (selectedKeys.indexOf(entry.key) !== -1)
-        next.push(entry)
-    }
-    selectedViews = next
-    selectionChanged()
-  }
-
-  function resetSelection(keys) {
-    if (!keys)
-      return
-    if (!keys.length)
-      return
-    selectedKeys = keys.slice()
-    updateSelected()
-  }
-
-  Component.onCompleted: updateSelected()
-  onSelectedKeysChanged: updateSelected()
+  selectedKeys: ["statusLights", "driveMetrics", "toolInfo", "runState"]
 }
