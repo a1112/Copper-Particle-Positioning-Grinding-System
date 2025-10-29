@@ -185,6 +185,10 @@
         <file>qml/views/DriveInfo/SingleCutCommandStatusView.qml</file>
         <file>qml/views/ImageInfo/core/ImageDataCore.qml</file>
         <file>qml/menu/MainMenu.qml</file>
+        <file>qml/menu/main_menus/InterfaceMenu.qml</file>
+        <file>qml/menu/main_menus/ControlMenu.qml</file>
+        <file>qml/menu/main_menus/ManualControlMenu.qml</file>
+        <file>qml/menu/main_menus/DataMenu.qml</file>
         <file>qml/menu/states/StatePage.qml</file>
         <file>qml/menu/states/StatePageCore.qml</file>
         <file>qml/menu/states/TaskStatusPanel.qml</file>
