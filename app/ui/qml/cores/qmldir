@@ -1,5 +1,4 @@
-﻿singleton Core 1.0 Core.qml
-singleton CoreError 1.0 CoreError.qml
+﻿singleton CoreError 1.0 CoreError.qml
 singleton CoreModels 1.0 CoreModels.qml
 singleton CoreSettings 1.0 CoreSettings.qml
 singleton CoreState 1.0 CoreState.qml
@@ -8,3 +7,4 @@ singleton CoreTimer 1.0 CoreTimer.qml
 singleton CoreUI 1.0 CoreUI.qml
 
 singleton CoreControl 1.0 CoreControl.qml
+singleton CoreCurrent 1.0 CoreCurrent.qml

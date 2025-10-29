@@ -90,6 +90,18 @@ Rectangle {
       var workpieceId = payload.workpiece_id || Datas.TaskDatas.workpieceId
       if (workpieceId > 0)
         controlParams.workpiece_id = workpieceId
+      if (resp && resp.record)
+        Cores.CoreCurrent.updateRecord(resp.record)
+      if (workpieceId > 0) {
+        Cores.CoreCurrent.updateWorkpiece({
+          id: workpieceId,
+          code: Datas.TaskDatas.workpieceCode,
+          type: Datas.TaskDatas.workpieceType
+        })
+      }
+      if (resp && resp.task)
+        Cores.CoreCurrent.updateTask(resp.task)
+      Cores.CoreCurrent.pushControl("capture", controlParams, { source: "capture_button" })
       Api.ApiClient.control("capture", controlParams, function() {
         Works.TaskWork.refresh()
       }, function(_, errMessage) {
@@ -102,3 +114,4 @@ Rectangle {
     })
   }
 }
+

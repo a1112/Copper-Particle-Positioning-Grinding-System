@@ -46,7 +46,8 @@ ApplicationWindow {
   height: Screen.height*0.8
 
   // 窗口标题
-  title: Cores.Core.title
+  title: Cores.CoreUI.title
 
 
 }
+

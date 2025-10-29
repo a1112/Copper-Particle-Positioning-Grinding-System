@@ -1,4 +1,4 @@
-<RCC>
+﻿<RCC>
     <qresource prefix="/">
         <file>qml/Api/ApiClient.qml</file>
         <file>qml/Api/Http.js</file>
@@ -75,7 +75,6 @@
         <file>qml/components/btns/SwitchButton.qml</file>
         <file>qml/components/btns/TextButton.qml</file>
         <file>qml/components/btns/ActionButton.qml</file>
-        <file>qml/cores/Core.qml</file>
         <file>qml/cores/CoreError.qml</file>
         <file>qml/cores/CoreModels.qml</file>
         <file>qml/cores/CoreSettings.qml</file>
@@ -189,6 +188,7 @@
         <file>qml/menu/main_menus/ControlMenu.qml</file>
         <file>qml/menu/main_menus/ManualControlMenu.qml</file>
         <file>qml/menu/main_menus/DataMenu.qml</file>
+        <file>qml/cores/CoreCurrent.qml</file>
         <file>qml/menu/states/StatePage.qml</file>
         <file>qml/menu/states/StatePageCore.qml</file>
         <file>qml/menu/states/TaskStatusPanel.qml</file>

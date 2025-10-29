@@ -2,6 +2,7 @@ import QtQuick.Controls
 import "../../datas" as Datas
 import "../../Api" as Api
 import "../../works" as Works
+import "../../cores" as Cores
 
 Menu {
   title: qsTr("手动控制")
@@ -18,6 +19,17 @@ Menu {
     if (Datas.TaskDatas.workpieceId && Datas.TaskDatas.workpieceId > 0)
       params.workpiece_id = Datas.TaskDatas.workpieceId
     params.manual = true
+
+    if (Datas.TaskDatas.workpieceId && Datas.TaskDatas.workpieceId > 0) {
+      Cores.CoreCurrent.updateWorkpiece({
+        id: Datas.TaskDatas.workpieceId,
+        code: Datas.TaskDatas.workpieceCode,
+        type: Datas.TaskDatas.workpieceType
+      })
+    }
+    if (params.record_id)
+      Cores.CoreCurrent.updateRecord({ id: params.record_id })
+    Cores.CoreCurrent.pushControl(action, params, { source: "manual_menu" })
 
     Api.ApiClient.control(action, params, function() {
       Works.TaskWork.refresh()
