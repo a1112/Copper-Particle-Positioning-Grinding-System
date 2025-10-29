@@ -188,6 +188,7 @@
         <file>qml/menu/main_menus/ControlMenu.qml</file>
         <file>qml/menu/main_menus/ManualControlMenu.qml</file>
         <file>qml/menu/main_menus/DataMenu.qml</file>
+        <file>qml/enums/AppEnums.qml</file>
         <file>qml/cores/CoreCurrent.qml</file>
         <file>qml/menu/states/StatePage.qml</file>
         <file>qml/menu/states/StatePageCore.qml</file>
