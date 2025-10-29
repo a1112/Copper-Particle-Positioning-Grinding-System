@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import "../Base"
+import "../Base" as Base
 import "../../cores" as Cores
 import "../../datas" as Datas
 import "../../js/fmt.js" as Fmt

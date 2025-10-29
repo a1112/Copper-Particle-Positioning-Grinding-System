@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import "head"
 import "cores"
 import "../Code"
+import "mix"
 // Make CodeManageView follow the same core-driven structure as InfoViewCore/InfoManageView
 ColumnLayout {
   id: root
@@ -57,8 +58,13 @@ ColumnLayout {
   }
 
 
-  CodeView{
-    Layout.fillHeight: true
+  // CodeView{
+  //   Layout.fillHeight: true
+  // }
+
+  CodeTaskFlip{
+      Layout.fillWidth: true
+      Layout.fillHeight: true
   }
   CodeContorl{}
 }
