@@ -9,6 +9,7 @@ import "../../cores" as Cores
 
 BaseCard {
   id: root
+  signal requestBack()
   Layout.fillWidth: true
   readonly property bool programEmpty: codeModel.count === 0
   implicitHeight: contentColumn.implicitHeight + 16
@@ -86,6 +87,7 @@ BaseCard {
       codeConnected: root.codeConnected
       runState: root.runState
       currentIndex: root.currentIndex
+      onBackRequested: root.requestBack()
     }
 
     Item {

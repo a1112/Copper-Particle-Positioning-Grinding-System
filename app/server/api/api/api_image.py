@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Iterable, Tuple
 
 from fastapi import HTTPException, Response
 from fastapi.responses import FileResponse
@@ -8,22 +8,35 @@ from fastapi.responses import FileResponse
 import mimetypes
 from pathlib import Path
 
-import app.config as CONFIG
 from ..api_core import image_router as router
 
-_override_png = CONFIG.testFolder / "images" / "1_IMG_Texture_8Bit.png"
-_TEST_IMAGE_FILES: Dict[str, str] = {
-    "color": "0_IMG_Color.png",
-    "gray": "0_IMG_Texture_8Bit.png",
-    "depth": "1_Z1.tif",
-    "normal": "1_NzRender.png",
+IMAGE_BASE_DIR = Path(r"D:\SaveData\current")
+_override_png = IMAGE_BASE_DIR / "src_IMG_Texture_8Bit.png"
+
+_IMAGE_FILE_CANDIDATES: Dict[str, Tuple[str, ...]] = {
+    "color": ("src_IMG_Color.png", "src_IMG_Texture_8Bit.png"),
+    "gray": ("src_IMG_Texture_8Bit.png", "rts_ImageZ1ZeroReal.tif", "rts_ImageSubZ1.tif"),
+    "depth": (
+        "rts_Z1.tif",
+        "rts_ImageZ1ZeroReal.tif",
+        "src_IMG_PointCloud_Z.tif",
+    ),
+    "normal": (
+        "rts_NzRender.png",
+        "src_IMG_NormalMap_Z.tif",
+        "rts_ZTbRender.png",
+    ),
 }
-_TEST_IMAGE_ALIASES: Dict[str, str] = {
-    **_TEST_IMAGE_FILES,
-    "彩色": _TEST_IMAGE_FILES["color"],
-    "灰度": _TEST_IMAGE_FILES["gray"],
-    "深度": _TEST_IMAGE_FILES["depth"],
-    "法线": _TEST_IMAGE_FILES["normal"],
+
+_IMAGE_TYPE_ALIASES: Dict[str, str] = {
+    "color": "color",
+    "gray": "gray",
+    "depth": "depth",
+    "normal": "normal",
+    "彩色": "color",
+    "灰度": "gray",
+    "深度": "depth",
+    "法线": "normal",
 }
 provider: Any | None = None  # injected by bootstrap
 
@@ -32,14 +45,45 @@ def _resolve_test_image(image_type: str) -> Tuple[Path, str]:
     key = (image_type or "").strip()
     if not key:
         key = "color"
-    filename = _TEST_IMAGE_ALIASES.get(key) or _TEST_IMAGE_ALIASES.get(key.lower())
-    if filename is None:
+
+    canonical = _IMAGE_TYPE_ALIASES.get(key) or _IMAGE_TYPE_ALIASES.get(key.lower())
+    if canonical is None:
         raise HTTPException(status_code=404, detail="Unsupported image type")
-    path = CONFIG.testFolder / "images" / filename
-    if not path.exists():
-        raise HTTPException(status_code=404, detail="Test image not found")
-    media_type = mimetypes.guess_type(str(path))[0] or "application/octet-stream"
-    return path, media_type
+
+    candidates: Iterable[str] = _IMAGE_FILE_CANDIDATES.get(canonical, ())
+    if not IMAGE_BASE_DIR.exists():
+        raise HTTPException(status_code=404, detail="Image directory not found")
+
+    for candidate in candidates:
+        path = IMAGE_BASE_DIR / candidate
+        if path.exists():
+            media_type = mimetypes.guess_type(str(path))[0] or "application/octet-stream"
+            return path, media_type
+
+    raise HTTPException(status_code=404, detail="Test image not found")
+
+
+def _best_available_png() -> Path | None:
+    if _override_png.exists():
+        return _override_png
+    gray_candidates = _IMAGE_FILE_CANDIDATES.get("gray", ())
+    for candidate in gray_candidates:
+        path = IMAGE_BASE_DIR / candidate
+        if path.exists() and path.suffix.lower() == ".png":
+            return path
+    color_candidates = _IMAGE_FILE_CANDIDATES.get("color", ())
+    for candidate in color_candidates:
+        path = IMAGE_BASE_DIR / candidate
+        if path.exists() and path.suffix.lower() == ".png":
+            return path
+    return None
+
+
+def _load_png_bytes(path: Path) -> bytes:
+    try:
+        return path.read_bytes()
+    except Exception:
+        return b""
 
 
 @router.get("/image/test")
@@ -51,11 +95,11 @@ async def image_test(type: str = "color") -> FileResponse:
 @router.get("/image.png")
 async def image_png() -> Response:
     # Prefer a bundled test image when present
-    try:
-        if _override_png.exists():
-            return Response(content=_override_png.read_bytes(), media_type="image/png")
-    except Exception:
-        pass
+    override_path = _best_available_png()
+    if override_path is not None:
+        buf_bytes = _load_png_bytes(override_path)
+        if buf_bytes:
+            return Response(content=buf_bytes, media_type="image/png")
 
     import numpy as np
     import cv2
