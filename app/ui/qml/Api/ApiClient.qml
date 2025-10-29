@@ -1,6 +1,6 @@
 ﻿pragma Singleton
 import QtQuick
-import "./Http.js" as Http
+                                                                                                import "../js/Http.js" as Http
 
 QtObject {
   id: apiClient
@@ -45,3 +45,4 @@ QtObject {
   function createGroup(serial, note, onOk, onErr){ post('/test/group/create', { serial: serial, note: note }, onOk, onErr) }
   function addImageToGroup(serial, name, onOk, onErr){ post('/test/group/' + encodeURIComponent(serial) + '/add_image?name=' + encodeURIComponent(name), {}, onOk, onErr) }
 }
+

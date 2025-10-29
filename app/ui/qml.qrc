@@ -1,7 +1,7 @@
 ﻿<RCC>
     <qresource prefix="/">
         <file>qml/Api/ApiClient.qml</file>
-        <file>qml/Api/Http.js</file>
+        <file>qml/js/Http.js</file>
         <file>qml/Api/qmldir</file>
         <file>qml/Api/Urls.qml</file>
         <file>qml/App_Base.qml</file>
