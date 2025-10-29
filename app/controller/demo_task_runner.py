@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app import config as APP_CONFIG
 from app.common.tasks import ControlInstruction, TaskStatus, TaskType
-from app.db.models.MzPoliShineDB import RecordTable, StatusTable, TaskTable, WorkpieceTable
+from app.db.models.MzPoliShineDB import HardwareTaskQueue, RecordTable, StatusTable, WorkpieceTable
 
 
 LOG = logging.getLogger("controller.demo_task_runner")
@@ -36,6 +36,7 @@ class DemoTaskRunner:
         self._capture_duration = 2.0
         self._control_duration = 1.0
         self._execute_duration = 3.5
+        self._default_device_id = 1
         self._sample_images: Dict[str, Path] = self._discover_samples()
 
     # ------------------------------------------------------------------ public
@@ -105,29 +106,29 @@ class DemoTaskRunner:
 
     def _advance_capture(self, session: Session) -> bool:
         stmt = (
-            select(TaskTable)
-            .where(TaskTable.t_task_type == int(TaskType.CAPTURE))
-            .where(TaskTable.t_status.in_([int(TaskStatus.PENDING), int(TaskStatus.RUNNING)]))
-            .order_by(TaskTable.id.asc())
+            select(HardwareTaskQueue)
+            .where(HardwareTaskQueue.task_type == int(TaskType.CAPTURE))
+            .where(HardwareTaskQueue.status.in_([int(TaskStatus.PENDING), int(TaskStatus.RUNNING)]))
+            .order_by(HardwareTaskQueue.id.asc())
         )
-        tasks: Iterable[TaskTable] = session.scalars(stmt).all()
+        tasks: Iterable[HardwareTaskQueue] = session.scalars(stmt).all()
         changed = False
         for task in tasks:
-            detail = dict(task.t_status_detail or {})
+            detail = dict(task.status_params or {})
             now = time.time()
-            if task.t_status == int(TaskStatus.PENDING):
+            if task.status == int(TaskStatus.PENDING):
                 detail["phase"] = "capturing"
                 detail["started_at"] = now
                 detail["updated_at"] = now
-                task.t_status = int(TaskStatus.RUNNING)
-                task.t_status_detail = detail
-                self._mark_record_stage(session, task.t_record_id, "capture_running")
+                task.status = int(TaskStatus.RUNNING)
+                task.status_params = detail
+                self._mark_record_stage(session, task.record_id, "capture_running")
                 self._update_status_table(session, run_status=2, machine_mode=2)
                 LOG.info(
                     "Capture task started (task_id=%s record_id=%s workpiece=%s)",
                     task.id,
-                    task.t_record_id,
-                    task.t_workpiece_id,
+                    task.record_id,
+                    task.workpiece_id,
                 )
                 changed = True
                 continue
@@ -135,7 +136,7 @@ class DemoTaskRunner:
             if started_at and now - started_at < self._capture_duration:
                 if detail.get("updated_at", 0.0) != now:
                     detail["updated_at"] = now
-                    task.t_status_detail = detail
+                    task.status_params = detail
                     changed = True
                 continue
             self._complete_capture_task(session, task, detail)
@@ -144,27 +145,27 @@ class DemoTaskRunner:
 
     def _advance_control(self, session: Session) -> bool:
         stmt = (
-            select(TaskTable)
-            .where(TaskTable.t_task_type == int(TaskType.CONTROL))
-            .where(TaskTable.t_status.in_([int(TaskStatus.PENDING), int(TaskStatus.RUNNING)]))
-            .order_by(TaskTable.id.asc())
+            select(HardwareTaskQueue)
+            .where(HardwareTaskQueue.task_type == int(TaskType.CONTROL))
+            .where(HardwareTaskQueue.status.in_([int(TaskStatus.PENDING), int(TaskStatus.RUNNING)]))
+            .order_by(HardwareTaskQueue.id.asc())
         )
-        tasks: Iterable[TaskTable] = session.scalars(stmt).all()
+        tasks: Iterable[HardwareTaskQueue] = session.scalars(stmt).all()
         changed = False
         for task in tasks:
-            detail = dict(task.t_status_detail or {})
+            detail = dict(task.status_params or {})
             now = time.time()
-            if task.t_status == int(TaskStatus.PENDING):
+            if task.status == int(TaskStatus.PENDING):
                 detail["phase"] = "control"
                 detail["started_at"] = now
                 detail["updated_at"] = now
-                task.t_status = int(TaskStatus.RUNNING)
-                task.t_status_detail = detail
+                task.status = int(TaskStatus.RUNNING)
+                task.status_params = detail
                 self._update_status_table(session, run_status=2, machine_mode=3)
                 LOG.info(
                     "Control task running (task_id=%s record_id=%s)",
-                    task.id,
-                    task.t_record_id,
+                        task.id,
+                    task.record_id,
                 )
                 changed = True
                 continue
@@ -172,7 +173,7 @@ class DemoTaskRunner:
             if started_at and now - started_at < self._control_duration:
                 if detail.get("updated_at", 0.0) != now:
                     detail["updated_at"] = now
-                    task.t_status_detail = detail
+                    task.status_params = detail
                     changed = True
                 continue
             self._complete_control_task(session, task, detail)
@@ -181,28 +182,28 @@ class DemoTaskRunner:
 
     def _advance_execute(self, session: Session) -> bool:
         stmt = (
-            select(TaskTable)
-            .where(TaskTable.t_task_type == int(TaskType.EXECUTE))
-            .where(TaskTable.t_status.in_([int(TaskStatus.PENDING), int(TaskStatus.RUNNING)]))
-            .order_by(TaskTable.id.asc())
+            select(HardwareTaskQueue)
+            .where(HardwareTaskQueue.task_type == int(TaskType.EXECUTE))
+            .where(HardwareTaskQueue.status.in_([int(TaskStatus.PENDING), int(TaskStatus.RUNNING)]))
+            .order_by(HardwareTaskQueue.id.asc())
         )
-        tasks: Iterable[TaskTable] = session.scalars(stmt).all()
+        tasks: Iterable[HardwareTaskQueue] = session.scalars(stmt).all()
         changed = False
         for task in tasks:
-            detail = dict(task.t_status_detail or {})
+            detail = dict(task.status_params or {})
             now = time.time()
-            if task.t_status == int(TaskStatus.PENDING):
+            if task.status == int(TaskStatus.PENDING):
                 detail["phase"] = "execute"
                 detail["started_at"] = now
                 detail["updated_at"] = now
-                task.t_status = int(TaskStatus.RUNNING)
-                task.t_status_detail = detail
+                task.status = int(TaskStatus.RUNNING)
+                task.status_params = detail
                 self._update_status_table(session, run_status=2, machine_mode=4)
-                self._mark_record_stage(session, task.t_record_id, "execute_running")
+                self._mark_record_stage(session, task.record_id, "execute_running")
                 LOG.info(
                     "Execute task running (task_id=%s record_id=%s)",
                     task.id,
-                    task.t_record_id,
+                    task.record_id,
                 )
                 changed = True
                 continue
@@ -210,7 +211,7 @@ class DemoTaskRunner:
             if started_at and now - started_at < self._execute_duration:
                 if detail.get("updated_at", 0.0) != now:
                     detail["updated_at"] = now
-                    task.t_status_detail = detail
+                    task.status_params = detail
                     changed = True
                 continue
             self._complete_execute_task(session, task, detail)
@@ -219,8 +220,8 @@ class DemoTaskRunner:
 
     # -------------------------------------------------------------- transitions
 
-    def _complete_capture_task(self, session: Session, task: TaskTable, detail: dict) -> None:
-        record = session.get(RecordTable, task.t_record_id)
+    def _complete_capture_task(self, session: Session, task: HardwareTaskQueue, detail: dict) -> None:
+        record = session.get(RecordTable, task.record_id)
         commands = self._build_demo_commands(record.id if record else task.id)
         artifacts = self._materialise_capture_payload(task, commands)
         if record:
@@ -242,52 +243,54 @@ class DemoTaskRunner:
         detail["phase"] = "completed"
         detail["finished_at"] = time.time()
         detail["updated_at"] = time.time()
-        task.t_status = int(TaskStatus.COMPLETED)
-        task.t_status_detail = detail
+        task.status = int(TaskStatus.COMPLETED)
+        task.status_params = detail
         self._update_status_table(session, run_status=1, machine_mode=2)
         LOG.info(
             "Capture task completed (task_id=%s record_id=%s artifacts=%s)",
             task.id,
-            task.t_record_id,
+            task.record_id,
             artifacts.get("folder"),
         )
 
         control_exists = session.execute(
-            select(TaskTable)
-            .where(TaskTable.t_task_type == int(TaskType.CONTROL))
-            .where(TaskTable.t_record_id == task.t_record_id)
-            .order_by(TaskTable.id.desc())
+            select(HardwareTaskQueue)
+            .where(HardwareTaskQueue.task_type == int(TaskType.CONTROL))
+            .where(HardwareTaskQueue.record_id == task.record_id)
+            .order_by(HardwareTaskQueue.id.desc())
         ).scalar_one_or_none()
         if control_exists:
             return
 
-        control_task = TaskTable(
-            t_task_name=f"control-{task.t_record_id}",
-            t_task_type=int(TaskType.CONTROL),
-            t_workpiece_type=task.t_workpiece_type,
-            t_material_type=task.t_material_type,
-            t_status=int(TaskStatus.PENDING),
-            t_workpiece_id=task.t_workpiece_id,
-            t_record_id=task.t_record_id,
-            t_payload={"commands": commands},
-            t_status_detail={"phase": "queued"},
+        control_task = HardwareTaskQueue(
+            task_name=f"control-{task.record_id}",
+            task_type=int(TaskType.CONTROL),
+            workpiece_id=task.workpiece_id,
+            record_id=task.record_id,
+            task_params={"commands": commands},
+            status=int(TaskStatus.PENDING),
+            status_params={"phase": "queued"},
+            device_id=self._default_device_id,
         )
         session.add(control_task)
         LOG.info(
             "Control task created (task_id=%s source_task=%s record_id=%s commands=%d)",
             control_task.id,
             task.id,
-            task.t_record_id,
+            task.record_id,
             len(commands),
         )
 
-    def _complete_control_task(self, session: Session, task: TaskTable, detail: dict) -> None:
+    def _complete_control_task(self, session: Session, task: HardwareTaskQueue, detail: dict) -> None:
         detail["phase"] = "completed"
         detail["finished_at"] = time.time()
         detail["updated_at"] = time.time()
-        task.t_status = int(TaskStatus.COMPLETED)
-        task.t_status_detail = detail
-        commands = (task.t_payload or {}).get("commands") or []
+        task.status = int(TaskStatus.COMPLETED)
+        task.status_params = detail
+        payload = task.task_params or {}
+        commands = payload.get("commands") if isinstance(payload, dict) else None
+        if not isinstance(commands, list):
+            commands = []
         if not commands:
             self._update_status_table(session, run_status=1, machine_mode=3)
             return
@@ -304,34 +307,37 @@ class DemoTaskRunner:
         LOG.info(
             "Control task completed (task_id=%s record_id=%s commands=%d)",
             task.id,
-            task.t_record_id,
+            task.record_id,
             len(commands),
         )
 
-    def _complete_execute_task(self, session: Session, task: TaskTable, detail: dict) -> None:
+    def _complete_execute_task(self, session: Session, task: HardwareTaskQueue, detail: dict) -> None:
         detail["phase"] = "completed"
         detail["finished_at"] = time.time()
         detail["updated_at"] = time.time()
-        task.t_status = int(TaskStatus.COMPLETED)
-        task.t_status_detail = detail
+        task.status = int(TaskStatus.COMPLETED)
+        task.status_params = detail
         self._update_status_table(session, run_status=1, machine_mode=1)
-        self._mark_record_stage(session, task.t_record_id, "execute_completed")
+        self._mark_record_stage(session, task.record_id, "execute_completed")
         LOG.info(
             "Execute task completed (task_id=%s record_id=%s)",
             task.id,
-            task.t_record_id,
+            task.record_id,
         )
 
     # --------------------------------------------------------------- utilities
 
-    def _materialise_capture_payload(self, task: TaskTable, commands: list[dict]) -> Dict[str, object]:
+    def _materialise_capture_payload(self, task: HardwareTaskQueue, commands: list[dict]) -> Dict[str, object]:
         folder = None
-        payload = task.t_payload or {}
+        payload = task.task_params or {}
+        if not isinstance(payload, dict):
+            payload = {}
         raw_folder = payload.get("folder")
         if isinstance(raw_folder, str) and raw_folder:
             folder = Path(raw_folder)
         else:
-            folder = self._save_dir / f"record_{task.t_record_id or task.id:06d}"
+            record_ref = task.record_id or task.id
+            folder = self._save_dir / f"record_{record_ref:06d}"
         folder.mkdir(parents=True, exist_ok=True)
         analysis_file = folder / "algorithm.json"
         with analysis_file.open("w", encoding="utf-8") as fp:

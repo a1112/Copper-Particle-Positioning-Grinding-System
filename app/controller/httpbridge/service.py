@@ -9,8 +9,6 @@ from .server import HttpControllerServer
 log = logging.getLogger("controller.httpbridge.service")
 
 ControlHandler = Callable[[str, Dict[str, Any]], Mapping[str, Any]]
-
-
 class HttpControllerService:
     """High-level helper binding the controller logic to the API server via HTTP."""
 

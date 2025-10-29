@@ -22,7 +22,6 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import HTTP_BRIDGE_BASE, HTTP_CONTROL_ENDPOINT, HTTP_TIMEOUT
 from app.controller.httpbridge import HttpControllerService
-from app.common.tasks import TaskStatus, TaskType
 
 try:
     from app.db.models.MzPoliShineDB import CuttingStatusTable, HardwareTaskQueue, RecordTable, StatusTable
@@ -502,7 +501,6 @@ class TaskQueueWriter:
         self._engine = engine
         self._owns_engine = owns_engine
         self._metadata = MetaData()
-        self._task_table: Optional[Table] = None
         self._hardware_table: Optional[Table] = None
 
     @classmethod
@@ -513,16 +511,6 @@ class TaskQueueWriter:
         engine = create_engine(db_url, future=True, pool_pre_ping=True, pool_recycle=1800, connect_args=connect_args)
         session_factory = sessionmaker(bind=engine, future=True, expire_on_commit=False)
         return cls(session_factory, engine=engine, owns_engine=True)
-
-    def _ensure_task_table(self, session: Session) -> Optional[Table]:
-        if self._task_table is not None:
-            return self._task_table
-        try:
-            self._task_table = Table("task_table", self._metadata, autoload_with=session.bind)
-        except SQLAlchemyError as exc:
-            LOG.error("Unable to reflect task_table: %s", exc)
-            self._task_table = None
-        return self._task_table
 
     def _ensure_hardware_table(self, session: Session) -> Optional[Table]:
         if self._hardware_table is not None:
@@ -692,74 +680,6 @@ class TaskQueueWriter:
             created_by=created_by,
         )
 
-    def log_control_task(
-        self,
-        *,
-        action: str,
-        params: Optional[Dict[str, Any]] = None,
-        workpiece_id: Optional[int] = None,
-        record_id: Optional[int] = None,
-    ) -> None:
-        """Insert a task_table row describing the control command."""
-        params = dict(params or {})
-        now = time.time()
-        action_key = self._normalise_action(action)
-        action_name = self._friendly_action_name(action)
-        with self._session_factory() as session:
-            table = self._ensure_task_table(session)
-            if table is None:
-                return
-            columns = table.c
-            payload: Dict[str, Any] = {
-                "t_task_name": f"control:{action_key or 'command'}",
-                "t_task_type": int(TaskType.CONTROL),
-            }
-            if "t_status" in columns:
-                payload["t_status"] = int(TaskStatus.PENDING)
-            if "t_priority" in columns:
-                payload["t_priority"] = 1
-            if "t_progress" in columns:
-                payload["t_progress"] = 0
-            if "t_workpiece_id" in columns:
-                payload["t_workpiece_id"] = workpiece_id
-            if "t_record_id" in columns:
-                payload["t_record_id"] = record_id
-            if "t_payload" in columns:
-                payload["t_payload"] = {
-                    "action": action,
-                    "action_key": action_key,
-                    "action_name": action_name,
-                    "params": params,
-                    "queued_at": now,
-                    "workpiece_id": workpiece_id,
-                    "record_id": record_id,
-                }
-            if "t_status_detail" in columns:
-                payload["t_status_detail"] = {
-                    "source": "http_prod",
-                    "state": "queued",
-                    "updated_at": now,
-                }
-            try:
-                result = session.execute(table.insert().values(**payload))
-                session.commit()
-                inserted_id = None
-                if result and hasattr(result, "inserted_primary_key"):
-                    pk = result.inserted_primary_key
-                    if pk:
-                        inserted_id = pk[0]
-                LOG.info(
-                    "Logged control task action=%s name=%s record=%s workpiece=%s task_id=%s",
-                    action,
-                    action_name,
-                    record_id,
-                    workpiece_id,
-                    inserted_id,
-                )
-            except SQLAlchemyError as exc:
-                session.rollback()
-                LOG.error("Failed to log control task action=%s: %s", action, exc)
-
     def close(self) -> None:
         if self._owns_engine and self._engine is not None:
             try:
@@ -842,7 +762,6 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
                 workpiece_id=workpiece_id,
                 record_id=record_id,
             )
-            task_writer.log_control_task(action=action, params=payload, workpiece_id=workpiece_id, record_id=record_id)
         except Exception as exc:
             LOG.error("Failed to enqueue hardware task %s: %s", action, exc)
 

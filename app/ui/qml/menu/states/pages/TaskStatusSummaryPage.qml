@@ -1,9 +1,10 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
 import "../../../cores" as Cores
 import "../../../datas" as Datas
+import "../../../js/fmt.js" as Fmt
 
 ScrollView {
   id: root
@@ -100,13 +101,13 @@ ScrollView {
                   spacing: 18
                   Label { text: qsTr("创建时间"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 80 }
                   Label {
-                    text: statePageCore.formatTimestamp(modelData.task.created_time || modelData.task.createdTime)
+                    text: Fmt.formatTimestamp(modelData.task.created_time || modelData.task.createdTime)
                     color: Cores.CoreStyle.text
                     Layout.fillWidth: true
                   }
                   Label { text: qsTr("更新"); color: Cores.CoreStyle.muted; Layout.preferredWidth: 60 }
                   Label {
-                    text: statePageCore.formatTimestamp(modelData.task.updated_time || modelData.task.updatedTime)
+                    text: Fmt.formatTimestamp(modelData.task.updated_time || modelData.task.updatedTime)
                     color: Cores.CoreStyle.text
                     Layout.fillWidth: true
                   }

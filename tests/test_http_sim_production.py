@@ -5,7 +5,7 @@ from decimal import Decimal
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.common.tasks import TaskStatus, TaskType
+from app.common.tasks import TaskStatus
 from app.controller.http_common import ControllerState, DbStatusSource, TaskQueueWriter
 from app.db.models import MzPoliShineDB
 
@@ -58,27 +58,46 @@ def test_task_queue_writer_enqueue(tmp_path):
     with Session(engine) as session:
         rows = session.query(MzPoliShineDB.HardwareTaskQueue).all()
         assert len(rows) == 1
-        assert rows[0].task_type == "POLISH_START"
-        assert rows[0].device_id == "DEVICE-01"
-        assert rows[0].task_params["action"] == "run.start"
+        entry = rows[0]
+        assert entry.task_name == TaskQueueWriter.DEFAULT_TASK_NAME
+        assert entry.task_type == TaskQueueWriter.DEFAULT_TASK_TYPE
+        assert entry.device_id == 1
+        assert entry.status == int(TaskStatus.PENDING)
+        assert entry.task_params["action"] == "POLISH_START"
+        assert entry.task_params["params"]["action"] == "run.start"
 
     writer.close()
 
 
-def test_task_queue_writer_logs_control(tmp_path):
+def test_task_queue_writer_control_action(tmp_path):
     db_path = tmp_path / "control.db"
     engine = create_engine(f"sqlite:///{db_path}", future=True)
     MzPoliShineDB.Base.metadata.create_all(engine)
 
     writer = TaskQueueWriter(sessionmaker(bind=engine, future=True), engine=engine)
-    writer.log_control_task(action="run.start", params={"speed": 120})
+    writer.enqueue_control_action(
+        action="run.start",
+        device_id="GRINDER-02",
+        params={"speed": 120},
+        workpiece_id=5,
+        record_id=9,
+        task_name_override="控制命令",
+        task_type_override=42,
+    )
 
     with Session(engine) as session:
-        rows = session.query(MzPoliShineDB.TaskTable).all()
+        rows = session.query(MzPoliShineDB.HardwareTaskQueue).all()
         assert len(rows) == 1
         entry = rows[0]
-        assert entry.t_task_name == "control:run.start"
-        assert entry.t_task_type == int(TaskType.CONTROL)
-        assert entry.t_status == int(TaskStatus.PENDING)
+        assert entry.task_name == "控制命令"
+        assert entry.task_type == 42
+        assert entry.workpiece_id == 5
+        assert entry.record_id == 9
+        assert entry.device_id == 2
+        assert entry.status == int(TaskStatus.PENDING)
+        payload = entry.task_params
+        assert payload["action"] == "run.start"
+        assert payload["params"]["speed"] == 120
+        assert payload["action_key"] == "run.start"
 
     writer.close()

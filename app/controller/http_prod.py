@@ -49,6 +49,22 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
     file_logger = HttpBridgeFileLogger(LOG_BASE_DIR)
 
     try:
+        import app.db as app_db  # pylint: disable=import-error
+    except Exception as exc:
+        LOG.warning("Database module unavailable; skipping init: %s", exc)
+        app_db = None  # type: ignore[assignment]
+    else:
+        try:
+            app_db.init_db()
+            from app.db.seed import seed_tool_data, seed_workpiece_data, seed_cutting_status_data
+
+            seed_tool_data(app_db.SessionLocal)
+            seed_workpiece_data(app_db.SessionLocal)
+            seed_cutting_status_data(app_db.SessionLocal)
+        except Exception as exc:
+            LOG.warning("Database initialisation failed: %s", exc, exc_info=False)
+
+    try:
         status_source = DbStatusSource(args.db_url)
         fallback_source = SimulatedStatusSource()
         task_writer = TaskQueueWriter(status_source.session_factory, engine=status_source.engine)

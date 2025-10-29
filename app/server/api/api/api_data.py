@@ -10,7 +10,7 @@ from sqlalchemy import delete, desc, func, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.db.models.MzPoliShineDB import AlarmTable, RecordTable, TaskTable, WorkpieceTable
+from app.db.models.MzPoliShineDB import AlarmTable, HardwareTaskQueue, RecordTable, WorkpieceTable
 from app.server.api.api_core import data_router as router
 from app.common.tasks import TaskStatus, TaskType
 from app import config
@@ -98,19 +98,22 @@ def _get_workpiece(session: Session, workpiece_id: Optional[int]) -> WorkpieceTa
     return _ensure_default_workpiece(session)
 
 
-def _serialize_task(row: TaskTable) -> Dict[str, Any]:
-    payload = row.t_payload or {}
+def _serialize_task(row: HardwareTaskQueue) -> Dict[str, Any]:
+    payload = row.task_params or {}
     if not isinstance(payload, dict):
         payload = {"value": payload}
-    params = payload.get("params") if isinstance(payload.get("params"), dict) else payload.get("params")
+    params_field = payload.get("params")
+    params = params_field if isinstance(params_field, dict) else params_field
+    status_detail = row.status_params if isinstance(row.status_params, dict) else {}
     return {
         'id': row.id,
-        'name': row.t_task_name,
-        'type': row.t_task_type,
-        'status': row.t_status,
-        'priority': row.t_priority,
-        'workpiece_id': row.t_workpiece_id,
-        'record_id': row.t_record_id,
+        'name': row.task_name,
+        'type': row.task_type,
+        'status': row.status,
+        'priority': row.priority,
+        'workpiece_id': row.workpiece_id,
+        'record_id': row.record_id,
+        'device_id': row.device_id,
         'payload': payload,
         'command': payload.get('action'),
         'command_key': payload.get('action_key'),
@@ -118,7 +121,7 @@ def _serialize_task(row: TaskTable) -> Dict[str, Any]:
         'command_params': params,
         'queued_at': payload.get('queued_at'),
         'remark': payload.get('remark') or payload.get('note'),
-        'status_detail': row.t_status_detail or {},
+        'status_detail': status_detail,
         'created_time': row.created_time.isoformat() if row.created_time else None,
         'updated_time': row.updated_time.isoformat() if row.updated_time else None,
     }
@@ -213,15 +216,15 @@ def create_capture_record(payload: CaptureRequestPayload, session: Session = Dep
     session.flush()
 
     folder = _ensure_save_dir(record.id)
-    task = TaskTable(
-        t_task_name=f'capture-{record.id}',
-        t_task_type=int(TaskType.CAPTURE),
-        t_workpiece_type=workpiece.w_workpiece_type,
-        t_material_type=workpiece.w_material,
-        t_status=int(TaskStatus.PENDING),
-        t_workpiece_id=workpiece.id,
-        t_record_id=record.id,
-        t_payload={'folder': str(folder), 'note': payload.note or ''},
+    task = HardwareTaskQueue(
+        task_name=f'capture-{record.id}',
+        task_type=int(TaskType.CAPTURE),
+        workpiece_id=workpiece.id,
+        record_id=record.id,
+        status=int(TaskStatus.PENDING),
+        task_params={'folder': str(folder), 'note': payload.note or '', 'queued_at': datetime.utcnow().timestamp()},
+        status_params={'phase': 'queued'},
+        device_id=1,
     )
     session.add(task)
     session.commit()
@@ -250,13 +253,15 @@ def enqueue_execute_task(payload: ExecuteRequestPayload, session: Session = Depe
         ).scalars().first()
         if record is None:
             raise HTTPException(status_code=400, detail='No capture record available for this workpiece')
-    task = TaskTable(
-        t_task_name=f'execute-{record.id}',
-        t_task_type=int(TaskType.EXECUTE),
-        t_workpiece_id=record.workpiece_id,
-        t_record_id=record.id,
-        t_status=int(TaskStatus.PENDING),
-        t_payload={'record_id': record.id},
+    task = HardwareTaskQueue(
+        task_name=f'execute-{record.id}',
+        task_type=int(TaskType.EXECUTE),
+        workpiece_id=record.workpiece_id,
+        record_id=record.id,
+        status=int(TaskStatus.PENDING),
+        task_params={'record_id': record.id, 'queued_at': datetime.utcnow().timestamp()},
+        status_params={'phase': 'queued'},
+        device_id=1,
     )
     session.add(task)
     session.commit()
@@ -338,12 +343,12 @@ def create_test_alarm(payload: AlarmTestPayload, session: Session = Depends(get_
     summary = _alarm_summary_for_record(session, record.id)
     return {'ok': True, 'alarm': _serialize_alarm(alarm), 'alarm_summary': summary}
 
-def _latest_task(session: Session, task_type: TaskType) -> Optional[TaskTable]:
+def _latest_task(session: Session, task_type: TaskType) -> Optional[HardwareTaskQueue]:
     return (
         session.execute(
-            select(TaskTable)
-            .where(TaskTable.t_task_type == int(task_type))
-            .order_by(desc(TaskTable.id))
+            select(HardwareTaskQueue)
+            .where(HardwareTaskQueue.task_type == int(task_type))
+            .order_by(desc(HardwareTaskQueue.id))
         )
         .scalars()
         .first()
@@ -383,16 +388,16 @@ def task_state_summary(session: Session = Depends(get_db_session)) -> Dict[str, 
     latest_execute = _latest_task(session, TaskType.EXECUTE)
     latest_control = _latest_task(session, TaskType.CONTROL)
 
-    capture_active = latest_capture and latest_capture.t_status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
-    execute_active = latest_execute and latest_execute.t_status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
-    capture_ready = bool(latest_capture and latest_capture.t_status == int(TaskStatus.COMPLETED))
+    capture_active = latest_capture and latest_capture.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
+    execute_active = latest_execute and latest_execute.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
+    capture_ready = bool(latest_capture and latest_capture.status == int(TaskStatus.COMPLETED))
     execute_ready = capture_ready and not execute_active
 
     control_rows = (
         session.execute(
-            select(TaskTable)
-            .where(TaskTable.t_task_type == int(TaskType.CONTROL))
-            .order_by(desc(TaskTable.id))
+            select(HardwareTaskQueue)
+            .where(HardwareTaskQueue.task_type == int(TaskType.CONTROL))
+            .order_by(desc(HardwareTaskQueue.id))
         )
         .scalars()
         .all()
@@ -425,8 +430,8 @@ def task_state_summary(session: Session = Depends(get_db_session)) -> Dict[str, 
 
 @router.delete('/data/tasks/control/{task_id}')
 def delete_control_task(task_id: int, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
-    row = session.get(TaskTable, task_id)
-    if row is None or row.t_task_type != int(TaskType.CONTROL):
+    row = session.get(HardwareTaskQueue, task_id)
+    if row is None or row.task_type != int(TaskType.CONTROL):
         raise HTTPException(status_code=404, detail='Control task not found')
     session.delete(row)
     session.commit()
@@ -435,7 +440,7 @@ def delete_control_task(task_id: int, session: Session = Depends(get_db_session)
 
 @router.delete('/data/tasks/control')
 def clear_control_tasks(session: Session = Depends(get_db_session)) -> Dict[str, Any]:
-    stmt = delete(TaskTable).where(TaskTable.t_task_type == int(TaskType.CONTROL))
+    stmt = delete(HardwareTaskQueue).where(HardwareTaskQueue.task_type == int(TaskType.CONTROL))
     result = session.execute(stmt)
     session.commit()
     return {'ok': True, 'deleted': result.rowcount or 0}

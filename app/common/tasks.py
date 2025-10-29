@@ -6,7 +6,7 @@ from typing import Dict
 
 
 class TaskType(IntEnum):
-    """Supported high-level task categories persisted in task_table."""
+    """Supported high-level task categories persisted in hardware_task_queue."""
 
     CAPTURE = 10
     EXECUTE = 20
@@ -14,7 +14,7 @@ class TaskType(IntEnum):
 
 
 class TaskStatus(IntEnum):
-    """Normalized task status values stored in task_table."""
+    """Normalized task status values stored in hardware_task_queue."""
 
     PENDING = 0
     RUNNING = 1

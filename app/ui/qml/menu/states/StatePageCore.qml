@@ -3,6 +3,7 @@ import "../../cores" as Cores
 import "../../datas" as Datas
 import "../../works" as Works
 import "../../Api" as Api
+import "../../js/fmt.js" as Fmt
 Item {
     id:root
     property bool refreshing: false
@@ -90,7 +91,7 @@ Item {
     function applyAlarmResponse(payload) {
       var alarms = (payload && payload.alarms) ? payload.alarms : []
       var mapped = []
-      normalizeArray(alarms).forEach(function(item) {
+      Fmt.normalizeArray(alarms).forEach(function(item) {
         mapped.push(buildAlarmRow(item))
       })
       alarmModel = mapped
@@ -104,28 +105,28 @@ Item {
     function buildAlarmRow(entry) {
       if (!entry)
         return {}
-      var code = safeText(readValue(entry, ['code', 'alarm_code']), '')
-      var message = safeText(readValue(entry, ['message', 'alarm_message']), '-')
-      var source = safeText(readValue(entry, ['type', 'alarm_type']), '')
-      var levelValue = Number(readValue(entry, ['level', 'alarm_level']))
+      var code = Fmt.safeText(Fmt.readValue(entry, ['code', 'alarm_code']), '')
+      var message = Fmt.safeText(Fmt.readValue(entry, ['message', 'alarm_message']), '-')
+      var source = Fmt.safeText(Fmt.readValue(entry, ['type', 'alarm_type']), '')
+      var levelValue = Number(Fmt.readValue(entry, ['level', 'alarm_level']))
       if (isNaN(levelValue))
         levelValue = 0
-      var handledStatus = Number(readValue(entry, ['handled_status', 'status']))
+      var handledStatus = Number(Fmt.readValue(entry, ['handled_status', 'status']))
       if (isNaN(handledStatus))
         handledStatus = 0
       var handled = handledStatus >= 2
-      var timestamp = readValue(entry, ['alarm_time', 'time', 'timestamp', 'created_time'])
-      var handler = safeText(readValue(entry, ['handler', 'operator', 'handled_by']), '')
+      var timestamp = Fmt.readValue(entry, ['alarm_time', 'time', 'timestamp', 'created_time'])
+      var handler = Fmt.safeText(Fmt.readValue(entry, ['handler', 'operator', 'handled_by']), '')
       return {
-        id: readValue(entry, ['id']) || 0,
-        recordId: readValue(entry, ['record_id']) || Datas.TaskDatas.latestRecordId,
+        id: Fmt.readValue(entry, ['id']) || 0,
+        recordId: Fmt.readValue(entry, ['record_id']) || Datas.TaskDatas.latestRecordId,
         code: code,
         message: message,
         source: source,
         level: levelValue,
         levelText: alertLevelText(levelValue),
         tone: alertLevelColor(levelValue),
-        timestamp: formatTimestamp(timestamp),
+        timestamp: Fmt.formatTimestamp(timestamp),
         handler: handler,
         handled: handled,
         statusText: handled ? qsTr('已处理') : (handledStatus === 1 ? qsTr('处理中') : qsTr('未处理')),
@@ -159,43 +160,10 @@ Item {
       return task
     }
 
-    function safeText(value, fallback) {
-      if (value === undefined || value === null)
-        return fallback !== undefined ? fallback : "-"
-      var text = String(value).trim()
-      if (text.length === 0)
-        return fallback !== undefined ? fallback : "-"
-      return text
-    }
-
-    function asNumber(value) {
-      if (value === undefined || value === null || value === "")
-        return undefined
-      var num = Number(value)
-      return isNaN(num) ? undefined : num
-    }
-
-    function formatTimestamp(value) {
-      if (value === undefined || value === null || value === "")
-        return "-"
-      if (value instanceof Date)
-        return Qt.formatDateTime(value, "yyyy-MM-dd hh:mm:ss")
-      if (typeof value === "number") {
-        var ms = value
-        if (ms < 2000000000)
-          ms = ms * 1000
-        return Qt.formatDateTime(new Date(ms), "yyyy-MM-dd hh:mm:ss")
-      }
-      var parsed = Date.parse(value)
-      if (!isNaN(parsed))
-        return Qt.formatDateTime(new Date(parsed), "yyyy-MM-dd hh:mm:ss")
-      return safeText(value, "-")
-    }
-
     function currentSerial() {
       var direct = statusSnapshot.serial_number || statusSnapshot.serialNumber
       if (direct)
-        return safeText(direct, "-")
+        return Fmt.safeText(direct, "-")
       if (Datas.TaskDatas.serialNumber && Datas.TaskDatas.serialNumber !== "-")
         return Datas.TaskDatas.serialNumber
       return Datas.TaskDatas.workpieceCode || "-"
@@ -209,8 +177,8 @@ Item {
     }
 
     function workpieceLabel() {
-      var code = safeText(Datas.TaskDatas.workpieceCode, "-")
-      var type = safeText(Datas.TaskDatas.workpieceType, "-")
+      var code = Fmt.safeText(Datas.TaskDatas.workpieceCode, "-")
+      var type = Fmt.safeText(Datas.TaskDatas.workpieceType, "-")
       return code + " · " + type
     }
 
@@ -302,7 +270,7 @@ Item {
     function phaseText(task) {
       var detail = task && task.status_detail ? task.status_detail : task && task.statusDetail ? task.statusDetail : {}
       var phase = detail.phase || detail.state || detail.stage
-      return phase ? safeText(phase, "-") : "-"
+      return phase ? Fmt.safeText(phase, "-") : "-"
     }
 
     function detailText(task) {
@@ -312,43 +280,15 @@ Item {
       if (detail.progress !== undefined)
         parts.push(qsTr("进度 %1%").arg(detail.progress))
       if (detail.message)
-        parts.push(safeText(detail.message))
+        parts.push(Fmt.safeText(detail.message))
       if (payload.note)
-        parts.push(qsTr("备注: %1").arg(safeText(payload.note)))
+        parts.push(qsTr("备注: %1").arg(Fmt.safeText(payload.note)))
       if (parts.length === 0 && phaseText(task) !== "-")
         parts.push(qsTr("阶段: %1").arg(phaseText(task)))
       return parts.length ? parts.join(" · ") : qsTr("暂无补充信息")
     }
 
-    function normalizeArray(value) {
-      if (value === undefined || value === null)
-        return []
-      if (Array.isArray(value))
-        return value
-      if (typeof value === "string")
-        return [value]
-      if (typeof value === "object") {
-        if (Array.isArray(value.items))
-          return value.items
-        if (Array.isArray(value.list))
-          return value.list
-        return [value]
-      }
-      return []
-    }
-
-    function readValue(source, keys) {
-      if (!source)
-        return undefined
-      for (var i = 0; i < keys.length; ++i) {
-        var key = keys[i]
-        if (source[key] !== undefined)
-          return source[key]
-      }
-      return undefined
-    }
-
-    function friendlyCommandName(action) {
+            function friendlyCommandName(action) {
       var mapping = {
         "capture": qsTr("采集"),
         "run.start": qsTr("开始执行"),
@@ -372,67 +312,10 @@ Item {
         return mapping[key]
       if (!key.length)
         return qsTr("控制指令")
-      return safeText(action, qsTr("控制指令"))
+      return Fmt.safeText(action, qsTr("控制指令"))
     }
 
-    function formatJson(value) {
-      if (value === undefined || value === null)
-        return "-"
-      if (typeof value === "string") {
-        var trimmed = value.trim()
-        return trimmed.length ? trimmed : "-"
-      }
-      if (typeof value === "number" || typeof value === "boolean")
-        return String(value)
-      try {
-        var text = JSON.stringify(value, null, 2)
-        if (!text || text === "{}" || text === "[]")
-          return "-"
-        return text
-      } catch (err) {
-        try {
-          return String(value)
-        } catch (error) {
-          return "-"
-        }
-      }
-    }
-
-    function displacementText(row) {
-      var parts = []
-      if (row.ex !== undefined)
-        parts.push("X " + row.ex.toFixed(3))
-      if (row.ey !== undefined)
-        parts.push("Y " + row.ey.toFixed(3))
-      if (row.ez !== undefined)
-        parts.push("Z " + row.ez.toFixed(3))
-      return parts.length ? parts.join("  ") : "-"
-    }
-
-    function asFileUrl(path) {
-      if (path === undefined || path === null)
-        return ""
-      var text = String(path)
-      if (!text.length)
-        return ""
-      if (text.indexOf("file:") === 0)
-        return text
-      var normalised = text.replace(/\\/g, "/")
-      if (normalised.length >= 2 && normalised.charAt(1) === ":")
-        normalised = normalised.charAt(0) + ":" + normalised.substring(1)
-      if (normalised.charAt(0) === "/")
-        return "file://" + normalised
-      return "file:///" + normalised
-    }
-
-    function coerceNumber(value, fallback) {
-      if (value === undefined || value === null || value === "")
-        return fallback
-      var num = Number(value)
-      return isNaN(num) ? fallback : num
-    }
-
-    function buildImageModel() {
+                    function buildImageModel() {
       var rows = []
       var payload = Datas.TaskDatas.gcodeData || {}
       var images = payload.image_files || payload.images || {}
@@ -442,9 +325,9 @@ Item {
           if (!path)
             return
           rows.push({
-            title: item && item.title ? safeText(item.title, qsTr("图像 %1").arg(index + 1)) : qsTr("图像 %1").arg(index + 1),
-            path: safeText(path, ""),
-            url: asFileUrl(path),
+            title: item && item.title ? Fmt.safeText(item.title, qsTr("图像 %1").arg(index + 1)) : qsTr("图像 %1").arg(index + 1),
+            path: Fmt.safeText(path, ""),
+            url: Fmt.asFileUrl(path),
           })
         })
       } else if (typeof images === "object") {
@@ -462,8 +345,8 @@ Item {
           var rel = typeof val === "object" && val.path ? val.path : val
           rows.push({
             title: entry.title,
-            path: safeText(rel, ""),
-            url: asFileUrl(rel),
+            path: Fmt.safeText(rel, ""),
+            url: Fmt.asFileUrl(rel),
           })
         }
         for (var key in images) {
@@ -477,9 +360,9 @@ Item {
             continue
           var extraPath = typeof extra === "object" && extra.path ? extra.path : extra
           rows.push({
-            title: safeText(key, qsTr("图像")),
-            path: safeText(extraPath, ""),
-            url: asFileUrl(extraPath),
+            title: Fmt.safeText(key, qsTr("图像")),
+            path: Fmt.safeText(extraPath, ""),
+            url: Fmt.asFileUrl(extraPath),
           })
         }
       }
@@ -490,23 +373,23 @@ Item {
       var rows = []
       var payload = Datas.TaskDatas.gcodeData || {}
       var preview = payload.path_preview || payload.pathPreview || payload.commands
-      var list = normalizeArray(preview)
+      var list = Fmt.normalizeArray(preview)
       if (!list.length && Array.isArray(payload.commands))
         list = payload.commands
-      normalizeArray(list).forEach(function(item, index) {
+      Fmt.normalizeArray(list).forEach(function(item, index) {
         if (item === undefined || item === null)
           return
         var row = {}
         if (typeof item === "object") {
-          row.index = coerceNumber(readValue(item, ["index", "sequence", "id", "step"]), index + 1)
-          row.x = coerceNumber(readValue(item, ["x", "ex", "target_x", "offset_x"]), undefined)
-          row.y = coerceNumber(readValue(item, ["y", "ey", "target_y", "offset_y"]), undefined)
-          row.z = coerceNumber(readValue(item, ["z", "ez", "target_z", "offset_z"]), undefined)
-          row.velocity = coerceNumber(readValue(item, ["velocity", "feed", "v", "feed_rate"]), undefined)
-          row.command = safeText(readValue(item, ["command", "cmd", "name", "action"]), "")
+          row.index = Fmt.coerceNumber(Fmt.readValue(item, ["index", "sequence", "id", "step"]), index + 1)
+          row.x = Fmt.coerceNumber(Fmt.readValue(item, ["x", "ex", "target_x", "offset_x"]), undefined)
+          row.y = Fmt.coerceNumber(Fmt.readValue(item, ["y", "ey", "target_y", "offset_y"]), undefined)
+          row.z = Fmt.coerceNumber(Fmt.readValue(item, ["z", "ez", "target_z", "offset_z"]), undefined)
+          row.velocity = Fmt.coerceNumber(Fmt.readValue(item, ["velocity", "feed", "v", "feed_rate"]), undefined)
+          row.command = Fmt.safeText(Fmt.readValue(item, ["command", "cmd", "name", "action"]), "")
         } else {
           row.index = index + 1
-          row.command = safeText(item, "")
+          row.command = Fmt.safeText(item, "")
         }
         row.indexText = row.index !== undefined ? row.index : index + 1
         row.positionText = ""
@@ -530,47 +413,47 @@ Item {
     function buildCommandModel() {
       var rows = []
       var seq = 1
-      normalizeArray(Datas.TaskDatas.controlCommands).forEach(function(entry) {
+      Fmt.normalizeArray(Datas.TaskDatas.controlCommands).forEach(function(entry) {
         if (entry === undefined || entry === null)
           return
         var row = {}
-        row.id = readValue(entry, ['id', 'task_id', 'taskId'])
+        row.id = Fmt.readValue(entry, ['id', 'task_id', 'taskId'])
         row.sequence = row.id !== undefined && row.id !== null ? row.id : seq++
         var payload = entry.payload && typeof entry.payload === 'object' ? entry.payload : {}
-        var commandKey = safeText(readValue(entry, ['command_key', 'commandKey', 'command']), '')
+        var commandKey = Fmt.safeText(Fmt.readValue(entry, ['command_key', 'commandKey', 'command']), '')
         if (!commandKey || commandKey === '-')
-          commandKey = safeText(readValue(payload, ['action_key', 'action']), commandKey)
+          commandKey = Fmt.safeText(Fmt.readValue(payload, ['action_key', 'action']), commandKey)
         row.commandKey = commandKey && commandKey.length ? commandKey : "-"
-        var commandName = safeText(readValue(entry, ['command_name', 'commandName']), '')
+        var commandName = Fmt.safeText(Fmt.readValue(entry, ['command_name', 'commandName']), '')
         if (!commandName || commandName === '-')
-          commandName = safeText(payload.action_name, '')
+          commandName = Fmt.safeText(payload.action_name, '')
         row.commandName = commandName && commandName.length ? commandName : friendlyCommandName(row.commandKey)
         var paramsSource = entry.command_params !== undefined ? entry.command_params : payload.params
-        row.paramsText = formatJson(paramsSource)
+        row.paramsText = Fmt.formatJson(paramsSource)
         var statusDetail = entry.status_detail !== undefined ? entry.status_detail : entry.statusDetail
         if (!statusDetail && entry.t_status_detail !== undefined)
           statusDetail = entry.t_status_detail
-        row.detailText = formatJson(statusDetail)
-        row.statusRaw = readValue(entry, ['status', 'state', 'result'])
+        row.detailText = Fmt.formatJson(statusDetail)
+        row.statusRaw = Fmt.readValue(entry, ['status', 'state', 'result'])
         if (row.statusRaw === undefined && typeof statusDetail === "object")
-          row.statusRaw = readValue(statusDetail, ['state', 'status'])
+          row.statusRaw = Fmt.readValue(statusDetail, ['state', 'status'])
         if (row.statusRaw === undefined)
           row.statusText = qsTr('未执行')
         else
           row.statusText = taskStatusText(row.statusRaw)
         row.statusTone = statusColor(row.statusRaw !== undefined ? row.statusRaw : "PENDING")
-        var timeCandidate = readValue(entry, ['updated_time', 'updatedTime', 'created_time', 'createdTime', 'timestamp'])
+        var timeCandidate = Fmt.readValue(entry, ['updated_time', 'updatedTime', 'created_time', 'createdTime', 'timestamp'])
         if (!timeCandidate && typeof statusDetail === "object")
-          timeCandidate = readValue(statusDetail, ['updated_at', 'finished_at', 'started_at'])
+          timeCandidate = Fmt.readValue(statusDetail, ['updated_at', 'finished_at', 'started_at'])
         if (!timeCandidate && payload.queued_at !== undefined)
           timeCandidate = payload.queued_at
-        row.timeText = formatTimestamp(timeCandidate)
-        var remark = readValue(entry, ['remark', 'note'])
+        row.timeText = Fmt.formatTimestamp(timeCandidate)
+        var remark = Fmt.readValue(entry, ['remark', 'note'])
         if (!remark && typeof payload === "object")
           remark = payload.remark || payload.note
         if (!remark && typeof statusDetail === "object")
           remark = statusDetail && (statusDetail.message || statusDetail.detail)
-        row.remark = remark ? safeText(remark, "-") : "-"
+        row.remark = remark ? Fmt.safeText(remark, "-") : "-"
         rows.push(row)
       })
       return rows
@@ -630,7 +513,7 @@ Item {
       case "NOTICE":
         return qsTr('提示')
       default:
-        return safeText(level, qsTr('未知'))
+        return Fmt.safeText(level, qsTr('未知'))
       }
     }
     function rebuildDerived() {
@@ -655,7 +538,7 @@ Item {
         if (!key.length)
           key = "task_runner_offline"
         if (lastRunnerAlertKey !== key) {
-          Cores.CoreError.showError(safeText(health.message, qsTr("任务执行程序离线")))
+          Cores.CoreError.showError(Fmt.safeText(health.message, qsTr("任务执行程序离线")))
           lastRunnerAlertKey = key
         }
       } else if (health.status === "ok") {
@@ -681,3 +564,5 @@ Item {
       function onLatestRecordIdChanged() { refreshAlarms() }
     }
 }
+
+

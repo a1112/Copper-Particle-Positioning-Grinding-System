@@ -15,7 +15,6 @@ from app.server.utils.logs import attach_root_handler, push
 from app.diagnostics.logging import get_logger
 from app.server.api.api_core import app, include_router
 from app.server.data import get_backend
-from db.seed import seed_cutting_status_data
 
 
 def _ensure_module_alias(name: str, module: Any) -> None:
@@ -43,19 +42,6 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
     except Exception:
         app_db = None
     else:
-        try:
-            app_db.init_db()
-            from app.db.seed import seed_tool_data, seed_workpiece_data
-
-            seed_tool_data(app_db.SessionLocal)
-            seed_workpiece_data(app_db.SessionLocal)
-            seed_cutting_status_data()
-        except Exception as exc:
-            if log:
-                try:
-                    log.warning("Database initialisation failed: %s", exc, exc_info=False)
-                except Exception:
-                    pass
         _ensure_module_alias("db", app_db)
 
     motion_proxy = _wrap_motion_module(motion)

@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>qml/Api/ApiClient.qml</file>
         <file>qml/js/Http.js</file>
+        <file>qml/js/fmt.js</file>
         <file>qml/Api/qmldir</file>
         <file>qml/Api/Urls.qml</file>
         <file>qml/App_Base.qml</file>
@@ -189,6 +190,7 @@
         <file>qml/menu/main_menus/ManualControlMenu.qml</file>
         <file>qml/menu/main_menus/DataMenu.qml</file>
         <file>qml/enums/AppEnums.qml</file>
+        <file>qml/enums/qmldir</file>
         <file>qml/cores/CoreCurrent.qml</file>
         <file>qml/menu/states/StatePage.qml</file>
         <file>qml/menu/states/StatePageCore.qml</file>

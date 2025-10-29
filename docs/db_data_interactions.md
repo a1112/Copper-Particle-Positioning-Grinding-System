@@ -85,7 +85,7 @@ def get_db_session():
 | --- | --- | --- |
 | `app/server/api/api_data.py` | 工件 / 任务 / 记录 CRUD | `_ensure_default_workpiece` 自动插入演示工件；`_serialize_*` 统一响应 |
 | `app/server/api/api_image.py` | UI 图像数据 | `/image/test?type=<color|gray|depth|normal>` 读取 `TestData/images`；`/image.png` 透传实时帧 |
-| `app/common/tasks.py` | 任务状态枚举 | 与 `TaskTable`、`RecordTable` 字段对应，避免魔法数 |
+| `app/common/tasks.py` | 任务状态枚举 | 与 `HardwareTaskQueue`、`RecordTable` 字段对应，避免魔法数 |
 
 ### 4.1 Demo 工件自检
 

@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -6,6 +6,7 @@ import "../../cores" as Cores
 import "../../datas" as Datas
 import "../../works" as Works
 import "../../Api" as Api
+import "../../js/fmt.js" as Fmt
 
 Rectangle {
   Layout.fillWidth: true
@@ -36,13 +37,13 @@ Rectangle {
     RowLayout {
       spacing: 4
       Label { text: qsTr("状态"); color: Cores.CoreStyle.muted; font.pixelSize: 12 }
-      Label { text: statePageCore.safeText(statePageCore.statusSnapshot.state, qsTr("待机")); color: statePageCore.statusColor(statePageCore.statusSnapshot.state); font.pixelSize: 18; font.bold: true }
+      Label { text: Fmt.safeText(statePageCore.statusSnapshot.state, qsTr("待机")); color: statePageCore.statusColor(statePageCore.statusSnapshot.state); font.pixelSize: 18; font.bold: true }
     }
 
     RowLayout {
       spacing: 4
       Label { text: qsTr("运行模式"); color: Cores.CoreStyle.muted; font.pixelSize: 12 }
-      Label { text: statePageCore.safeText(statePageCore.statusSnapshot.run_mode || statePageCore.statusSnapshot.runMode, "-"); color: Cores.CoreStyle.info; font.pixelSize: 18; font.bold: true }
+      Label { text: Fmt.safeText(statePageCore.statusSnapshot.run_mode || statePageCore.statusSnapshot.runMode, "-"); color: Cores.CoreStyle.info; font.pixelSize: 18; font.bold: true }
     }
 
     Item { Layout.fillWidth: true }

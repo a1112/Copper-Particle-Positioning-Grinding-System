@@ -9,7 +9,6 @@ from .process_history import ProcessHistory
 from .quality_table import QualityTable
 from .record_table import RecordTable
 from .status_table import StatusTable
-from .task_table import TaskTable
 from .workpiece_table import WorkpieceTable
 from .tool_record import ToolRecord
 __all__ = [
@@ -24,7 +23,6 @@ __all__ = [
     "QualityTable",
     "RecordTable",
     "StatusTable",
-    "TaskTable",
     "WorkpieceTable",
     "ToolRecord"
 ]
