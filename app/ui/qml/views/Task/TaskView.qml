@@ -237,6 +237,7 @@ BaseViews.BaseCard {
     TaskBody {
       id: body
       stageModel: root.stageModel
+      taskContext: root
       onRequestCodeView: root.requestCodeView()
     }
   }

@@ -6,6 +6,7 @@ Item {
     id:root
     signal requestCodeView()
     property var stageModel: []
+    property var taskContext: null
     Layout.fillHeight: true
     Layout.fillWidth: true
     clip: true
@@ -25,6 +26,7 @@ Item {
                 model: stageModel
                 delegate: TaskItem {
                     Layout.fillWidth: true
+                    taskContext: root.taskContext
                     onRequestCodeView: root.requestCodeView()
                 }
             }

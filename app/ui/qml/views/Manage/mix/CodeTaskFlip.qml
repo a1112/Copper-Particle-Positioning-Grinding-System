@@ -8,7 +8,15 @@ Flipable {
   property bool showingCode: false
 
   readonly property bool showingTask: !showingCode
+  states: State {
+           name: "back"
+           PropertyChanges { target: rotation; angle: 180 }
+           when: flipable.flipped
+       }
 
+       transitions: Transition {
+           NumberAnimation { target: rotation; property: "angle"; duration: 4000 }
+       }
   transform: Rotation {
     origin.x: flipable.width / 2
     origin.y: flipable.height / 2
@@ -30,12 +38,6 @@ Flipable {
   back: Item {
     id: backSide
     anchors.fill: parent
-    transform: Rotation {
-      origin.x: backSide.width / 2
-      origin.y: backSide.height / 2
-      axis.y: 1
-      angle: 180
-    }
 
     TaskViews.TaskView {
       id: taskView

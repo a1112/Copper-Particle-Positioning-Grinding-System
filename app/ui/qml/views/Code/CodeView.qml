@@ -75,7 +75,6 @@ BaseCard {
       lines = []
     setProgram(lines)
   }
-  height: contentColumn.height
 
 
   ColumnLayout {
