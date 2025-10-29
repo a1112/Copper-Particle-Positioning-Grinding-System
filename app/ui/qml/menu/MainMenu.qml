@@ -33,7 +33,7 @@ Menu {
           onTriggered: settingsDrawer.open()
         }
         MenuItem {
-          text: qsTr("配置中心…")
+          text: qsTr("配置中心�?)
           onTriggered: settingsPage.open()
         }
     }
@@ -50,8 +50,8 @@ Menu {
         title: qsTr("控制")
         MenuItem {
           text: checked
-                ? qsTr("已解锁按钮（点击恢复锁定）")
-                : qsTr("允许所有按钮点击（调试）")
+                ? qsTr("已解锁按钮（点击恢复锁定�?)
+                : qsTr("允许所有按钮点击（调试�?)
           checkable: true
           checked: Datas.StatusDatas.forceEnableControls
           onTriggered: Datas.StatusDatas.forceEnableControls = checked
@@ -65,15 +65,15 @@ Menu {
             onTriggered: sendManual("manual.single_frame_capture")
           }
           MenuItem {
-            text: qsTr("预处理 (ROI+聚类)")
+            text: qsTr("预处�?(ROI+聚类)")
             onTriggered: sendManual("manual.preprocess_roi_cluster")
           }
           MenuItem {
-            text: qsTr("缺陷检测")
+            text: qsTr("缺陷检�?)
             onTriggered: sendManual("manual.defect_detection")
           }
           MenuItem {
-            text: qsTr("缺陷检测")
+            text: qsTr("缺陷检�?)
             onTriggered: sendManual("manual.defect_detection_secondary")
           }
           MenuItem {
@@ -85,15 +85,15 @@ Menu {
             onTriggered: sendManual("manual.run_command")
           }
           MenuItem {
-            text: qsTr("清除上传的指令")
+            text: qsTr("清除上传的指�?)
             onTriggered: sendManual("manual.clear_upload")
           }
           MenuItem {
-            text: qsTr("初始化")
+            text: qsTr("初始�?)
             onTriggered: sendManual("manual.initialize")
           }
           MenuItem {
-            text: qsTr("初始化")
+            text: qsTr("初始�?)
             onTriggered: sendManual("manual.initialize_secondary")
           }
         }
@@ -111,7 +111,7 @@ Menu {
           }
         }
         MenuItem {
-          text: qsTr("刷新任务状态")
+          text: qsTr("刷新任务状�?)
           onTriggered: Works.TaskWork.refresh()
         }
     }
@@ -156,7 +156,7 @@ Menu {
     }
 
     MenuItem {
-      text: qsTr("测试图像…")
+      text: qsTr("测试图像�?)
       onTriggered: {
         if (testDialog && testDialog.open)
           testDialog.open()
@@ -164,7 +164,8 @@ Menu {
     }
     MenuSeparator { }
     MenuItem {
-      text: qsTr("退出应用")
+      text: qsTr("退出应�?)
       onTriggered: Qt.quit()
     }
 }
+

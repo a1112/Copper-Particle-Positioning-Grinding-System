@@ -881,6 +881,11 @@ def _control_handler(state: ControllerState, task_writer: Optional[TaskQueueWrit
 
         record_id, workpiece_id = _resolve_identifiers(params or {})
 
+        if normalized == "capture":
+            state.register_command(action, True, "Capture command dispatched")
+            _enqueue(action, params, workpiece_id=workpiece_id, record_id=record_id)
+            return {"ok": True, "message": "Capture command dispatched"}
+
         manual_action_messages: Dict[str, str] = {
             "manual.single_frame_capture": "Manual single-frame capture dispatched",
             "manual.preprocess_roi_cluster": "Manual preprocessing dispatched",
