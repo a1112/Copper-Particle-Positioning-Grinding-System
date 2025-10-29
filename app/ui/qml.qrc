@@ -209,5 +209,8 @@
         <file>qml/views/Manage/mix/CodeTaskFlip.qml</file>
         <file>qml/views/Manage/cores/FootViewCode.qml</file>
         <file>qml/views/Manage/cores/BaseCore.qml</file>
+        <file>qml/views/Task/TaskHead.qml</file>
+        <file>qml/views/Task/TaskBody.qml</file>
+        <file>qml/views/Task/TaskItem.qml</file>
     </qresource>
 </RCC>

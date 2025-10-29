@@ -4,12 +4,13 @@ import QtQuick.Layouts
 
 import "../../../cores" as Cores
 import "../../../components/Base" as BaseComponents
-
+import "../../Task"
+import "../../Code"
 // Flipable container toggling between the code view and the task pipeline view.
 Flipable {
   id: flipable
   property bool showingCode: true
-  property bool flipped: false
+  property bool flipped: true
 
   transform: Rotation {
            id: rotation
@@ -29,70 +30,17 @@ Flipable {
        }
   front: Item {
     anchors.fill: parent
-    ColumnLayout {
+    CodeView{
       anchors.fill: parent
-      spacing: 8
-
-      RowLayout {
-        Layout.fillWidth: true
-        spacing: 8
-
-        Label {
-          text: qsTr("代码视图")
-          font.pixelSize: 18
-          font.bold: true
-          color: Cores.CoreStyle.text
-        }
-
-        Item { Layout.fillWidth: true }
-
-        BaseComponents.ItemDelegateBase {
-          text: qsTr("查看任务流程")
-          onClicked: flipable.toggle()
-        }
-      }
-
-      Loader {
-        id: codeLoader
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        asynchronous: true
-        source: Qt.resolvedUrl("../../Code/CodeView.qml")
-      }
     }
   }
 
   back: Item {
     id: backSide
     anchors.fill: parent
-    ColumnLayout {
-      anchors.fill: parent
-      spacing: 1
-      RowLayout {
-        Layout.fillWidth: true
-        spacing: 2
-        Label {
-          text: qsTr("任务流程")
-          font.pixelSize: 18
-          font.bold: true
-          color: Cores.CoreStyle.text
-        }
-        Item{
-          Layout.fillWidth: true
-        }
-        BaseComponents.ItemDelegateBase {
-          text: qsTr("返回代码")
-          onClicked: flipable.toggle()
-        }
-      }
-      Loader {
-        id: taskLoader
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        asynchronous: true
-        source: Qt.resolvedUrl("../../Task/TaskView.qml")
-      }
-    }
+  TaskView{
+    anchors.fill: parent
+  }
   }
 
   function toggle() {

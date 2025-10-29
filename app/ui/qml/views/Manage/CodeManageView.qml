@@ -66,5 +66,6 @@ ColumnLayout {
       Layout.fillWidth: true
       Layout.fillHeight: true
   }
+
   CodeContorl{}
 }

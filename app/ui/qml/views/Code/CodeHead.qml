@@ -34,7 +34,7 @@ RowLayout {
 
 
   Label {
-    text: qsTr("G-code")
+    text: qsTr("指令")
     color: Cores.CoreStyle.text
     font.bold: true
     Layout.fillWidth: true

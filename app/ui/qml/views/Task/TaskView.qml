@@ -11,7 +11,6 @@ import "../../works" as Works
 // TaskView presents the three-stage demo pipeline (capture/execute/control) using TaskDatas.
 Base.BaseCard {
   id: root
-
   Layout.fillWidth: true
   implicitWidth: contentColumn.implicitWidth + 24
   implicitHeight: contentColumn.implicitHeight + 24
@@ -235,196 +234,15 @@ Base.BaseCard {
       fill: parent
       margins: 12
     }
-    spacing: 16
+    spacing: 4
+    TaskHead{}
+    TaskBody{
 
-    ColumnLayout {
-      Layout.fillWidth: true
-      spacing: 4
 
-      Label {
-        text: qsTr("任务流程")
-        font.pixelSize: 20
-        font.bold: true
-        color: Cores.CoreStyle.text
-      }
-
-      RowLayout {
-        Layout.fillWidth: true
-        spacing: 12
-
-        Label {
-          text: qsTr("当前记录")
-          color: Cores.CoreStyle.muted
-        }
-
-        Label {
-          text: currentRecordText()
-          color: Cores.CoreStyle.text
-          font.bold: true
-        }
-
-        Item { Layout.fillWidth: true }
-
-        Label {
-          text: qsTr("工件")
-          color: Cores.CoreStyle.muted
-        }
-
-        Label {
-          text: workpieceText()
-          color: Cores.CoreStyle.text
-        }
-      }
     }
-
     Repeater {
       model: stageModel
 
-      delegate: Frame {
-        Layout.fillWidth: true
-        padding: 12
-        background: Rectangle {
-          color: "transparent"
-          border.color: Cores.CoreStyle.border
-          radius: 6
-        }
-
-        readonly property var stage: modelData
-        readonly property var task: root.taskForKey(stage.key)
-        readonly property bool available: root.hasTask(task)
-        readonly property bool ready: root.stageReady(stage)
-
-        ColumnLayout {
-          anchors.fill: parent
-          spacing: 8
-
-          RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-
-            Rectangle {
-              width: 28
-              height: 28
-              radius: 14
-              color: Cores.CoreStyle.primary
-              Label {
-                anchors.centerIn: parent
-                text: String(index + 1)
-                color: "white"
-                font.bold: true
-              }
-            }
-
-            ColumnLayout {
-              spacing: 2
-
-              Label {
-                text: stage.title
-                color: Cores.CoreStyle.text
-                font.pixelSize: 18
-                font.bold: true
-              }
-
-              Label {
-                text: stage.subtitle
-                color: Cores.CoreStyle.muted
-                wrapMode: Text.WordWrap
-              }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Label {
-              text: ready ? qsTr("就绪") : qsTr("等待")
-              color: ready ? Cores.CoreStyle.success : Cores.CoreStyle.warning
-              font.bold: true
-            }
-          }
-
-          RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-
-            Label {
-              text: qsTr("任务状态")
-              color: Cores.CoreStyle.muted
-            }
-
-            Label {
-              text: root.statusText(task)
-              color: root.statusColor(task)
-              font.bold: true
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Label {
-              text: qsTr("任务 ID")
-              color: Cores.CoreStyle.muted
-            }
-
-            Label {
-              text: root.taskIdText(task)
-              color: Cores.CoreStyle.text
-            }
-
-            Label {
-              text: qsTr("记录")
-              color: Cores.CoreStyle.muted
-            }
-
-            Label {
-              text: root.recordText(task)
-              color: Cores.CoreStyle.text
-            }
-          }
-
-          RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-
-            Label {
-              text: qsTr("阶段")
-              color: Cores.CoreStyle.muted
-            }
-
-            Label {
-              text: root.phaseText(task)
-              color: Cores.CoreStyle.text
-              Layout.fillWidth: true
-              wrapMode: Text.NoWrap
-              elide: Text.ElideRight
-            }
-
-            Label {
-              text: qsTr("创建时间")
-              color: Cores.CoreStyle.muted
-            }
-
-            Label {
-              text: available ? root.timeText(task, ["created_time", "createdTime", "queued_at", "queuedAt"]) : "-"
-              color: Cores.CoreStyle.text
-            }
-
-            Label {
-              text: qsTr("更新时间")
-              color: Cores.CoreStyle.muted
-            }
-
-            Label {
-              text: available ? root.timeText(task, ["updated_time", "updatedTime", "finished_at", "finishedAt", "status_time", "statusTime"]) : "-"
-              color: Cores.CoreStyle.text
-            }
-          }
-
-          Label {
-            Layout.fillWidth: true
-            text: root.detailText(task)
-            color: available ? Cores.CoreStyle.muted : Cores.CoreStyle.muted
-            wrapMode: Text.WordWrap
-          }
-        }
-      }
     }
   }
 }
