@@ -6,7 +6,6 @@ import "./pages" as Pages
 
 Item {
   id: root
-  required property var statePageCore
 
   Layout.fillWidth: true
   Layout.fillHeight: true
@@ -31,7 +30,6 @@ Item {
       currentIndex: tabBar.currentIndex
 
       Pages.TaskStatusSummaryPage {
-        statePageCore: root.statePageCore
       }
 
       Pages.TaskCommandListPage {

@@ -153,7 +153,6 @@
         <file>qml/pages/head/CaptureButton.qml</file>
         <file>qml/pages/head/RunModelSelect.qml</file>
         <file>qml/test/TestWindow.qml</file>
-        <file>qml/datas/Datas.qml</file>
         <file>qml/datas/DeviceInfoData.qml</file>
         <file>qml/datas/ToolInfoData.qml</file>
         <file>qml/datas/LogDatas.qml</file>
@@ -206,5 +205,6 @@
         <file>qml/menu/states/StatePageInfo.qml</file>
         <file>qml/menu/states/StatePageHead.qml</file>
         <file>qml/views/Code/CodeRunOneItem.qml</file>
+        <file>qml/views/Task/TaskView.qml</file>
     </qresource>
 </RCC>

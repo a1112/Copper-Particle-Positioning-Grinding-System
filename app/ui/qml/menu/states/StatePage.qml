@@ -48,7 +48,6 @@ Popup {
       currentIndex: tabBar.currentIndex
 
       TaskStatusPanel {
-        statePageCore: root.statePageCore
       }
 
       AlarmPanel {

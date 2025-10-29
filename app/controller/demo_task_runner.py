@@ -3,9 +3,11 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import math
 import shutil
 import time
 from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from typing import Dict, Iterable, Optional
 
@@ -14,7 +16,13 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app import config as APP_CONFIG
 from app.common.tasks import ControlInstruction, TaskStatus, TaskType
-from app.db.models.MzPoliShineDB import HardwareTaskQueue, RecordTable, StatusTable, WorkpieceTable
+from app.db.models.MzPoliShineDB import (
+    CuttingStatusTable,
+    HardwareTaskQueue,
+    RecordTable,
+    StatusTable,
+    WorkpieceTable,
+)
 
 
 LOG = logging.getLogger("controller.demo_task_runner")
@@ -38,6 +46,9 @@ class DemoTaskRunner:
         self._execute_duration = 3.5
         self._default_device_id = 1
         self._sample_images: Dict[str, Path] = self._discover_samples()
+        self._heartbeat_counter = 0
+        self._sim_elapsed = 0.0
+        self._last_metrics_timestamp = time.perf_counter()
 
     # ------------------------------------------------------------------ public
 
@@ -47,11 +58,14 @@ class DemoTaskRunner:
         with self._session_factory() as session:
             changed = False
             changed |= self._ensure_status_mode(session)
+            changed |= self._ensure_cutting_status(session)
             changed |= self._ensure_workpiece(session)
             changed |= self._advance_capture(session)
             changed |= self._advance_control(session)
             changed |= self._advance_execute(session)
-            changed |= self._heartbeat_status_table(session)
+            metrics = self._simulate_operational_metrics()
+            changed |= self._heartbeat_status_table(session, metrics)
+            changed |= self._heartbeat_cutting_status(session, metrics)
             if changed:
                 session.commit()
             else:
@@ -103,6 +117,23 @@ class DemoTaskRunner:
             if changed:
                 row.status_time = datetime.utcnow()
         return changed
+
+    def _ensure_cutting_status(self, session: Session) -> bool:
+        if CuttingStatusTable is None:
+            return False
+        row = session.execute(select(CuttingStatusTable).limit(1)).scalar_one_or_none()
+        if row:
+            return False
+        record = CuttingStatusTable(  # type: ignore[call-arg]
+            id=1,
+            feed_rate=Decimal("0.000"),
+            torque=Decimal("0.000"),
+            elapsed_sec=Decimal("0.000"),
+            spindle_rpm=Decimal("0.00"),
+        )
+        session.add(record)
+        LOG.info("CuttingStatusTable seeded with demo defaults (id=1).")
+        return True
 
     def _advance_capture(self, session: Session) -> bool:
         stmt = (
@@ -473,14 +504,136 @@ class DemoTaskRunner:
             if owns_session:
                 session.close()
 
-    def _heartbeat_status_table(self, session: Session) -> bool:
+    def _heartbeat_status_table(self, session: Session, metrics: dict[str, float]) -> bool:
         if StatusTable is None:
             return False
         row = session.execute(select(StatusTable).limit(1)).scalar_one_or_none()
         if row is None:
             return False
-        row.status_time = datetime.now()
+        previous_time = row.status_time
+        new_time = datetime.utcnow()
+        row.status_time = new_time
+        row.c_control_mode = 1
+        if row.c_run_status is None:
+            row.c_run_status = 1
+        row.s_spindle_speed = int(round(metrics["spindle_rpm"]))
+        row.s_feed_speed = int(round(metrics["feed_rate"]))
+        row.s_point_motion_speed = int(round(metrics["point_speed"]))
+        row.p_absolute_position = self._format_position(metrics["x"], metrics["y"], metrics["z"])
+        row.p_relative_position = self._format_position(
+            metrics["relative_x"],
+            metrics["relative_y"],
+            metrics["relative_z"],
+        )
+        row.p_work_position = self._format_position(
+            metrics["work_x"],
+            metrics["work_y"],
+            metrics["work_z"],
+        )
+        row.p_remaining_distance = self._format_position(
+            metrics["remaining_x"],
+            metrics["remaining_y"],
+            metrics["remaining_z"],
+        )
+        previous_time_str = previous_time.strftime("%Y-%m-%dT%H:%M:%S") if isinstance(previous_time, datetime) else "None"
+        current_time_str = new_time.strftime("%Y-%m-%dT%H:%M:%S")
+        LOG.info(
+            (
+                "StatusTable heartbeat -> run_status=%s alarm_status=%s control_mode=%s machine_mode=%s "
+                "abs=%s rel=%s velocity=%.2f feed=%.2f rpm=%.2f torque=%.2f current=%s previous=%s"
+            ),
+            row.c_run_status,
+            row.c_alarm_status,
+            row.c_control_mode,
+            row.c_machine_mode,
+            row.p_absolute_position,
+            row.p_relative_position,
+            metrics["velocity"],
+            metrics["feed_rate"],
+            metrics["spindle_rpm"],
+            metrics["torque"],
+            current_time_str,
+            previous_time_str,
+        )
         return True
+
+    def _heartbeat_cutting_status(self, session: Session, metrics: dict[str, float]) -> bool:
+        if CuttingStatusTable is None:
+            return False
+        row = session.execute(select(CuttingStatusTable).limit(1)).scalar_one_or_none()
+        if row is None:
+            return False
+        row.feed_rate = self._decimal(metrics["feed_rate"], "0.000")
+        row.torque = self._decimal(metrics["torque"], "0.000")
+        row.elapsed_sec = self._decimal(metrics["elapsed"], "0.000")
+        row.spindle_rpm = self._decimal(metrics["spindle_rpm"], "0.00")
+        LOG.info(
+            "CuttingStatusTable heartbeat -> feed=%.3f torque=%.3f rpm=%.2f elapsed=%.2f velocity=%.2f",
+            metrics["feed_rate"],
+            metrics["torque"],
+            metrics["spindle_rpm"],
+            metrics["elapsed"],
+            metrics["velocity"],
+        )
+        return True
+
+    def _simulate_operational_metrics(self) -> dict[str, float]:
+        now = time.perf_counter()
+        delta = max(now - self._last_metrics_timestamp, 0.05)
+        self._last_metrics_timestamp = now
+        self._sim_elapsed += delta
+        cycle = self._heartbeat_counter
+        self._heartbeat_counter += 1
+        angle = (cycle % 360) * math.pi / 180.0
+        sweep = angle * 1.2
+        base_x = 120.0
+        base_y = 85.0
+        base_z = -0.35
+        x = base_x + 15.0 * math.sin(angle)
+        y = base_y + 12.0 * math.cos(angle * 0.8)
+        z = base_z + 0.08 * math.sin(angle * 0.5)
+        rel_x = x - base_x
+        rel_y = y - base_y
+        rel_z = z - base_z
+        progress_ratio = (math.sin(angle) + 1.0) / 2.0
+        remaining_x = 20.0 * (1.0 - progress_ratio)
+        remaining_y = 10.0 * (1.0 - progress_ratio)
+        remaining_z = 2.0 * (1.0 - progress_ratio)
+        velocity = 18.0 + 4.5 * math.sin(sweep)
+        feed_rate = 12.0 + 3.0 * math.cos(sweep)
+        point_speed = 6.0 + 1.5 * math.sin(sweep * 0.7)
+        spindle_rpm = 1200.0 + 150.0 * math.cos(angle * 0.6)
+        torque = 35.0 + 6.0 * math.sin(angle * 1.3)
+        return {
+            "tick": cycle,
+            "x": x,
+            "y": y,
+            "z": z,
+            "relative_x": rel_x,
+            "relative_y": rel_y,
+            "relative_z": rel_z,
+            "work_x": x,
+            "work_y": y,
+            "work_z": z,
+            "remaining_x": remaining_x,
+            "remaining_y": remaining_y,
+            "remaining_z": remaining_z,
+            "velocity": velocity,
+            "feed_rate": feed_rate,
+            "point_speed": point_speed,
+            "spindle_rpm": spindle_rpm,
+            "torque": torque,
+            "elapsed": self._sim_elapsed,
+        }
+
+    @staticmethod
+    def _format_position(x: float, y: float, z: float) -> str:
+        return f"{x:.3f},{y:.3f},{z:.3f}"
+
+    @staticmethod
+    def _decimal(value: float, pattern: str) -> Decimal:
+        quantize_target = Decimal(pattern)
+        return Decimal(str(value)).quantize(quantize_target, rounding=ROUND_HALF_UP)
 
     def _build_demo_path(self, commands: list[dict]) -> list[dict]:
         points: list[dict] = []

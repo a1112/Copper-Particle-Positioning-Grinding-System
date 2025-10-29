@@ -8,7 +8,6 @@ import "../../../js/fmt.js" as Fmt
 
 ScrollView {
   id: root
-  required property var statePageCore
 
   Layout.fillWidth: true
   Layout.fillHeight: true
