@@ -352,6 +352,13 @@ class DbStatusSource(StatusSourceProtocol):
         result = session.execute(stmt)
         return result.scalar_one_or_none()
 
+    def _fetch_cutting(self, session: Session):
+        if CuttingStatusTable is None:
+            return None
+        stmt = select(CuttingStatusTable).limit(1)
+        result = session.execute(stmt)
+        return result.scalar_one_or_none()
+
     def _ensure_default_row(self) -> None:
         if StatusTable is None:
             return
@@ -437,9 +444,12 @@ class DbStatusSource(StatusSourceProtocol):
 
 
     def build(self, state: ControllerState, timestamp: float, cycle: float) -> Dict[str, Any]:  # noqa: ARG002
+        cutting_row = None
         try:
             with self._session_factory() as session:
                 row = self._fetch_status(session)
+                if CuttingStatusTable is not None:
+                    cutting_row = self._fetch_cutting(session)
         except SQLAlchemyError as exc:
             raise RuntimeError(f"Failed to query StatusTable: {exc}") from exc
         if row is None:
@@ -447,10 +457,22 @@ class DbStatusSource(StatusSourceProtocol):
             self._ensure_default_row()
             with self._session_factory() as retry_session:
                 row = self._fetch_status(retry_session)
+                if CuttingStatusTable is not None:
+                    cutting_row = self._fetch_cutting(retry_session)
             if row is None:
                 raise RuntimeError("StatusTable currently has no records")
 
         payload = self._row_to_payload(row, timestamp=timestamp, label=state.label)
+        if cutting_row is not None:
+            torque_val = self._to_float(getattr(cutting_row, "torque", None))
+            if torque_val is not None:
+                torque_val = round(torque_val, 3)
+                payload["spindle_torque"] = torque_val
+                payload["seriesB"] = torque_val
+            rpm_val = self._to_float(getattr(cutting_row, "spindle_rpm", None))
+            if rpm_val is not None and "spindle_rpm" not in payload:
+                payload["spindle_rpm"] = int(round(rpm_val))
+
         state.run_mode = payload.get("run_mode", state.run_mode)
         state.spindle_rpm = float(payload.get("spindle_rpm", state.spindle_rpm))
         return payload

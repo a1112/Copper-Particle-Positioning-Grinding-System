@@ -602,8 +602,8 @@ class DemoTaskRunner:
         velocity = 18.0 + 4.5 * math.sin(sweep)
         feed_rate = 12.0 + 3.0 * math.cos(sweep)
         point_speed = 6.0 + 1.5 * math.sin(sweep * 0.7)
-        spindle_rpm = 1200.0 + 150.0 * math.cos(angle * 0.6)
-        torque = 35.0 + 6.0 * math.sin(angle * 1.3)
+        spindle_rpm = 2000.0
+        torque = 30.0 + 1.2 * math.sin(angle * 1.3)
         return {
             "tick": cycle,
             "x": x,
