@@ -17,3 +17,4 @@ grpcio-tools
 cryptography
 requests
 MechEyeAPI
+open3d-python

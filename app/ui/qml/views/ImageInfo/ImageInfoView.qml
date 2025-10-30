@@ -17,7 +17,7 @@ BaseCard {
   property int refreshMs: 150
   property var pathPoints: []
   readonly property int maxPath: 2000
-  property url meshSource3d: ""
+  property url meshSource3d: Cores.CoreState.current3dModelSource
   property real imageWidthPx: imageDataCore.imageWidth
   property real imageHeightPx: imageDataCore.imageHeight
   property real pixelSizeMm: (imageDataCore.imageWidth > 0) ? imageDataCore.worldWidth / imageDataCore.imageWidth : 0

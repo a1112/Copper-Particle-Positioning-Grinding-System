@@ -30,11 +30,16 @@ Item {
   property string particleMaskSource: ""
   property bool showParticleMask: false
   property bool showPathOverlay: true
+  property string modelSourcePath: Qt.platform.os === "windows"
+                                  ? "file:///D:/SaveData/current/generated_surface.obj"
+                                  : ""
+  property url current3dModelSource: modelSourcePath
 
   function refreshImageSource() {
     const queryValue = imageTypeQueryMap[current2DShowName] || "color"
     current2dImageSource = Api.Urls.api("image/test") + "?type=" + queryValue + "&ts=" + Date.now()
     refreshParticleMaskSource()
+    refresh3dModelSource()
   }
 
   function refreshParticleMaskSource() {
@@ -45,6 +50,15 @@ Item {
     particleMaskSource = Api.Urls.api("image/mask") + "?ts=" + Date.now()
   }
 
+  function refresh3dModelSource() {
+    if (!modelSourcePath) {
+      current3dModelSource = ""
+      return
+    }
+    current3dModelSource = ""
+    Qt.callLater(() => current3dModelSource = modelSourcePath)
+  }
+
   Settings {
     id: st
     category: "CoreState"
@@ -52,17 +66,8 @@ Item {
     property alias currentRunModelIndex: root.currentRunModelIndex
   }
 
-  Timer {
-    id: imageRefreshTimer
-    interval: 5000
-    repeat: true
-    running: true
-    onTriggered: refreshImageSource()
-  }
-
   Component.onCompleted: refreshImageSource()
   onCurrent2DShowNameChanged: {
-    imageRefreshTimer.restart()
     refreshImageSource()
   }
   onShowParticleMaskChanged: {
@@ -70,5 +75,10 @@ Item {
       refreshParticleMaskSource()
     else
       particleMaskSource = ""
+  }
+  onModelSourcePathChanged: refresh3dModelSource()
+
+  function refreshDataSources() {
+    refreshImageSource()
   }
 }
