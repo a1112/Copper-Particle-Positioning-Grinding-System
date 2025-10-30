@@ -27,10 +27,22 @@ Item {
   })
 
   property string current2dImageSource: ""
+  property string particleMaskSource: ""
+  property bool showParticleMask: false
+  property bool showPathOverlay: true
 
   function refreshImageSource() {
     const queryValue = imageTypeQueryMap[current2DShowName] || "color"
     current2dImageSource = Api.Urls.api("image/test") + "?type=" + queryValue + "&ts=" + Date.now()
+    refreshParticleMaskSource()
+  }
+
+  function refreshParticleMaskSource() {
+    if (!showParticleMask) {
+      particleMaskSource = ""
+      return
+    }
+    particleMaskSource = Api.Urls.api("image/mask") + "?ts=" + Date.now()
   }
 
   Settings {
@@ -52,5 +64,11 @@ Item {
   onCurrent2DShowNameChanged: {
     imageRefreshTimer.restart()
     refreshImageSource()
+  }
+  onShowParticleMaskChanged: {
+    if (showParticleMask)
+      refreshParticleMaskSource()
+    else
+      particleMaskSource = ""
   }
 }

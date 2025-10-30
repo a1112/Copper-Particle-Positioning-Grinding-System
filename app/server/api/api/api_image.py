@@ -39,6 +39,7 @@ _IMAGE_TYPE_ALIASES: Dict[str, str] = {
     "法线": "normal",
 }
 provider: Any | None = None  # injected by bootstrap
+_MASK_FILENAME = "rts_ImageZ1ZeroReal.tif"
 
 
 def _resolve_test_image(image_type: str) -> Tuple[Path, str]:
@@ -86,6 +87,52 @@ def _load_png_bytes(path: Path) -> bytes:
         return b""
 
 
+def _generate_particle_mask_png() -> bytes:
+    import numpy as np
+    import cv2
+
+    target_path = IMAGE_BASE_DIR / _MASK_FILENAME
+    if not target_path.exists():
+        return b""
+
+    try:
+        raw = cv2.imread(str(target_path), cv2.IMREAD_UNCHANGED)
+        if raw is None:
+            return b""
+        if raw.ndim == 3:
+            raw = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+        data = raw.astype(np.float32)
+        mask = data > 0.0
+        if not np.any(mask):
+            height, width = data.shape[:2]
+            transparent = np.zeros((height, width, 4), dtype=np.uint8)
+            ok, buf = cv2.imencode(".png", transparent)
+            return buf.tobytes() if ok else b""
+
+        valid_values = data[mask]
+        min_val = float(valid_values.min())
+        max_val = float(valid_values.max())
+        if max_val <= min_val:
+            scale = np.zeros_like(data, dtype=np.uint8)
+            scale[mask] = 255
+        else:
+            normalized = (data - min_val) / (max_val - min_val)
+            scale = np.zeros_like(data, dtype=np.uint8)
+            scale[mask] = np.clip(normalized[mask] * 255.0, 0, 255).astype(np.uint8)
+
+        colored = cv2.applyColorMap(scale, cv2.COLORMAP_TURBO)
+        colored[~mask] = 0
+        alpha = np.zeros(data.shape, dtype=np.uint8)
+        alpha[mask] = 200
+        bgra = cv2.cvtColor(colored, cv2.COLOR_BGR2BGRA)
+        bgra[:, :, 3] = alpha
+
+        ok, buf = cv2.imencode(".png", bgra, [cv2.IMWRITE_PNG_COMPRESSION, 3])
+        return buf.tobytes() if ok else b""
+    except Exception:
+        return b""
+
+
 @router.get("/image/test")
 async def image_test(type: str = "color") -> FileResponse:
     path, media_type = _resolve_test_image(type)
@@ -119,3 +166,11 @@ async def image_png() -> Response:
         buf_bytes = buf.tobytes() if ok else b""
 
     return Response(content=buf_bytes, media_type="image/png")
+
+
+@router.get("/image/mask")
+async def image_mask() -> Response:
+    buf = _generate_particle_mask_png()
+    if not buf:
+        raise HTTPException(status_code=404, detail="Particle mask image unavailable")
+    return Response(content=buf, media_type="image/png")

@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 import "../../../Api" as Api
 import "../../../cores" as Cores
+import "../../../components/Base" as BaseComponents
 import "." as Layers
 
 /* 二维图像视图
@@ -159,10 +160,24 @@ Item {
     visible: (activeBuffer === 0 ? imgBuffer0.status === Image.Ready : imgBuffer1.status === Image.Ready) && width > 0 && height > 0
     clip: true
 
+    BaseComponents.BufferedImage {
+      id: particleMaskImage
+      anchors.fill: parent
+      fillMode: Image.PreserveAspectFit
+      asynchronous: true
+      cache: false
+      source: Cores.CoreState.particleMaskSource
+      opacity: 0.7
+      visible: Cores.CoreState.showParticleMask && source !== ""
+    }
+
     Canvas {
       id: pathCanvas
       anchors.fill: parent
+      visible: Cores.CoreState.showPathOverlay
       onPaint: {
+        if (!Cores.CoreState.showPathOverlay)
+          return
         var ctx = getContext("2d")
         ctx.clearRect(0, 0, width, height)
 
@@ -298,6 +313,8 @@ Item {
     function onCurrent2dImageSourceChanged() {
       imageStack.requestImageRefresh(Cores.CoreState.current2dImageSource)
     }
+    function onShowPathOverlayChanged() { pathCanvas.requestPaint() }
+    function onParticleMaskSourceChanged() { /* trigger overlay updates via binding */ }
   }
 
   Component.onCompleted: imageStack.requestImageRefresh(Cores.CoreState.current2dImageSource)
