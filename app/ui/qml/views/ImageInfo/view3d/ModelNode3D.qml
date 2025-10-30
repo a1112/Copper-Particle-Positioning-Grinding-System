@@ -47,6 +47,8 @@ Node {
   onModelStatusChanged: {
     if (modelStatus === statusError) {
       errorString = qsTr("模型加载失败")
+      if (model.source !== root.fallbackPrimitive)
+        model.source = root.fallbackPrimitive
     } else if (modelStatus === statusReady) {
       errorString = ""
     } else if (modelStatus === statusLoading) {

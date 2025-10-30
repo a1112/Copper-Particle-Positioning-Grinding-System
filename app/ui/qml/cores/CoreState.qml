@@ -30,10 +30,15 @@ Item {
   property string particleMaskSource: ""
   property bool showParticleMask: false
   property bool showPathOverlay: true
-  property string modelSourcePath: Qt.platform.os === "windows"
-                                  ? "file:///D:/SaveData/current/generated_surface.obj"
-                                  : ""
-  property url current3dModelSource: modelSourcePath
+  readonly property url fallbackModelSource: Qt.resolvedUrl("../../../../TestData/models/generated_surface.mesh")
+  property url localModelMesh: Qt.platform.os === "windows"
+                               ? "file:///D:/SaveData/current/generated_surface.mesh"
+                               : ""
+  property url localModelObj: Qt.platform.os === "windows"
+                              ? "file:///D:/SaveData/current/generated_surface.obj"
+                              : ""
+  property bool usingFallbackModel: false
+  property url current3dModelSource: ""
 
   function refreshImageSource() {
     const queryValue = imageTypeQueryMap[current2DShowName] || "color"
@@ -51,12 +56,24 @@ Item {
   }
 
   function refresh3dModelSource() {
-    if (!modelSourcePath) {
-      current3dModelSource = ""
-      return
-    }
+    usingFallbackModel = false
     current3dModelSource = ""
-    Qt.callLater(() => current3dModelSource = modelSourcePath)
+    Qt.callLater(function() {
+      if (localModelMesh && localModelMesh.toString().length > 0)
+        current3dModelSource = localModelMesh
+      else if (localModelObj && localModelObj.toString().length > 0)
+        current3dModelSource = localModelObj
+      else
+        useFallbackModel()
+    })
+  }
+
+  function useFallbackModel() {
+    if (usingFallbackModel)
+      return
+    usingFallbackModel = true
+    current3dModelSource = ""
+    Qt.callLater(() => current3dModelSource = fallbackModelSource)
   }
 
   Settings {
@@ -76,7 +93,8 @@ Item {
     else
       particleMaskSource = ""
   }
-  onModelSourcePathChanged: refresh3dModelSource()
+  onLocalModelMeshChanged: refresh3dModelSource()
+  onLocalModelObjChanged: refresh3dModelSource()
 
   function refreshDataSources() {
     refreshImageSource()

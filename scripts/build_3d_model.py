@@ -30,13 +30,12 @@ except ImportError:  # pragma: no cover - best effort when library missing
 
 
 DEFAULT_SOURCE_DIR = Path(r"D:\SaveData\current")
-DEFAULT_OUTPUT = Path("TestData") / "models" / "generated_surface.obj"
-DEFAULT_EXPORT_COPY = DEFAULT_SOURCE_DIR / "generated_surface.obj"
-DEFAULT_POINT_CLOUD = Path("TestData") / "models" / "generated_point_cloud.ply"
-DEFAULT_POINT_CLOUD_COPY = DEFAULT_SOURCE_DIR / "generated_point_cloud.ply"
+DEFAULT_OUTPUT = DEFAULT_SOURCE_DIR / "generated_surface.obj"
 DEFAULT_FILE_X = "rts_X1.tif"
 DEFAULT_FILE_Y = "rts_Y1.tif"
 DEFAULT_FILE_Z = "rts_Z1.tif"
+DEFAULT_MESH_OUTPUT = DEFAULT_SOURCE_DIR / "generated_surface.mesh"
+DEFAULT_MESH_COPY = Path("TestData") / "models" / "generated_surface.mesh"
 
 
 @dataclass(frozen=True)
@@ -85,12 +84,6 @@ def parse_args() -> argparse.Namespace:
         help="OBJ file to write for Qt Quick 3D (relative paths resolved from repo root).",
     )
     parser.add_argument(
-        "--copy-to",
-        type=Path,
-        default=DEFAULT_EXPORT_COPY,
-        help="Optional additional OBJ copy for external tools (default: %(default)s).",
-    )
-    parser.add_argument(
         "--step",
         type=int,
         default=4,
@@ -120,21 +113,27 @@ def parse_args() -> argparse.Namespace:
         help="Minimum distance from origin to treat a sample as valid (default: %(default)s).",
     )
     parser.add_argument(
-        "--point-cloud",
-        type=Path,
-        default=DEFAULT_POINT_CLOUD,
-        help="Path to save sampled point cloud as PLY (default: %(default)s).",
-    )
-    parser.add_argument(
-        "--copy-point-cloud",
-        type=Path,
-        default=DEFAULT_POINT_CLOUD_COPY,
-        help="Optional extra PLY copy near raw data (default: %(default)s).",
-    )
-    parser.add_argument(
         "--show",
         action="store_true",
         help="Preview the sampled point cloud with Open3D (requires open3d).",
+    )
+    parser.add_argument(
+        "--balsam",
+        type=Path,
+        default=fr"C:\Qt\6.10.0\llvm-mingw_64\bin\balsam.exe",
+        help="Optional path to balsam.exe for converting OBJ to Qt .mesh assets.",
+    )
+    parser.add_argument(
+        "--mesh-output",
+        type=Path,
+        default=DEFAULT_MESH_OUTPUT,
+        help="Target .mesh path when using --balsam (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--copy-mesh",
+        type=Path,
+        default=DEFAULT_MESH_COPY,
+        help="Optional additional .mesh copy (default: %(default)s).",
     )
     return parser.parse_args()
 
@@ -297,6 +296,34 @@ def visualize_point_cloud(positions: np.ndarray, normals: Optional[np.ndarray]) 
     o3d.visualization.draw_geometries([point_cloud])
 
 
+def convert_with_balsam(balsam_path: Path, obj_path: Path, mesh_path: Path) -> Tuple[int, str]:
+    mesh_path.parent.mkdir(parents=True, exist_ok=True)
+    cmd = [
+        str(balsam_path),
+        " ",
+        str(obj_path),
+        " ",
+        str(mesh_path),
+    ]
+    try:
+        import subprocess
+
+        completed = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError as exc:  # pragma: no cover - depends on local setup
+        raise RuntimeError(f"Unable to execute balsam at {balsam_path}: {exc}") from exc
+    output = (completed.stdout or "") + (completed.stderr or "")
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"balsam conversion failed with exit code {completed.returncode}.\nCommand: {' '.join(cmd)}\nOutput:\n{output.strip()}"
+        )
+    return completed.returncode, output
+
+
 def main() -> None:
     args = parse_args()
     cloud = load_pointcloud(args.source_dir, args.file_x, args.file_y, args.file_z)
@@ -321,22 +348,20 @@ def main() -> None:
     faces = list(iter_faces(index_grid))
 
     export_obj(args.output, positions, normals, faces)
-    if args.copy_to:
-        export_obj(args.copy_to, positions, normals, faces)
-
     print(f"Mesh written to {args.output.resolve()}")
-    if args.copy_to:
-        print(f"External copy written to {args.copy_to.resolve()}")
 
-    if args.point_cloud:
-        if _O3D_AVAILABLE:
-            export_point_cloud(args.point_cloud, positions, normals)
-            print(f"Point cloud written to {args.point_cloud.resolve()}")
-            if args.copy_point_cloud:
-                export_point_cloud(args.copy_point_cloud, positions, normals)
-                print(f"External point cloud copy written to {args.copy_point_cloud.resolve()}")
-        else:
-            print("open3d not installed; skipping point cloud export.")
+
+    if args.balsam:
+        try:
+            convert_with_balsam(args.balsam, args.output, args.mesh_output)
+            print(f"Qt mesh written to {args.mesh_output.resolve()}")
+            if args.copy_mesh:
+                from shutil import copy2
+                args.copy_mesh.parent.mkdir(parents=True, exist_ok=True)
+                copy2(args.mesh_output, args.copy_mesh)
+                print(f"External mesh copy written to {args.copy_mesh.resolve()}")
+        except RuntimeError as exc:
+            print(f"[WARN] {exc}")
 
     if args.show:
         visualize_point_cloud(positions, normals)

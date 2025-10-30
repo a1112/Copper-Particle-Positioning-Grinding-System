@@ -90,6 +90,14 @@ Item {
       onErrorStringChanged: root.errorString = errorString
     }
 
+    Connections {
+      target: modelNode
+      function onModelStatusChanged() {
+        if (root.hasError)
+          Cores.CoreState.useFallbackModel()
+      }
+    }
+
   }
 
   Control3D {
