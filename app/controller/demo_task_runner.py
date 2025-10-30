@@ -127,7 +127,6 @@ class DemoTaskRunner:
         record = CuttingStatusTable(  # type: ignore[call-arg]
             id=1,
             feed_rate=Decimal("0.000"),
-            torque=Decimal("0.000"),
             elapsed_sec=Decimal("0.000"),
             spindle_rpm=Decimal("0.00"),
         )
@@ -519,6 +518,7 @@ class DemoTaskRunner:
         row.s_spindle_speed = int(round(metrics["spindle_rpm"]))
         row.s_feed_speed = int(round(metrics["feed_rate"]))
         row.s_point_motion_speed = int(round(metrics["point_speed"]))
+        row.torque = self._decimal(metrics["torque"], "0.000")
         row.p_absolute_position = self._format_position(metrics["x"], metrics["y"], metrics["z"])
         row.p_relative_position = self._format_position(
             metrics["relative_x"],
@@ -555,6 +555,16 @@ class DemoTaskRunner:
             current_time_str,
             previous_time_str,
         )
+        current_data = getattr(row, "data", None)
+        base_data = dict(current_data) if isinstance(current_data, dict) else {}
+        torque_value = round(metrics["torque"], 3)
+        torque_max = base_data.get("torque_max")
+        if isinstance(torque_max, (int, float, Decimal)):
+            torque_max = max(float(torque_max), torque_value)
+        else:
+            torque_max = torque_value
+        base_data.update({"torque": torque_value, "torque_max": round(torque_max, 3)})
+        row.data = base_data
         return True
 
     def _heartbeat_cutting_status(self, session: Session, metrics: dict[str, float]) -> bool:
@@ -564,7 +574,6 @@ class DemoTaskRunner:
         if row is None:
             return False
         row.feed_rate = self._decimal(metrics["feed_rate"], "0.000")
-        row.torque = self._decimal(metrics["torque"], "0.000")
         row.elapsed_sec = self._decimal(metrics["elapsed"], "0.000")
         row.spindle_rpm = self._decimal(metrics["spindle_rpm"], "0.00")
         LOG.info(

@@ -5,8 +5,8 @@ import QtQuick.Layouts
 TabBar {
     id: root
     implicitHeight: 40
-
-    TabButton { text: "任务配置" }
-    TabButton { text: "标定设置" }
-    TabButton { text: "刀具设置" }
+    TabButton { text: qsTr("常规参数设置") }
+    TabButton { text: qsTr("工艺参数设置") }
+    TabButton { text: qsTr("算法参数设置") }
+    TabButton { text: "刀具参数设置" }
 }

@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     DECIMAL,
     Integer,
+    JSON,
     String,
     text,
 )
@@ -32,6 +33,12 @@ class StatusTable(Base):
     c_camera_connected: Mapped[int] = mapped_column(TINYINT, nullable=False, server_default=text("'0'"), comment='相机连接状态（0-未连接，1-已连接）')
     c_device_connected: Mapped[int] = mapped_column(TINYINT, nullable=False, server_default=text("'0'"), comment='机台设备连接状态（0-未连接，1-已连接）')
     s_temperature: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(5, 2), comment='温度')
+    torque: Mapped[Optional[decimal.Decimal]] = mapped_column(
+        DECIMAL(10, 3),
+        nullable=False,
+        server_default=text("'0.000'"),
+        comment='主轴扭矩(N·m)',
+    )
     s_spindle_speed: Mapped[Optional[int]] = mapped_column(Integer, comment='主轴转速')
     s_feed_speed: Mapped[Optional[int]] = mapped_column(Integer, comment='进给速度')
     s_point_motion_speed: Mapped[Optional[int]] = mapped_column(Integer, comment='点动速度')
@@ -47,6 +54,7 @@ class StatusTable(Base):
     p_relative_position: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='相对坐标 "x,y,z"')
     p_work_position: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='工作坐标 "x,y,z"')
     p_remaining_distance: Mapped[Optional[str]] = mapped_column(String(100, 'utf8mb4_unicode_ci'), comment='剩余距离 "x,y,z"')
+    data: Mapped[Optional[dict]] = mapped_column(JSON, comment='扩展数据(JSON)')
     status_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP'), comment='状态时间')
     created_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP'), comment='创建时间')
     updated_time: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), comment='更新时间')

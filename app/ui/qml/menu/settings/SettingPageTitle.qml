@@ -3,6 +3,6 @@ import QtQuick.Controls
 Label {
     font.bold: true
     font.pointSize: 25
-    text: "设置中心"
+    text: qsTr("设置中心")
 
 }

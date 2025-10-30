@@ -27,12 +27,6 @@ class CuttingStatusTable(Base):
         server_default=text("'0.000'"),
         comment="进给速度(mm/s)",
     )
-    torque: Mapped[Optional[decimal.Decimal]] = mapped_column(
-        DECIMAL(10, 3),
-        nullable=False,
-        server_default=text("'0.000'"),
-        comment="主轴扭矩(N·m)",
-    )
     elapsed_sec: Mapped[Optional[decimal.Decimal]] = mapped_column(
         DECIMAL(10, 3),
         nullable=False,

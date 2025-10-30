@@ -282,6 +282,13 @@ class DbStatusSource(StatusSourceProtocol):
         feed_rate = self._to_float(row.s_feed_speed) or 0.0
         motion_speed = self._to_float(row.s_point_motion_speed) or 0.0
         temperature = self._to_float(row.s_temperature)
+        torque_raw = self._to_float(getattr(row, "torque", None))
+        torque_value = round(torque_raw, 3) if torque_raw is not None else None
+        series_b_value = (
+            torque_value
+            if torque_value is not None
+            else (round(temperature, 3) if temperature is not None else 0.0)
+        )
 
         position = self._parse_xyz(row.p_absolute_position)
 
@@ -301,7 +308,7 @@ class DbStatusSource(StatusSourceProtocol):
             "machine_mode": machine_mode,
             "serial_number": f"MZ-{row.id}",
             "spindle_rpm": spindle_rpm,
-            "spindle_torque": 0.0,
+            "spindle_torque": torque_value or 0.0,
             "feed_rate": round(feed_rate, 3),
             "travel_speed": round(motion_speed, 3),
             "statusLights": lights,
@@ -309,7 +316,7 @@ class DbStatusSource(StatusSourceProtocol):
             "lights": lights,
             "position": position,
             "seriesA": spindle_rpm,
-            "seriesB": temperature or 0.0,
+            "seriesB": series_b_value,
             "control_mode_code": row.c_control_mode,
             "machine_mode_code": row.c_machine_mode,
             "alarm_active": bool(row.c_alarm_status),
@@ -344,6 +351,12 @@ class DbStatusSource(StatusSourceProtocol):
         fixture_bits = getattr(row, "f_fixture_status", None)
         if fixture_bits is not None:
             payload["fixture_status_bits"] = int(fixture_bits)
+        row_data = getattr(row, "data", None)
+        if isinstance(row_data, dict):
+            payload["data"] = dict(row_data)
+            torque_max_candidate = self._to_float(row_data.get("torque_max"))
+            if torque_max_candidate is not None:
+                payload.setdefault("torque_max", round(torque_max_candidate, 3))
         self._apply_runner_health(row=row, payload=payload)
         return payload
 
@@ -374,12 +387,14 @@ class DbStatusSource(StatusSourceProtocol):
                     c_alarm_status=0,
                     c_control_mode=0,
                     c_machine_mode=0,
+                    torque=Decimal("0.000"),
                     s_spindle_speed=0,
                     s_feed_speed=0,
                     s_point_motion_speed=0,
                     status_time=datetime.utcnow(),
                     created_time=datetime.utcnow(),
                     updated_time=datetime.utcnow(),
+                    data={},
                 )
                 session.add(seed)
                 session.commit()
@@ -464,14 +479,12 @@ class DbStatusSource(StatusSourceProtocol):
 
         payload = self._row_to_payload(row, timestamp=timestamp, label=state.label)
         if cutting_row is not None:
-            torque_val = self._to_float(getattr(cutting_row, "torque", None))
-            if torque_val is not None:
-                torque_val = round(torque_val, 3)
-                payload["spindle_torque"] = torque_val
-                payload["seriesB"] = torque_val
             rpm_val = self._to_float(getattr(cutting_row, "spindle_rpm", None))
-            if rpm_val is not None and "spindle_rpm" not in payload:
-                payload["spindle_rpm"] = int(round(rpm_val))
+            if rpm_val is not None:
+                rpm_int = int(round(rpm_val))
+                payload["seriesA"] = rpm_int
+                if not payload.get("spindle_rpm"):
+                    payload["spindle_rpm"] = rpm_int
 
         state.run_mode = payload.get("run_mode", state.run_mode)
         state.spindle_rpm = float(payload.get("spindle_rpm", state.spindle_rpm))
@@ -715,12 +728,15 @@ def _read_cutting_payload(session_factory: sessionmaker) -> Dict[str, object]:
         raise RuntimeError("CuttingStatusTable model unavailable; ensure database models are generated")
 
     with session_factory() as session:
-        row = session.execute(select(CuttingStatusTable).limit(1)).scalar_one_or_none()
+        cutting_row = session.execute(select(CuttingStatusTable).limit(1)).scalar_one_or_none()
+        status_row = None
+        if StatusTable is not None:
+            status_row = session.execute(select(StatusTable).limit(1)).scalar_one_or_none()
 
-    if row is None:
+    if cutting_row is None:
         raise RuntimeError("CuttingStatusTable currently has no records")
 
-    def _scalar(value: Optional[Decimal | float | int]) -> float:
+    def _scalar(value: Optional[Any]) -> float:
         if value is None:
             return 0.0
         try:
@@ -728,16 +744,25 @@ def _read_cutting_payload(session_factory: sessionmaker) -> Dict[str, object]:
         except (TypeError, ValueError):
             return 0.0
 
-    feed = _scalar(row.feed_rate)
-    torque = _scalar(row.torque)
-    elapsed = _scalar(row.elapsed_sec)
-    spindle_rpm = _scalar(row.spindle_rpm)
+    feed = _scalar(getattr(cutting_row, "feed_rate", None))
+    elapsed = _scalar(getattr(cutting_row, "elapsed_sec", None))
+    spindle_rpm = _scalar(getattr(cutting_row, "spindle_rpm", None))
+    torque = 0.0
+    torque_max = 0.0
+    if status_row is not None:
+        torque = _scalar(getattr(status_row, "torque", None))
+        torque_max = torque
+        status_data = getattr(status_row, "data", None)
+        if isinstance(status_data, dict):
+            candidate = status_data.get("torque_max")
+            if candidate is not None:
+                torque_max = max(_scalar(candidate), torque)
 
     payload: Dict[str, object] = {
         "ts": time.time(),
         "feed_rate": round(feed, 3),
         "torque": round(torque, 3),
-        "torque_max": round(torque, 3),
+        "torque_max": round(torque_max, 3),
         "elapsed_sec": round(elapsed, 3),
     }
     if spindle_rpm:

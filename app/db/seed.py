@@ -110,6 +110,7 @@ def _default_status() -> StatusTable:
         c_control_mode=0,
         c_machine_mode=0,
         s_temperature=decimal.Decimal("0.00"),
+        torque=decimal.Decimal("0.000"),
         s_spindle_speed=0,
         s_feed_speed=0,
         s_point_motion_speed=0,
@@ -125,6 +126,7 @@ def _default_status() -> StatusTable:
         p_relative_position="0,0,0",
         p_work_position="0,0,0",
         p_remaining_distance="0,0,0",
+        data={},
     )
 
 
@@ -155,7 +157,6 @@ def _default_cutting_status() -> CuttingStatusTable:
     return CuttingStatusTable(
         id=1,
         feed_rate=decimal.Decimal("0.000"),
-        torque=decimal.Decimal("0.000"),
         elapsed_sec=decimal.Decimal("0.000"),
         spindle_rpm=decimal.Decimal("0.00"),
     )
