@@ -5,60 +5,46 @@ import "../../Code" as CodeViews
 // Flipable container toggling between task status overview and code viewer.
 Flipable {
   id: flipable
-  property bool showingCode: false
+  readonly property bool showingCode: !showingTask
+  property bool showingTask: true
 
-  readonly property bool showingTask: !showingCode
-  states: State {
+  transform: Rotation {
+           id: rotation
+           origin.x: flipable.width/2
+           origin.y: flipable.height/2
+           axis.x: 0; axis.y: 1; axis.z: 0     // set axis.y to 1 to rotate around y-axis
+           angle: 0    // the default angle
+       }
+
+       states: State {
            name: "back"
            PropertyChanges { target: rotation; angle: 180 }
-           when: flipable.flipped
+           when: !flipable.showingTask
        }
-
        transitions: Transition {
-           NumberAnimation { target: rotation; property: "angle"; duration: 4000 }
+           NumberAnimation { target: rotation; property: "angle"; duration: 800 }
        }
-  transform: Rotation {
-    origin.x: flipable.width / 2
-    origin.y: flipable.height / 2
-    axis.y: 1
-    angle: flipable.showingCode ? 0 : 180
-    Behavior on angle { NumberAnimation { duration: 400; easing.type: Easing.InOutQuad } }
-  }
-
-  front: Item {
+     front: Item {
+      id: backSide
+      anchors.fill: parent
+      TaskViews.TaskView {
+        id: taskView
+        anchors.fill: parent
+        onRequestCodeView: flipable.toggle()
+      }
+    }
+   back:Item {
     anchors.fill: parent
-
     CodeViews.CodeView {
       id: codeView
       anchors.fill: parent
-      onRequestBack: flipable.showTask()
+      onRequestBack: flipable.toggle()
     }
   }
 
-  back: Item {
-    id: backSide
-    anchors.fill: parent
 
-    TaskViews.TaskView {
-      id: taskView
-      anchors.fill: parent
-      onRequestCodeView: flipable.showCode()
-    }
-  }
-
-  function showTask() {
-    if (!flipable.showingCode)
-      return
-    flipable.showingCode = false
-  }
-
-  function showCode() {
-    if (flipable.showingCode)
-      return
-    flipable.showingCode = true
-  }
 
   function toggle() {
-    flipable.showingCode = !flipable.showingCode
+    flipable.showingTask = !flipable.showingTask
   }
 }

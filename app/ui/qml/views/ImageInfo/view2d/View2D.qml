@@ -29,6 +29,11 @@ Item {
   readonly property real scaleX: overlayArea.width > 0 ? overlayArea.width / imageWidth : 1
   readonly property real scaleY: overlayArea.height > 0 ? overlayArea.height / imageHeight : 1
 
+  property int activeBuffer: 0
+  property int pendingBuffer: -1
+  property url bufferSource0: ""
+  property url bufferSource1: ""
+
   property point hoverPixel: Qt.point(-1, -1)
   property point hoverWorld: Qt.point(0, 0)
   property bool hoverValid: false
@@ -80,21 +85,78 @@ Item {
     color: Cores.CoreStyle.background
   }
 
-  Image {
-    id: img
+  Item {
+    id: imageStack
     anchors.fill: parent
-    asynchronous: true
-    cache: false
-    smooth: true
-    fillMode: Image.PreserveAspectFit
-    source: Cores.CoreState.current2dImageSource
+
+    function requestImageRefresh(sourceUrl) {
+      if (!sourceUrl)
+        return
+      var targetBuffer
+      if (bufferSource0 === "" && bufferSource1 === "")
+        targetBuffer = activeBuffer
+      else
+        targetBuffer = activeBuffer === 0 ? 1 : 0
+      pendingBuffer = targetBuffer
+      if (targetBuffer === 0) {
+        bufferSource0 = ""
+        bufferSource0 = sourceUrl
+      } else {
+        bufferSource1 = ""
+        bufferSource1 = sourceUrl
+      }
+    }
+
+    function handleBufferReady(bufferIndex) {
+      if (pendingBuffer === bufferIndex) {
+        activeBuffer = bufferIndex
+        pendingBuffer = -1
+        pathCanvas.requestPaint()
+        coordinateLayer.requestUpdate()
+      }
+    }
+
+    Image {
+      id: imgBuffer0
+      anchors.fill: parent
+      asynchronous: true
+      cache: false
+      smooth: true
+      fillMode: Image.PreserveAspectFit
+      source: bufferSource0
+      visible: activeBuffer === 0 && status === Image.Ready
+      onStatusChanged: {
+        if (status === Image.Ready)
+          imageStack.handleBufferReady(0)
+        else if (status === Image.Error && pendingBuffer === 0)
+          pendingBuffer = -1
+      }
+    }
+
+    Image {
+      id: imgBuffer1
+      anchors.fill: parent
+      asynchronous: true
+      cache: false
+      smooth: true
+      fillMode: Image.PreserveAspectFit
+      source: bufferSource1
+      visible: activeBuffer === 1 && status === Image.Ready
+      onStatusChanged: {
+        if (status === Image.Ready)
+          imageStack.handleBufferReady(1)
+        else if (status === Image.Error && pendingBuffer === 1)
+          pendingBuffer = -1
+      }
+    }
   }
+
   Item {
     id: overlayArea
-    width: img.paintedWidth
-    height: img.paintedHeight
+    width: activeBuffer === 0 ? imgBuffer0.paintedWidth : imgBuffer1.paintedWidth
+    height: activeBuffer === 0 ? imgBuffer0.paintedHeight : imgBuffer1.paintedHeight
     anchors.centerIn: parent
-    visible: img.status === Image.Ready && width > 0 && height > 0
+    visible: (activeBuffer === 0 ? imgBuffer0.status === Image.Ready : imgBuffer1.status === Image.Ready) && width > 0 && height > 0
     clip: true
 
     Canvas {
@@ -205,11 +267,22 @@ Item {
   }
   onScaleYChanged: {
     pathCanvas.requestPaint()
+   coordinateLayer.requestUpdate()
+  }
+
+  onActiveBufferChanged: {
+    pathCanvas.requestPaint()
     coordinateLayer.requestUpdate()
   }
 
   Connections {
-    target: img
+    target: imgBuffer0
+    function onPaintedWidthChanged() { pathCanvas.requestPaint() }
+    function onPaintedHeightChanged() { pathCanvas.requestPaint() }
+  }
+
+  Connections {
+    target: imgBuffer1
     function onPaintedWidthChanged() { pathCanvas.requestPaint() }
     function onPaintedHeightChanged() { pathCanvas.requestPaint() }
   }
@@ -219,4 +292,13 @@ Item {
     function onWidthChanged() { pathCanvas.requestPaint() }
     function onHeightChanged() { pathCanvas.requestPaint() }
   }
+
+  Connections {
+    target: Cores.CoreState
+    function onCurrent2dImageSourceChanged() {
+      imageStack.requestImageRefresh(Cores.CoreState.current2dImageSource)
+    }
+  }
+
+  Component.onCompleted: imageStack.requestImageRefresh(Cores.CoreState.current2dImageSource)
 }

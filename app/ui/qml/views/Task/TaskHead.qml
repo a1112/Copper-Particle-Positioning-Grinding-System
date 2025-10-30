@@ -18,13 +18,20 @@ Item {
   RowLayout {
     Layout.fillWidth: true
     spacing: 4
+    Item{
+      Layout.fillWidth: true
+      height: 1
+    }
     Label {
       text: qsTr("任务流程")
       font.pixelSize: 14
       font.bold: true
       color: Cores.CoreStyle.text
     }
-
+    Item{
+      Layout.fillWidth: true
+      height: 1
+    }
   }
 }
 

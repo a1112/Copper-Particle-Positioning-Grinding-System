@@ -11,14 +11,6 @@ ApplicationWindow {
   id: rootWindow
   property real baseFontPointSize: Qt.application.font.pointSize > 0 ? Qt.application.font.pointSize : 12
 
-  function applyFontScale() {
-    const scale = Cores.CoreSettings ? Cores.CoreSettings.fontScale : 1.0;
-    const base = baseFontPointSize > 0 ? baseFontPointSize : 12;
-    Qt.application.font = Qt.font({ pointSize: base * scale });
-  }
-
-  Component.onCompleted: applyFontScale()
-
   Connections {
     target: Cores.CoreSettings
     function onFontScaleChanged() {
