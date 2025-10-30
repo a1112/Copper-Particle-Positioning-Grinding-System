@@ -64,10 +64,7 @@ Item {
       source: Cores.CoreStyle.getIconSource("msg.png")
       height: root.height
       width: height * 2
-      enabled: Datas.StatusDatas.controlEnabled || Datas.StatusDatas.forceEnableControls
       onClicked: {
-        if (!Datas.StatusDatas.controlEnabled && !Datas.StatusDatas.forceEnableControls)
-          return
         statePage.open()
       }
     }
@@ -75,10 +72,7 @@ Item {
       source: Cores.CoreStyle.getIconSource("tool.png")
       height: root.height
       width: height * 2
-      enabled: Datas.StatusDatas.controlEnabled || Datas.StatusDatas.forceEnableControls
       onClicked: {
-        if (!Datas.StatusDatas.controlEnabled && !Datas.StatusDatas.forceEnableControls)
-          return
         settingsPage.open()
       }
     }
@@ -86,10 +80,7 @@ Item {
       source: Cores.CoreStyle.getIconSource("setting.png")
       height: root.height
       width: height * 2
-      enabled: Datas.StatusDatas.controlEnabled || Datas.StatusDatas.forceEnableControls
       onClicked: {
-        if (!Datas.StatusDatas.controlEnabled && !Datas.StatusDatas.forceEnableControls)
-          return
         settingsDrawer.open()
       }
     }

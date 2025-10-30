@@ -380,7 +380,10 @@ def _alarm_summary_for_record(session: Session, record_id: Optional[int]) -> Dic
 
 
 @router.get('/data/tasks/state')
-def task_state_summary(session: Session = Depends(get_db_session)) -> Dict[str, Any]:
+def task_state_summary(
+    record_id: Optional[int] = Query(default=None),
+    session: Session = Depends(get_db_session),
+) -> Dict[str, Any]:
     workpiece = _ensure_default_workpiece(session)
     record = session.execute(select(RecordTable).order_by(desc(RecordTable.id))).scalars().first()
 
@@ -393,15 +396,19 @@ def task_state_summary(session: Session = Depends(get_db_session)) -> Dict[str, 
     capture_ready = bool(latest_capture and latest_capture.status == int(TaskStatus.COMPLETED))
     execute_ready = capture_ready and not execute_active
 
-    control_rows = (
-        session.execute(
-            select(HardwareTaskQueue)
-            .where(HardwareTaskQueue.task_type == int(TaskType.CONTROL))
-            .order_by(desc(HardwareTaskQueue.id))
-        )
-        .scalars()
-        .all()
+    control_stmt = (
+        select(HardwareTaskQueue)
+        .where(HardwareTaskQueue.task_type == int(TaskType.CONTROL))
+        .order_by(desc(HardwareTaskQueue.id))
     )
+    record_filter_id: Optional[int] = None
+    if record_id is not None and record_id > 0:
+        record_filter_id = record_id
+    elif record is not None:
+        record_filter_id = record.id
+    if record_filter_id is not None:
+        control_stmt = control_stmt.where(HardwareTaskQueue.record_id == record_filter_id)
+    control_rows = session.execute(control_stmt).scalars().all()
     control_commands = [_serialize_task(row) for row in control_rows]
 
     gcode_payload: Any = None
@@ -416,6 +423,7 @@ def task_state_summary(session: Session = Depends(get_db_session)) -> Dict[str, 
         'capture': _serialize_task(latest_capture) if latest_capture else None,
         'execute': _serialize_task(latest_execute) if latest_execute else None,
         'control': _serialize_task(latest_control) if latest_control else None,
+        'command_record_id': record_filter_id,
         'command_list': control_commands,
         'ready': {
             'capture': not bool(capture_active),

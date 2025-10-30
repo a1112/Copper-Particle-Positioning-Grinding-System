@@ -30,7 +30,11 @@ QtObject {
   property int _prevLatestRecordId: 0
 
   function refresh() {
-    Api.ApiClient.get("/data/tasks/state", function(payload) {
+    var recordId = Datas.TaskDatas.latestRecordId || 0
+    var url = "/data/tasks/state"
+    if (recordId && recordId > 0)
+      url += "?record_id=" + encodeURIComponent(recordId)
+    Api.ApiClient.get(url, function(payload) {
       try {
         Datas.TaskDatas.applyState(payload)
         if (payload && payload.workpiece)

@@ -22,6 +22,15 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import HTTP_BRIDGE_BASE, HTTP_CONTROL_ENDPOINT, HTTP_TIMEOUT
 from app.controller.httpbridge import HttpControllerService
+from app.common.task_actions import (
+    ACTION_META as TASK_ACTION_META,
+    DEFAULT_TASK_NAME as TASK_DEFAULT_NAME,
+    DEFAULT_TASK_TYPE as TASK_DEFAULT_TYPE,
+    friendly_action_name,
+    friendly_action_type,
+    get_action_meta,
+    normalise_action,
+)
 
 try:
     from app.db.models.MzPoliShineDB import CuttingStatusTable, HardwareTaskQueue, RecordTable, StatusTable
@@ -192,7 +201,6 @@ class DbStatusSource(StatusSourceProtocol):
         2: ("RUNNING", "RUNNING"),
         3: ("PAUSED", "WARNING"),
         4: ("STOPPED", "FAULT"),
-    }
     CONTROL_MODE_MAP: Dict[int, str] = {0: "LOCAL", 1: "REMOTE"}
     MACHINE_MODE_MAP: Dict[int, str] = {
         0: "MANUAL",
@@ -200,7 +208,6 @@ class DbStatusSource(StatusSourceProtocol):
         2: "SEMI_AUTO",
         3: "DEBUG",
         4: "MAINTENANCE",
-    }
 
     def __init__(self, db_url: str, *, engine: Optional[Engine] = None) -> None:
         if StatusTable is None:
@@ -263,7 +270,7 @@ class DbStatusSource(StatusSourceProtocol):
         default = {"x": 0.0, "y": 0.0, "z": 0.0, "theta": 0.0}
         if not value:
             return default
-        normalised = value.replace("，", ",")
+        normalised = value.replace("�?, ",")
         parts = [p.strip() for p in normalised.split(",") if p.strip()]
         if len(parts) < 3:
             return default
@@ -431,7 +438,7 @@ class DbStatusSource(StatusSourceProtocol):
             self._emit_runner_alert(payload, health, alert_key)
         elif lag > timeout:
             health["status"] = "error"
-            health["message"] = f"任务执行程序已离线（延迟 {lag:.1f}s）"
+            health["message"] = f"任务执行程序已离线（延迟 {lag:.1f}s�?
             health["alert_key"] = alert_key
             self._emit_runner_alert(payload, health, alert_key)
             payload["lights"]["controller"] = "FAULT"
@@ -449,7 +456,7 @@ class DbStatusSource(StatusSourceProtocol):
         payload["task_runner_health"] = health
 
     def _emit_runner_alert(self, payload: Dict[str, Any], health: Dict[str, Any], alert_key: str) -> None:
-        message = health.get("message") or "任务执行程序已离线"
+        message = health.get("message") or "任务执行程序已离�?
         alerts = payload.setdefault("alerts", [])
         if not any(alert.get("code") == alert_key for alert in alerts):
             alerts.append({"level": "error", "message": message, "code": alert_key})
@@ -501,33 +508,11 @@ class DbStatusSource(StatusSourceProtocol):
 class TaskQueueWriter:
     """Persist control commands into HardwareTaskQueue."""
 
-    DEFAULT_TASK_NAME = "控制指令"
-    DEFAULT_TASK_TYPE = 99
+    DEFAULT_TASK_NAME = TASK_DEFAULT_NAME
+    DEFAULT_TASK_TYPE = TASK_DEFAULT_TYPE
     DEFAULT_CREATED_BY = "http_prod"
 
-    ACTION_META: Dict[str, tuple[str, int]] = {
-        "capture": ("采集", 5),
-        "start": ("开始", 1),
-        "run.start": ("开始", 1),
-        "run.stop": ("停止", 2),
-        "stop": ("停止", 2),
-        "estop": ("急停", 3),
-        "reset": ("初始化", 4),
-        "motion.home": ("回归零位", 6),
-        "motion.set_work_origin": ("设置工件原点", 7),
-        "motion.jog": ("点动", 8),
-        "motion.set_speed": ("设置速度", 9),
-        "boost": ("性能提升", 10),
-        "manual.single_frame_capture": ("单帧采集", 40),
-        "manual.preprocess_roi_cluster": ("预处理 (ROI+聚类)", 41),
-        "manual.defect_detection": ("缺陷检测", 42),
-        "manual.defect_detection_secondary": ("缺陷检测", 43),
-        "manual.c5_upload": ("c5.上传指令", 44),
-        "manual.run_command": ("运行指令", 45),
-        "manual.clear_upload": ("清除上传的指令", 46),
-        "manual.initialize": ("初始化", 47),
-        "manual.initialize_secondary": ("初始化", 48),
-    }
+    ACTION_META: Dict[str, tuple[str, int]] = TASK_ACTION_META
 
     def __init__(self, session_factory: sessionmaker, *, engine: Optional[Engine] = None, owns_engine: bool = False) -> None:
         if HardwareTaskQueue is None:
@@ -559,22 +544,19 @@ class TaskQueueWriter:
 
     @classmethod
     def _normalise_action(cls, action: str) -> str:
-        return str(action or "").strip().lower()
+        return normalise_action(action)
 
     @classmethod
     def _friendly_action_name(cls, action: str) -> str:
-        name, _ = cls._action_meta(action)
-        return name
+        return friendly_action_name(action)
 
     @classmethod
     def _friendly_action_type(cls, action: str) -> int:
-        _, type_code = cls._action_meta(action)
-        return type_code
+        return friendly_action_type(action)
 
     @classmethod
     def _action_meta(cls, action: str) -> tuple[str, int]:
-        key = cls._normalise_action(action)
-        return cls.ACTION_META.get(key, (cls.DEFAULT_TASK_NAME, cls.DEFAULT_TASK_TYPE))
+        return get_action_meta(action)
 
     def _resolve_record_id(self, session: Session, explicit: Optional[int]) -> Optional[int]:
         if explicit is not None:
@@ -764,7 +746,6 @@ def _read_cutting_payload(session_factory: sessionmaker) -> Dict[str, object]:
         "torque": round(torque, 3),
         "torque_max": round(torque_max, 3),
         "elapsed_sec": round(elapsed, 3),
-    }
     if spindle_rpm:
         payload["spindle_rpm"] = round(spindle_rpm, 2)
     return payload
@@ -1137,3 +1118,5 @@ async def run_controller(
                 pass
         if task_writer is not None:
             task_writer.close()
+
+

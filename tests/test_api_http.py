@@ -4,10 +4,16 @@ import importlib
 import os
 
 import pytest
+from sqlalchemy import delete
 
 from app.server.api.ws.code_bus import bus
 from app.server.httpbridge.routes import set_store
 from app.server.httpbridge.store import HttpDataStore
+from app.db import SessionLocal, init_db
+from app.db.models.hardware_task_queue import HardwareTaskQueue
+from app.db.models.record_table import RecordTable
+from app.db.models.workpiece_table import WorkpieceTable
+from app.common.tasks import TaskType
 
 
 def test_root_docs_hint(client):
@@ -104,3 +110,55 @@ def test_bridge_controller_program(client):
 
     # Clear program to avoid leaking state into other tests
     client.post("/bridge/controller", json={"program": []})
+
+
+def test_task_state_command_filter_by_record(client):
+    init_db()
+    with SessionLocal() as session:
+        session.execute(delete(HardwareTaskQueue))
+        session.execute(delete(RecordTable))
+        session.execute(delete(WorkpieceTable))
+        session.commit()
+
+        workpiece = WorkpieceTable(
+            id=1,
+            w_workpiece_id="WP-FILTER",
+            w_workpiece_type="TEST",
+            w_material="Copper",
+            w_dimensions="10x10x1",
+            w_surface_requirement="Test",
+        )
+        session.add(workpiece)
+        session.flush()
+
+        record1 = RecordTable(id=1, workpiece_id=workpiece.id)
+        record2 = RecordTable(id=2, workpiece_id=workpiece.id)
+        session.add_all([record1, record2])
+        session.flush()
+
+        task1 = HardwareTaskQueue(
+            id=1001,
+            task_name="start",
+            task_type=int(TaskType.CONTROL),
+            device_id=1,
+            record_id=record1.id,
+            task_params={"action": "start"},
+        )
+        task2 = HardwareTaskQueue(
+            id=1002,
+            task_name="stop",
+            task_type=int(TaskType.CONTROL),
+            device_id=1,
+            record_id=record2.id,
+            task_params={"action": "stop"},
+        )
+        session.add_all([task1, task2])
+        session.commit()
+
+    r = client.get("/data/tasks/state?record_id=1")
+    assert r.status_code == 200
+    data = r.json()
+    commands = data.get("command_list", [])
+    assert len(commands) == 1
+    assert commands[0]["record_id"] == 1
+    assert data.get("command_record_id") == 1

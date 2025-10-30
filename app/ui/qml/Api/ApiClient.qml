@@ -24,8 +24,8 @@ QtObject {
   }
 
   // Convenience APIs
-  function startRun(onOk, onErr){ control('run.start', {}, onOk, onErr) }
-  function stopRun(onOk, onErr){ control('run.stop', {}, onOk, onErr) }
+  function startRun(onOk, onErr){ control('start', {}, onOk, onErr) }
+  function stopRun(onOk, onErr){ control('stop', {}, onOk, onErr) }
   function setSpeed(vFast, vWork, onOk, onErr){ control('motion.set_speed', { v_fast: vFast, v_work: vWork }, onOk, onErr) }
   function jog(axis, dir, speed, onOk, onErr){ control('motion.jog', { axis: axis, direction: dir, speed: speed }, onOk, onErr) }
   function home(onOk, onErr){ control('motion.home', {}, onOk, onErr) }

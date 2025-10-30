@@ -53,34 +53,21 @@ Menu {
     text: qsTr("缺陷检测")
     onTriggered: sendManual("manual.defect_detection")
   }
-
-  MenuItem {
-    text: qsTr("缺陷检测")
-    onTriggered: sendManual("manual.defect_detection_secondary")
-  }
-
   MenuItem {
     text: qsTr("c5.上传指令")
     onTriggered: sendManual("manual.c5_upload")
   }
-
-  MenuItem {
-    text: qsTr("运行指令")
-    onTriggered: sendManual("manual.run_command")
-  }
-
   MenuItem {
     text: qsTr("清除上传的指令")
     onTriggered: sendManual("manual.clear_upload")
   }
 
   MenuItem {
-    text: qsTr("初始化")
-    onTriggered: sendManual("manual.initialize")
+    text: qsTr("运行指令")
+    onTriggered: sendManual("manual.run_command")
   }
-
   MenuItem {
     text: qsTr("初始化")
-    onTriggered: sendManual("manual.initialize_secondary")
+    onTriggered: sendManual("manual.initialize")
   }
 }
