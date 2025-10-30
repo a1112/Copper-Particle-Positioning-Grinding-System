@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Sequence, Tuple
+from math import sqrt
+from typing import Any, Dict, List, Mapping, Sequence
 
 LOG = logging.getLogger("controller.http.program")
 
@@ -21,38 +22,31 @@ def _format_float(value: Any, precision: int = 1) -> str:
     return f"{_safe_float(value):.{precision}f}"
 
 
-def _format_avoid_tag(*candidates: str) -> str:
-    joined = ",".join(filter(None, (candidate or "" for candidate in candidates)))
-    return joined or "-"
+def _vector_distance(prev_point: Mapping[str, Any], next_point: Mapping[str, Any]) -> float:
+    dx = _safe_float(next_point.get("fX")) - _safe_float(prev_point.get("fX"))
+    dy = _safe_float(next_point.get("fY")) - _safe_float(prev_point.get("fY"))
+    dz = _safe_float(next_point.get("fZ")) - _safe_float(prev_point.get("fZ"))
+    return sqrt(dx * dx + dy * dy + dz * dz)
 
 
-def _format_point_line(
-    index: int,
-    image_point: Mapping[str, Any],
-    robot_point: Mapping[str, Any],
+def _format_command_line(
+    target_index: int,
+    previous_robot_point: Mapping[str, Any],
+    target_robot_point: Mapping[str, Any],
+    target_image_point: Mapping[str, Any],
     precision: int,
 ) -> str:
-    def fmt(source: Mapping[str, Any], key: str) -> str:
-        return _format_float(source.get(key), precision)
+    command = "FastMov" if target_index <= 4 else "FastCut"
 
-    avoid = _format_avoid_tag(
-        str(image_point.get("strQgNotSafe", "")).strip(),
-        str(robot_point.get("strQgNotSafe", "")).strip(),
-    )
-    image_descriptor = (
-        f"x={fmt(image_point, 'fX')},y={fmt(image_point, 'fY')},z={fmt(image_point, 'fZ')},"
-        f"row={fmt(image_point, 'fRow')},col={fmt(image_point, 'fCol')}"
-    )
-    robot_descriptor = (
-        f"x={fmt(robot_point, 'fX')},y={fmt(robot_point, 'fY')},z={fmt(robot_point, 'fZ')}"
-    )
-    meta_descriptor = (
-        f"def={image_point.get('iDef', robot_point.get('iDef', '-'))},"
-        f"depth={fmt(image_point, 'MxHeightCur')},"
-        f"zmax={fmt(image_point, 'ZMaxRelDm')},"
-        f"avoid={avoid}"
-    )
-    return f"({index}) image[{image_descriptor}] robot[{robot_descriptor}] {meta_descriptor}"
+    x = _format_float(target_robot_point.get("fX"), precision)
+    y = _format_float(target_robot_point.get("fY"), precision)
+    z = _format_float(target_robot_point.get("fZ"), precision)
+
+    speed = _format_float(_vector_distance(previous_robot_point, target_robot_point), precision)
+    rpm_source = target_image_point.get("ZMaxRelDm", 0.0) if command == "FastCut" else 0.0
+    rpm = _format_float(rpm_source, precision)
+
+    return f"{command} X:{x} Y:{y} Z:{z} V:{speed} R:{rpm}"
 
 
 def load_program_lines_from_alg(path: Path = DEFAULT_ALG_RESULT_PATH, *, precision: int = 1) -> List[str]:
@@ -76,12 +70,23 @@ def load_program_lines_from_alg(path: Path = DEFAULT_ALG_RESULT_PATH, *, precisi
     )
     lines.append(summary)
 
-    for idx, (image_point, robot_point) in enumerate(zip(image_points, robot_points), start=1):
+    if len(robot_points) < 2:
+        LOG.warning("Algorithm produced fewer than two points; no motion commands generated.")
+        return lines
+
+    for idx in range(1, len(robot_points)):
         try:
-            lines.append(_format_point_line(idx, image_point, robot_point, precision))
+            command_line = _format_command_line(
+                idx + 1,
+                robot_points[idx - 1],
+                robot_points[idx],
+                image_points[idx],
+                precision,
+            )
         except Exception as exc:  # pragma: no cover - defensive
-            LOG.warning("Failed to format point index=%d: %s", idx, exc)
+            LOG.warning("Failed to format command for segment ending at index=%d: %s", idx + 1, exc)
             continue
+        lines.append(command_line)
 
     return lines
 
