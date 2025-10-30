@@ -13,8 +13,8 @@ Item {
   readonly property real paintedHeight: activeBuffer === 0 ? imgBuffer0.paintedHeight : imgBuffer1.paintedHeight
   readonly property int status: activeBuffer === 0 ? imgBuffer0.status : imgBuffer1.status
 
-  signal statusChanged()
-  signal paintedSizeChanged()
+  signal bufferStatusChanged()
+  signal paintedSizeUpdated()
 
   property int activeBuffer: 0
   property int pendingBuffer: -1
@@ -30,8 +30,8 @@ Item {
       bufferSource1 = ""
       pendingBuffer = -1
       activeBuffer = 0
-      statusChanged()
-      paintedSizeChanged()
+      bufferStatusChanged()
+      paintedSizeUpdated()
       return
     }
     var targetBuffer
@@ -55,12 +55,12 @@ Item {
     if (pendingBuffer === index || (pendingBuffer === -1 && activeBuffer !== index)) {
       activeBuffer = index
       pendingBuffer = -1
-      statusChanged()
-      paintedSizeChanged()
+      bufferStatusChanged()
+      paintedSizeUpdated()
     }
   }
 
-  onActiveBufferChanged: paintedSizeChanged()
+  onActiveBufferChanged: paintedSizeUpdated()
   onSourceChanged: requestImageRefresh(source)
 
   Image {
@@ -78,10 +78,10 @@ Item {
         root.handleBufferReady(0)
       else if (status === Image.Error && root.pendingBuffer === 0)
         root.pendingBuffer = -1
-      root.statusChanged()
+      root.bufferStatusChanged()
     }
-    onPaintedWidthChanged: root.paintedSizeChanged()
-    onPaintedHeightChanged: root.paintedSizeChanged()
+    onPaintedWidthChanged: root.paintedSizeUpdated()
+    onPaintedHeightChanged: root.paintedSizeUpdated()
   }
 
   Image {
@@ -99,18 +99,10 @@ Item {
         root.handleBufferReady(1)
       else if (status === Image.Error && root.pendingBuffer === 1)
         root.pendingBuffer = -1
-      root.statusChanged()
+      root.bufferStatusChanged()
     }
-    onPaintedWidthChanged: root.paintedSizeChanged()
-    onPaintedHeightChanged: root.paintedSizeChanged()
-  }
-
-  Connections {
-    target: Qt.application
-    function onAboutToQuit() {
-      bufferSource0 = ""
-      bufferSource1 = ""
-    }
+    onPaintedWidthChanged: root.paintedSizeUpdated()
+    onPaintedHeightChanged: root.paintedSizeUpdated()
   }
 
   Component.onCompleted: requestImageRefresh(source)
