@@ -25,7 +25,7 @@ Rectangle {
 
   Text {
     anchors.centerIn: parent
-    text: qsTr("采集")
+    text: qsTr("閲囬泦")
     color: enabled ? "#0f172a" : "#cbd5f5"
     font.bold: true
     font.pixelSize: captureBtn.implicitHeight * 0.32
@@ -59,9 +59,9 @@ Rectangle {
         return true
       if (upper === "RUNNING")
         return false
-      if (text.indexOf("准备就绪") !== -1)
+      if (text.indexOf("鍑嗗灏辩华") !== -1)
         return true
-      if (text.indexOf("重新识别") !== -1)
+      if (text.indexOf("閲嶆柊璇嗗埆") !== -1)
         return true
     }
     return true
@@ -115,10 +115,8 @@ Rectangle {
       })
     }, function(_, message) {
       busy = false
-      Cores.CoreError.showError(message || qsTr("采集触发失败"))
+      Cores.CoreError.showError(message || qsTr("閲囬泦瑙﹀彂澶辫触"))
     })
   }
 }
-
-
 

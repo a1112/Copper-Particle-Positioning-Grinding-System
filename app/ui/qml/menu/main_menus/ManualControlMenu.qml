@@ -51,12 +51,12 @@ Menu {
   }
 
   MenuItem {
-    text: qsTr("预处�?(ROI+聚类)")
+    text: qsTr("预处理 (ROI+聚类)")
     onTriggered: sendManual("manual.preprocess_roi_cluster")
   }
 
   MenuItem {
-    text: qsTr("缺陷检�?)
+    text: qsTr("缺陷检测")
     onTriggered: sendManual("manual.defect_detection")
   }
   MenuItem {
@@ -64,7 +64,7 @@ Menu {
     onTriggered: sendManual("manual.c5_upload")
   }
   MenuItem {
-    text: qsTr("清除上传的指�?)
+    text: qsTr("清除上传的指令")
     onTriggered: sendManual("manual.clear_upload")
   }
 
@@ -73,9 +73,7 @@ Menu {
     onTriggered: sendManual("manual.run_command")
   }
   MenuItem {
-    text: qsTr("初始�?)
+    text: qsTr("初始化")
     onTriggered: sendManual("manual.initialize")
   }
 }
-
-
