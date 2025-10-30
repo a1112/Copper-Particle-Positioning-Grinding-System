@@ -1,10 +1,10 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import importlib
 import os
 
 import pytest
-from sqlalchemy import delete
+from sqlalchemy import delete, func, select
 
 from app.server.api.ws.code_bus import bus
 from app.server.httpbridge.routes import set_store
@@ -13,7 +13,7 @@ from app.db import SessionLocal, init_db
 from app.db.models.hardware_task_queue import HardwareTaskQueue
 from app.db.models.record_table import RecordTable
 from app.db.models.workpiece_table import WorkpieceTable
-from app.common.tasks import TaskType
+from app.common.task_actions import friendly_action_name, friendly_action_type, normalise_action
 
 
 def test_root_docs_hint(client):
@@ -112,6 +112,31 @@ def test_bridge_controller_program(client):
     client.post("/bridge/controller", json={"program": []})
 
 
+def test_capture_endpoint_creates_record(client):
+    init_db()
+    with SessionLocal() as session:
+        session.execute(delete(HardwareTaskQueue))
+        session.execute(delete(RecordTable))
+        session.execute(delete(WorkpieceTable))
+        session.commit()
+
+    r = client.post("/capture", json={"note": "pytest"})
+    assert r.status_code == 200
+    data = r.json()
+    assert data.get("ok") is True
+    record_id = data.get("record_id")
+    assert isinstance(record_id, int) and record_id > 0
+    assert data.get("record", {}).get("id") == record_id
+
+    with SessionLocal() as session:
+        queue_count = session.execute(
+            select(func.count()).select_from(HardwareTaskQueue)
+        ).scalar_one()
+        assert queue_count == 0
+        record = session.get(RecordTable, record_id)
+        assert record is not None
+
+
 def test_task_state_command_filter_by_record(client):
     init_db()
     with SessionLocal() as session:
@@ -136,21 +161,31 @@ def test_task_state_command_filter_by_record(client):
         session.add_all([record1, record2])
         session.flush()
 
+        start_type = friendly_action_type("start")
+        stop_type = friendly_action_type("stop")
         task1 = HardwareTaskQueue(
             id=1001,
-            task_name="start",
-            task_type=int(TaskType.CONTROL),
+            task_name=friendly_action_name("start"),
+            task_type=start_type,
             device_id=1,
             record_id=record1.id,
-            task_params={"action": "start"},
+            task_params={
+                "action": "start",
+                "action_key": normalise_action("start"),
+            },
+            status=0,
         )
         task2 = HardwareTaskQueue(
             id=1002,
-            task_name="stop",
-            task_type=int(TaskType.CONTROL),
+            task_name=friendly_action_name("stop"),
+            task_type=stop_type,
             device_id=1,
             record_id=record2.id,
-            task_params={"action": "stop"},
+            task_params={
+                "action": "stop",
+                "action_key": normalise_action("stop"),
+            },
+            status=0,
         )
         session.add_all([task1, task2])
         session.commit()
@@ -162,3 +197,4 @@ def test_task_state_command_filter_by_record(client):
     assert len(commands) == 1
     assert commands[0]["record_id"] == 1
     assert data.get("command_record_id") == 1
+

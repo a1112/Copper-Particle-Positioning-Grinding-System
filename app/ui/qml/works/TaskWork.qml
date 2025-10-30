@@ -1,124 +1,14913 @@
-pragma Singleton
-import QtQuick
-import "../Api" as Api
-import "../datas" as Datas
-import "../cores" as Cores
-
-QtObject {
-  id: root
-
-  property Timer pollTimer: Timer {
-    id: poller
-    interval: 2500
-    repeat: true
-    running: false
-    onTriggered: root.refresh()
-  }
-
-  function start() {
-    refresh()
-    if (!poller.running)
-      poller.start()
-  }
-
-  function stop() {
-    poller.stop()
-  }
-
-  property int _prevCaptureRecordId: 0
-  property int _prevCaptureStatus: -1
-  property int _prevLatestRecordId: 0
-
-  function refresh() {
-    var recordId = Datas.TaskDatas.latestRecordId || 0
-    var url = "/data/tasks/state"
-    if (recordId && recordId > 0)
-      url += "?record_id=" + encodeURIComponent(recordId)
-    Api.ApiClient.get(url, function(payload) {
-      try {
-        Datas.TaskDatas.applyState(payload)
-        if (payload && payload.workpiece)
-          Datas.DeviceInfoData.applyWorkpiece(payload.workpiece)
-        if (payload && payload.gcode) {
-          var gcode = payload.gcode
-          var commands = []
-          if (Array.isArray(gcode)) {
-            commands = gcode
-          } else if (gcode && Array.isArray(gcode.commands)) {
-            commands = gcode.commands
-          }
-          if (commands.length)
-            Datas.CodeDatas.lines = commands
-          else if (payload && payload.gcode !== undefined)
-            Datas.CodeDatas.lines = []
-        }
-        var capture = payload && payload.capture ? payload.capture : null
-        var captureRecordId = capture && capture.record_id !== undefined ? Number(capture.record_id) : 0
-        var captureStatus = capture && capture.status !== undefined ? Number(capture.status) : -1
-        var latestRecordId = payload && payload.latest_record !== undefined ? Number(payload.latest_record) : 0
-
-        if (isNaN(captureRecordId))
-          captureRecordId = 0
-        if (isNaN(captureStatus))
-          captureStatus = -1
-        if (isNaN(latestRecordId))
-          latestRecordId = 0
-
-        var captureStatusChanged = (captureRecordId !== _prevCaptureRecordId) || (captureStatus !== _prevCaptureStatus)
-        var recordChanged = latestRecordId !== _prevLatestRecordId && latestRecordId > 0
-        _prevCaptureRecordId = captureRecordId
-        _prevCaptureStatus = captureStatus
-        _prevLatestRecordId = latestRecordId
-
-        if ((captureStatusChanged && captureStatus === 2) || recordChanged) {
-          if (Cores && Cores.CoreState && Cores.CoreState.refreshDataSources)
-            Cores.CoreState.refreshDataSources()
-        }
-      } catch (err) {
-        console.warn("TaskWork refresh parse failed", err)
-      }
-    }, function(status, message) {
-      console.warn("TaskWork refresh error", status, message)
-    })
-  }
-
-  function enqueueExecute(recordId, workpieceId, onOk, onErr) {
-    var body = {}
-    if (recordId)
-      body.record_id = recordId
-    if (!body.record_id && workpieceId)
-      body.workpiece_id = workpieceId
-    Api.ApiClient.post("/data/tasks/execute", body, function(resp) {
-      refresh()
-      if (onOk)
-        onOk(resp)
-    }, function(status, message) {
-      if (onErr)
-        onErr(status, message)
-    })
-  }
-
-  function clearCommands(onOk, onErr) {
-    Api.ApiClient.del("/data/tasks/control", function(resp) {
-      refresh()
-      if (onOk)
-        onOk(resp)
-    }, function(status, message) {
-      if (onErr)
-        onErr(status, message)
-    })
-  }
-
-  function deleteCommand(id, onOk, onErr) {
-    if (!id)
-      return
-    Api.ApiClient.del("/data/tasks/control/" + encodeURIComponent(id), function(resp) {
-      refresh()
-      if (onOk)
-        onOk(resp)
-    }, function(status, message) {
-      if (onErr)
-        onErr(status, message)
-    })
-  }
-}
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdQ    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdQ    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdQ    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdj    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdT    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdT    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdT    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId2    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId5    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdT    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId-    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId1    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdL    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId|    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId|    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId>    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId?    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdU    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdT    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdw    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdW    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdw    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId[    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId]    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId[    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId]    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId?    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId?    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId?    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId-    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId1    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId?    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId:    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId-    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId1    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdN    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId|    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId|    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdL    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId>    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId0    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdL    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId2    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId|    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId|    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdD    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdS    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdw    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdT    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdW    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdw    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdT    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdW    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdq    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdx    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdw    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdv    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId&    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdw    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdw    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId_    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId=    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdw    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdx    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdb    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdy    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId!    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdA    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId.    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdl    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId/    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId"    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdU    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdR    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdI    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdC    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdd    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdh    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdO    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdk    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdp    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdc    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId{    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdi    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdf    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdo    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdn    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdE    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdr    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId(    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdt    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdu    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId,    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdm    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIds    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIda    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIdg    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordIde    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId)    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId     var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId}    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId
+    var recordId = 0
+    if (Cores.CoreCurrent.record && Cores.CoreCurrent.record.id)
+      recordId = Number(Cores.CoreCurrent.record.id)
+    if (!recordId && Datas.TaskDatas.latestRecordId)
+      recordId = Datas.TaskDatas.latestRecordId

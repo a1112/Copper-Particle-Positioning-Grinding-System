@@ -12,17 +12,23 @@ Menu {
       return
 
     var params = {}
-    if (Datas.TaskDatas.readyRecordId && Datas.TaskDatas.readyRecordId > 0)
+    var currentRecordId = Cores.CoreCurrent.record && Cores.CoreCurrent.record.id ? Number(Cores.CoreCurrent.record.id) : 0
+    if (currentRecordId > 0)
+      params.record_id = currentRecordId
+    else if (Datas.TaskDatas.readyRecordId && Datas.TaskDatas.readyRecordId > 0)
       params.record_id = Datas.TaskDatas.readyRecordId
     else if (Datas.TaskDatas.latestRecordId && Datas.TaskDatas.latestRecordId > 0)
       params.record_id = Datas.TaskDatas.latestRecordId
-    if (Datas.TaskDatas.workpieceId && Datas.TaskDatas.workpieceId > 0)
+    var currentWorkpieceId = Cores.CoreCurrent.workpiece && Cores.CoreCurrent.workpiece.id ? Number(Cores.CoreCurrent.workpiece.id) : 0
+    if (currentWorkpieceId > 0)
+      params.workpiece_id = currentWorkpieceId
+    else if (Datas.TaskDatas.workpieceId && Datas.TaskDatas.workpieceId > 0)
       params.workpiece_id = Datas.TaskDatas.workpieceId
     params.manual = true
 
-    if (Datas.TaskDatas.workpieceId && Datas.TaskDatas.workpieceId > 0) {
+    if (params.workpiece_id && params.workpiece_id > 0) {
       Cores.CoreCurrent.updateWorkpiece({
-        id: Datas.TaskDatas.workpieceId,
+        id: params.workpiece_id,
         code: Datas.TaskDatas.workpieceCode,
         type: Datas.TaskDatas.workpieceType
       })
@@ -45,12 +51,12 @@ Menu {
   }
 
   MenuItem {
-    text: qsTr("预处理 (ROI+聚类)")
+    text: qsTr("预处�?(ROI+聚类)")
     onTriggered: sendManual("manual.preprocess_roi_cluster")
   }
 
   MenuItem {
-    text: qsTr("缺陷检测")
+    text: qsTr("缺陷检�?)
     onTriggered: sendManual("manual.defect_detection")
   }
   MenuItem {
@@ -58,7 +64,7 @@ Menu {
     onTriggered: sendManual("manual.c5_upload")
   }
   MenuItem {
-    text: qsTr("清除上传的指令")
+    text: qsTr("清除上传的指�?)
     onTriggered: sendManual("manual.clear_upload")
   }
 
@@ -67,7 +73,9 @@ Menu {
     onTriggered: sendManual("manual.run_command")
   }
   MenuItem {
-    text: qsTr("初始化")
+    text: qsTr("初始�?)
     onTriggered: sendManual("manual.initialize")
   }
 }
+
+

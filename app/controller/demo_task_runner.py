@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app import config as APP_CONFIG
 from app.common.tasks import ControlInstruction, TaskStatus, TaskType
+from app.common.task_actions import friendly_action_name, friendly_action_type, normalise_action
 from app.db.models.MzPoliShineDB import (
     CuttingStatusTable,
     HardwareTaskQueue,
@@ -519,7 +520,7 @@ class DemoTaskRunner:
         row.s_feed_speed = int(round(metrics["feed_rate"]))
         row.s_point_motion_speed = int(round(metrics["point_speed"]))
         row.torque = self._decimal(metrics["torque"], "0.000")
-        row.p_absolute_position = self._format_position(metrics["x"], metrics["y"], metrics["z"])
+        row.p_relative_position = self._format_position(metrics["x"], metrics["y"], metrics["z"])
         row.p_relative_position = self._format_position(
             metrics["relative_x"],
             metrics["relative_y"],
@@ -702,7 +703,7 @@ def _run_cli(argv: Optional[Iterable[str]] = None) -> None:
         logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
     else:
         logging.getLogger().setLevel(logging.INFO)
-    LOG.info("DemoTaskRunner CLI starting (db=%s save_dir=%s ticks=%s interval=%.2fs)", args.db_url, args.save_dir, args.ticks or "âˆž", args.interval)
+    LOG.info("DemoTaskRunner CLI starting (db=%s save_dir=%s ticks=%s interval=%.2fs)", args.db_url, args.save_dir, args.ticks or "âˆ?, args.interval)
     try:
         while True:
             runner.tick()
@@ -720,3 +721,4 @@ def _run_cli(argv: Optional[Iterable[str]] = None) -> None:
 
 if __name__ == "__main__":
     _run_cli()
+

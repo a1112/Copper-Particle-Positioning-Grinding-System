@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
@@ -12,7 +12,14 @@ from sqlalchemy.orm import Session
 from app.db import SessionLocal
 from app.db.models.MzPoliShineDB import AlarmTable, HardwareTaskQueue, RecordTable, WorkpieceTable
 from app.server.api.api_core import data_router as router
-from app.common.tasks import TaskStatus, TaskType
+from app.common.tasks import TaskStatus
+from app.common.task_actions import (
+    ACTION_META,
+    DEFAULT_TASK_TYPE as TASK_DEFAULT_TYPE,
+    friendly_action_name,
+    friendly_action_type,
+    normalise_action,
+)
 from app import config
 
 SAVE_DATA_DIR = Path(config.PROJECT_ROOT) / 'SaveData'
@@ -56,6 +63,20 @@ class AlarmTestPayload(BaseModel):
     alarm_code: Optional[str] = Field(default=None, alias='code')
     alarm_message: Optional[str] = Field(default=None, alias='message')
     alarm_level: int = Field(default=3, ge=0, le=10)
+
+
+CONTROL_TASK_TYPES = {int(meta[1]) for meta in ACTION_META.values()}
+CONTROL_TASK_TYPES.add(TASK_DEFAULT_TYPE)
+CONTROL_TASK_TYPES.add(30)
+
+_STAGE_TYPE_MAP = {
+    "capture": {friendly_action_type("capture")},
+    "execute": {friendly_action_type("start"), friendly_action_type("run.start")},
+    "control": {
+        friendly_action_type("manual.defect_detection"),
+        friendly_action_type("manual.defect_detection_secondary"),
+    },
+}
 
 def _serialize_workpiece(row: WorkpieceTable) -> Dict[str, Any]:
     return {
@@ -125,6 +146,21 @@ def _serialize_task(row: HardwareTaskQueue) -> Dict[str, Any]:
         'created_time': row.created_time.isoformat() if row.created_time else None,
         'updated_time': row.updated_time.isoformat() if row.updated_time else None,
     }
+
+
+def _latest_stage_task(
+    session: Session,
+    stage: str,
+    record_id: Optional[int],
+) -> Optional[HardwareTaskQueue]:
+    type_codes = _STAGE_TYPE_MAP.get(stage)
+    if not type_codes:
+        return None
+    stmt = select(HardwareTaskQueue).where(HardwareTaskQueue.task_type.in_(tuple(type_codes)))
+    if record_id is not None and record_id > 0:
+        stmt = stmt.where(HardwareTaskQueue.record_id == record_id)
+    stmt = stmt.order_by(desc(HardwareTaskQueue.id))
+    return session.execute(stmt).scalars().first()
 
 
 def _serialize_alarm(row: AlarmTable) -> Dict[str, Any]:
@@ -205,7 +241,7 @@ def _ensure_save_dir(record_id: int) -> Path:
     return folder
 
 
-@router.post('/data/records/capture')
+@router.post('/capture')
 def create_capture_record(payload: CaptureRequestPayload, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
     workpiece = _get_workpiece(session, payload.workpiece_id)
     record = RecordTable(
@@ -215,25 +251,14 @@ def create_capture_record(payload: CaptureRequestPayload, session: Session = Dep
     session.add(record)
     session.flush()
 
-    folder = _ensure_save_dir(record.id)
-    task = HardwareTaskQueue(
-        task_name=f'capture-{record.id}',
-        task_type=int(TaskType.CAPTURE),
-        workpiece_id=workpiece.id,
-        record_id=record.id,
-        status=int(TaskStatus.PENDING),
-        task_params={'folder': str(folder), 'note': payload.note or '', 'queued_at': datetime.utcnow().timestamp()},
-        status_params={'phase': 'queued'},
-        device_id=1,
-    )
-    session.add(task)
+    _ensure_save_dir(record.id)
     session.commit()
     session.refresh(record)
-    session.refresh(task)
     return {
         'ok': True,
+        'record_id': record.id,
         'record': {'id': record.id, 'workpiece_id': record.workpiece_id},
-        'task': _serialize_task(task),
+        'workpiece': _serialize_workpiece(workpiece),
     }
 
 
@@ -253,13 +278,20 @@ def enqueue_execute_task(payload: ExecuteRequestPayload, session: Session = Depe
         ).scalars().first()
         if record is None:
             raise HTTPException(status_code=400, detail='No capture record available for this workpiece')
+    execute_action = "run.start"
     task = HardwareTaskQueue(
-        task_name=f'execute-{record.id}',
-        task_type=int(TaskType.EXECUTE),
+        task_name=friendly_action_name(execute_action),
+        task_type=friendly_action_type(execute_action),
         workpiece_id=record.workpiece_id,
         record_id=record.id,
         status=int(TaskStatus.PENDING),
-        task_params={'record_id': record.id, 'queued_at': datetime.utcnow().timestamp()},
+        task_params={
+            'action': execute_action,
+            'action_key': normalise_action(execute_action),
+            'record_id': record.id,
+            'workpiece_id': record.workpiece_id,
+            'queued_at': datetime.utcnow().timestamp(),
+        },
         status_params={'phase': 'queued'},
         device_id=1,
     )
@@ -343,18 +375,6 @@ def create_test_alarm(payload: AlarmTestPayload, session: Session = Depends(get_
     summary = _alarm_summary_for_record(session, record.id)
     return {'ok': True, 'alarm': _serialize_alarm(alarm), 'alarm_summary': summary}
 
-def _latest_task(session: Session, task_type: TaskType) -> Optional[HardwareTaskQueue]:
-    return (
-        session.execute(
-            select(HardwareTaskQueue)
-            .where(HardwareTaskQueue.task_type == int(task_type))
-            .order_by(desc(HardwareTaskQueue.id))
-        )
-        .scalars()
-        .first()
-    )
-
-
 def _alarm_summary_for_record(session: Session, record_id: Optional[int]) -> Dict[str, Any]:
     if not record_id:
         return {'alarms': [], 'max_level': 0, 'requires_reset': False}
@@ -387,26 +407,34 @@ def task_state_summary(
     workpiece = _ensure_default_workpiece(session)
     record = session.execute(select(RecordTable).order_by(desc(RecordTable.id))).scalars().first()
 
-    latest_capture = _latest_task(session, TaskType.CAPTURE)
-    latest_execute = _latest_task(session, TaskType.EXECUTE)
-    latest_control = _latest_task(session, TaskType.CONTROL)
-
-    capture_active = latest_capture and latest_capture.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
-    execute_active = latest_execute and latest_execute.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
-    capture_ready = bool(latest_capture and latest_capture.status == int(TaskStatus.COMPLETED))
-    execute_ready = capture_ready and not execute_active
-
-    control_stmt = (
-        select(HardwareTaskQueue)
-        .where(HardwareTaskQueue.task_type == int(TaskType.CONTROL))
-        .order_by(desc(HardwareTaskQueue.id))
-    )
     record_filter_id: Optional[int] = None
     if record_id is not None and record_id > 0:
         record_filter_id = record_id
     elif record is not None:
         record_filter_id = record.id
-    if record_filter_id is not None:
+
+    latest_capture = _latest_stage_task(session, "capture", record_filter_id)
+    latest_execute = _latest_stage_task(session, "execute", record_filter_id)
+    latest_control = _latest_stage_task(session, "control", record_filter_id)
+
+    capture_active = bool(
+        latest_capture and latest_capture.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
+    )
+    execute_active = bool(
+        latest_execute and latest_execute.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
+    )
+    control_active = bool(
+        latest_control and latest_control.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
+    )
+
+    ready_capture = not capture_active
+    ready_execute = ready_capture and not execute_active
+    ready_control = not control_active
+
+    control_stmt = select(HardwareTaskQueue).where(
+        HardwareTaskQueue.task_type.in_(tuple(CONTROL_TASK_TYPES))
+    ).order_by(desc(HardwareTaskQueue.id))
+    if record_filter_id is not None and record_filter_id > 0:
         control_stmt = control_stmt.where(HardwareTaskQueue.record_id == record_filter_id)
     control_rows = session.execute(control_stmt).scalars().all()
     control_commands = [_serialize_task(row) for row in control_rows]
@@ -426,9 +454,10 @@ def task_state_summary(
         'command_record_id': record_filter_id,
         'command_list': control_commands,
         'ready': {
-            'capture': not bool(capture_active),
-            'execute': execute_ready,
-            'record_id': record.id if record else None,
+            'capture': ready_capture,
+            'execute': ready_execute,
+            'control': ready_control,
+            'record_id': record_filter_id if record_filter_id else (record.id if record else None),
         },
         'gcode': gcode_payload,
         'alarm_max_level': alarm_summary['max_level'],
@@ -439,7 +468,7 @@ def task_state_summary(
 @router.delete('/data/tasks/control/{task_id}')
 def delete_control_task(task_id: int, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
     row = session.get(HardwareTaskQueue, task_id)
-    if row is None or row.task_type != int(TaskType.CONTROL):
+    if row is None or int(row.task_type or 0) not in CONTROL_TASK_TYPES:
         raise HTTPException(status_code=404, detail='Control task not found')
     session.delete(row)
     session.commit()
@@ -448,7 +477,11 @@ def delete_control_task(task_id: int, session: Session = Depends(get_db_session)
 
 @router.delete('/data/tasks/control')
 def clear_control_tasks(session: Session = Depends(get_db_session)) -> Dict[str, Any]:
-    stmt = delete(HardwareTaskQueue).where(HardwareTaskQueue.task_type == int(TaskType.CONTROL))
+    stmt = delete(HardwareTaskQueue).where(HardwareTaskQueue.task_type.in_(tuple(CONTROL_TASK_TYPES)))
     result = session.execute(stmt)
     session.commit()
     return {'ok': True, 'deleted': result.rowcount or 0}
+
+
+
+

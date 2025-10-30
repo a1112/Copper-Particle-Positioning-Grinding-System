@@ -1,4 +1,4 @@
-锘縤mport QtQuick
+import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../cores" as Cores
@@ -25,7 +25,7 @@ Rectangle {
 
   Text {
     anchors.centerIn: parent
-    text: qsTr("閲囬泦")
+    text: qsTr("采集")
     color: enabled ? "#0f172a" : "#cbd5f5"
     font.bold: true
     font.pixelSize: captureBtn.implicitHeight * 0.32
@@ -59,9 +59,9 @@ Rectangle {
         return true
       if (upper === "RUNNING")
         return false
-      if (text.indexOf("鍑嗗灏辩华") !== -1)
+      if (text.indexOf("准备就绪") !== -1)
         return true
-      if (text.indexOf("閲嶆柊璇嗗埆") !== -1)
+      if (text.indexOf("重新识别") !== -1)
         return true
     }
     return true
@@ -75,11 +75,13 @@ Rectangle {
     var payload = {}
     if (Datas.TaskDatas.workpieceId)
       payload.workpiece_id = Datas.TaskDatas.workpieceId
-    Api.ApiClient.post("/data/records/capture", payload, function(resp) {
+    Api.ApiClient.post("/capture", payload, function(resp) {
       busy = false
       var controlParams = {}
       var recordId = 0
-      if (resp && resp.record && resp.record.id)
+      if (resp && resp.record_id)
+        recordId = Number(resp.record_id)
+      else if (resp && resp.record && resp.record.id)
         recordId = resp.record.id
       else if (Datas.TaskDatas.readyRecordId > 0)
         recordId = Datas.TaskDatas.readyRecordId
@@ -92,15 +94,18 @@ Rectangle {
         controlParams.workpiece_id = workpieceId
       if (resp && resp.record)
         Cores.CoreCurrent.updateRecord(resp.record)
-      if (workpieceId > 0) {
+      else if (recordId > 0)
+        Cores.CoreCurrent.updateRecord({ id: recordId })
+      if (resp && resp.workpiece)
+        Cores.CoreCurrent.updateWorkpiece(resp.workpiece)
+      else if (workpieceId > 0) {
         Cores.CoreCurrent.updateWorkpiece({
           id: workpieceId,
           code: Datas.TaskDatas.workpieceCode,
           type: Datas.TaskDatas.workpieceType
         })
       }
-      if (resp && resp.task)
-        Cores.CoreCurrent.updateTask(resp.task)
+
       Cores.CoreCurrent.pushControl("capture", controlParams, { source: "capture_button" })
       Api.ApiClient.control("capture", controlParams, function() {
         Works.TaskWork.refresh()
@@ -110,8 +115,10 @@ Rectangle {
       })
     }, function(_, message) {
       busy = false
-      Cores.CoreError.showError(message || qsTr("閲囬泦瑙﹀彂澶辫触"))
+      Cores.CoreError.showError(message || qsTr("采集触发失败"))
     })
   }
 }
+
+
 

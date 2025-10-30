@@ -201,13 +201,15 @@ class DbStatusSource(StatusSourceProtocol):
         2: ("RUNNING", "RUNNING"),
         3: ("PAUSED", "WARNING"),
         4: ("STOPPED", "FAULT"),
+    }
     CONTROL_MODE_MAP: Dict[int, str] = {0: "LOCAL", 1: "REMOTE"}
     MACHINE_MODE_MAP: Dict[int, str] = {
         0: "MANUAL",
         1: "AUTO",
         2: "SEMI_AUTO",
         3: "DEBUG",
-        4: "MAINTENANCE",
+        4: "MAINTENANCE"
+        }
 
     def __init__(self, db_url: str, *, engine: Optional[Engine] = None) -> None:
         if StatusTable is None:
@@ -270,7 +272,8 @@ class DbStatusSource(StatusSourceProtocol):
         default = {"x": 0.0, "y": 0.0, "z": 0.0, "theta": 0.0}
         if not value:
             return default
-        normalised = value.replace("�?, ",")
+        filtered = "".join(ch for ch in value if ch.isdigit() or ch in {",", ".", "-"})
+        normalised = filtered.replace(",,", ",")
         parts = [p.strip() for p in normalised.split(",") if p.strip()]
         if len(parts) < 3:
             return default
@@ -297,7 +300,7 @@ class DbStatusSource(StatusSourceProtocol):
             else (round(temperature, 3) if temperature is not None else 0.0)
         )
 
-        position = self._parse_xyz(row.p_absolute_position)
+        position = self._parse_xyz(row.p_relative_position)
 
         lights = {
             "controller": "RUNNING",
@@ -438,7 +441,7 @@ class DbStatusSource(StatusSourceProtocol):
             self._emit_runner_alert(payload, health, alert_key)
         elif lag > timeout:
             health["status"] = "error"
-            health["message"] = f"任务执行程序已离线（延迟 {lag:.1f}s�?
+            health["message"] = f"任务执行程序已离线（延迟 {lag:.1f}s）"
             health["alert_key"] = alert_key
             self._emit_runner_alert(payload, health, alert_key)
             payload["lights"]["controller"] = "FAULT"
@@ -456,7 +459,7 @@ class DbStatusSource(StatusSourceProtocol):
         payload["task_runner_health"] = health
 
     def _emit_runner_alert(self, payload: Dict[str, Any], health: Dict[str, Any], alert_key: str) -> None:
-        message = health.get("message") or "任务执行程序已离�?
+        message = health.get("message") or "任务执行程序已离线"
         alerts = payload.setdefault("alerts", [])
         if not any(alert.get("code") == alert_key for alert in alerts):
             alerts.append({"level": "error", "message": message, "code": alert_key})
@@ -745,7 +748,7 @@ def _read_cutting_payload(session_factory: sessionmaker) -> Dict[str, object]:
         "feed_rate": round(feed, 3),
         "torque": round(torque, 3),
         "torque_max": round(torque_max, 3),
-        "elapsed_sec": round(elapsed, 3),
+        "elapsed_sec": round(elapsed, 3)}
     if spindle_rpm:
         payload["spindle_rpm"] = round(spindle_rpm, 2)
     return payload
@@ -1118,5 +1121,3 @@ async def run_controller(
                 pass
         if task_writer is not None:
             task_writer.close()
-
-
