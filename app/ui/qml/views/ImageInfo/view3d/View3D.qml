@@ -15,6 +15,7 @@ Item {
   property color modelColor: "#f3f4f6"
   property bool showControls: true
   property bool showGrid: true
+  property bool autoCenter: true
   property alias loadStatus: modelNode.modelStatus
   property string errorString: ""
 
@@ -88,13 +89,9 @@ Item {
       z: core3D.objectOffsetZ
       scale: core3D.objectScale
       onErrorStringChanged: root.errorString = errorString
-    }
-
-    Connections {
-      target: modelNode
-      function onModelStatusChanged() {
-        if (root.hasError)
-          Cores.CoreState.useFallbackModel()
+      onModelBoundsReady: function(minBounds, maxBounds) {
+        if (root.autoCenter)
+          core3D.applyAutoCenter(minBounds, maxBounds)
       }
     }
 

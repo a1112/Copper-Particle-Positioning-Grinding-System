@@ -30,15 +30,10 @@ Item {
   property string particleMaskSource: ""
   property bool showParticleMask: false
   property bool showPathOverlay: true
-  readonly property url fallbackModelSource: Qt.resolvedUrl("../../../../TestData/models/generated_surface.mesh")
-  property url localModelMesh: Qt.platform.os === "windows"
-                               ? "file:///D:/SaveData/current/generated_surface.mesh"
+  property url meshSourcePath: Qt.platform.os === "windows"
+                               ? "file:///D:/SaveData/current/meshes/defaultobject_mesh.mesh"
                                : ""
-  property url localModelObj: Qt.platform.os === "windows"
-                              ? "file:///D:/SaveData/current/generated_surface.obj"
-                              : ""
-  property bool usingFallbackModel: false
-  property url current3dModelSource: ""
+  property url current3dModelSource: meshSourcePath
 
   function refreshImageSource() {
     const queryValue = imageTypeQueryMap[current2DShowName] || "color"
@@ -56,24 +51,8 @@ Item {
   }
 
   function refresh3dModelSource() {
-    usingFallbackModel = false
     current3dModelSource = ""
-    Qt.callLater(function() {
-      if (localModelMesh && localModelMesh.toString().length > 0)
-        current3dModelSource = localModelMesh
-      else if (localModelObj && localModelObj.toString().length > 0)
-        current3dModelSource = localModelObj
-      else
-        useFallbackModel()
-    })
-  }
-
-  function useFallbackModel() {
-    if (usingFallbackModel)
-      return
-    usingFallbackModel = true
-    current3dModelSource = ""
-    Qt.callLater(() => current3dModelSource = fallbackModelSource)
+    Qt.callLater(() => current3dModelSource = meshSourcePath)
   }
 
   Settings {
@@ -93,8 +72,7 @@ Item {
     else
       particleMaskSource = ""
   }
-  onLocalModelMeshChanged: refresh3dModelSource()
-  onLocalModelObjChanged: refresh3dModelSource()
+  onMeshSourcePathChanged: refresh3dModelSource()
 
   function refreshDataSources() {
     refreshImageSource()

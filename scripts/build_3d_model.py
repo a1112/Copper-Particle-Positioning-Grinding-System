@@ -1,41 +1,51 @@
 #!/usr/bin/env python3
 """
-Utility to process structured-light point clouds stored in D:\SaveData\current.
+Build triangulated and point-cloud assets from structured-light captures in D:\\SaveData\\current.
 
-The script reads the X/Y/Z point cloud TIFFs (default: rts_X1/Y1/Z1.tif), optionally downsamples, and exports both:
-1. An OBJ surface mesh suitable for Qt Quick 3D usage.
-2. A PLY point cloud (when open3d is available) that preserves the non-closed geometry for external tools.
-
-When ``--show`` is supplied the generated point cloud is previewed with Open3D.
+By default the script:
+  * loads `rts_X1.tif`, `rts_Y1.tif`, and `rts_Z1.tif`;
+  * downsamples the grid (`--step`) while rejecting near-origin points (`--valid-epsilon`);
+  * recentres the geometry around its bounding-box midpoint (disable with `--no-center`);
+  * writes `generated_surface.obj` to both `TestData/models/` and the capture directory;
+  * optionally exports a PLY point cloud (requires open3d);
+  * optionally invokes Qt's `balsam.exe` to bake a `.mesh` file;
+  * emits metadata describing the centering transform for downstream consumers.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import math
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional, Tuple
 
 import cv2
 import numpy as np
+from shutil import copy2
 
 try:  # optional visualization/export dependency
     import open3d as o3d  # type: ignore
 
     _O3D_AVAILABLE = True
-except ImportError:  # pragma: no cover - best effort when library missing
+except ImportError:  # pragma: no cover - optional dependency
     o3d = None  # type: ignore[assignment]
     _O3D_AVAILABLE = False
 
-
 DEFAULT_SOURCE_DIR = Path(r"D:\SaveData\current")
-DEFAULT_OUTPUT = DEFAULT_SOURCE_DIR / "generated_surface.obj"
+DEFAULT_OBJ_OUTPUT = Path("TestData") / "models" / "generated_surface.obj"
+DEFAULT_OBJ_COPY = DEFAULT_SOURCE_DIR / "generated_surface.obj"
+DEFAULT_POINT_CLOUD = Path("TestData") / "models" / "generated_point_cloud.ply"
+DEFAULT_POINT_CLOUD_COPY = DEFAULT_SOURCE_DIR / "generated_point_cloud.ply"
 DEFAULT_FILE_X = "rts_X1.tif"
 DEFAULT_FILE_Y = "rts_Y1.tif"
 DEFAULT_FILE_Z = "rts_Z1.tif"
-DEFAULT_MESH_OUTPUT = DEFAULT_SOURCE_DIR / "generated_surface.mesh"
-DEFAULT_MESH_COPY = Path("TestData") / "models" / "generated_surface.mesh"
+DEFAULT_MESH_OUTPUT = DEFAULT_SOURCE_DIR / "defaultobject_mesh.mesh"
+DEFAULT_MESH_COPY = Path("TestData") / "models" / "defaultobject_mesh.mesh"
+DEFAULT_META_OUTPUT = DEFAULT_SOURCE_DIR / "generated_surface_meta.json"
+DEFAULT_META_COPY = Path("TestData") / "models" / "generated_surface_meta.json"
 
 
 @dataclass(frozen=True)
@@ -59,47 +69,34 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_SOURCE_DIR,
         help="Directory containing the structured-light TIFFs (default: %(default)s).",
     )
-    parser.add_argument(
-        "--file-x",
-        type=str,
-        default=DEFAULT_FILE_X,
-        help="Filename containing X coordinates (default: %(default)s).",
-    )
-    parser.add_argument(
-        "--file-y",
-        type=str,
-        default=DEFAULT_FILE_Y,
-        help="Filename containing Y coordinates (default: %(default)s).",
-    )
-    parser.add_argument(
-        "--file-z",
-        type=str,
-        default=DEFAULT_FILE_Z,
-        help="Filename containing Z coordinates (default: %(default)s).",
-    )
+    parser.add_argument("--file-x", type=str, default=DEFAULT_FILE_X, help="Filename containing X coordinates.")
+    parser.add_argument("--file-y", type=str, default=DEFAULT_FILE_Y, help="Filename containing Y coordinates.")
+    parser.add_argument("--file-z", type=str, default=DEFAULT_FILE_Z, help="Filename containing Z coordinates.")
     parser.add_argument(
         "--output",
         type=Path,
-        default=DEFAULT_OUTPUT,
-        help="OBJ file to write for Qt Quick 3D (relative paths resolved from repo root).",
+        default=DEFAULT_OBJ_OUTPUT,
+        help="OBJ file to write for Qt Quick 3D (default: %(default)s).",
     )
     parser.add_argument(
-        "--step",
-        type=int,
-        default=4,
-        help="Sampling step to downsample the grid (>=1). Larger values create smaller meshes/point clouds.",
+        "--copy-to",
+        type=Path,
+        default=DEFAULT_OBJ_COPY,
+        help="Optional secondary OBJ copy near the capture directory (default: %(default)s).",
     )
+    parser.add_argument("--step", type=int, default=4, help="Grid sampling step (>=1).")
     parser.add_argument(
         "--max-size",
         type=int,
         default=600 * 600,
-        help="Optional limit on number of sampled vertices; step is increased until satisfied.",
+        help="Limit on sampled vertex count (step is increased until satisfied).",
     )
+    parser.add_argument("--z-scale", type=float, default=1.0, help="Scale factor applied to the Z axis.")
     parser.add_argument(
-        "--z-scale",
+        "--valid-epsilon",
         type=float,
-        default=1.0,
-        help="Optional scale factor applied to the Z axis.",
+        default=1e-6,
+        help="Minimum distance from the origin to treat a point as valid.",
     )
     parser.add_argument(
         "--flip-y",
@@ -107,21 +104,32 @@ def parse_args() -> argparse.Namespace:
         help="Flip the Y axis to match right-handed coordinates used in Qt Quick 3D and Open3D.",
     )
     parser.add_argument(
-        "--valid-epsilon",
-        type=float,
-        default=1e-6,
-        help="Minimum distance from origin to treat a sample as valid (default: %(default)s).",
+        "--no-center",
+        action="store_true",
+        help="Disable recentring around the bounding-box midpoint.",
+    )
+    parser.add_argument(
+        "--point-cloud",
+        type=Path,
+        default=DEFAULT_POINT_CLOUD,
+        help="PLY point-cloud export path (requires open3d).",
+    )
+    parser.add_argument(
+        "--copy-point-cloud",
+        type=Path,
+        default=DEFAULT_POINT_CLOUD_COPY,
+        help="Optional secondary PLY copy.",
     )
     parser.add_argument(
         "--show",
         action="store_true",
-        help="Preview the sampled point cloud with Open3D (requires open3d).",
+        help="Preview the sampled point cloud with Open3D.",
     )
     parser.add_argument(
         "--balsam",
         type=Path,
-        default=fr"C:\Qt\6.10.0\llvm-mingw_64\bin\balsam.exe",
-        help="Optional path to balsam.exe for converting OBJ to Qt .mesh assets.",
+        default=None,
+        help="Path to Qt's balsam.exe to bake a .mesh asset.",
     )
     parser.add_argument(
         "--mesh-output",
@@ -133,21 +141,33 @@ def parse_args() -> argparse.Namespace:
         "--copy-mesh",
         type=Path,
         default=DEFAULT_MESH_COPY,
-        help="Optional additional .mesh copy (default: %(default)s).",
+        help="Optional secondary .mesh copy.",
+    )
+    parser.add_argument(
+        "--meta-output",
+        type=Path,
+        default=DEFAULT_META_OUTPUT,
+        help="Metadata JSON describing centering parameters.",
+    )
+    parser.add_argument(
+        "--copy-meta",
+        type=Path,
+        default=DEFAULT_META_COPY,
+        help="Optional metadata copy near repository assets.",
     )
     return parser.parse_args()
 
 
-def _require_file(path: Path) -> Path:
+def require_file(path: Path) -> Path:
     if not path.exists():
         raise FileNotFoundError(f"Required input file not found: {path}")
     return path
 
 
 def load_pointcloud(source_dir: Path, file_x: str, file_y: str, file_z: str) -> PointCloud:
-    x = cv2.imread(str(_require_file(source_dir / file_x)), cv2.IMREAD_UNCHANGED)
-    y = cv2.imread(str(_require_file(source_dir / file_y)), cv2.IMREAD_UNCHANGED)
-    z = cv2.imread(str(_require_file(source_dir / file_z)), cv2.IMREAD_UNCHANGED)
+    x = cv2.imread(str(require_file(source_dir / file_x)), cv2.IMREAD_UNCHANGED)
+    y = cv2.imread(str(require_file(source_dir / file_y)), cv2.IMREAD_UNCHANGED)
+    z = cv2.imread(str(require_file(source_dir / file_z)), cv2.IMREAD_UNCHANGED)
     if x is None or y is None or z is None:
         raise RuntimeError("Unable to read one of the point cloud TIFF files.")
     if x.shape != y.shape or x.shape != z.shape:
@@ -181,31 +201,26 @@ def downsample_cloud(
     xs = cloud.x[::step, ::step]
     ys = cloud.y[::step, ::step]
     zs = cloud.z[::step, ::step] * z_scale
-
     if flip_y:
         ys = -ys
-
-    stack = np.stack([xs, ys, zs], axis=-1)
-    norms = np.linalg.norm(stack, axis=-1)
+    stacked = np.stack([xs, ys, zs], axis=-1)
+    norms = np.linalg.norm(stacked, axis=-1)
     valid_mask = norms > epsilon
-    return stack, valid_mask
+    return stacked, valid_mask
 
 
 def compute_normals(grid: np.ndarray, valid_mask: np.ndarray) -> np.ndarray:
     height, width, _ = grid.shape
     normals = np.zeros_like(grid)
-
     for r in range(height):
         r_prev = max(0, r - 1)
         r_next = min(height - 1, r + 1)
         for c in range(width):
             c_prev = max(0, c - 1)
             c_next = min(width - 1, c + 1)
-
             if not valid_mask[r, c]:
                 normals[r, c] = np.array([0.0, 0.0, 1.0], dtype=np.float32)
                 continue
-
             v_center = grid[r, c]
             neighbors = [
                 grid[r, c_next] - v_center,
@@ -225,11 +240,10 @@ def compute_normals(grid: np.ndarray, valid_mask: np.ndarray) -> np.ndarray:
                     continue
                 v1 = neighbors[i]
                 v2 = neighbors[(i + 1) % len(neighbors)]
-                cross = np.cross(v1, v2)
-                normal += cross
-            norm = np.linalg.norm(normal)
-            if norm > 1e-6:
-                normals[r, c] = normal / norm
+                normal += np.cross(v1, v2)
+            length = np.linalg.norm(normal)
+            if length > 1e-6:
+                normals[r, c] = normal / length
             else:
                 normals[r, c] = np.array([0.0, 0.0, 1.0], dtype=np.float32)
     return normals
@@ -296,32 +310,60 @@ def visualize_point_cloud(positions: np.ndarray, normals: Optional[np.ndarray]) 
     o3d.visualization.draw_geometries([point_cloud])
 
 
-def convert_with_balsam(balsam_path: Path, obj_path: Path, mesh_path: Path) -> Tuple[int, str]:
-    mesh_path.parent.mkdir(parents=True, exist_ok=True)
-    cmd = [
-        str(balsam_path),
-        " ",
-        str(obj_path),
-        " ",
-        str(mesh_path),
-    ]
-    try:
-        import subprocess
+def center_positions(positions: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    mins = positions.min(axis=0)
+    maxs = positions.max(axis=0)
+    center = (mins + maxs) * 0.5
+    centered = positions - center
+    return centered, center
 
-        completed = subprocess.run(
-            cmd,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-    except FileNotFoundError as exc:  # pragma: no cover - depends on local setup
-        raise RuntimeError(f"Unable to execute balsam at {balsam_path}: {exc}") from exc
-    output = (completed.stdout or "") + (completed.stderr or "")
-    if completed.returncode != 0:
-        raise RuntimeError(
-            f"balsam conversion failed with exit code {completed.returncode}.\nCommand: {' '.join(cmd)}\nOutput:\n{output.strip()}"
-        )
-    return completed.returncode, output
+
+def write_metadata(
+    meta_path: Path,
+    *,
+    center: Optional[np.ndarray],
+    step: int,
+    z_scale: float,
+    epsilon: float,
+) -> None:
+    meta_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "sampling_step": step,
+        "z_scale": z_scale,
+        "valid_epsilon": epsilon,
+        "centered": center is not None,
+        "center_offset": center.tolist() if center is not None else None,
+    }
+    with meta_path.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2)
+        fh.write("\n")
+
+
+def convert_with_balsam(balsam_path: Path, obj_path: Path, mesh_output: Path) -> None:
+    mesh_output.parent.mkdir(parents=True, exist_ok=True)
+
+    def _run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(cmd, check=False, capture_output=True, text=True)
+
+    candidates = [
+        [str(balsam_path), "--input", str(obj_path), "--output", str(mesh_output)],
+        [str(balsam_path), str(obj_path)],
+    ]
+    for cmd in candidates:
+        completed = _run(cmd)
+        output = (completed.stdout or "") + (completed.stderr or "")
+        if completed.returncode == 0:
+            # If Balsam wrote to an autogenerated filename, copy it to mesh_output.
+            if not mesh_output.exists():
+                generated = next(mesh_output.parent.glob("*.mesh"), None)
+                if generated:
+                    copy2(generated, mesh_output)
+            return
+        last_output = output
+        last_cmd = cmd
+    raise RuntimeError(
+        f"Balsam conversion failed.\nCommand tried: {' '.join(last_cmd)}\nOutput:\n{last_output.strip()}"
+    )
 
 
 def main() -> None:
@@ -339,27 +381,58 @@ def main() -> None:
     )
     normals_grid = compute_normals(sampled_grid, valid_mask)
     index_grid, vertex_count = build_vertex_indices(valid_mask)
-
     if vertex_count == 0:
-        raise RuntimeError("No valid points detected. Adjust --valid-epsilon or check input data.")
+        raise RuntimeError("No valid points detected. Adjust --valid-epsilon or verify input data.")
 
     positions = sampled_grid.reshape(-1, 3)[valid_mask.reshape(-1)]
     normals = normals_grid.reshape(-1, 3)[valid_mask.reshape(-1)]
+
+    center_offset: Optional[np.ndarray] = None
+    if not args.no_center:
+        positions, center_offset = center_positions(positions)
+
     faces = list(iter_faces(index_grid))
 
     export_obj(args.output, positions, normals, faces)
-    print(f"Mesh written to {args.output.resolve()}")
+    print(f"OBJ written to {args.output.resolve()}")
+    if args.copy_to:
+        args.copy_to.parent.mkdir(parents=True, exist_ok=True)
+        copy2(args.output, args.copy_to)
+        print(f"OBJ copy written to {args.copy_to.resolve()}")
 
+    if args.point_cloud:
+        if _O3D_AVAILABLE:
+            export_point_cloud(args.point_cloud, positions, normals)
+            print(f"Point cloud written to {args.point_cloud.resolve()}")
+            if args.copy_point_cloud:
+                args.copy_point_cloud.parent.mkdir(parents=True, exist_ok=True)
+                copy2(args.point_cloud, args.copy_point_cloud)
+                print(f"Point cloud copy written to {args.copy_point_cloud.resolve()}")
+        else:
+            print("open3d not installed; skipping point cloud export.")
+
+    if args.meta_output:
+        write_metadata(
+            args.meta_output,
+            center=center_offset,
+            step=step,
+            z_scale=args.z_scale,
+            epsilon=args.valid_epsilon,
+        )
+        print(f"Metadata written to {args.meta_output.resolve()}")
+        if args.copy_meta:
+            args.copy_meta.parent.mkdir(parents=True, exist_ok=True)
+            copy2(args.meta_output, args.copy_meta)
+            print(f"Metadata copy written to {args.copy_meta.resolve()}")
 
     if args.balsam:
         try:
             convert_with_balsam(args.balsam, args.output, args.mesh_output)
-            print(f"Qt mesh written to {args.mesh_output.resolve()}")
+            print(f"Mesh written to {args.mesh_output.resolve()}")
             if args.copy_mesh:
-                from shutil import copy2
                 args.copy_mesh.parent.mkdir(parents=True, exist_ok=True)
                 copy2(args.mesh_output, args.copy_mesh)
-                print(f"External mesh copy written to {args.copy_mesh.resolve()}")
+                print(f"Mesh copy written to {args.copy_mesh.resolve()}")
         except RuntimeError as exc:
             print(f"[WARN] {exc}")
 

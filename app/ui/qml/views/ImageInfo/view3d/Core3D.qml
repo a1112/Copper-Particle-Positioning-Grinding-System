@@ -11,6 +11,7 @@ Item {
   property real objectOffsetX: 0
   property real objectOffsetY: 0
   property real objectOffsetZ: 0
+  property vector3d autoOffset: Qt.vector3d(0, 0, 0)
 
   // Camera transform
   property real cameraOffsetX: 0
@@ -58,14 +59,26 @@ Item {
     cameraOffsetZ = Math.max(60, Math.min(newZ, 20000))
   }
 
+  function applyAutoCenter(minBounds, maxBounds) {
+    if (!minBounds || !maxBounds)
+      return
+    var cx = -0.5 * (minBounds.x + maxBounds.x)
+    var cy = -0.5 * (minBounds.y + maxBounds.y)
+    var cz = -0.5 * (minBounds.z + maxBounds.z)
+    autoOffset = Qt.vector3d(cx, cy, cz)
+    objectOffsetX = autoOffset.x
+    objectOffsetY = autoOffset.y
+    objectOffsetZ = autoOffset.z
+  }
+
   function resetView() {
     objectRotationX = 0
     objectRotationY = 0
     objectRotationZ = -90
     objectScale = Qt.vector3d(1, 1, 1)
-    objectOffsetX = 0
-    objectOffsetY = 0
-    objectOffsetZ = 0
+    objectOffsetX = autoOffset.x
+    objectOffsetY = autoOffset.y
+    objectOffsetZ = autoOffset.z
     cameraOffsetX = 0
     cameraOffsetY = 0
     cameraOffsetZ = 600

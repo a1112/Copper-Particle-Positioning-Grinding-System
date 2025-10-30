@@ -44,6 +44,8 @@ Node {
     onTriggered: model.source = root.meshSource
   }
 
+  signal modelBoundsReady(var minBounds, var maxBounds)
+
   onModelStatusChanged: {
     if (modelStatus === statusError) {
       errorString = qsTr("模型加载失败")
@@ -51,6 +53,9 @@ Node {
         model.source = root.fallbackPrimitive
     } else if (modelStatus === statusReady) {
       errorString = ""
+      var bounds = model.bounds
+      if (bounds && bounds.minimum && bounds.maximum)
+        modelBoundsReady(bounds.minimum, bounds.maximum)
     } else if (modelStatus === statusLoading) {
       errorString = ""
     }
