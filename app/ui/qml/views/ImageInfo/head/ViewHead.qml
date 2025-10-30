@@ -19,7 +19,6 @@ BaseHead {
         }
         MaskSelect{
             visible: Cores.CoreState.realViewName=="2D"
-
         }
         Item { Layout.fillWidth: true }
         Label { text: "视图"; color: Cores.CoreStyle.text; font.pixelSize: 14 }
