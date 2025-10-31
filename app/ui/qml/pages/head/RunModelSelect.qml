@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import "../../cores" as Cores
 import "../../components/Base" as Base
@@ -8,7 +8,7 @@ import "../../components/Base" as Base
         anchors.verticalCenter: parent.verticalCenter
         font.bold: true
         font.pointSize: 15
-        text: "模式:"
+        text: qsTr("模式:")
     }
     Base.ComboBoxBase{
         model: Cores.CoreUI.allRunModel

@@ -15,14 +15,14 @@ QtObject {
 
   function _toDisplay(value) {
     if (value === undefined || value === null)
-      return "-"
+      return qsTr("-")
     var text = String(value).trim()
     return text.length === 0 ? "-" : text
   }
 
   function _minutesToHours(value) {
     if (value === undefined || value === null)
-      return "-"
+      return qsTr("-")
     var minutes = Number(value)
     if (isNaN(minutes))
       return _toDisplay(value)
@@ -33,11 +33,11 @@ QtObject {
     var numeric = Number(value)
     if (!isNaN(numeric)) {
       if (numeric === 0)
-        return "闲置"
+        return qsTr("闲置")
       if (numeric === 1)
-        return "使用中"
+        return qsTr("使用中")
       if (numeric === 2)
-        return "维护"
+        return qsTr("维护")
     }
     return _toDisplay(value)
   }
@@ -119,6 +119,7 @@ QtObject {
     toolList = []
   }
 }
+
 
 
 

@@ -47,11 +47,11 @@ Item {
   function resolvedFontName() {
     var name = ds.name
     if (name === undefined)
-      return "DS-DIGIT"
+      return qsTr("DS-DIGIT")
     if (name === null)
-      return "DS-DIGIT"
+      return qsTr("DS-DIGIT")
     if (name === "")
-      return "DS-DIGIT"
+      return qsTr("DS-DIGIT")
     return name
   }
 

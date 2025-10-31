@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -17,13 +17,13 @@ BaseCard {
 
   function formatNumber(value, unit, decimals) {
     if (value === undefined)
-      return "-"
+      return qsTr("-")
     if (value === null)
-      return "-"
+      return qsTr("-")
     if (value === "")
-      return "-"
+      return qsTr("-")
     if (isNaN(Number(value)))
-      return "-"
+      return qsTr("-")
     var precision = (decimals !== undefined) ? decimals : 2
     var num = Number(value)
     var text = precision >= 0 ? num.toFixed(precision) : String(num)
@@ -32,13 +32,13 @@ BaseCard {
 
   function formatDuration(seconds) {
     if (seconds === undefined)
-      return "-"
+      return qsTr("-")
     if (seconds === null)
-      return "-"
+      return qsTr("-")
     if (seconds === "")
-      return "-"
+      return qsTr("-")
     if (isNaN(Number(seconds)))
-      return "-"
+      return qsTr("-")
     var total = Math.max(0, Math.floor(Number(seconds)))
     var hours = Math.floor(total / 3600)
     var minutes = Math.floor((total % 3600) / 60)
@@ -138,3 +138,4 @@ BaseCard {
     }
   }
 }
+

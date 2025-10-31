@@ -8,7 +8,7 @@ import "../cores" as Cores
 
 Dialog {
   id: errorDialog
-  title: "请求失败"
+  title: qsTr("请求失败")
   parent: Overlay.overlay
   anchors.centerIn: parent
   width: 480
@@ -21,5 +21,3 @@ Dialog {
   onAccepted: Cores.CoreError.globErrorVisible = false
   onRejected: Cores.CoreError.globErrorVisible = false
 }
-
-

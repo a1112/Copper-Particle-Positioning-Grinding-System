@@ -22,9 +22,9 @@ BaseCard {
 
   function formatWithUnit(value, unit) {
     if (!value)
-      return "-"
+      return qsTr("-")
     if (value === "-")
-      return "-"
+      return qsTr("-")
     if (!unit)
       return value
     if (unit.length === 0)
@@ -90,3 +90,4 @@ BaseCard {
     }
   }
 }
+

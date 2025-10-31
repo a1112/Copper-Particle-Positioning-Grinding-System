@@ -19,7 +19,7 @@ GroupBox {
   Charts.LineChart {
     id: chart
     anchors.fill: parent
-    title: "主轴转速 (rpm)"
+    title: qsTr("主轴转速 (rpm)")
     series: root.series
     maxPoints: root.maxPoints
     sampleIntervalSec: root.sampleIntervalSec
@@ -27,7 +27,6 @@ GroupBox {
     gridColor: root.gridColor
     axisColor: root.axisColor
     yDecimals: root.yDecimals
-    emptyText: "无转速数据"
+    emptyText: qsTr("无转速数据")
   }
 }
-

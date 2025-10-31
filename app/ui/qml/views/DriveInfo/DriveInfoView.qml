@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -24,13 +24,13 @@ BaseCard {
 
   function formatNumber(value, unit, decimals) {
     if (value === undefined)
-      return "-"
+      return qsTr("-")
     if (value === null)
-      return "-"
+      return qsTr("-")
     if (value === "")
-      return "-"
+      return qsTr("-")
     if (isNaN(Number(value)))
-      return "-"
+      return qsTr("-")
     var precision = (decimals !== undefined) ? decimals : 2
     var num = Number(value)
     var text = precision >= 0 ? num.toFixed(precision) : String(num)
@@ -39,9 +39,9 @@ BaseCard {
 
   function formatText(value) {
     if (value === undefined)
-      return "-"
+      return qsTr("-")
     if (value === null)
-      return "-"
+      return qsTr("-")
     var text = String(value)
     return text.length === 0 ? "-" : text
   }
@@ -187,3 +187,4 @@ BaseCard {
     }
   }
 }
+

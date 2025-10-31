@@ -19,9 +19,9 @@ QtObject {
 
   function _toDisplay(value) {
     if (value === undefined)
-      return "-"
+      return qsTr("-")
     if (value === null)
-      return "-"
+      return qsTr("-")
     var text = String(value)
     text = text.trim()
     return text.length === 0 ? "-" : text
@@ -78,3 +78,4 @@ QtObject {
     planeHeight = "-"
   }
 }
+

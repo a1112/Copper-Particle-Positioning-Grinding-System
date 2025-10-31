@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../components/btns" as Btns
@@ -7,7 +7,7 @@ Dialog {
   id: testDialog
   property var apiClient
 
-  title: "测试图片选择"
+  title: qsTr("测试图片选择")
   parent: Overlay.overlay
   modal: true
   width: Math.min(920, parent ? parent.width - 80 : 920)
@@ -54,12 +54,12 @@ Dialog {
       anchors.margins: 8
       RowLayout {
         Layout.fillWidth: true
-        Label { text: "测试组"; font.bold: true }
-        Btns.ActionButton { text: "刷新"; onClicked: testDialog.refreshGroups() }
+        Label { text: qsTr("测试组"); font.bold: true }
+        Btns.ActionButton { text: qsTr("刷新"); onClicked: testDialog.refreshGroups() }
         Item { Layout.fillWidth: true }
-        TextField { id: tfSerial; placeholderText: "新建组流水号"; width: 200 }
-        TextField { id: tfNote; placeholderText: "说明(可选)"; width: 240 }
-        Button { text: "创建"; onClicked: {
+        TextField { id: tfSerial; placeholderText: qsTr("新建组流水号"); width: 200 }
+        TextField { id: tfNote; placeholderText: qsTr("说明(可选)"); width: 240 }
+        Button { text: qsTr("创建"); onClicked: {
             if (tfSerial.text.length===0) return;
             apiClient && apiClient.createGroup(tfSerial.text, tfNote.text, function(_){ testDialog.refreshGroups(); }, function(s,m){ console.log('create group err', s, m); })
           } }
@@ -97,14 +97,15 @@ Dialog {
       }
       RowLayout {
         Layout.fillWidth: true
-        Button { text: "加载默认"; onClicked: apiClient && apiClient.loadDefaultImage(function(_){}, function(s,m){}) }
-        Button { text: "加载所选"; enabled: (testDialog.selectedSerial && testDialog.selectedImage); onClicked: {
+        Button { text: qsTr("加载默认"); onClicked: apiClient && apiClient.loadDefaultImage(function(_){}, function(s,m){}) }
+        Button { text: qsTr("加载所选"); enabled: (testDialog.selectedSerial && testDialog.selectedImage); onClicked: {
             var rel = testDialog.selectedSerial + '/' + testDialog.selectedImage;
             apiClient && apiClient.loadTestImage(rel, function(_){}, function(s,m){})
           } }
         Item { Layout.fillWidth: true }
-        Button { text: "关闭"; onClicked: testDialog.close() }
+        Button { text: qsTr("关闭"); onClicked: testDialog.close() }
       }
     }
   }
 }
+

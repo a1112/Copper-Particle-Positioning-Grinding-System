@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -21,9 +21,10 @@ BaseHead {
             visible: Cores.CoreState.realViewName=="2D"
         }
         Item { Layout.fillWidth: true }
-        Label { text: "视图"; color: Cores.CoreStyle.text; font.pixelSize: 14 }
+        Label { text: qsTr("视图"); color: Cores.CoreStyle.text; font.pixelSize: 14 }
         Item { Layout.fillWidth: true }
         ViewChiose{
         }
     }
 }
+

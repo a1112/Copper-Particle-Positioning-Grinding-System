@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -130,7 +130,7 @@ BaseViews.BaseCard {
 
   function phaseText(task) {
     if (!hasTask(task))
-      return "-"
+      return qsTr("-")
     var detail = task.status_detail !== undefined ? task.status_detail : task.statusDetail
     if (!detail || typeof detail !== "object")
       detail = {}
@@ -142,7 +142,7 @@ BaseViews.BaseCard {
     var payload = task.payload !== undefined ? task.payload : {}
     if (payload && typeof payload === "object" && payload.phase)
       return Fmt.safeText(payload.phase, "-")
-    return "-"
+    return qsTr("-")
   }
 
   function detailText(task) {
@@ -169,19 +169,19 @@ BaseViews.BaseCard {
 
   function recordText(task) {
     if (!hasTask(task))
-      return "-"
+      return qsTr("-")
     var recordId = pickField(task, ["record_id", "recordId"])
     if (recordId !== undefined && recordId !== null && recordId !== 0)
-      return "#" + recordId
-    return "-"
+      return qsTr("#") + recordId
+    return qsTr("-")
   }
 
   function taskIdText(task) {
     if (!hasTask(task))
-      return "-"
+      return qsTr("-")
     if (task.id !== undefined && task.id !== null)
-      return "#" + task.id
-    return "-"
+      return qsTr("#") + task.id
+    return qsTr("-")
   }
 
   function pickField(task, fields) {
@@ -214,10 +214,10 @@ BaseViews.BaseCard {
   function currentRecordText() {
     var current = Cores.CoreCurrent.record || {}
     if (current.id)
-      return "#" + current.id
+      return qsTr("#") + current.id
     if (Datas.TaskDatas.latestRecordId)
-      return "#" + Datas.TaskDatas.latestRecordId
-    return "-"
+      return qsTr("#") + Datas.TaskDatas.latestRecordId
+    return qsTr("-")
   }
 
   Component.onCompleted: Works.TaskWork.start()
@@ -242,3 +242,4 @@ BaseViews.BaseCard {
     }
   }
 }
+

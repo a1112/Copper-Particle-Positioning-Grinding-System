@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -14,13 +14,13 @@ BaseCard {
 
   function formatNumber(value, unit, decimals) {
     if (value === undefined)
-      return "-"
+      return qsTr("-")
     if (value === null)
-      return "-"
+      return qsTr("-")
     if (value === "")
-      return "-"
+      return qsTr("-")
     if (isNaN(Number(value)))
-      return "-"
+      return qsTr("-")
     var precision = (decimals !== undefined) ? decimals : 3
     var num = Number(value)
     var text = precision >= 0 ? num.toFixed(precision) : String(num)
@@ -29,9 +29,9 @@ BaseCard {
 
   function formatText(value) {
     if (value === undefined)
-      return "-"
+      return qsTr("-")
     if (value === null)
-      return "-"
+      return qsTr("-")
     var text = String(value).trim()
     return text.length === 0 ? "-" : text
   }
@@ -91,13 +91,13 @@ BaseCard {
 
   function formatPoint(point) {
     if (point === null)
-      return "-"
+      return qsTr("-")
     if (point === undefined)
-      return "-"
+      return qsTr("-")
     if (typeof point === "string")
       return formatText(point)
     if (typeof point !== "object")
-      return "-"
+      return qsTr("-")
 
     function normalizeValue(obj, names) {
       for (var i = 0; i < names.length; ++i) {
@@ -130,7 +130,7 @@ BaseCard {
     var currentText = root.formatNumber(current, "mm", 3)
     var targetText = root.formatNumber(target, "mm", 3)
     if (currentText === "-" && targetText === "-")
-      return "-"
+      return qsTr("-")
     if (targetText === "-")
       return currentText
     if (currentText === targetText)
@@ -162,7 +162,7 @@ BaseCard {
     if (idx !== undefined && idx >= 0 && idx < lines.length) {
       return root.formatText(lines[idx])
     }
-    return "-"
+    return qsTr("-")
   }
 
   ColumnLayout {

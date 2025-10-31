@@ -19,12 +19,12 @@ RowLayout {
         ts = 0
       if (ts === null)
         ts = 0
-      if (ts<=0) return "延迟: 0";
+      if (ts<=0) return qsTr("延迟: 0");
       var age = Math.max(0, Date.now() - ts);
-      return "延迟: " + age + " ms";
+      return qsTr("延迟: ") + age + " ms";
     }
   }
-  Label { text: "API:"; color: Cores.CoreStyle.muted }
+  Label { text: qsTr("API:"); color: Cores.CoreStyle.muted }
   Item {
     // Make the docs link show pointing-hand cursor on hover
     id: apiLink
@@ -46,4 +46,3 @@ RowLayout {
     }
   }
 }
-

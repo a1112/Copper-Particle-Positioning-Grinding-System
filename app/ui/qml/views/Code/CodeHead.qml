@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -21,7 +21,7 @@ Item {
   function resolvedState() {
     var stateValue = headRoot.runState
     if (stateValue === undefined || stateValue === null || stateValue === "")
-      return "-"
+      return qsTr("-")
     return stateValue
   }
 
@@ -80,3 +80,4 @@ Item {
     }
   }
 }
+

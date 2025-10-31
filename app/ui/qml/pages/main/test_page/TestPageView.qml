@@ -18,15 +18,15 @@ Item {
     anchors.margins: 12
     spacing: 10
 
-    Label { text: "测试页面 TestPage"; font.pixelSize: 20; color: Cores.CoreStyle.text }
+    Label { text: qsTr("测试页面 TestPage"); font.pixelSize: 20; color: Cores.CoreStyle.text }
 
     RowLayout {
       spacing: 16
-      Label { text: "当前主题:"; color: Cores.CoreStyle.muted }
+      Label { text: qsTr("当前主题:"); color: Cores.CoreStyle.muted }
       Label { text: Cores.CoreStyle.theme; color: Cores.CoreStyle.accent }
-      Button { text: "切换主题(蓝)"; onClicked: Cores.CoreStyle.applyTheme("techBlue") }
-      Button { text: "切换主题(绿)"; onClicked: Cores.CoreStyle.applyTheme("emerald") }
-      Button { text: "切换主题(紫)"; onClicked: Cores.CoreStyle.applyTheme("nightPurple") }
+      Button { text: qsTr("切换主题(蓝)"); onClicked: Cores.CoreStyle.applyTheme("techBlue") }
+      Button { text: qsTr("切换主题(绿)"); onClicked: Cores.CoreStyle.applyTheme("emerald") }
+      Button { text: qsTr("切换主题(紫)"); onClicked: Cores.CoreStyle.applyTheme("nightPurple") }
     }
 
     RowLayout {
@@ -34,19 +34,19 @@ Item {
       Widgets.DateTimeView { timePixelSize: 28 }
       RowLayout {
         spacing: 8
-        Label { text: "API:"; color: Cores.CoreStyle.muted }
+        Label { text: qsTr("API:"); color: Cores.CoreStyle.muted }
         Text {
           textFormat: Text.RichText
           color: Cores.CoreStyle.accent
           readonly property string base: Api.Urls.base()
-          text: "<a href='" + base + "/docs'>" + Cores.CoreSettings.apiHost + ":" + Cores.CoreSettings.apiPort + "/docs</a>"
+          text: qsTr("<a href='") + base + "/docs'>" + Cores.CoreSettings.apiHost + ":" + Cores.CoreSettings.apiPort + "/docs</a>"
           onLinkActivated: function(url){ Qt.openUrlExternally(url) }
         }
       }
     }
 
     GroupBox {
-      title: "WS 最近消息"
+      title: qsTr("WS 最近消息")
       Layout.fillWidth: true
       Layout.preferredHeight: 140
       TextArea {
@@ -65,7 +65,7 @@ Item {
     }
 
     GroupBox {
-      title: "seriesA 简易曲线"
+      title: qsTr("seriesA 简易曲线")
       Layout.fillWidth: true
       Layout.preferredHeight: 160
       Canvas {
@@ -97,7 +97,7 @@ Item {
     }
 
         GroupBox {
-      title: "组件预览"
+      title: qsTr("组件预览")
       Layout.fillWidth: true
       Layout.fillHeight: true
       SplitView {
@@ -107,6 +107,7 @@ Item {
     }    Item { Layout.fillHeight: true }
   }
 }
+
 
 
 

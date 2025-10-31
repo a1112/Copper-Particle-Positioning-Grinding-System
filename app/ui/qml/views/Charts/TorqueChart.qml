@@ -18,7 +18,7 @@ GroupBox {
   Charts.LineChart {
     id: chart
     anchors.fill: parent
-    title: "主轴扭矩 (N*m)"
+    title: qsTr("主轴扭矩 (N*m)")
     series: root.series
     maxPoints: root.maxPoints
     sampleIntervalSec: root.sampleIntervalSec
@@ -26,7 +26,8 @@ GroupBox {
     gridColor: root.gridColor
     axisColor: root.axisColor
     yDecimals: root.yDecimals
-    emptyText: "无扭矩数据"
+    emptyText: qsTr("无扭矩数据")
   }
 }
+
 

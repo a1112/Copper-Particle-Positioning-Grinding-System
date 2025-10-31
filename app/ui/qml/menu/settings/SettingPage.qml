@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../Api" as Api
@@ -121,7 +121,7 @@ Popup {
             }
 
             Button {
-                text: "关闭"
+                text: qsTr("关闭")
                 Layout.alignment: Qt.AlignVCenter
                 onClicked: root.close()
             }

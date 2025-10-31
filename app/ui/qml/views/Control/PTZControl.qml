@@ -51,17 +51,17 @@ BaseCard {
 
     RowLayout {
       Layout.fillWidth: true
-      Label { text: "主轴控制"; color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
-      Label { text: "Shift=工作速度"; color: Cores.CoreStyle.muted }
+      Label { text: qsTr("主轴控制"); color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
+      Label { text: qsTr("Shift=工作速度"); color: Cores.CoreStyle.muted }
     }
 
     RowLayout {
       Layout.fillWidth: true; spacing: 8
-      Label { text: "快速(mm/s)"; color: Cores.CoreStyle.text }
+      Label { text: qsTr("快速(mm/s)"); color: Cores.CoreStyle.text }
       SpinBoxBase { id: sbFast; from: 1; to: 1000; value: root.vFast; onValueModified: root.vFast = value; Layout.preferredWidth: 90 }
-      Label { text: "工作(mm/s)"; color: Cores.CoreStyle.text }
+      Label { text: qsTr("工作(mm/s)"); color: Cores.CoreStyle.text }
       SpinBoxBase { id: sbWork; from: 0; to: 200; value: root.vWork; onValueModified: root.vWork = value; Layout.preferredWidth: 90 }
-      Btns.ActionButton { text: "设置速度"; onClicked: Cores.CoreControl.setSpeed(root.vFast, root.vWork) }
+      Btns.ActionButton { text: qsTr("设置速度"); onClicked: Cores.CoreControl.setSpeed(root.vFast, root.vWork) }
     }
 
     // 控制区
@@ -73,36 +73,36 @@ BaseCard {
         GridLayout {
           id: grid; columns: 3; rowSpacing: 8; columnSpacing: 8; anchors.centerIn: parent
           Rectangle { width: 72; height: 48; radius: 4; color: (root.keyUpHeld && root.keyLeftHeld ? Cores.CoreStyle.accent : Cores.CoreStyle.surface); border.color: Cores.CoreStyle.border
-            Text { anchors.centerIn: parent; text: "↖"; color: Cores.CoreStyle.text }
+            Text { anchors.centerIn: parent; text: qsTr("↖"); color: Cores.CoreStyle.text }
             MouseArea { anchors.fill: parent; onClicked: { jogX(-1, root.vFast); jogY(1, root.vFast) } }
           }
           Rectangle { width: 72; height: 48; radius: 4; color: (root.keyUpHeld && !root.keyLeftHeld && !root.keyRightHeld ? Cores.CoreStyle.accent : Cores.CoreStyle.surface); border.color: Cores.CoreStyle.border
-            Text { anchors.centerIn: parent; text: "↑"; color: Cores.CoreStyle.text }
+            Text { anchors.centerIn: parent; text: qsTr("↑"); color: Cores.CoreStyle.text }
             MouseArea { anchors.fill: parent; onClicked: jogY(1, root.vFast) }
           }
           Rectangle { width: 72; height: 48; radius: 4; color: (root.keyUpHeld && root.keyRightHeld ? Cores.CoreStyle.accent : Cores.CoreStyle.surface); border.color: Cores.CoreStyle.border
-            Text { anchors.centerIn: parent; text: "↗"; color: Cores.CoreStyle.text }
+            Text { anchors.centerIn: parent; text: qsTr("↗"); color: Cores.CoreStyle.text }
             MouseArea { anchors.fill: parent; onClicked: { jogX(1, root.vFast); jogY(1, root.vFast) } }
           }
           Rectangle { width: 72; height: 48; radius: 4; color: (root.keyLeftHeld && !root.keyUpHeld && !root.keyDownHeld ? Cores.CoreStyle.accent : Cores.CoreStyle.surface); border.color: Cores.CoreStyle.border
-            Text { anchors.centerIn: parent; text: "←"; color: Cores.CoreStyle.text }
+            Text { anchors.centerIn: parent; text: qsTr("←"); color: Cores.CoreStyle.text }
             MouseArea { anchors.fill: parent; onClicked: jogX(-1, root.vFast) }
           }
           Rectangle { width: 72; height: 48; color: "transparent" }
           Rectangle { width: 72; height: 48; radius: 4; color: (root.keyRightHeld && !root.keyUpHeld && !root.keyDownHeld ? Cores.CoreStyle.accent : Cores.CoreStyle.surface); border.color: Cores.CoreStyle.border
-            Text { anchors.centerIn: parent; text: "→"; color: Cores.CoreStyle.text }
+            Text { anchors.centerIn: parent; text: qsTr("→"); color: Cores.CoreStyle.text }
             MouseArea { anchors.fill: parent; onClicked: jogX(1, root.vFast) }
           }
           Rectangle { width: 72; height: 48; radius: 4; color: (root.keyDownHeld && root.keyLeftHeld ? Cores.CoreStyle.accent : Cores.CoreStyle.surface); border.color: Cores.CoreStyle.border
-            Text { anchors.centerIn: parent; text: "↙"; color: Cores.CoreStyle.text }
+            Text { anchors.centerIn: parent; text: qsTr("↙"); color: Cores.CoreStyle.text }
             MouseArea { anchors.fill: parent; onClicked: { jogX(-1, root.vFast); jogY(-1, root.vFast) } }
           }
           Rectangle { width: 72; height: 48; radius: 4; color: (root.keyDownHeld && !root.keyLeftHeld && !root.keyRightHeld ? Cores.CoreStyle.accent : Cores.CoreStyle.surface); border.color: Cores.CoreStyle.border
-            Text { anchors.centerIn: parent; text: "↓"; color: Cores.CoreStyle.text }
+            Text { anchors.centerIn: parent; text: qsTr("↓"); color: Cores.CoreStyle.text }
             MouseArea { anchors.fill: parent; onClicked: jogY(-1, root.vFast) }
           }
           Rectangle { width: 72; height: 48; radius: 4; color: (root.keyDownHeld && root.keyRightHeld ? Cores.CoreStyle.accent : Cores.CoreStyle.surface); border.color: Cores.CoreStyle.border
-            Text { anchors.centerIn: parent; text: "↘"; color: Cores.CoreStyle.text }
+            Text { anchors.centerIn: parent; text: qsTr("↘"); color: Cores.CoreStyle.text }
             MouseArea { anchors.fill: parent; onClicked: { jogX(1, root.vFast); jogY(-1, root.vFast) } }
           }
         }
@@ -112,9 +112,9 @@ BaseCard {
       ColumnLayout {
         spacing: 8
         Layout.alignment: Qt.AlignTop
-        Btns.ActionButton { text: "回零"; onClicked: Cores.CoreControl.home() }
-        Btns.ActionButton { text: "设原点"; onClicked: Cores.CoreControl.setWorkOrigin() }
-        Btns.ActionButton { text: "复位"; onClicked: Cores.CoreControl.reset() }
+        Btns.ActionButton { text: qsTr("回零"); onClicked: Cores.CoreControl.home() }
+        Btns.ActionButton { text: qsTr("设原点"); onClicked: Cores.CoreControl.setWorkOrigin() }
+        Btns.ActionButton { text: qsTr("复位"); onClicked: Cores.CoreControl.reset() }
       }
     }
   }

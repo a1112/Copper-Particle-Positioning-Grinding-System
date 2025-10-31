@@ -15,11 +15,10 @@ ItemDelegate{
         anchors.centerIn: parent
         font.pixelSize: labelPixelSize
         font.bold: true
-        text: "▼"
+        text: qsTr("▼")
         Behavior on rotation {NumberAnimation{duration: 400}}
         Behavior on scale {NumberAnimation{duration: 400}}
         Behavior on color {ColorAnimation{duration: 400}}
     }
 
 }
-

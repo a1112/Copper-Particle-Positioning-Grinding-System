@@ -45,7 +45,7 @@ ApplicationWindow {
             method: "POST",
             payload: function() {
                 return {
-                    message: "UI测试报警 " + Qt.formatDateTime(new Date(), "hh:mm:ss"),
+                    message: qsTr("UI测试报警 ") + Qt.formatDateTime(new Date(), "hh:mm:ss"),
                     level: 3
                 }
             },
@@ -90,7 +90,7 @@ ApplicationWindow {
     readonly property var uiActions: [
         { label: qsTr("聚焦相机视图"), actionId: "ui/focus_camera", options: { view: "main" } },
         { label: qsTr("切换叠加层"), actionId: "ui/toggle_overlay", options: { overlay: "particle_map" } },
-        { label: qsTr("显示告警对话框"), actionId: "ui/show_alert", options: { level: "warning", message: "来自测试工具的告警" } },
+        { label: qsTr("显示告警对话框"), actionId: "ui/show_alert", options: { level: "warning", message: qsTr("来自测试工具的告警") } },
         { label: qsTr("打开配方编辑器"), actionId: "ui/open_recipe_editor", options: {} },
         { label: qsTr("刷新仪表盘"), actionId: "ui/reload_dashboard", options: {} }
     ]
@@ -471,7 +471,7 @@ ApplicationWindow {
                         id: baseUrlField
                         Layout.fillWidth: true
                         text: window.baseUrl
-                        placeholderText: "http://localhost:8000/api"
+                        placeholderText: qsTr("http://localhost:8000/api")
                         selectByMouse: true
                         onEditingFinished: window.baseUrl = text.length > 0 ? text : window.baseUrl
                     }
@@ -535,8 +535,8 @@ ApplicationWindow {
                     TextField {
                         id: manualEndpointField
                         Layout.fillWidth: true
-                        placeholderText: "status/test_payload"
-                        text: "status/test_payload"
+                        placeholderText: qsTr("status/test_payload")
+                        text: qsTr("status/test_payload")
                         selectByMouse: true
                     }
 
@@ -816,6 +816,7 @@ ApplicationWindow {
         }
     }
 }
+
 
 
 

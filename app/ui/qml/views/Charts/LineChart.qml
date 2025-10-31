@@ -14,7 +14,7 @@ GroupBox {
   property int yDecimals: 0
   property int xTicks: 4
   property int yTicks: 4
-  property string emptyText: "No data"
+  property string emptyText: qsTr("No data")
 
   padding: 4
   function repaint(){ chart.requestPaint() }
