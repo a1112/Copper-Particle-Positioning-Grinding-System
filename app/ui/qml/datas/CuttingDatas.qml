@@ -1,4 +1,4 @@
-﻿pragma Singleton
+pragma Singleton
 import QtQuick
 // Cutting payload fields documented in docs/ui_data_contracts.md
 

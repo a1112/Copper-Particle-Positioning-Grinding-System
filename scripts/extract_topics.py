@@ -1,4 +1,4 @@
-﻿import re, html
+import re, html
 from pathlib import Path
 
 def load_lines(paths):

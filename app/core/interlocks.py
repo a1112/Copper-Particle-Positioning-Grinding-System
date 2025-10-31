@@ -1,4 +1,4 @@
-﻿from typing import Protocol
+from typing import Protocol
 
 class InterlockProvider(Protocol):
     def door_closed(self) -> bool: ...

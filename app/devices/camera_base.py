@@ -1,4 +1,4 @@
-﻿from typing import Protocol, Callable, Optional
+from typing import Protocol, Callable, Optional
 import numpy as np
 
 FrameCallback = Callable[[np.ndarray], None]

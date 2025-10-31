@@ -1,4 +1,4 @@
-﻿from app.devices.spindle_base import ISpindle
+from app.devices.spindle_base import ISpindle
 
 class SpindleSim(ISpindle):
     def __init__(self):

@@ -1,4 +1,4 @@
-﻿from .status import StatusModel
+from .status import StatusModel
 from .log import LogEntry
 from .control import ControlCommand, ControlResult
 from .cutting import CuttingSnapshot

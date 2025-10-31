@@ -1,4 +1,4 @@
-﻿pragma Singleton
+pragma Singleton
 import QtQuick
 // Field mappings documented in docs/ui_data_contracts.md (tool info section)
 

@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$QtRcc = $(Get-Command rcc -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source),
   [string]$UiDir = 'app/ui'
 )

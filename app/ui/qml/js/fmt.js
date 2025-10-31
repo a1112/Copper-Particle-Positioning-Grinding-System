@@ -1,4 +1,4 @@
-﻿.pragma library
+.pragma library
 
 var _dateFormat = "yyyy-MM-dd hh:mm:ss";
 

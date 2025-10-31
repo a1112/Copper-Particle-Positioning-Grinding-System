@@ -1,4 +1,4 @@
-﻿<RCC>
+<RCC>
     <qresource prefix="/">
         <file>qml/Api/ApiClient.qml</file>
         <file>qml/js/Http.js</file>

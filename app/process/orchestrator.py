@@ -1,4 +1,4 @@
-﻿from app.core.state_machine import StateMachine, ProcState
+from app.core.state_machine import StateMachine, ProcState
 from app.core.events import EventBus, TOPIC_TARGET_FOUND
 from app.devices.motion_base import IMotionController
 

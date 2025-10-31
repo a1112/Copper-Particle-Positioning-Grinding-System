@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 Item{
     // 日期 时间
     property int fullYear

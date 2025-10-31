@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 import DPlugs as DP
 Item{
     id:root

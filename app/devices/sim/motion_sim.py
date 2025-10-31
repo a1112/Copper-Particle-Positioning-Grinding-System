@@ -1,4 +1,4 @@
-﻿import time
+import time
 from app.devices.motion_base import IMotionController
 
 class MotionSim:

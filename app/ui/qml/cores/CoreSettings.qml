@@ -1,4 +1,4 @@
-﻿pragma Singleton
+pragma Singleton
 import QtCore
 
 Settings {

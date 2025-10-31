@@ -1,4 +1,4 @@
-﻿from typing import Protocol
+from typing import Protocol
 
 class IIO(Protocol):
     def read(self, name: str) -> bool: ...

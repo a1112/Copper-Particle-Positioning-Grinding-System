@@ -1,4 +1,4 @@
-﻿// Lightweight HTTP helpers with timeout and error popup callback
+// Lightweight HTTP helpers with timeout and error popup callback
 .pragma library
 
 var base = "http://127.0.0.1:8010"

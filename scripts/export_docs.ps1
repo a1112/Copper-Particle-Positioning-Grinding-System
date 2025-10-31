@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 
 function Convert-DocxToLines($path){
   $tmp = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName()); New-Item -ItemType Directory -Path $tmp | Out-Null

@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 import QtCore
 import QtQuick.Layouts
 import QtQuick.Controls

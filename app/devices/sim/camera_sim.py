@@ -1,4 +1,4 @@
-﻿import numpy as np
+import numpy as np
 import time
 from threading import Thread, Event
 from app.devices.camera_base import FrameCallback

@@ -1,4 +1,4 @@
-﻿from typing import Protocol, Tuple
+from typing import Protocol, Tuple
 
 class IMotionController(Protocol):
     def home(self) -> None: ...

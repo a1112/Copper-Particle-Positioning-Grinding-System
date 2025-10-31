@@ -1,4 +1,4 @@
-﻿# HTTP 网桥工作流程
+# HTTP 网桥工作流程
 
 `HttpBusinessService` 负责在 API 进程与外部主控之间建立 HTTP 桥接层，整体职责如下：
 

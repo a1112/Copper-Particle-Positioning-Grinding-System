@@ -1,4 +1,4 @@
-﻿// CTestDlg.cpp: 实现文件
+// CTestDlg.cpp: 实现文件
 //
 
 #include "pch.h"

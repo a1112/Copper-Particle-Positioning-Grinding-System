@@ -1,4 +1,4 @@
-﻿# Copper UI C++ Stub Project
+# Copper UI C++ Stub Project
 
 This directory now contains a small Qt Quick application that mirrors the
 existing Python UI by loading the same QML bundle. It is meant as a starting

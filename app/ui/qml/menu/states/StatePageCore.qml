@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 import "../../cores" as Cores
 import "../../datas" as Datas
 import "../../works" as Works

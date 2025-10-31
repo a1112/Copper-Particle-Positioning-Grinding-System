@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 import QtQuick.Controls
 import "../../components/Base"
 import "../../cores" as Cores

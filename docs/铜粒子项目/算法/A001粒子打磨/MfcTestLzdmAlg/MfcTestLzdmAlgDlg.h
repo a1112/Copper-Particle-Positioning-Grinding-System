@@ -1,4 +1,4 @@
-﻿
+
 // MfcTestLzdmAlgDlg.h: 头文件
 //
 

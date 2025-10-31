@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 Item {
 
     enum Enum_ViewModel{

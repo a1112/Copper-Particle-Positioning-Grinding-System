@@ -1,4 +1,4 @@
-﻿from app.core.events import EventBus, TOPIC_TARGET_FOUND
+from app.core.events import EventBus, TOPIC_TARGET_FOUND
 from app.vision.detector import Detector
 
 class VisionPipeline:

@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 ItemDelegateBase {
     id: root
     property Item homeTarget:parent

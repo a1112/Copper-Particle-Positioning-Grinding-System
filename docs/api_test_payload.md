@@ -1,4 +1,4 @@
-﻿# 测试数据注入接口说明
+# 测试数据注入接口说明
 
 UI 测试窗口与独立主控程序会通过下述 REST 接口向服务端写入“虚拟产线数据”，后端再统一推送给 WebSocket / HTTP 订阅者，驱动 UI 刷新。HTTP 网桥基于 FastAPI `/bridge/*` 路由接收状态与日志，主控可以选择 gRPC 或 HTTP 方式投递。所有端点均挂载在 FastAPI 的 `status_router`、`path_router` 下，默认基础地址为 `http://<host>:<port>/api`（参见 `app/server/run_api.py` 与 `CONFIG.app_host/app_port` 配置）。
 

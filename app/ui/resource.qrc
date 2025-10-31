@@ -1,4 +1,4 @@
-﻿<RCC>
+<RCC>
     <qresource prefix="/">
         <file>resource/font/DS-DIGIT.TTF</file>
         <file>resource/font/LoadFont.qml</file>

@@ -1,4 +1,4 @@
-﻿singleton CoreError 1.0 CoreError.qml
+singleton CoreError 1.0 CoreError.qml
 singleton CoreModels 1.0 CoreModels.qml
 singleton CoreSettings 1.0 CoreSettings.qml
 singleton CoreState 1.0 CoreState.qml

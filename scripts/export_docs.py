@@ -1,4 +1,4 @@
-﻿import os, zipfile, html
+import os, zipfile, html
 from pathlib import Path
 import xml.etree.ElementTree as ET
 

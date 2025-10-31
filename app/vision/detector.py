@@ -1,4 +1,4 @@
-﻿from typing import Optional, Tuple
+from typing import Optional, Tuple
 
 class Detector:
     def locate(self, frame) -> Optional[Tuple[float, float, float, float]]:

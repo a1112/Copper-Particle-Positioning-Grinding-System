@@ -1,4 +1,4 @@
-﻿# Copper Grinding System API Reference
+# Copper Grinding System API Reference
 
 本文件整理了 FastAPI 服务当前开放的主要 HTTP / WebSocket 接口，方便 UI、主控程序以及运维脚本复用。除特别说明外，默认基础地址为：
 

@@ -1,4 +1,4 @@
-﻿-- 算法参数表
+-- 算法参数表
 CREATE TABLE param_algorithm (
     id BIGINT PRIMARY KEY DEFAULT 1 COMMENT '主键ID，固定为1确保只有一条记录',
     

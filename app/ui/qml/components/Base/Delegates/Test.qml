@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 ListView{
     model:5
     orientation: ListView.Horizonta

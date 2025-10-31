@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 
 // CTestDlg 对话框

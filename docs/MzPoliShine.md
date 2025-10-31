@@ -1,4 +1,4 @@
-﻿# MzPoliShine 知识卡片
+# MzPoliShine 知识卡片
 
 - 文件：`docs/MzPoliShine.km`（JSON 思维导图导出）
 - 根节点：**MzPoliShine**

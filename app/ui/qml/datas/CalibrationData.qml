@@ -1,4 +1,4 @@
-﻿pragma Singleton
+pragma Singleton
 import QtQuick
 
 // 标定数据中心存储，统一提供图像尺寸、世界尺寸、原点与夹具信息

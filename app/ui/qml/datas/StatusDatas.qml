@@ -1,4 +1,4 @@
-﻿pragma Singleton
+pragma Singleton
 import QtQuick
 // Data contract details: see docs/ui_data_contracts.md (status payload section)
 

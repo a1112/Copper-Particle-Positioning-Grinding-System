@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 import QtQuick.Controls.Material
 import QtQuick.Window
 import "cores" as Cores

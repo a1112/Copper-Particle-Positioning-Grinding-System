@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 DateTime{
     //   刷新 时间
         property alias interval: timer.interval

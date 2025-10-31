@@ -1,4 +1,4 @@
-﻿# CopperSystem 接口规范 / API Specification
+# CopperSystem 接口规范 / API Specification
 
 - Base URL: `http://<host>:<port>` (default `127.0.0.1:8010`)
 - WebSocket: `ws://<host>:<port>/ws` (status push every 500 ms)

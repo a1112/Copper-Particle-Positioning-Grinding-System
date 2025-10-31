@@ -1,4 +1,4 @@
-﻿//  宽度调整
+//  宽度调整
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material

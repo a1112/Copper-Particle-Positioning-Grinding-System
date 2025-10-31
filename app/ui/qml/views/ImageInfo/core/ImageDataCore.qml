@@ -1,4 +1,4 @@
-﻿import QtQuick
+import QtQuick
 import "../../../datas" as Datas
 
 // 图像标定核心工具：提供像素与世界坐标互转及夹具查询
