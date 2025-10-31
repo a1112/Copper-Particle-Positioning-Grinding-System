@@ -13,8 +13,6 @@ SplitView {
   id: root
   Layout.fillWidth: true
   Layout.fillHeight: true
-
-
   SplitView {
     SplitView.fillWidth: true
     SplitView.fillHeight: true
@@ -34,32 +32,12 @@ SplitView {
         SplitView.fillWidth: true
         SplitView.fillHeight: true
       }
-
       // 右列：程序/代码状态
-
     }
     Manage.FootManageView{
         SplitView.fillWidth: true
         SplitView.preferredHeight: 265
     }
-
-    // SplitView {
-    //   SplitView.fillWidth: true
-    //   SplitView.preferredHeight: 265
-
-    //   Log.LogView {
-    //     SplitView.fillHeight: true
-    //     SplitView.fillWidth: true
-    //   }
-    //   Charts.ElevationAreaChart {
-    //     SplitView.fillHeight: true
-    //     SplitView.preferredWidth: 520
-    //   }
-    //   Ctrl.PTZControl {
-    //     SplitView.fillHeight: true
-    //     SplitView.preferredWidth: 450
-    //   }
-    // }
   }
   Manage.CodeManageView{
     SplitView.fillHeight: true

@@ -51,29 +51,24 @@ Item {
       Layout.alignment: Qt.AlignVCenter
     }
 
-    Label {
-      text: headRoot.codeConnected ? qsTr("Connected") : qsTr("Disconnected")
-      color: headRoot.codeConnected ? Cores.CoreStyle.success : Cores.CoreStyle.danger
-    }
+
 
     Label {
-      text: qsTr("State: %1").arg(resolvedState())
-      color: headRoot.runState === "RUNNING" ? Cores.CoreStyle.success : Cores.CoreStyle.muted
-    }
-
-    Label {
-      text: qsTr("Current line: %1").arg(headRoot.currentIndex >= 0 ? headRoot.currentIndex + 1 : "-")
+      text: qsTr("当前: %1").arg(headRoot.currentIndex >= 0 ? headRoot.currentIndex + 1 : "-")
       color: Cores.CoreStyle.muted
     }
-
+    Item{
+      Layout.fillWidth: true
+      height: 1
+    }
     Btns.ActionButton {
-      text: qsTr("Run")
+      text: qsTr("运行")
       enabled: Datas.StatusDatas.controlEnabled && !Datas.TaskDatas.alarmLocked
       onClicked: Api.ApiClient.startRun()
     }
 
     Btns.ActionButton {
-      text: qsTr("Stop")
+      text: qsTr("停止")
       danger: true
       enabled: Datas.StatusDatas.controlEnabled
       onClicked: Api.ApiClient.stopRun()

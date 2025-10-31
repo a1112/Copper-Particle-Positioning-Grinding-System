@@ -96,9 +96,7 @@ BaseCard {
       // height: list.contentHeight>400?420:list.contentHeight+15
 
       clip: true
-      Frame{
-        anchors.fill: parent
-      }
+
       ListView {
         id: list
         anchors.fill: parent
@@ -110,13 +108,7 @@ BaseCard {
         ScrollBar.vertical: ScrollBar { }
       }
 
-      Label {
-        anchors.centerIn: parent
-        color: Cores.CoreStyle.muted
-        visible: root.programEmpty
-        wrapMode: Text.WordWrap
-        horizontalAlignment: Text.AlignHCenter
-      }
+
     }
   }
 
