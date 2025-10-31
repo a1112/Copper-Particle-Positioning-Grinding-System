@@ -3,6 +3,7 @@ import QtQuick
 import QtWebSockets
 import "../Api" as Api
 import "../datas" as Datas
+import "../cores" as Cores
 
 QtObject {
   id: root
@@ -23,11 +24,12 @@ QtObject {
     onTextMessageReceived: function(message) {
       try {
         var payload = JSON.parse(message)
-        if (payload.type === "program" && Array.isArray(payload.lines)) {
-          Datas.CodeDatas.lines = payload.lines
+        if (payload.type === "program") {
+          Cores.CoreCutting.loadProgram(payload)
         } else if (payload.type === "state") {
           Datas.CodeDatas.runState = payload.state
           Datas.CodeDatas.currentIndex = (payload.current !== undefined ? payload.current : -1)
+          Cores.CoreCutting.updateRunState(payload.state, payload.current)
         }
       } catch (e) {
         // ignore malformed payload

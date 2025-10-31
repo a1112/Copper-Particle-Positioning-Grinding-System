@@ -85,6 +85,7 @@
         <file>qml/cores/CoreTimer.qml</file>
         <file>qml/cores/CoreUI.qml</file>
         <file>qml/cores/CoreControl.qml</file>
+        <file>qml/cores/CoreCutting.qml</file>
         <file>qml/cores/qmldir</file>
         <file>qml/dialogs/GlobErrorDialog.qml</file>
         <file>qml/dialogs/TestImagesDialog.qml</file>

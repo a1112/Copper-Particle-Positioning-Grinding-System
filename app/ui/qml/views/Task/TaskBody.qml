@@ -14,7 +14,7 @@ Item {
     ScrollView{
         contentWidth: root.width
         contentHeight: root.enabled?col.height:0
-            Behavior on contentHeight {NumberAnimation{duration: 900}}
+        Behavior on contentHeight {NumberAnimation{duration: 900}}
         ColumnLayout{
             id:col
             width: root.width-10

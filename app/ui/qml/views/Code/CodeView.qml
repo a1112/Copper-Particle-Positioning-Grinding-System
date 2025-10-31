@@ -41,9 +41,27 @@ BaseCard {
     if (lines.length === 0)
       return
     for (var i = 0; i < lines.length; ++i) {
+      var entry = lines[i]
+      var displayText
+      if (entry === undefined || entry === null) {
+        displayText = "-"
+      } else if (typeof entry === "object") {
+        var text = ""
+        if (entry.displayText !== undefined)
+          text = entry.displayText
+        else if (entry.text !== undefined)
+          text = entry.text
+        else if (entry.command !== undefined)
+          text = entry.command
+        else
+          text = String(entry)
+        displayText = String(text)
+      } else {
+        displayText = String(entry)
+      }
       codeModel.append({
         idx: i + 1,
-        text: String(lines[i]),
+        text: displayText,
         status: "READY"
       })
     }
@@ -69,11 +87,20 @@ BaseCard {
     ensureCurrentVisible()
   }
 
+  function syncCoreState() {
+    Cores.CoreCutting.updateRunState(Datas.CodeDatas.runState, Datas.CodeDatas.currentIndex)
+  }
+
   function refreshProgram() {
-    var lines = Datas.CodeDatas.lines
-    if (!Array.isArray(lines))
-      lines = []
-    setProgram(lines)
+    var commands = Cores.CoreCutting.commands
+    if (!Array.isArray(commands) || commands.length === 0) {
+      var fallback = Datas.CodeDatas.lines
+      if (!Array.isArray(fallback))
+        fallback = []
+      setProgram(fallback)
+    } else {
+      setProgram(commands)
+    }
   }
 
 
@@ -93,10 +120,7 @@ BaseCard {
       width: parent.width
       Layout.fillWidth: true
       Layout.fillHeight: true
-      // height: list.contentHeight>400?420:list.contentHeight+15
-
       clip: true
-
       ListView {
         id: list
         anchors.fill: parent
@@ -110,13 +134,24 @@ BaseCard {
     }
   }
 
-  Component.onCompleted: refreshProgram()
+  Component.onCompleted: {
+    refreshProgram()
+    syncCoreState()
+  }
 
   Connections {
     target: Datas.CodeDatas
 
     function onLinesChanged() { refreshProgram() }
-    function onCurrentIndexChanged() { updateStatuses() }
+    function onCurrentIndexChanged() { syncCoreState(); updateStatuses() }
+    function onRunStateChanged() { syncCoreState(); updateStatuses() }
+  }
+
+  Connections {
+    target: Cores.CoreCutting
+    function onCommandsChanged() { refreshProgram() }
+    function onActiveIndexChanged() { updateStatuses() }
+    function onSelectedIndexChanged() { updateStatuses() }
     function onRunStateChanged() { updateStatuses() }
   }
 }

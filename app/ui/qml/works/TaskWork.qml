@@ -35,18 +35,8 @@ QtObject {
         Datas.TaskDatas.applyState(payload)
         if (payload && payload.workpiece)
           Datas.DeviceInfoData.applyWorkpiece(payload.workpiece)
-        if (payload && payload.gcode) {
-          var gcode = payload.gcode
-          var commands = []
-          if (Array.isArray(gcode)) {
-            commands = gcode
-          } else if (gcode && Array.isArray(gcode.commands)) {
-            commands = gcode.commands
-          }
-          if (commands.length)
-            Datas.CodeDatas.lines = commands
-          else if (payload && payload.gcode !== undefined)
-            Datas.CodeDatas.lines = []
+        if (payload && payload.gcode !== undefined) {
+          Cores.CoreCutting.loadProgram(payload.gcode)
         }
         var capture = payload && payload.capture ? payload.capture : null
         var captureRecordId = capture && capture.record_id !== undefined ? Number(capture.record_id) : 0

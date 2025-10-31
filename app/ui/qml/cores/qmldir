@@ -8,3 +8,4 @@ singleton CoreUI 1.0 CoreUI.qml
 
 singleton CoreControl 1.0 CoreControl.qml
 singleton CoreCurrent 1.0 CoreCurrent.qml
+singleton CoreCutting 1.0 CoreCutting.qml

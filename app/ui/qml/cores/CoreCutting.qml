@@ -159,9 +159,9 @@ QtObject {
     var startPoint = raw.start !== undefined ? _normalizePoint(raw.start) : null
     var endPoint = raw.end !== undefined ? _normalizePoint(raw.end) : null
     if (!startPoint && entry.robotPath.length > 0)
-      startPoint = entry.robotPath[0]
+      startPoint = _findPointByDef(entry.robotPath, 1) || entry.robotPath[0]
     if (!endPoint && entry.robotPath.length > 0)
-      endPoint = entry.robotPath[entry.robotPath.length - 1]
+      endPoint = _findPointByDef(entry.robotPath, 2) || entry.robotPath[entry.robotPath.length - 1]
     entry.start = startPoint
     entry.end = endPoint
 
@@ -237,7 +237,11 @@ QtObject {
       var y = _pickNumber(item, ["y", "Y", "row", "Row", "fRow"])
       if (x === undefined || y === undefined)
         continue
-      pts.push({ x: x, y: y })
+      pts.push({
+        x: x,
+        y: y,
+        def: _pickNumber(item, ["iDef", "def", "role"])
+      })
     }
     return pts
   }
@@ -255,8 +259,14 @@ QtObject {
     for (var i = 0; i < list.length; ++i) {
       var item = list[i]
       var point = _normalizePoint(item)
-      if (point)
+      if (point) {
+        var defValue = _pickNumber(item, ["iDef", "def", "role"])
+        if (defValue !== undefined)
+          point.def = defValue
+        point.zMax = _pickNumber(item, ["ZMaxRelDm", "zMaxRelDm"])
+        point.depth = _pickNumber(item, ["MxHeightCur", "mxHeightCur"])
         pts.push(point)
+      }
     }
     return pts
   }
@@ -278,5 +288,13 @@ QtObject {
     if (points && points.length > 1)
       return qsTr("移动")
     return qsTr("指令")
+  }
+
+  function _findPointByDef(path, defValue) {
+    for (var i = 0; i < path.length; ++i) {
+      if (path[i] && path[i].def === defValue)
+        return path[i]
+    }
+    return null
   }
 }

@@ -11,6 +11,8 @@ BaseCard {
   Layout.fillWidth: true
   readonly property int padding: 12
   implicitHeight: contentColumn.implicitHeight + 6
+  readonly property var command: Cores.CoreCutting.displayCommand
+  readonly property bool hasCommand: command && typeof command === "object"
 
   function formatNumber(value, unit, decimals) {
     if (value === undefined)
@@ -124,36 +126,9 @@ BaseCard {
     return parts.length > 0 ? parts.join("  ") : "-"
   }
 
-  function depthStatus() {
-    var current = Datas.CuttingDatas.downfeedCurrent
-    var target = Datas.CuttingDatas.downfeedTarget
-    var currentText = root.formatNumber(current, "mm", 3)
-    var targetText = root.formatNumber(target, "mm", 3)
-    if (currentText === "-" && targetText === "-")
-      return qsTr("-")
-    if (targetText === "-")
-      return currentText
-    if (currentText === targetText)
-      return currentText
-    return currentText + " / " + targetText
-  }
-
   function commandInfoText() {
-    var payload = Datas.CuttingDatas.last
-    if (payload === undefined)
-      payload = {}
-    if (payload === null)
-      payload = {}
-    var fromPayload = root._pickFirst(payload, [
-      "command",
-      "command_text",
-      "commandInfo",
-      "command_info",
-      "instruction",
-      "instruction_text"
-    ])
-    if (fromPayload !== undefined)
-      return root.formatText(fromPayload)
+    if (root.hasCommand && root.command.displayText !== undefined)
+      return root.formatText(root.command.displayText)
 
     var idx = Datas.CodeDatas.currentIndex
     var lines = Datas.CodeDatas.lines
@@ -163,6 +138,37 @@ BaseCard {
       return root.formatText(lines[idx])
     }
     return qsTr("-")
+  }
+
+  function commandCutDepth() {
+    if (root.hasCommand && root.command.cutDepth !== undefined)
+      return root.command.cutDepth
+    var payload = Datas.CuttingDatas.last
+    if (payload && payload.cutDepth !== undefined)
+      return payload.cutDepth
+    return Datas.CuttingDatas.downfeedCurrent
+  }
+
+  function commandMaxDepth() {
+    if (root.hasCommand && root.command.maxDepth !== undefined)
+      return root.command.maxDepth
+    var payload = Datas.CuttingDatas.last
+    if (payload && payload.maxDepth !== undefined)
+      return payload.maxDepth
+    return Datas.CuttingDatas.downfeedTarget
+  }
+
+  function cylinderText() {
+    if (root.hasCommand && root.command.cylinderAvoid && root.command.cylinderAvoid.length) {
+      return root.command.cylinderAvoid.join(", ")
+    }
+    return qsTr("-")
+  }
+
+  function selectPoint(sourcePoint, fallbackKey, shortKey) {
+    if (sourcePoint)
+      return sourcePoint
+    return root.extractPoint(Datas.CuttingDatas.last, fallbackKey, shortKey)
   }
 
   ColumnLayout {
@@ -180,9 +186,27 @@ BaseCard {
     }
     InfoRowItem {
       Layout.fillWidth: true
+      titleText: qsTr("类型")
+      valueText: root.formatText(root.hasCommand ? root.command.type : "-")
+      valueColor: Cores.CoreStyle.text
+    }
+    InfoRowItem {
+      Layout.fillWidth: true
       titleText: qsTr("切削深度")
-      valueText: root.depthStatus()
+      valueText: root.formatNumber(root.commandCutDepth(), "mm", 3)
       valueColor: Cores.CoreStyle.accent
+    }
+    InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("最大深度")
+      valueText: root.formatNumber(root.commandMaxDepth(), "mm", 3)
+      valueColor: Cores.CoreStyle.text
+    }
+    InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("气缸避让")
+      valueText: root.cylinderText()
+      valueColor: Cores.CoreStyle.text
     }
     RowLayout{
             Layout.fillWidth: true
@@ -190,7 +214,7 @@ BaseCard {
       InfoRowItem {
       Layout.fillWidth: true
       titleText: qsTr("起始")
-      valueText: root.formatPoint(root.extractPoint(Datas.CuttingDatas.last, "start", "s"))
+      valueText: root.formatPoint(root.selectPoint(root.hasCommand ? root.command.start : null, "start", "s"))
       valueColor: Cores.CoreStyle.text
       valueWrapMode: Text.WrapAnywhere
     }
@@ -198,7 +222,7 @@ BaseCard {
     InfoRowItem {
       Layout.fillWidth: true
       titleText: qsTr("终点")
-      valueText: root.formatPoint(root.extractPoint(Datas.CuttingDatas.last, "end", "e"))
+      valueText: root.formatPoint(root.selectPoint(root.hasCommand ? root.command.end : null, "end", "e"))
       valueColor: Cores.CoreStyle.text
       valueWrapMode: Text.WrapAnywhere
     }

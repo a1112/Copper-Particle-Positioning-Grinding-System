@@ -37,7 +37,6 @@ Flipable {
               onRequestBack: flipable.toggle()
             }
 
-
   function toggle() {
     flipable.showingTask = !flipable.showingTask
   }

@@ -199,7 +199,10 @@ Item {
         if (!pts || pts.length < 2)
           return
 
-        ctx.strokeStyle = "#10b981"
+        var strokeColor = Cores.CoreCutting.runState === "RUNNING"
+                          ? Cores.CoreStyle.accent
+                          : Cores.CoreStyle.info
+        ctx.strokeStyle = strokeColor
         ctx.lineWidth = 2
         ctx.beginPath()
         for (var i = 0; i < pts.length; ++i) {
@@ -217,12 +220,12 @@ Item {
         var endX = pts[pts.length - 1].x * view.scaleX
         var endY = pts[pts.length - 1].y * view.scaleY
 
-        ctx.fillStyle = "#f59e0b"
+        ctx.fillStyle = strokeColor
         ctx.beginPath()
         ctx.arc(startX, startY, 4, 0, Math.PI * 2)
         ctx.fill()
 
-        ctx.fillStyle = "#ef4444"
+        ctx.fillStyle = Cores.CoreStyle.danger
         ctx.beginPath()
         ctx.arc(endX, endY, 4, 0, Math.PI * 2)
         ctx.fill()

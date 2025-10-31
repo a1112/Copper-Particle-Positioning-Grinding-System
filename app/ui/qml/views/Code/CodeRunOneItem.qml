@@ -9,42 +9,52 @@ import "../../cores" as Cores
 
 ItemDelegate {
     id: delegateItem
-    readonly property bool isCurrent: index === Datas.CodeDatas.currentIndex
-    readonly property bool isPast: index < Datas.CodeDatas.currentIndex
-
+    readonly property bool isRunning: Datas.CodeDatas.runState === "RUNNING"
+    readonly property bool isActive: Cores.CoreCutting.activeIndex === index
+    readonly property bool isSelected: !isRunning && Cores.CoreCutting.selectedIndex === index
+    readonly property bool isPast: (Cores.CoreCutting.activeIndex >= 0) && (index < Cores.CoreCutting.activeIndex)
     width: list.width
     height: 32
+    hoverEnabled: true
+    focusPolicy: Qt.NoFocus
+    onClicked: {
+        if (!isRunning)
+            Cores.CoreCutting.selectIndex(index)
+    }
 
-     Rectangle {
-         anchors.fill: parent
+    Rectangle {
         id: backgroundRect
-
+        anchors.fill: parent
         radius: 6
-        color: delegateItem.isCurrent
+        color: delegateItem.isActive
                ? Qt.tint(Cores.CoreStyle.accent, "#22000000")
-               : (delegateItem.isPast
-                  ? Qt.tint(Cores.CoreStyle.success, "#15000000")
-                  : "transparent")
-        border.width: delegateItem.isCurrent ? 1.2 : 0
-        border.color: delegateItem.isCurrent ? Cores.CoreStyle.accent : "transparent"
-        opacity: delegateItem.hovered || delegateItem.isCurrent ? 0.45 : (delegateItem.isPast ? 0.3 : 0.2)
+               : (delegateItem.isSelected
+                  ? Qt.tint(Cores.CoreStyle.info, "#15000000")
+                  : (delegateItem.isPast
+                     ? Qt.tint(Cores.CoreStyle.success, "#15000000")
+                     : "transparent"))
+        border.width: delegateItem.isActive || delegateItem.isSelected ? 1.2 : 0
+        border.color: delegateItem.isActive ? Cores.CoreStyle.accent
+                     : (delegateItem.isSelected ? Cores.CoreStyle.info : "transparent")
+        opacity: delegateItem.isActive ? 0.55
+                 : (delegateItem.isSelected ? 0.42
+                    : (delegateItem.hovered ? 0.35
+                       : (delegateItem.isPast ? 0.28 : 0.18)))
 
         Behavior on color { ColorAnimation { duration: 120 } }
         Behavior on border.color { ColorAnimation { duration: 120 } }
         Behavior on opacity { NumberAnimation { duration: 120 } }
-
     }
 
-     RowLayout {
+    RowLayout {
         anchors.fill: parent
-        anchors.margins: 1
+        anchors.margins: 2
         spacing: 10
-
         Rectangle {
             width: 36
             height: 22
             radius: 4
-            color: delegateItem.isCurrent
+            color: delegateItem.isActive
                    ? Cores.CoreStyle.accent
                    : (delegateItem.isPast
                       ? Qt.tint(Cores.CoreStyle.success, "#33000000")
@@ -53,7 +63,7 @@ ItemDelegate {
             Label {
                 anchors.centerIn: parent
                 text: model.idx
-                color: delegateItem.isCurrent ? "#000000" : Cores.CoreStyle.text
+                color: delegateItem.isActive ? "#000000" : Cores.CoreStyle.text
                 font.family: "monospace"
             }
         }
@@ -70,10 +80,9 @@ ItemDelegate {
         Label {
             text: model.status
             color: root.statusColor(model.status)
-            font.bold: delegateItem.isCurrent
+            font.bold: delegateItem.isActive || delegateItem.isSelected
             Layout.preferredWidth: 78
             horizontalAlignment: Text.AlignHCenter
         }
     }
-
 }
