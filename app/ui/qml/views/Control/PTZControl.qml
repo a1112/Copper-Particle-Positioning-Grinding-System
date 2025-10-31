@@ -9,7 +9,6 @@ import "../../components/Base"
 // 手动模式下显示
 BaseCard {
   id: root
-  visible: Cores.CoreState.isUseModel
   // 速度 (mm/s)
   property int vFast: 100
   property int vWork: 10
@@ -46,22 +45,16 @@ BaseCard {
 
   ColumnLayout {
     anchors.fill: parent
-    anchors.margins: 8
-    spacing: 8
-
-    RowLayout {
-      Layout.fillWidth: true
-      Label { text: qsTr("主轴控制"); color: Cores.CoreStyle.text; font.bold: true; Layout.fillWidth: true }
-      Label { text: qsTr("Shift=工作速度"); color: Cores.CoreStyle.muted }
-    }
+    anchors.margins:2
+    spacing: 3
 
     RowLayout {
       Layout.fillWidth: true; spacing: 8
-      Label { text: qsTr("快速(mm/s)"); color: Cores.CoreStyle.text }
+      Label { text: qsTr("快速"); color: Cores.CoreStyle.text }
       SpinBoxBase { id: sbFast; from: 1; to: 1000; value: root.vFast; onValueModified: root.vFast = value; Layout.preferredWidth: 90 }
-      Label { text: qsTr("工作(mm/s)"); color: Cores.CoreStyle.text }
+      Label { text: qsTr("切削"); color: Cores.CoreStyle.text }
       SpinBoxBase { id: sbWork; from: 0; to: 200; value: root.vWork; onValueModified: root.vWork = value; Layout.preferredWidth: 90 }
-      Btns.ActionButton { text: qsTr("设置速度"); onClicked: Cores.CoreControl.setSpeed(root.vFast, root.vWork) }
+      Btns.ActionButton { text: qsTr("设置"); onClicked: Cores.CoreControl.setSpeed(root.vFast, root.vWork) }
     }
 
     // 控制区
@@ -112,6 +105,10 @@ BaseCard {
       ColumnLayout {
         spacing: 8
         Layout.alignment: Qt.AlignTop
+        Item{
+          Layout.fillHeight: true
+          width: 1
+        }
         Btns.ActionButton { text: qsTr("回零"); onClicked: Cores.CoreControl.home() }
         Btns.ActionButton { text: qsTr("设原点"); onClicked: Cores.CoreControl.setWorkOrigin() }
         Btns.ActionButton { text: qsTr("复位"); onClicked: Cores.CoreControl.reset() }

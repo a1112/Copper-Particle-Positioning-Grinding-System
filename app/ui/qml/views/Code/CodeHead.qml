@@ -5,10 +5,11 @@ import QtQuick.Layouts
 import "../../Api" as Api
 import "../../cores" as Cores
 import "../../components/btns" as Btns
+import "../../components/Card"
 import "../../datas" as Datas
 import "../Base"
 
-Item {
+CardHead {
   id: headRoot
   signal backRequested()
 

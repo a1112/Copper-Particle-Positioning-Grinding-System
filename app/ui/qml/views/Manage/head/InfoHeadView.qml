@@ -14,9 +14,10 @@ CardHead {
   RowLayout {
     anchors.fill: parent
 
-    Label {
+    CardTitleLabel {
       id:title_id
-      text: qsTr("信息"); color: Cores.CoreStyle.text; font.pixelSize: 14 }
+      text: qsTr("信息")
+    }
     Item { Layout.fillWidth: true }
 
     ItemDelegateBase {

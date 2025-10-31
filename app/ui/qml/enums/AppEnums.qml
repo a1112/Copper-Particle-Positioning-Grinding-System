@@ -10,4 +10,6 @@ QtObject {
   readonly property var dataViewModels: ["2D", "3D"]
   readonly property var allRunModel: ["全自动", "半自动", "手动"]
   readonly property var allImageType: ["彩色", "灰度", "深度", "法线"]
+  readonly property var controlsModels: ["气缸", "主轴"]
+
 }

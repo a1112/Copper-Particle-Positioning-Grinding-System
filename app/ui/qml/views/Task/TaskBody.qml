@@ -17,9 +17,10 @@ Item {
         Behavior on contentHeight {NumberAnimation{duration: 900}}
         ColumnLayout{
             id:col
-            width: root.width-10
+            x:4
+            width: root.width-8
             spacing: 10
-            anchors.margins: 5
+            anchors.margins: 4
             Repeater {
                 model: stageModel
                 delegate: TaskItem {

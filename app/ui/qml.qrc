@@ -222,5 +222,7 @@
         <file>qml/views/Manage/mix/Controls.qml</file>
         <file>qml/views/Control/CylinderiItemButton.qml</file>
         <file>qml/views/Manage/mix/ControlViewHead.qml</file>
+        <file>qml/components/Base/CardTitleLabel.qml</file>
+        <file>qml/views/Control/PTZItemButton.qml</file>
     </qresource>
 </RCC>

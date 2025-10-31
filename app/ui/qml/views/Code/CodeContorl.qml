@@ -62,18 +62,16 @@ BaseCard {
     RowLayout {
       id: controlRow
       Layout.fillWidth: true
-      spacing: 12
+      spacing: 5
 
       Label {
-        text: qsTr("控制")
+        text: qsTr("指令")
         font.bold: true
         color: Cores.CoreStyle.text
         Layout.fillWidth: true
       }
-
-      Label {
-        text: qsTr("状态: %1").arg(resolvedRunState())
-        color: root.runState === "RUNNING" ? Cores.CoreStyle.success : Cores.CoreStyle.muted
+      Item {
+        Layout.fillWidth: true
       }
 
       Btns.ActionButton {

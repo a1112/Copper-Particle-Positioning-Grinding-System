@@ -7,26 +7,24 @@ import QtQuick.Layouts
 import "../../Api" as Api
 import "../../cores" as Cores
 import "../../components/btns" as Btns
+import "../../components/Card"
+import "../../components/Base" as Base
 import "../../datas" as Datas
 import "../Base"
 
 
-Item {
-  height:Cores.CoreStyle.cardHeadHeight
+CardHead {
   Layout.fillWidth: true
-
   RowLayout {
-    Layout.fillWidth: true
+    anchors.fill: parent
     spacing: 4
     Item{
-      Layout.fillWidth: true
+      width: 1
       height: 1
     }
-    Label {
+    Base.CardTitleLabel {
       text: qsTr("任务流程")
-      font.pixelSize: 14
-      font.bold: true
-      color: Cores.CoreStyle.text
+
     }
     Item{
       Layout.fillWidth: true

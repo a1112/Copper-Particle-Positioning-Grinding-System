@@ -230,9 +230,8 @@ BaseViews.BaseCard {
   ColumnLayout {
     id: contentColumn
     anchors.fill: parent
-    anchors.margins: 12
-    spacing: 4
-
+    anchors.margins: 0
+    spacing: 10
     TaskHead { }
     TaskBody {
       id: body

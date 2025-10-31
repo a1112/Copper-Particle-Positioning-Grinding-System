@@ -7,11 +7,11 @@ import "../../datas" as Datas
 import "../../works" as Works
 import "../../components/btns" as Btns
 import "../../components/Base" as BaseComponents
-
+import "../../components/Card"
 /* 日志列表表头
  * 提供连接状态指示、等级筛选下拉框以及自动滚动开关。
  */
-Item {
+CardHead {
   id: root
   height: Cores.CoreStyle.cardHeadHeight
   Layout.fillWidth: true
@@ -30,10 +30,8 @@ Item {
     anchors.fill: parent
     spacing: 10
 
-    Label {
+    BaseComponents.CardTitleLabel {
       text: qsTr("日志")
-      font.bold: true
-      color: Cores.CoreStyle.text
     }
 
     Rectangle {

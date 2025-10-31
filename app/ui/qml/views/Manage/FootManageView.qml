@@ -30,10 +30,8 @@ SplitView {
 
   }
 Controls{
-    SplitView.preferredWidth: 300
-    SplitView.minimumWidth: 220
+    SplitView.preferredWidth: 400
+    SplitView.minimumWidth: 300
     SplitView.fillHeight: true
-
-
   }
 }
