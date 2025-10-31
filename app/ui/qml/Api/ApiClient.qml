@@ -30,6 +30,8 @@ QtObject {
   function jog(axis, dir, speed, onOk, onErr){ control('motion.jog', { axis: axis, direction: dir, speed: speed }, onOk, onErr) }
   function home(onOk, onErr){ control('motion.home', {}, onOk, onErr) }
   function setWorkOrigin(onOk, onErr){ control('motion.set_work_origin', {}, onOk, onErr) }
+  function setCylinder(index, open, onOk, onErr){ control('cylinder.set', { index: index, open: !!open }, onOk, onErr) }
+  function setAllCylinders(open, onOk, onErr){ control('cylinder.set_all', { open: !!open }, onOk, onErr) }
   function status(onOk, onErr){ get('/status', onOk, onErr) }
   function configSettings(onOk, onErr){ get('/config/settings', onOk, onErr) }
   function toolList(onOk, onErr){ get('/toolList', onOk, onErr) }

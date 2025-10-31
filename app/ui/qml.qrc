@@ -124,6 +124,7 @@
         <file>qml/views/Code/CodeHead.qml</file>
         <file>qml/Api/Ajax.qml</file>
         <file>qml/views/Control/PTZControl.qml</file>
+        <file>qml/views/Control/CylinderControl.qml</file>
         <file>qml/components/Card/CardBase.qml</file>
         <file>qml/components/btns/CheckBoxBase.qml</file>
         <file>qml/pages/foot/PingLabel.qml</file>
@@ -218,5 +219,8 @@
         <file>qml/views/Task/TaskBody.qml</file>
         <file>qml/views/Task/TaskItem.qml</file>
         <file>qml/menu/settings/SettingBody.qml</file>
+        <file>qml/views/Manage/mix/Controls.qml</file>
+        <file>qml/views/Control/CylinderiItemButton.qml</file>
+        <file>qml/views/Manage/mix/ControlViewHead.qml</file>
     </qresource>
 </RCC>

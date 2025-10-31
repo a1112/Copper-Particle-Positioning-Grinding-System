@@ -6,7 +6,7 @@ import "../../cores" as Cores
 import "../Log" as LogViews
 import "../Charts" as ChartViews
 import "../Control" as ControlViews
-
+import "mix"
 // Footer management view: align log stream with elevation chart and PTZ manual control.
 SplitView {
 
@@ -22,16 +22,18 @@ SplitView {
   }
 
   ChartViews.ElevationAreaChart {
+    visible: false
     id: elevationChart
     SplitView.preferredWidth: 400
     SplitView.fillHeight: true
     SplitView.minimumWidth: 300
 
   }
-
-  ControlViews.PTZControl {
-    id: ptzControl
-    SplitView.fillHeight: true
+Controls{
+    SplitView.preferredWidth: 300
     SplitView.minimumWidth: 220
+    SplitView.fillHeight: true
+
+
   }
 }

@@ -22,8 +22,8 @@ QtObject {
 
   readonly property real removalRemaining: Math.max(0, removalExpected - removalCurrent)
   readonly property real downfeedRemaining: Math.max(0, downfeedTarget - downfeedCurrent)
-  readonly property alias particleTotal: Datas.DeviceInfoData.particleTotal
-  readonly property alias planeHeight: Datas.DeviceInfoData.planeHeight
+  readonly property string particleTotal: Datas.DeviceInfoData.particleTotal
+  readonly property string planeHeight: Datas.DeviceInfoData.planeHeight
 
   readonly property int displayIndex: {
     if (runState === "RUNNING" && activeIndex >= 0)

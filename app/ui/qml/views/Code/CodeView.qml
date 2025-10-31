@@ -14,7 +14,7 @@ BaseCard {
   readonly property bool programEmpty: codeModel.count === 0
   implicitHeight: contentColumn.implicitHeight + 16
 
-  property alias codeModel: Datas.CodeDatas.model
+  property ListModel codeModel: Datas.CodeDatas.model
 
   property int currentIndex: Datas.CodeDatas.currentIndex
   property string runState: Datas.CodeDatas.runState

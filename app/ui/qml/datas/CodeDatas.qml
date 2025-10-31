@@ -8,7 +8,7 @@ QtObject {
   property int currentIndex: -1
   property var lines: []
   property var entries: []
-  property alias model: internalModel
+  property ListModel model:   ListModel { id: internalModel }
 
   function reset() {
     connected = false
@@ -84,5 +84,5 @@ QtObject {
   onCurrentIndexChanged: updateStatuses()
   onRunStateChanged: updateStatuses()
 
-  ListModel { id: internalModel }
+
 }
