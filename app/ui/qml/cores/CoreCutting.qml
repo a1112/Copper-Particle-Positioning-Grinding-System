@@ -9,6 +9,21 @@ QtObject {
   property int selectedIndex: -1
   property int activeIndex: -1
   property string runState: "IDLE"
+  property var cuttingSnapshot: ({})
+  property real removalCurrent: 0
+  property real removalExpected: 0
+  property real downfeedCurrent: 0
+  property real downfeedTarget: 0
+  property real torqueMax: 0
+  property real torque: 0
+  property real elapsedSec: 0
+  property real feedRate: 0
+  property real maxFeedRate: 0
+
+  readonly property real removalRemaining: Math.max(0, removalExpected - removalCurrent)
+  readonly property real downfeedRemaining: Math.max(0, downfeedTarget - downfeedCurrent)
+  readonly property alias particleTotal: Datas.DeviceInfoData.particleTotal
+  readonly property alias planeHeight: Datas.DeviceInfoData.planeHeight
 
   readonly property int displayIndex: {
     if (runState === "RUNNING" && activeIndex >= 0)
@@ -18,12 +33,7 @@ QtObject {
     return activeIndex >= 0 ? activeIndex : -1
   }
 
-  readonly property var displayCommand: {
-    var idx = root.displayIndex
-    if (idx >= 0 && idx < commands.length)
-      return commands[idx]
-    return null
-  }
+  readonly property var displayCommand: commandAt(displayIndex)
 
   readonly property var displayImagePath: displayCommand && displayCommand.imagePath ? displayCommand.imagePath : []
   readonly property var displayRobotPath: displayCommand && displayCommand.robotPath ? displayCommand.robotPath : []
@@ -33,7 +43,8 @@ QtObject {
     selectedIndex = -1
     activeIndex = -1
     runState = "IDLE"
-    Datas.CodeDatas.lines = []
+    Datas.CodeDatas.clearProgram()
+    resetCuttingSnapshot()
   }
 
   function loadProgram(rawData) {
@@ -67,7 +78,7 @@ QtObject {
     }
 
     commands = normalized
-    Datas.CodeDatas.lines = normalized.map(function(item) { return item.displayText })
+    Datas.CodeDatas.setProgramList(normalized)
     if (runState === "RUNNING" && activeIndex >= 0)
       selectedIndex = -1
     else if (selectedIndex >= normalized.length)
@@ -97,6 +108,54 @@ QtObject {
 
   function clearSelection() {
     selectedIndex = -1
+  }
+
+  function commandAt(index) {
+    var idx = Number(index)
+    if (isNaN(idx) || idx < 0 || idx >= commands.length)
+      return null
+    return commands[idx]
+  }
+
+  function previousCommand() {
+    return commandAt(displayIndex - 1)
+  }
+
+  function updateCuttingSnapshot(payload) {
+    var snap = payload || {}
+    cuttingSnapshot = snap
+
+    removalCurrent = _coerceNumber(_pickNumber(snap, ["removal_current", "removalCurrent", "removal"]), removalCurrent)
+    removalExpected = _coerceNumber(_pickNumber(snap, ["removal_expected", "removalExpected"]), removalExpected)
+    downfeedCurrent = _coerceNumber(_pickNumber(snap, ["downfeed_current", "downfeedCurrent"]), downfeedCurrent)
+    downfeedTarget = _coerceNumber(_pickNumber(snap, ["downfeed_target", "downfeedTarget"]), downfeedTarget)
+    var torqueCandidate = _pickNumber(snap, ["torque_max", "torqueMax", "max_torque"])
+    if (torqueCandidate !== undefined)
+      torqueMax = Math.max(0, _coerceNumber(torqueCandidate, torqueMax))
+    var torqueValue = _pickNumber(snap, ["torque", "current_torque"])
+    if (torqueValue !== undefined)
+      torque = _coerceNumber(torqueValue, torque)
+    var elapsedValue = _pickNumber(snap, ["elapsed_sec", "elapsedSec", "elapsed"])
+    if (elapsedValue !== undefined)
+      elapsedSec = Math.max(0, _coerceNumber(elapsedValue, elapsedSec))
+
+    var feed = _pickNumber(snap, ["feed_rate", "feedRate", "feed"])
+    feedRate = _coerceNumber(feed)
+    if (feedRate > maxFeedRate)
+      maxFeedRate = feedRate
+  }
+
+  function resetCuttingSnapshot() {
+    cuttingSnapshot = ({})
+    removalCurrent = 0
+    removalExpected = 0
+    downfeedCurrent = 0
+    downfeedTarget = 0
+    torqueMax = 0
+    torque = 0
+    elapsedSec = 0
+    feedRate = 0
+    maxFeedRate = 0
   }
 
   // --- Helpers ----------------------------------------------------------------
@@ -193,6 +252,13 @@ QtObject {
       }
     }
     return undefined
+  }
+
+  function _coerceNumber(value, fallback) {
+    var num = Number(value)
+    if (isNaN(num))
+      return fallback !== undefined ? fallback : 0
+    return num
   }
 
   function _normalizeCylinderList(value) {

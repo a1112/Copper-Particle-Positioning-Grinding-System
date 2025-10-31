@@ -4,7 +4,6 @@ import QtQuick.Layouts
 
 import "../Base"
 import "../../cores" as Cores
-import "../../datas" as Datas
 import "base"
 BaseCard {
   id: root
@@ -13,7 +12,6 @@ BaseCard {
   implicitHeight: contentColumn.implicitHeight+3
   height: implicitHeight
   width: parent.width
-  property real maxFeedRate: 0
 
   function formatNumber(value, unit, decimals) {
     if (value === undefined)
@@ -65,76 +63,58 @@ BaseCard {
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("粒子总量")
-        valueText: Datas.DeviceInfoData.particleTotal
+        valueText: Cores.CoreCutting.particleTotal
         valueColor: Cores.CoreStyle.text
       }
 
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("切削量")
-        valueText: root.formatNumber(Datas.CuttingDatas.removalCurrent, "mm^3", 2)
+        valueText: root.formatNumber(Cores.CoreCutting.removalCurrent, "mm^3", 2)
         valueColor: Cores.CoreStyle.accent
       }
 
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("剩余")
-        valueText: root.formatNumber(Math.max(0, Datas.CuttingDatas.downfeedTarget - Datas.CuttingDatas.downfeedCurrent), "mm", 3)
+        valueText: root.formatNumber(Cores.CoreCutting.downfeedRemaining, "mm", 3)
         valueColor: Cores.CoreStyle.info
       }
 
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("平面高度")
-        valueText: Datas.DeviceInfoData.planeHeight
+        valueText: Cores.CoreCutting.planeHeight
         valueColor: Cores.CoreStyle.text
       }
 
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("总耗时")
-        valueText: root.formatDuration(Datas.CuttingDatas.elapsedSec)
+        valueText: root.formatDuration(Cores.CoreCutting.elapsedSec)
         valueColor: Cores.CoreStyle.success
       }
 
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("预计剩余")
-        valueText: root.formatNumber(Math.max(0, Datas.CuttingDatas.removalRemaining), "mm^3", 2)
+        valueText: root.formatNumber(Cores.CoreCutting.removalRemaining, "mm^3", 2)
         valueColor: Cores.CoreStyle.warning
       }
 
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("最大扭矩")
-        valueText: root.formatNumber(Datas.CuttingDatas.torqueMax, "N*m", 3)
+        valueText: root.formatNumber(Cores.CoreCutting.torqueMax, "N*m", 3)
         valueColor: Cores.CoreStyle.danger
       }
 
       InfoRowItem {
         Layout.fillWidth: true
         titleText: qsTr("最大速度")
-        valueText: root.formatNumber(root.maxFeedRate, "mm/s", 3)
+        valueText: root.formatNumber(Cores.CoreCutting.maxFeedRate, "mm/s", 3)
         valueColor: Cores.CoreStyle.primary
       }
-    }
-  }
-
-  Connections {
-    target: Datas.CuttingDatas
-
-    function onConnectedChanged(value) {
-      if (!value)
-        root.maxFeedRate = 0
-    }
-
-    function onLastChanged(payload) {
-      var feedSource = Datas.CuttingDatas.feedRate
-      if (payload !== undefined && payload !== null && payload.feed_rate !== undefined && payload.feed_rate !== null)
-        feedSource = payload.feed_rate
-      var feed = Number(feedSource)
-      if (!isNaN(feed) && feed > root.maxFeedRate)
-        root.maxFeedRate = feed
     }
   }
 }

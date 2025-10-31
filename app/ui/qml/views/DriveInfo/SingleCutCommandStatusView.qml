@@ -4,7 +4,6 @@ import QtQuick.Layouts
 
 import "../Base"
 import "../../cores" as Cores
-import "../../datas" as Datas
 import "base"
 BaseCard {
   id: root
@@ -13,6 +12,7 @@ BaseCard {
   implicitHeight: contentColumn.implicitHeight + 6
   readonly property var command: Cores.CoreCutting.displayCommand
   readonly property bool hasCommand: command && typeof command === "object"
+  readonly property int displayIndex: Cores.CoreCutting.displayIndex
 
   function formatNumber(value, unit, decimals) {
     if (value === undefined)
@@ -36,59 +36,6 @@ BaseCard {
       return qsTr("-")
     var text = String(value).trim()
     return text.length === 0 ? "-" : text
-  }
-
-  function _pickFirst(source, candidates) {
-    if (!source)
-      return undefined
-    for (var i = 0; i < candidates.length; ++i) {
-      var key = candidates[i]
-      if (key in source && source[key] !== undefined && source[key] !== null)
-        return source[key]
-    }
-    return undefined
-  }
-
-  function extractPoint(payload, mainKey, shortKey) {
-    if (!payload)
-      return null
-
-    var direct = _pickFirst(payload, [
-      mainKey,
-      mainKey + "Point",
-      mainKey + "_point",
-      mainKey + "Position",
-      mainKey + "_position",
-      mainKey + "Coords",
-      mainKey + "_coords",
-      mainKey + "Coordinate",
-      mainKey + "_coordinate"
-    ])
-    if (direct !== undefined) {
-      return direct
-    }
-
-    function pickComponent(keys) {
-      return _pickFirst(payload, keys)
-    }
-
-    var x = pickComponent([
-      mainKey + "X", mainKey + "x", mainKey + "_x", mainKey + "_X",
-      shortKey + "x", shortKey + "X", shortKey + "_x", shortKey + "_X"
-    ])
-    var y = pickComponent([
-      mainKey + "Y", mainKey + "y", mainKey + "_y", mainKey + "_Y",
-      shortKey + "y", shortKey + "Y", shortKey + "_y", shortKey + "_Y"
-    ])
-    var z = pickComponent([
-      mainKey + "Z", mainKey + "z", mainKey + "_z", mainKey + "_Z",
-      shortKey + "z", shortKey + "Z", shortKey + "_z", shortKey + "_Z"
-    ])
-
-    if (x === undefined && y === undefined && z === undefined)
-      return null
-
-    return { x: x, y: y, z: z }
   }
 
   function formatPoint(point) {
@@ -126,49 +73,66 @@ BaseCard {
     return parts.length > 0 ? parts.join("  ") : "-"
   }
 
-  function commandInfoText() {
-    if (root.hasCommand && root.command.displayText !== undefined)
-      return root.formatText(root.command.displayText)
+  function currentCommand() {
+    if (root.hasCommand)
+      return root.command
+    return Cores.CoreCutting.commandAt(root.displayIndex)
+  }
 
-    var idx = Datas.CodeDatas.currentIndex
-    var lines = Datas.CodeDatas.lines
-    if (!Array.isArray(lines))
-      lines = []
-    if (idx !== undefined && idx >= 0 && idx < lines.length) {
-      return root.formatText(lines[idx])
-    }
+  function commandInfoText() {
+    var cmd = currentCommand()
+    if (cmd && cmd.displayText !== undefined)
+      return root.formatText(cmd.displayText)
+    if (cmd && cmd.command !== undefined)
+      return root.formatText(cmd.command)
     return qsTr("-")
   }
 
   function commandCutDepth() {
-    if (root.hasCommand && root.command.cutDepth !== undefined)
-      return root.command.cutDepth
-    var payload = Datas.CuttingDatas.last
-    if (payload && payload.cutDepth !== undefined)
-      return payload.cutDepth
-    return Datas.CuttingDatas.downfeedCurrent
+    var cmd = currentCommand()
+    if (cmd && cmd.cutDepth !== undefined)
+      return cmd.cutDepth
+    return Cores.CoreCutting.downfeedCurrent
   }
 
   function commandMaxDepth() {
-    if (root.hasCommand && root.command.maxDepth !== undefined)
-      return root.command.maxDepth
-    var payload = Datas.CuttingDatas.last
-    if (payload && payload.maxDepth !== undefined)
-      return payload.maxDepth
-    return Datas.CuttingDatas.downfeedTarget
+    var cmd = currentCommand()
+    if (cmd && cmd.maxDepth !== undefined)
+      return cmd.maxDepth
+    return Cores.CoreCutting.downfeedTarget
   }
 
   function cylinderText() {
-    if (root.hasCommand && root.command.cylinderAvoid && root.command.cylinderAvoid.length) {
-      return root.command.cylinderAvoid.join(", ")
-    }
+    var cmd = currentCommand()
+    if (cmd && cmd.cylinderAvoid && cmd.cylinderAvoid.length)
+      return cmd.cylinderAvoid.join(", ")
     return qsTr("-")
   }
 
-  function selectPoint(sourcePoint, fallbackKey, shortKey) {
-    if (sourcePoint)
-      return sourcePoint
-    return root.extractPoint(Datas.CuttingDatas.last, fallbackKey, shortKey)
+  function resolveStartPoint() {
+    var cmd = currentCommand()
+    if (cmd && cmd.start)
+      return cmd.start
+    var previous = Cores.CoreCutting.previousCommand()
+    if (previous && previous.end)
+      return previous.end
+    return null
+  }
+
+  function resolveEndPoint() {
+    var cmd = currentCommand()
+    if (cmd && cmd.end)
+      return cmd.end
+    if (cmd && cmd.robotPath && cmd.robotPath.length)
+      return cmd.robotPath[cmd.robotPath.length - 1]
+    return null
+  }
+
+  function commandTypeText() {
+    var cmd = currentCommand()
+    if (cmd && cmd.type)
+      return root.formatText(cmd.type)
+    return qsTr("-")
   }
 
   ColumnLayout {
@@ -187,7 +151,7 @@ BaseCard {
     InfoRowItem {
       Layout.fillWidth: true
       titleText: qsTr("类型")
-      valueText: root.formatText(root.hasCommand ? root.command.type : "-")
+      valueText: root.commandTypeText()
       valueColor: Cores.CoreStyle.text
     }
     InfoRowItem {
@@ -214,7 +178,7 @@ BaseCard {
       InfoRowItem {
       Layout.fillWidth: true
       titleText: qsTr("起始")
-      valueText: root.formatPoint(root.selectPoint(root.hasCommand ? root.command.start : null, "start", "s"))
+      valueText: root.formatPoint(root.resolveStartPoint())
       valueColor: Cores.CoreStyle.text
       valueWrapMode: Text.WrapAnywhere
     }
@@ -222,7 +186,7 @@ BaseCard {
     InfoRowItem {
       Layout.fillWidth: true
       titleText: qsTr("终点")
-      valueText: root.formatPoint(root.selectPoint(root.hasCommand ? root.command.end : null, "end", "e"))
+      valueText: root.formatPoint(root.resolveEndPoint())
       valueColor: Cores.CoreStyle.text
       valueWrapMode: Text.WrapAnywhere
     }
