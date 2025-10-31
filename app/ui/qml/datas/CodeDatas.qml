@@ -8,7 +8,9 @@ QtObject {
   property int currentIndex: -1
   property var lines: []
   property var entries: []
-  property ListModel model:   ListModel { id: internalModel }
+  property alias model: internalModel
+
+  ListModel { id: internalModel }
 
   function reset() {
     connected = false

@@ -76,6 +76,39 @@ function postJson(root, path, obj, onOk, onErr, showError){
   }
 }
 
+function putJson(root, path, obj, onOk, onErr, showError){
+  var xhr = new XMLHttpRequest()
+  var timedOut = false
+  var to = _makeTimer(root, timeoutMs, function(){
+    timedOut = true
+    try{ xhr.abort() }catch(e){}
+    var msg = 'PUT ' + path + ' 超时(' + timeoutMs + 'ms)'
+    showError && showError(msg)
+    onErr && onErr(408, msg)
+  })
+  xhr.open('PUT', base + path)
+  xhr.setRequestHeader('Content-Type', 'application/json')
+  xhr.onreadystatechange = function(){
+    if (xhr.readyState === XMLHttpRequest.DONE){
+      try{ to.stop(); to.destroy() }catch(e){}
+      if (timedOut) return
+      if (xhr.status>=200 && xhr.status<300){
+        try{ onOk && onOk(JSON.parse(xhr.responseText)) }catch(e){ onOk && onOk({}) }
+      }else{
+        var msg = 'PUT ' + path + ' 失败: ' + xhr.status + ' ' + xhr.responseText
+        showError && showError(msg)
+        onErr && onErr(xhr.status, xhr.responseText)
+      }
+    }
+  }
+  try{ xhr.send(JSON.stringify(obj)) }catch(e){
+    try{ to.stop(); to.destroy() }catch(e2){}
+    var msg = 'PUT ' + path + ' 异常: ' + e
+    showError && showError(msg)
+    onErr && onErr(-1, String(e))
+  }
+}
+
 function del(root, path, onOk, onErr, showError){
   var xhr = new XMLHttpRequest()
   var timedOut = false

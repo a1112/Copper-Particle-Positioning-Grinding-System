@@ -108,7 +108,61 @@
 | 方法 | 路径 | 说明 |
 | ---- | ---- | ---- |
 | `GET` | `/config/meta` | 读取配置中的机台元数据（序列号、刀具参数等），字段为最佳匹配结果 |
-| `GET` | `/config/settings` | 返回配置集合（包含 `tool_table` 等），由 `ConfigSettingsLoader` 负责解析 |
+| `GET` | `/config/settings` | 返回参数类别（general/process/algorithm）及刀具列表，由数据库维护 |
+
+### 6.1 参数配置接口 `/settings/*`
+
+参数配置拆分为“类别参数”和“刀具参数”两组接口：
+
+| 方法 | 路径 | 请求体 | 说明 |
+| ---- | ---- | ------ | ---- |
+| `GET` | `/settings/parameters` | - | 返回所有类别（`general`/`process`/`algorithm`）的参数快照及刀具列表 |
+| `GET` | `/settings/parameters/{category}` | - | 读取指定类别的参数；`category` 取上述三者之一 |
+| `PUT` | `/settings/parameters/{category}` | `dict` | 覆盖保存类别参数，写入数据库 `param_settings.payload` |
+| `POST` | `/settings/parameters/{category}/import` | `{ "content": "YAML 字符串" }` | 解析 YAML 后保存，若内容不是字典则返回 400 |
+| `GET` | `/settings/parameters/{category}/export` | - | 以 YAML 文本导出当前参数（`content` 字符串） |
+| `GET` | `/settings/tools` | - | 返回刀具列表（等同于 `/config/settings` 中的 `tools` 字段） |
+| `PUT` | `/settings/tools` | `{ "tools": [ ... ] }` | 批量更新刀具，已有 `id` 会就地更新，缺省 `id` 会新增 |
+
+示例：更新算法参数的 `plane_distance` 配置
+
+```http
+PUT /settings/parameters/algorithm
+Content-Type: application/json
+
+{
+  "pre_process": {
+    "plane_distance": {
+      "enabled": true,
+      "sample_distance": 8.0,
+      "angle_threshold": 1.2,
+      "distance_threshold": 8.5,
+      "plane_distance_min": 2.0,
+      "plane_distance_max": 80.0
+    }
+  }
+}
+```
+
+以 YAML 导入与导出时，`content` 字段为 UTF-8 文本，例如：
+
+```json
+{
+  "category": "algorithm",
+  "content": "pre_process:\\n  roi:\\n    x_min: 0.0\\n    x_max: 120.0\\n"
+}
+```
+
+刀具更新请求体字段：
+
+```json
+{
+  "tools": [
+    { "id": 1, "model": "D40", "diameter_mm": 40.0, "length_mm": 120.0, "usage_minutes": 360, "service_life_minutes": 720, "status": 0 },
+    { "id": 0, "model": "D20", "diameter_mm": 20.0, "length_mm": 80.0, "usage_minutes": 0, "service_life_minutes": 600, "status": 0 }
+  ]
+}
+```
 
 ```json
 {

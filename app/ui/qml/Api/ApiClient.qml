@@ -1,6 +1,6 @@
 pragma Singleton
 import QtQuick
-                                                                                                import "../js/Http.js" as Http
+import "../js/Http.js" as Http
 
 QtObject {
   id: apiClient
@@ -33,8 +33,14 @@ QtObject {
   function setCylinder(index, open, onOk, onErr){ control('cylinder.set', { index: index, open: !!open }, onOk, onErr) }
   function setAllCylinders(open, onOk, onErr){ control('cylinder.set_all', { open: !!open }, onOk, onErr) }
   function status(onOk, onErr){ get('/status', onOk, onErr) }
-  function configSettings(onOk, onErr){ get('/config/settings', onOk, onErr) }
   function toolList(onOk, onErr){ get('/toolList', onOk, onErr) }
+  function settingsFetch(onOk, onErr){ Http.get(root, '/settings/parameters', onOk, onErr, showError) }
+  function settingsFetchCategory(category, onOk, onErr){ Http.get(root, '/settings/parameters/' + encodeURIComponent(category), onOk, onErr, showError) }
+  function settingsSaveCategory(category, payload, onOk, onErr){ Http.putJson(root, '/settings/parameters/' + encodeURIComponent(category), payload, onOk, onErr, showError) }
+  function settingsImportCategory(category, yamlContent, onOk, onErr){ post('/settings/parameters/' + encodeURIComponent(category) + '/import', { content: yamlContent }, onOk, onErr) }
+  function settingsExportCategory(category, onOk, onErr){ Http.get(root, '/settings/parameters/' + encodeURIComponent(category) + '/export', onOk, onErr, showError) }
+  function settingsToolList(onOk, onErr){ Http.get(root, '/settings/tools', onOk, onErr, showError) }
+  function settingsSaveTools(tools, onOk, onErr){ Http.putJson(root, '/settings/tools', { tools: tools }, onOk, onErr, showError) }
   function calibration(onOk, onErr){ get('/vision/calibration', onOk, onErr) }
   // Test images
   function listTestImages(onOk, onErr){ get('/test/images', onOk, onErr) }

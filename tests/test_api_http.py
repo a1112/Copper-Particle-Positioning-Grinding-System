@@ -10,9 +10,11 @@ from app.server.api.ws.code_bus import bus
 from app.server.httpbridge.routes import set_store
 from app.server.httpbridge.store import HttpDataStore
 from app.db import SessionLocal, init_db
+from app.db.models.param_settings import ParamSettings
 from app.db.models.hardware_task_queue import HardwareTaskQueue
 from app.db.models.record_table import RecordTable
 from app.db.models.workpiece_table import WorkpieceTable
+from app.db.models.tool_record import ToolRecord
 from app.common.task_actions import friendly_action_name, friendly_action_type, normalise_action
 
 
@@ -71,13 +73,143 @@ def test_config_settings_bundle(client):
     r = client.get("/config/settings")
     assert r.status_code == 200
     data = r.json()
-    assert "sources" in data and data["sources"]["job"].endswith("job_default.yaml")
-    assert any(section["name"] == "scan" for section in data.get("job_sections", []))
-    assert isinstance(data.get("tool_table"), list) and len(data["tool_table"]) >= 1
+    assert "categories" in data
+    categories = data["categories"]
+    assert "general" in categories
+    assert "process" in categories
+    assert "algorithm" in categories
+    algorithm = categories["algorithm"]
+    assert "pre_process" in algorithm
+    assert "defect" in algorithm
+    assert "tools" in data and isinstance(data["tools"], list)
 
-    scan_section = next(section for section in data.get("job_sections", []) if section["name"] == "scan")
-    scan_mode = next(item for item in scan_section.get("items", []) if item["key"] == "mode")
-    assert isinstance(scan_mode.get("description"), str) and len(scan_mode["description"]) > 0
+
+def test_settings_parameters_roundtrip(client):
+    init_db()
+    with SessionLocal() as session:
+        session.execute(delete(ParamSettings))
+        session.execute(delete(ToolRecord))
+        session.commit()
+
+    r = client.get("/settings/parameters")
+    assert r.status_code == 200
+    payload = r.json()
+    categories = payload.get("categories", {})
+    assert set(categories.keys()) == {"general", "process", "algorithm"}
+    assert "placeholders" in categories["general"]
+    assert "placeholders" in categories["process"]
+    assert "pre_process" in categories["algorithm"]
+
+    new_algorithm = {
+        "pre_process": {
+            "plane_distance": {
+                "enabled": True,
+                "sample_distance": 4.5,
+                "angle_threshold": 1.1,
+                "distance_threshold": 7.0,
+                "plane_distance_min": 1.5,
+                "plane_distance_max": 50.0,
+            }
+        },
+        "defect": {"normal_threshold": 0.25},
+    }
+    r = client.put("/settings/parameters/algorithm", json=new_algorithm)
+    assert r.status_code == 200
+    updated = r.json().get("payload", {})
+    assert updated["pre_process"]["plane_distance"]["enabled"] is True
+    assert updated["defect"]["normal_threshold"] == 0.25
+
+    r = client.get("/settings/parameters/algorithm")
+    assert r.status_code == 200
+    fetched = r.json().get("payload", {})
+    assert fetched["pre_process"]["plane_distance"]["distance_threshold"] == 7.0
+
+    r = client.get("/settings/parameters/algorithm/export")
+    assert r.status_code == 200
+    exported = r.json().get("content", "")
+    assert "plane_distance_max: 50.0" in exported
+
+    yaml_text = "\n".join(
+        [
+            "pre_process:",
+            "  plane_distance:",
+            "    enabled: false",
+            "    distance_threshold: 5.5",
+        ]
+    )
+    r = client.post("/settings/parameters/algorithm/import", json={"content": yaml_text})
+    assert r.status_code == 200
+    imported = r.json().get("payload", {})
+    assert imported["pre_process"]["plane_distance"]["enabled"] is False
+    assert imported["pre_process"]["plane_distance"]["distance_threshold"] == 5.5
+
+    r = client.post("/settings/parameters/algorithm/import", json={"content": 123})
+    assert r.status_code == 400
+
+    r = client.get("/settings/parameters/unknown")
+    assert r.status_code == 404
+
+
+def test_settings_tools_crud(client):
+    init_db()
+    with SessionLocal() as session:
+        session.execute(delete(ToolRecord))
+        session.commit()
+
+    r = client.get("/settings/tools")
+    assert r.status_code == 200
+    assert isinstance(r.json().get("tools"), list)
+
+    payload = {
+        "tools": [
+            {
+                "model": "D40",
+                "diameter_mm": 40.0,
+                "length_mm": 120.0,
+                "usage_minutes": 0,
+                "service_life_minutes": 600,
+                "status": 0,
+            }
+        ]
+    }
+    r = client.put("/settings/tools", json=payload)
+    assert r.status_code == 200
+    tools = r.json().get("tools", [])
+    assert len(tools) == 1
+    tool_id = tools[0]["id"]
+    assert tools[0]["model"] == "D40"
+
+    update_payload = {
+        "tools": [
+            {
+                "id": tool_id,
+                "model": "D40",
+                "diameter_mm": 40.0,
+                "length_mm": 120.0,
+                "usage_minutes": 30,
+                "service_life_minutes": 600,
+                "status": 1,
+            },
+            {
+                "model": "D20",
+                "diameter_mm": 20.0,
+                "length_mm": 80.0,
+                "usage_minutes": 0,
+                "service_life_minutes": 400,
+                "status": 0,
+            },
+        ]
+    }
+    r = client.put("/settings/tools", json=update_payload)
+    assert r.status_code == 200
+    updated_tools = {item["model"]: item for item in r.json().get("tools", [])}
+    assert updated_tools["D40"]["usage_minutes"] == 30
+    assert updated_tools["D40"]["status"] == 1
+    assert "D20" in updated_tools
+
+    r = client.put("/settings/tools", json={"tools": "invalid"})
+    assert r.status_code == 400
+
 
 def test_tool_list_endpoint(client):
     r = client.get("/toolList")

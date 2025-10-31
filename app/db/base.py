@@ -155,6 +155,7 @@ def init_db() -> None:
 
     try:
         from app.db.models import tool_record  # noqa: F401
+        from app.db.models import param_settings  # noqa: F401
     except Exception as exc:
         LOG.debug("Optional tool models not initialised: %s", exc)
 

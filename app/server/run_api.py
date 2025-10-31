@@ -53,6 +53,7 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
         api_control,
         api_config,
         api_path,
+        api_settings,
         api_tool,
         api_vision,
         api_data,
