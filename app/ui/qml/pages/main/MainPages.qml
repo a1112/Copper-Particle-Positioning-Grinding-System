@@ -9,6 +9,7 @@ import "debug_page"
 import "user_page"
 //主显示区域
 Item {
+    clip: true
     StackLayout{
         anchors.fill: parent
         currentIndex: Cores.CoreState.selectedTabIndex

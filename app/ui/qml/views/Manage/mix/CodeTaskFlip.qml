@@ -11,8 +11,8 @@ Flipable {
   transform: Rotation {
            id: rotation
            origin.x: flipable.width/2
-           origin.y: flipable.height/2
-           axis.x: 0; axis.y: 1; axis.z: 0     // set axis.y to 1 to rotate around y-axis
+           // origin.y: flipable.height/2
+           axis.x: 0; axis.y: 0.5; axis.z: 0     // set axis.y to 1 to rotate around y-axis
            angle: 0    // the default angle
        }
 
@@ -24,24 +24,18 @@ Flipable {
        transitions: Transition {
            NumberAnimation { target: rotation; property: "angle"; duration: 800 }
        }
-     front: Item {
-      id: backSide
-      anchors.fill: parent
-      TaskViews.TaskView {
-        id: taskView
-        anchors.fill: parent
-        onRequestCodeView: flipable.toggle()
-      }
-    }
-   back:Item {
-    anchors.fill: parent
-    CodeViews.CodeView {
-      id: codeView
-      anchors.fill: parent
-      onRequestBack: flipable.toggle()
-    }
-  }
-
+     front:TaskViews.TaskView {
+                enabled:flipable.showingTask
+              id: taskView
+              anchors.fill: parent
+              onRequestCodeView: flipable.toggle()
+          }
+   back: CodeViews.CodeView {
+              enabled:flipable.showingCode
+              id: codeView
+              anchors.fill: parent
+              onRequestBack: flipable.toggle()
+            }
 
 
   function toggle() {

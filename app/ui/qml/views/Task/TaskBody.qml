@@ -10,13 +10,11 @@ Item {
     Layout.fillHeight: true
     Layout.fillWidth: true
     clip: true
-    Frame{
-        anchors.fill: parent
-    }
 
     ScrollView{
         contentWidth: root.width
-        contentHeight: col.height
+        contentHeight: root.enabled?col.height:0
+            Behavior on contentHeight {NumberAnimation{duration: 900}}
         ColumnLayout{
             id:col
             width: root.width-10

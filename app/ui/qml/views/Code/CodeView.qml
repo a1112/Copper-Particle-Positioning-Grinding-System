@@ -107,8 +107,6 @@ BaseCard {
         delegate:CodeRunOneItem{}
         ScrollBar.vertical: ScrollBar { }
       }
-
-
     }
   }
 

@@ -29,10 +29,7 @@ App_Base {
   }
 
   // 主界面布局容器
-  MainLayouts {
-    anchors.fill: parent
-  }
-
+  Shortcuts {}
   DataEntryDialog { id: dataEntryDialog }
   GlobErrorDialog { id: errorDialog }
   TestImagesDialog { id: testDialog }
@@ -41,7 +38,12 @@ App_Base {
   StatePage{id:statePage}
   TestWindow{id:testWindow}
   EstopDialog {id: estopDialog}
-  Shortcuts {}
+
+  MainLayouts {
+    anchors.fill: parent
+  }
+
+
 }
 
 
