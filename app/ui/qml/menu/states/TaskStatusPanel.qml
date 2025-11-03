@@ -41,7 +41,6 @@ Item {
       }
 
       Pages.TaskPathPreviewPage {
-        statePageCore: root.statePageCore
       }
     }
   }

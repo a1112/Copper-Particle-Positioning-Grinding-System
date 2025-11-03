@@ -8,9 +8,18 @@ QtObject {
   id: root
 
   // 标定图像宽度（像素）
-  readonly property real imageWidth: Math.max(0, Datas.CalibrationData.imageWidth)
+  readonly property real imageWidth: Datas.CalibrationData.imageWidth
   // 标定图像高度（像素）
-  readonly property real imageHeight: Math.max(0, Datas.CalibrationData.imageHeight)
+  readonly property real imageHeight: Datas.CalibrationData.imageHeight
+
+  //视图宽度
+  property int viewWidth: 0
+  // 视图高度
+  property int viewHeight: 0
+  // x 缩放
+  readonly property real viewScaleX: imageWidth/viewWidth
+  // y 缩放
+  readonly property real viewScaleY: imageHeight/viewHeight
   // 世界坐标宽度
   readonly property real worldWidth: Datas.CalibrationData.worldWidth
   // 世界坐标高度
@@ -21,6 +30,15 @@ QtObject {
   readonly property real originY: Datas.CalibrationData.originY
   // 夹具集合（来自标定数据）
   readonly property var fixtures: Datas.CalibrationData.fixtures
+  // 鼠标在界面上的坐标
+  property point viewPixel:Qt.point(-1, -1)
+
+  // 当前指针悬停的像素坐标（-1, -1 表示无效）
+  readonly property point cursorPixel: Qt.point(parseInt(viewPixel.x*viewScaleX), parseInt(viewPixel.y*viewScaleY))
+  // 当前指针悬停的世界坐标
+  property point cursorWorld: Qt.point(0, 0)
+  // 指针悬停信息是否有效
+  property bool cursorValid: false
 
   // 单位像素对应的世界坐标距离（X 方向）
   readonly property real worldPerPixelX: imageWidth > 0 ? worldWidth / imageWidth : 0
@@ -97,4 +115,27 @@ QtObject {
       return { x: originX, y: originY }
     return imageToWorld(target.rotation_origin)
   }
+
+  // 更新悬停数据（暴露给视图更新）
+  function setCursor(pixelPoint, worldPoint, valid) {
+    console.log(viewScaleX," ",imageWidth," ",viewWidth)
+    if (pixelPoint) {
+      // cursorPixel = Qt.point(Number(pixelPoint.x || 0), Number(pixelPoint.y || 0))
+    } else {
+      // cursorPixel = Qt.point(-1, -1)
+    }
+
+    if (worldPoint) {
+      cursorWorld = Qt.point(Number(worldPoint.x || 0), Number(worldPoint.y || 0))
+    } else {
+      cursorWorld = Qt.point(0, 0)
+    }
+
+    cursorValid = Boolean(valid)
+  }
+
+  function clearCursor() {
+    setCursor(null, null, false)
+  }
 }
+

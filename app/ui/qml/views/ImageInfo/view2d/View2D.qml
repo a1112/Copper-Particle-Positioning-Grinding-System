@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 import "../../../Api" as Api
 import "../../../cores" as Cores
+import "../../../datas" as Datas
 import "../../../components/Base" as BaseComponents
 import "." as Layers
 
@@ -25,7 +26,7 @@ Item {
   property real fixtureSizeMm: 8
   property real fixtureMarginMm: 6
   property var fixtures: []
-  property var calibrationCore: null
+  property var calibrationCore: Cores.CoreDataView
 
   readonly property real scaleX: overlayArea.width > 0 ? overlayArea.width / imageWidth : 1
   readonly property real scaleY: overlayArea.height > 0 ? overlayArea.height / imageHeight : 1
@@ -52,13 +53,17 @@ Item {
   }
 
   function resetHover() {
-    hoverPixel = Qt.point(-1, -1)
+    var invalidPixel = Qt.point(-1, -1)
+    hoverPixel = invalidPixel
     hoverWorld = Qt.point(0, 0)
     hoverValid = false
+    Cores.CoreDataView.clearCursor()
     coordinateLayer.requestUpdate()
   }
 
   function updateHover(localX, localY) {
+    Cores.CoreDataView.viewPixel=Qt.point(localX, localY)
+    console.log(scaleX," ",scaleY," ",scaleX," ",)
     if (scaleX <= 0 || scaleY <= 0) {
       resetHover()
       return
@@ -69,14 +74,17 @@ Item {
       resetHover()
       return
     }
-    hoverPixel = Qt.point(px, py)
+    var pixelPoint = Qt.point(px, py)
+    hoverPixel = pixelPoint
     var worldPoint
     if (calibrationCore && calibrationCore.imageToWorld !== undefined)
       worldPoint = calibrationCore.imageToWorld({ x: px, y: py })
     else
       worldPoint = { x: px * pixelSizeMm, y: py * pixelSizeMm }
-    hoverWorld = Qt.point(worldPoint.x, worldPoint.y)
+    var worldPointQt = Qt.point(worldPoint.x, worldPoint.y)
+    hoverWorld = worldPointQt
     hoverValid = true
+    Cores.CoreDataView.setCursor(pixelPoint, worldPointQt, true)
     coordinateLayer.requestUpdate()
   }
 
@@ -144,8 +152,13 @@ Item {
       source: bufferSource1
       visible: activeBuffer === 1 && status === Image.Ready
       onStatusChanged: {
-        if (status === Image.Ready)
+        if (status === Image.Ready){
+
           imageStack.handleBufferReady(1)
+          Datas.CalibrationData.imageHeight = sourceSize.height
+          Datas.CalibrationData.imageWidth= sourceSize.width
+        }
+
         else if (status === Image.Error && pendingBuffer === 1)
           pendingBuffer = -1
       }
@@ -262,9 +275,6 @@ Item {
     Layers.CoordinateOverlay {
       id: coordinateLayer
       anchors.fill: parent
-      hoverPixel: view.hoverPixel
-      hoverWorld: view.hoverWorld
-      hoverValid: view.hoverValid
       scaleX: view.scaleX
       scaleY: view.scaleY
     }
@@ -274,9 +284,14 @@ Item {
       hoverEnabled: true
       acceptedButtons: Qt.NoButton
 
-      onPositionChanged: view.updateHover(mouse.x, mouse.y)
+      onPositionChanged: function(mouseEvent) {
+        view.updateHover(mouseEvent.x, mouseEvent.y)
+      }
       onExited: view.resetHover()
     }
+
+    onWidthChanged: Cores.CoreDataView.viewWidth=width
+    onHeightChanged: Cores.CoreDataView.viewHeight=height
   }
 
   onPathPointsChanged: pathCanvas.requestPaint()

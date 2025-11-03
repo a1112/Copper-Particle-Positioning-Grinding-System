@@ -7,9 +7,9 @@ Item {
   id: overlay
   anchors.fill: parent
 
-  property point hoverPixel: Qt.point(-1, -1)
-  property point hoverWorld: Qt.point(0, 0)
-  property bool hoverValid: false
+  property point hoverPixel: Cores.CoreDataView.cursorPixel
+  property point hoverWorld: Cores.CoreDataView.cursorWorld
+  property bool hoverValid: Cores.CoreDataView.cursorValid
   property real scaleX: 1.0
   property real scaleY: 1.0
 
