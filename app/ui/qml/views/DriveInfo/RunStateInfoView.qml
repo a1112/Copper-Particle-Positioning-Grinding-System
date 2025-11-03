@@ -15,7 +15,7 @@ BaseCard {
 
   readonly property string runState: Datas.DeviceInfoData.runState
   readonly property string runMode: Datas.DeviceInfoData.runMode
-  readonly property string serialNumber: Datas.DeviceInfoData.serialNumber
+  readonly property string serialNumber: Datas.TaskDatas.latestRecordId
 
   function stateColor(state) {
     var normalized = state

@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../Api" as Api
-import "../Base" as Base
 import "pages"
 
 Popup {
