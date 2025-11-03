@@ -104,8 +104,8 @@ Item {
           color: "#f59e0b"
           border.color: "#d97706"
           border.width: 1
-          readonly property real targetX: Number(parent.parent.fixture.rotation_origin.x || 0) * overlay.scaleX
-          readonly property real targetY: Number(parent.parent.fixture.rotation_origin.y || 0) * overlay.scaleY
+          readonly property real targetX: Number(fixture.rotation_origin.x || 0) * overlay.scaleX
+          readonly property real targetY: Number(fixture.rotation_origin.y || 0) * overlay.scaleY
           x: targetX - parent.parent.x - width / 2
           y: targetY - parent.parent.y - height / 2
         }

@@ -5,6 +5,8 @@ import QtQuick.Layouts
 import "../../cores" as Cores
 
 Popup {
+    property StatePageCore statePageCore: StatePageCore {}
+
   id: root
   modal: true
   dim: true
@@ -21,8 +23,6 @@ Popup {
     border.color: Cores.CoreStyle.border
     border.width: 1
   }
-
-  property StatePageCore statePageCore: StatePageCore {}
 
   Component.onCompleted: statePageCore.refreshData()
   onOpened: statePageCore.refreshData()

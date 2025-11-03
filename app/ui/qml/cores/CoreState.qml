@@ -20,10 +20,10 @@ Item {
   readonly property string current2DShowName: CoreUI.allImageType[current2DShowIndex]
 
   readonly property var imageTypeQueryMap: ({
-    "彩色": "color",
-    "灰度": "gray",
-    "深度": "depth",
-    "法线": "normal"
+      "彩色": "color",
+      "灰度": "gray",
+      "深度": "depth",
+      "法线": "normal"
   })
 
   property string current2dImageSource: ""

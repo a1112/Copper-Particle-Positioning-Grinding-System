@@ -190,7 +190,6 @@
         <file>qml/views/DriveInfo/base/InfoValueLabel.qml</file>
         <file>qml/views/DriveInfo/CuttingStatisticsView.qml</file>
         <file>qml/views/DriveInfo/SingleCutCommandStatusView.qml</file>
-        <file>qml/views/ImageInfo/core/ImageDataCore.qml</file>
         <file>qml/menu/MainMenu.qml</file>
         <file>qml/menu/main_menus/InterfaceMenu.qml</file>
         <file>qml/menu/main_menus/ControlMenu.qml</file>
@@ -228,5 +227,6 @@
         <file>qml/views/Manage/mix/ControlViewHead.qml</file>
         <file>qml/components/Base/CardTitleLabel.qml</file>
         <file>qml/views/Control/PTZItemButton.qml</file>
+        <file>qml/cores/CoreDataView.qml</file>
     </qresource>
 </RCC>

@@ -273,6 +273,7 @@ Item {
       anchors.fill: parent
       hoverEnabled: true
       acceptedButtons: Qt.NoButton
+
       onPositionChanged: view.updateHover(mouse.x, mouse.y)
       onExited: view.resetHover()
     }
