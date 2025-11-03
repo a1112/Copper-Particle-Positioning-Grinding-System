@@ -1,4 +1,4 @@
-﻿# ProCon DLL 封装 / ProCon DLL Wrapper
+# ProCon DLL 封装 / ProCon DLL Wrapper
 
 该目录提供一个基于 `ctypes` 的 ProCon (YKCat2) DLL 封装，覆盖 GantryMilling 中使用的轴控、群组插补、数字 IO、复位/报警清除以及气缸控制等常用能力，便于在 Python 侧进行调试或搭建 Demo。
 

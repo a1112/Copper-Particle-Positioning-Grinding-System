@@ -1,4 +1,4 @@
-﻿from enum import Enum
+from enum import Enum
 from ctypes import *
 # <summary>
 # 系统定义
