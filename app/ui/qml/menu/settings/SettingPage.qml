@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../Api" as Api
+import "../../components/btns" as Btns
 import "pages"
 
 Popup {
@@ -136,55 +137,7 @@ Popup {
     anchors.fill: parent
     anchors.margins: 20
     spacing: 16
-
-    RowLayout {
-      Layout.fillWidth: true
-      spacing: 12
-
-      Label {
-        text: qsTr("参数设置中心")
-        font.bold: true
-        font.pixelSize: 20
-        color: "#f1f5f9"
-      }
-
-      Item { Layout.fillWidth: true }
-
-      Label {
-        id: infoLabel
-        color: "#9AA5B1"
-        text: ""
-      }
-
-      Button {
-        text: loading ? qsTr("刷新中…") : qsTr("刷新")
-        enabled: !loading
-        onClicked: refresh()
-      }
-
-      Button {
-        text: qsTr("导入")
-        enabled: !loading
-        onClicked: importCurrent()
-      }
-
-      Button {
-        text: qsTr("导出")
-        enabled: !loading
-        onClicked: exportCurrent()
-      }
-
-      Button {
-        text: qsTr("保存")
-        enabled: !loading
-        onClicked: saveCurrent()
-      }
-
-      Button {
-        text: qsTr("关闭")
-        onClicked: root.close()
-      }
-    }
+    SettingPageHead{}
 
     RowLayout {
       Layout.fillWidth: true
