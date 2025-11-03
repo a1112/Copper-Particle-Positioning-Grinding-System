@@ -5,7 +5,7 @@ import json
 import logging
 from dataclasses import asdict
 
-from ..controller import DigitalPoint, ProConController, ProConDllError
+from controller import DigitalPoint, ProConController, ProConDllError
 
 
 def parse_point(value: str) -> DigitalPoint:

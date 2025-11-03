@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../../Api" as Api
@@ -29,7 +29,7 @@ Popup {
     { id: "general", label: qsTr("常规参数"), page: generalPage },
     { id: "process", label: qsTr("工艺参数"), page: processPage },
     { id: "algorithm", label: qsTr("算法参数"), page: algorithmPage },
-    { id: "tools", label: qsTr("刀具参�?), page: toolPage }
+    { id: "tools", label: qsTr("刀具参数"), page: toolPage }
   ]
 
   property int currentIndex: 0
@@ -161,7 +161,7 @@ Popup {
         settingsData.algorithm = saved
       currentPage().data = saved
       persistSettingsCache()
-      header.statusLabel.text = qsTr("参数已保�?)
+      header.statusLabel.text = qsTr("参数已保存")
     }, function(status, message) {
       errorText = qsTr("保存失败: %1").arg(message || status)
     })
@@ -180,7 +180,7 @@ Popup {
     Api.ApiClient.settingsExportCategory(category, function(resp) {
       var text = resp.content || ""
       exportDialog.openWithText(text)
-      header.statusLabel.text = qsTr("参数已导�?)
+      header.statusLabel.text = qsTr("参数已导出")
     }, function(status, message) {
       errorText = qsTr("导出失败: %1").arg(message || status)
     })
@@ -310,7 +310,7 @@ Popup {
         try {
           var parsed = JSON.parse(content)
           if (!Array.isArray(parsed))
-            throw new Error("JSON必须为数�?)
+            throw new Error("JSON必须为数组")
           toolPage.importFromArray(parsed)
           settingsData.tools = cloneArray(parsed)
           persistSettingsCache()
@@ -333,7 +333,7 @@ Popup {
           algorithmPage.data = payload
         }
         persistSettingsCache()
-        header.statusLabel.text = qsTr("参数已导�?)
+        header.statusLabel.text = qsTr("参数已导入")
       }, function(status, message) {
         errorText = qsTr("导入失败: %1").arg(message || status)
       })
@@ -346,7 +346,7 @@ Popup {
       onTextChanged: importDialog.content = text
       implicitWidth: 540
       implicitHeight: 320
-      placeholderText: qsTr("在此粘贴 YAML/JSON 内容后点击确定导�?)
+      placeholderText: qsTr("在此粘贴 YAML/JSON 内容后点击确定导入")
     }
   }
 
@@ -359,5 +359,3 @@ Popup {
     refresh()
   }
 }
-
-

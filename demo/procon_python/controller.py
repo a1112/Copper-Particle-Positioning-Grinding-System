@@ -11,6 +11,8 @@ from typing import Iterable, Optional, Sequence
 
 __all__ = ["DigitalPoint", "ProConDllError", "ProConController"]
 
+from demo.procon_python import YKCat2
+
 
 class ProConDllError(RuntimeError):
     """Raised when a ProCon SDK call fails."""
@@ -42,7 +44,7 @@ class ProConController:
         self._include_dir = Path(include_dir or base_dir).resolve()
         self._node_name = node_name
 
-        self._ykcat2 = None
+        self._ykcat2:"YKCat2" = YKCat2
         self._dll: Optional[ctypes.WinDLL] = None
         self._handle = ctypes.c_int(0)
         self._node = None
