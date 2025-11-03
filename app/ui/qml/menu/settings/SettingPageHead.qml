@@ -4,6 +4,8 @@ import QtQuick.Layouts
 import "../../components/btns" as Btns
 
 RowLayout {
+  id: header
+  property alias statusLabel: infoLabel
   Layout.fillWidth: true
   spacing: 12
 

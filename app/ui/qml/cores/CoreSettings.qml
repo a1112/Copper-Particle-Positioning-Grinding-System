@@ -13,5 +13,11 @@ Settings {
   property string language: "zh_CN"
   property real fontScale: 1.0
 
-
+  // 参数设置中心缓存页签索引
+  property int parameterTabIndex: 0
+  // 参数设置中心缓存数据
+  property var parameterGeneral: ({})
+  property var parameterProcess: ({})
+  property var parameterAlgorithm: ({})
+  property var parameterTools: []
 }

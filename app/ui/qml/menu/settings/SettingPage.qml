@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import "../../Api" as Api
 import "../../components/btns" as Btns
+import "../../cores" as Cores
 import "pages"
 
 Popup {
@@ -28,17 +29,70 @@ Popup {
     { id: "general", label: qsTr("常规参数"), page: generalPage },
     { id: "process", label: qsTr("工艺参数"), page: processPage },
     { id: "algorithm", label: qsTr("算法参数"), page: algorithmPage },
-    { id: "tools", label: qsTr("刀具参数"), page: toolPage }
+    { id: "tools", label: qsTr("刀具参�?), page: toolPage }
   ]
 
-  property int currentIndex: 2
-  readonly property string currentCategory: categories[currentIndex].id
+  property int currentIndex: 0
+  readonly property string currentCategory: categories.length > 0 ? categories[currentIndex].id : ""
+
+  onCurrentIndexChanged: {
+    if (Cores.CoreSettings && Cores.CoreSettings.parameterTabIndex !== currentIndex)
+      Cores.CoreSettings.parameterTabIndex = currentIndex
+  }
+
+  function cloneMap(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      return {}
+    try {
+      return JSON.parse(JSON.stringify(value))
+    } catch (err) {
+      return {}
+    }
+  }
+
+  function cloneArray(value) {
+    if (!Array.isArray(value))
+      return []
+    try {
+      return JSON.parse(JSON.stringify(value))
+    } catch (err) {
+      return []
+    }
+  }
+
+  function applyCachedSettings() {
+    if (!Cores.CoreSettings)
+      return
+    var cachedGeneral = cloneMap(Cores.CoreSettings.parameterGeneral)
+    var cachedProcess = cloneMap(Cores.CoreSettings.parameterProcess)
+    var cachedAlgorithm = cloneMap(Cores.CoreSettings.parameterAlgorithm)
+    var cachedTools = cloneArray(Cores.CoreSettings.parameterTools)
+    settingsData = {
+      general: cachedGeneral,
+      process: cachedProcess,
+      algorithm: cachedAlgorithm,
+      tools: cachedTools
+    }
+    generalPage.data = cachedGeneral
+    processPage.data = cachedProcess
+    algorithmPage.data = cachedAlgorithm
+    toolPage.tools = cachedTools
+  }
+
+  function persistSettingsCache() {
+    if (!Cores.CoreSettings)
+      return
+    Cores.CoreSettings.parameterGeneral = cloneMap(settingsData.general)
+    Cores.CoreSettings.parameterProcess = cloneMap(settingsData.process)
+    Cores.CoreSettings.parameterAlgorithm = cloneMap(settingsData.algorithm)
+    Cores.CoreSettings.parameterTools = cloneArray(settingsData.tools)
+  }
 
   function refresh() {
     loading = true
     errorText = ""
-    if (infoLabel)
-      infoLabel.text = ""
+    if (header.statusLabel)
+      header.statusLabel.text = ""
     Api.ApiClient.settingsFetch(function(resp) {
       try {
         settingsData = {
@@ -51,6 +105,7 @@ Popup {
         processPage.data = settingsData.process
         algorithmPage.data = settingsData.algorithm
         toolPage.tools = settingsData.tools
+        persistSettingsCache()
       } catch (err) {
         errorText = qsTr("加载失败: %1").arg(err)
       } finally {
@@ -65,6 +120,10 @@ Popup {
   function loadSettings() { refresh() }
 
   function currentPage() {
+    if (categories.length === 0)
+      return null
+    if (currentIndex < 0 || currentIndex >= categories.length)
+      return null
     return categories[currentIndex].page
   }
 
@@ -77,15 +136,16 @@ Popup {
 
   function saveCurrent() {
     errorText = ""
-    if (infoLabel)
-      infoLabel.text = ""
+    if (header.statusLabel)
+      header.statusLabel.text = ""
     var category = currentCategory
     var payload = collectPayload()
     if (category === "tools") {
       Api.ApiClient.settingsSaveTools(payload.tools || [], function(resp) {
         toolPage.tools = resp.tools || []
         settingsData.tools = resp.tools || []
-        infoLabel.text = qsTr("刀具参数已保存")
+        persistSettingsCache()
+        header.statusLabel.text = qsTr("刀具参数已保存")
       }, function(status, message) {
         errorText = qsTr("保存失败: %1").arg(message || status)
       })
@@ -100,7 +160,8 @@ Popup {
       else if (category === "algorithm")
         settingsData.algorithm = saved
       currentPage().data = saved
-      infoLabel.text = qsTr("参数已保存")
+      persistSettingsCache()
+      header.statusLabel.text = qsTr("参数已保�?)
     }, function(status, message) {
       errorText = qsTr("保存失败: %1").arg(message || status)
     })
@@ -108,18 +169,18 @@ Popup {
 
   function exportCurrent() {
     errorText = ""
-    if (infoLabel)
-      infoLabel.text = ""
+    if (header.statusLabel)
+      header.statusLabel.text = ""
     var category = currentCategory
     if (category === "tools") {
       exportDialog.openWithText(JSON.stringify(toolPage.collectPayload().tools || [], null, 2))
-      infoLabel.text = qsTr("刀具参数已导出")
+      header.statusLabel.text = qsTr("刀具参数已导出")
       return
     }
     Api.ApiClient.settingsExportCategory(category, function(resp) {
       var text = resp.content || ""
       exportDialog.openWithText(text)
-      infoLabel.text = qsTr("参数已导出")
+      header.statusLabel.text = qsTr("参数已导�?)
     }, function(status, message) {
       errorText = qsTr("导出失败: %1").arg(message || status)
     })
@@ -127,8 +188,8 @@ Popup {
 
   function importCurrent() {
     errorText = ""
-    if (infoLabel)
-      infoLabel.text = ""
+    if (header.statusLabel)
+      header.statusLabel.text = ""
     importDialog.content = ""
     importDialog.open()
   }
@@ -137,7 +198,7 @@ Popup {
     anchors.fill: parent
     anchors.margins: 20
     spacing: 16
-    SettingPageHead{}
+    SettingPageHead { id: header }
 
     RowLayout {
       Layout.fillWidth: true
@@ -249,9 +310,11 @@ Popup {
         try {
           var parsed = JSON.parse(content)
           if (!Array.isArray(parsed))
-            throw new Error("JSON必须为数组")
+            throw new Error("JSON必须为数�?)
           toolPage.importFromArray(parsed)
-          infoLabel.text = qsTr("刀具参数已导入")
+          settingsData.tools = cloneArray(parsed)
+          persistSettingsCache()
+          header.statusLabel.text = qsTr("刀具参数已导入")
         } catch (err) {
           errorText = qsTr("导入失败: %1").arg(err)
         }
@@ -269,7 +332,8 @@ Popup {
           settingsData.algorithm = payload
           algorithmPage.data = payload
         }
-        infoLabel.text = qsTr("参数已导入")
+        persistSettingsCache()
+        header.statusLabel.text = qsTr("参数已导�?)
       }, function(status, message) {
         errorText = qsTr("导入失败: %1").arg(message || status)
       })
@@ -282,9 +346,18 @@ Popup {
       onTextChanged: importDialog.content = text
       implicitWidth: 540
       implicitHeight: 320
-      placeholderText: qsTr("在此粘贴 YAML/JSON 内容后点击确定导入")
+      placeholderText: qsTr("在此粘贴 YAML/JSON 内容后点击确定导�?)
     }
   }
 
-  Component.onCompleted: refresh()
+  Component.onCompleted: {
+    applyCachedSettings()
+    var tabIndex = Cores.CoreSettings ? Cores.CoreSettings.parameterTabIndex : 0
+    if (tabIndex < 0 || tabIndex >= categories.length)
+      tabIndex = 0
+    currentIndex = tabIndex
+    refresh()
+  }
 }
+
+
