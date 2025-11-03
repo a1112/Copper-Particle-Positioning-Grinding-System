@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 
 import mimetypes
 from pathlib import Path
+import threading
 
 from ..api_core import image_router as router
 
@@ -40,6 +41,80 @@ _IMAGE_TYPE_ALIASES: Dict[str, str] = {
 }
 provider: Any | None = None  # injected by bootstrap
 _MASK_FILENAME = "rts_ImageZ1ZeroReal.tif"
+
+_POINT_CLOUD_FILENAMES: Dict[str, Path] = {
+    "x": IMAGE_BASE_DIR / "src_IMG_PointCloud_X.tif",
+    "y": IMAGE_BASE_DIR / "src_IMG_PointCloud_Y.tif",
+    "z": IMAGE_BASE_DIR / "src_IMG_PointCloud_Z.tif",
+}
+_point_cloud_cache: Dict[str, Any] = {}
+_point_cloud_mtime: Dict[str, float] = {}
+_point_cloud_shape: Tuple[int, int] | None = None
+_point_cloud_lock = threading.Lock()
+
+
+def _get_point_cloud_component(axis: str):
+    axis_lower = (axis or "").lower()
+    path = _POINT_CLOUD_FILENAMES.get(axis_lower)
+    if path is None:
+        raise HTTPException(status_code=404, detail="Unsupported point cloud axis")
+
+    with _point_cloud_lock:
+        if not path.exists():
+            _point_cloud_cache.pop(axis_lower, None)
+            _point_cloud_mtime.pop(axis_lower, None)
+            raise HTTPException(status_code=404, detail=f"Point cloud source '{path.name}' missing")
+
+        mtime = path.stat().st_mtime
+        cached = _point_cloud_cache.get(axis_lower)
+        if cached is not None and _point_cloud_mtime.get(axis_lower) == mtime:
+            return cached
+
+        try:
+            import cv2
+            import numpy as np
+        except Exception as exc:  # pragma: no cover - dependency missing
+            raise HTTPException(status_code=500, detail="Point cloud support unavailable") from exc
+
+        data = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
+        if data is None:
+            raise HTTPException(status_code=500, detail=f"Failed to load point cloud component '{path.name}'")
+        if data.ndim >= 3:
+            data = data[:, :, 0]
+        if data.dtype != np.float32:
+            data = data.astype(np.float32, copy=False)
+
+        shape = data.shape[:2]
+        global _point_cloud_shape
+        if _point_cloud_shape is None:
+            _point_cloud_shape = shape
+        elif _point_cloud_shape != shape:
+            raise HTTPException(status_code=500, detail="Point cloud component dimensions mismatch")
+
+        _point_cloud_cache[axis_lower] = data
+        _point_cloud_mtime[axis_lower] = mtime
+        return data
+
+
+def _sample_point_cloud_pixel(x: int, y: int) -> Dict[str, float]:
+    try:
+        data_x = _get_point_cloud_component("x")
+        data_y = _get_point_cloud_component("y")
+        data_z = _get_point_cloud_component("z")
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover - defensive
+        raise HTTPException(status_code=500, detail="Point cloud cache unavailable") from exc
+
+    height, width = data_x.shape[:2]
+    if not (0 <= x < width and 0 <= y < height):
+        raise HTTPException(status_code=400, detail="Pixel coordinates out of bounds")
+
+    return {
+        "x": float(data_x[y, x]),
+        "y": float(data_y[y, x]),
+        "z": float(data_z[y, x]),
+    }
 
 
 def _resolve_test_image(image_type: str) -> Tuple[Path, str]:
@@ -131,6 +206,15 @@ def _generate_particle_mask_png() -> bytes:
         return buf.tobytes() if ok else b""
     except Exception:
         return b""
+
+
+@router.get("/vision/pointcloud/pixel")
+async def vision_pointcloud_pixel(x: int, y: int) -> Dict[str, Any]:
+    sample = _sample_point_cloud_pixel(int(x), int(y))
+    return {
+        "pixel": {"x": int(x), "y": int(y)},
+        "camera": sample,
+    }
 
 
 @router.get("/image/test")

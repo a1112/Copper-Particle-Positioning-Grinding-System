@@ -62,8 +62,7 @@ Item {
   }
 
   function updateHover(localX, localY) {
-    Cores.CoreDataView.viewPixel=Qt.point(localX, localY)
-    console.log(scaleX," ",scaleY," ",scaleX," ",)
+    Cores.CoreDataView.viewPixel = Qt.point(localX, localY)
     if (scaleX <= 0 || scaleY <= 0) {
       resetHover()
       return
@@ -290,8 +289,8 @@ Item {
       onExited: view.resetHover()
     }
 
-    onWidthChanged: Cores.CoreDataView.viewWidth=width
-    onHeightChanged: Cores.CoreDataView.viewHeight=height
+    onWidthChanged: Cores.CoreDataView.viewWidth = width
+    onHeightChanged: Cores.CoreDataView.viewHeight = height
   }
 
   onPathPointsChanged: pathCanvas.requestPaint()

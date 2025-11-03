@@ -10,6 +10,8 @@ Item {
   property point hoverPixel: Cores.CoreDataView.cursorPixel
   property point hoverWorld: Cores.CoreDataView.cursorWorld
   property bool hoverValid: Cores.CoreDataView.cursorValid
+  property var cameraCoord: Cores.CoreDataView.cursorCamera
+  property bool cameraValid: Cores.CoreDataView.cursorCameraValid
   property real scaleX: 1.0
   property real scaleY: 1.0
 
@@ -70,9 +72,12 @@ Item {
       color: Cores.CoreStyle.text
       font.family: "monospace"
       text: overlay.hoverValid
-            ? qsTr("像素 (%1, %2)\n世界 (%3, %4) mm")
+            ? qsTr("像素 (%1, %2)\n相机 (%3, %4, %5) mm\n世界 (%6, %7) mm")
                 .arg(Math.round(overlay.hoverPixel.x))
                 .arg(Math.round(overlay.hoverPixel.y))
+                .arg(overlay.cameraValid ? overlay.cameraCoord.x.toFixed(3) : "--")
+                .arg(overlay.cameraValid ? overlay.cameraCoord.y.toFixed(3) : "--")
+                .arg(overlay.cameraValid ? overlay.cameraCoord.z.toFixed(3) : "--")
                 .arg(overlay.hoverWorld.x.toFixed(3))
                 .arg(overlay.hoverWorld.y.toFixed(3))
             : qsTr("移动鼠标查看坐标")
