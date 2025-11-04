@@ -1,8 +1,30 @@
 import QtQuick.Controls
 import QtQuick.Window
+import "../datas" as Datas
 import "./main_menus" as MainMenus
 
 Menu {
+  id: mainMenu
+
+  readonly property string _recordRoot: "D:/SaveData/record"
+
+  function openRecordFolder() {
+    var recordId = Number(Datas.TaskDatas.latestRecordId || 0)
+    var targetPath = _recordRoot
+    if (recordId > 0)
+      targetPath += "/" + recordId
+    var normalized = targetPath.replace(/\\/g, "/")
+    Qt.openUrlExternally("file:///" + normalized)
+  }
+
+  Menu {
+    title: qsTr("文件")
+    MenuItem {
+      text: qsTr("打开保存位置")
+      onTriggered: mainMenu.openRecordFolder()
+    }
+  }
+
   MainMenus.InterfaceMenu {
     settingsDrawer: settingsDrawer
     settingsPage: settingsPage

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import math
 import shutil
@@ -24,7 +23,6 @@ from app.db.models.MzPoliShineDB import (
     StatusTable,
     WorkpieceTable,
 )
-from app.common import save_data
 
 
 LOG = logging.getLogger("controller.demo_task_runner")
@@ -51,7 +49,6 @@ class DemoTaskRunner:
         self._heartbeat_counter = 0
         self._sim_elapsed = 0.0
         self._last_metrics_timestamp = time.perf_counter()
-        save_data.ensure_records_root()
 
     # ------------------------------------------------------------------ public
 
@@ -280,41 +277,23 @@ class DemoTaskRunner:
     def _complete_capture_task(self, session: Session, task: HardwareTaskQueue, detail: dict) -> None:
         record = session.get(RecordTable, task.record_id)
         commands = self._build_demo_commands(record.id if record else task.id)
-        artifacts = self._materialise_capture_payload(task, commands)
+        artifact_folder = None
         if record:
+            artifact_folder = str((APP_CONFIG.SAVE_DATA_ROOT / "record" / str(record.id)).resolve())
             record.r_progress_data = {"stage": "capture_completed", "timestamp": time.time()}
-            image_listing = artifacts.get("images") or {}
-            if isinstance(image_listing, dict):
-                image_files = sorted(image_listing.keys())
-            else:
-                try:
-                    image_files = list(image_listing)
-                except TypeError:
-                    image_files = []
-
             record.r_camera_data = {
                 "frames": 120,
                 "exposure_ms": 12.5,
-                "image_dir": artifacts.get("image_dir"),
-                "images": image_listing,
-                "image_files": image_files,
+                "pending_copy": True,
+                "image_dir": None,
+                "images": {},
             }
-            algorithm_payload = {
+            record.r_algorithm_data = {
                 "commands": commands,
                 "path_preview": self._build_demo_path(commands),
-                "artifact_folder": artifacts.get("folder"),
-                "algorithm_file": artifacts.get("algorithm_file"),
-                "alg_result_path": artifacts.get("alg_result_path"),
-                "image_dir": artifacts.get("image_dir"),
-                "image_files": image_files,
+                "artifact_folder": artifact_folder,
+                "pending_copy": True,
             }
-            if artifacts.get("alg_result") is not None:
-                algorithm_payload["alg_result"] = artifacts.get("alg_result")
-            if artifacts.get("camera_matrix") is not None:
-                algorithm_payload["camera_to_robot_matrix"] = artifacts.get("camera_matrix")
-            if artifacts.get("machine_matrix") is not None:
-                algorithm_payload["machine_matrix"] = artifacts.get("machine_matrix")
-            record.r_algorithm_data = algorithm_payload
             record.r_warning_data = {"level": "info", "message": "Demo capture pipeline finished"}
         detail["phase"] = "completed"
         detail.pop("deadline", None)
@@ -324,10 +303,10 @@ class DemoTaskRunner:
         task.status_params = detail
         self._update_status_table(session, run_status=1, machine_mode=2)
         LOG.info(
-            "Capture task completed (task_id=%s record_id=%s artifacts=%s)",
+            "Capture task completed (task_id=%s record_id=%s artifact_folder=%s)",
             task.id,
             task.record_id,
-            artifacts.get("folder"),
+            artifact_folder,
         )
 
         control_exists = session.execute(
@@ -403,54 +382,6 @@ class DemoTaskRunner:
         )
 
     # --------------------------------------------------------------- utilities
-
-    def _materialise_capture_payload(self, task: HardwareTaskQueue, commands: list[dict]) -> Dict[str, object]:
-        record_ref = int(task.record_id or task.id or 0)
-        folder = save_data.ensure_record_folder(record_ref)
-
-        copied_paths: List[Path] = []
-        if save_data.folder_is_empty(folder):
-            copied_paths = save_data.copy_current_artifacts(folder)
-            if copied_paths:
-                LOG.info("Copied %d capture artifacts into %s", len(copied_paths), folder)
-
-        images_map: Dict[str, str] = {}
-        for path in folder.iterdir():
-            if not path.is_file():
-                continue
-            if path.suffix.lower() in save_data.ALLOWED_ARTIFACT_EXTENSIONS:
-                images_map[path.name] = str(path)
-
-        image_dir = folder
-        if not images_map:
-            image_dir = folder / "image"
-            image_dir.mkdir(parents=True, exist_ok=True)
-            images_map = self._copy_sample_images(image_dir)
-            LOG.debug("Fallback sample images prepared at %s", image_dir)
-
-        alg_result_path, alg_result_data = save_data.copy_alg_result(folder)
-        camera_matrix = None
-        if alg_result_data:
-            camera_matrix = self._normalise_camera_matrix(alg_result_data.get("cameraToRobotHomMat3d"))
-
-        analysis_file = folder / "algorithm.json"
-        with analysis_file.open("w", encoding="utf-8") as fp:
-            json.dump({"commands": commands, "task_id": task.id}, fp, ensure_ascii=False, indent=2)
-
-        if record_ref > 0:
-            save_data.spawn_mesh_builder(record_ref, folder)
-
-        return {
-            "folder": str(folder),
-            "algorithm_file": str(analysis_file),
-            # optional copy for consumers relying on legacy path
-            "alg_result_path": str(alg_result_path) if alg_result_path else None,
-            "alg_result": alg_result_data,
-            "camera_matrix": camera_matrix,
-            "machine_matrix": camera_matrix,
-            "image_dir": str(image_dir),
-            "images": images_map,
-        }
 
     def _build_demo_commands(self, seed: int) -> list[dict]:
         commands: list[dict] = []
@@ -751,14 +682,22 @@ class DemoTaskRunner:
             for row in range(4):
                 matrix.append(values[row * 4:(row + 1) * 4])
         elif len(values) == 12:
-            for row in range(4):
-                base = values[row * 3:(row + 1) * 3]
-                extra = 0.0 if row < 3 else 1.0
-                matrix.append(base + [extra])
+            for row in range(3):
+                matrix.append(values[row * 4:(row + 1) * 4])
         else:
             return None
-        if len(matrix) == 4 and len(matrix[-1]) == 4:
-            matrix[-1][-1] = 1.0
+        if matrix:
+            if len(matrix) == 3:
+                matrix.append([0.0, 0.0, 0.0, 1.0])
+            while len(matrix) < 4:
+                matrix.append([0.0, 0.0, 0.0, 0.0])
+            for row in matrix:
+                while len(row) < 4:
+                    row.append(0.0)
+            matrix[3][0] = 0.0
+            matrix[3][1] = 0.0
+            matrix[3][2] = 0.0
+            matrix[3][3] = 1.0
         return matrix
 
 

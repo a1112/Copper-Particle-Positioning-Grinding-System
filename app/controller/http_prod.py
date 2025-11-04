@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import sys
+import time
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, List, Optional
+
+from sqlalchemy import select
 
 from app import config as APP_CONFIG
+from app.common import save_data
 from app.controller.demo_task_runner import DemoTaskRunner
 from app.controller.http_common import (
     DbStatusSource,
@@ -17,6 +22,11 @@ from app.controller.http_common import (
     run_controller,
 )
 
+try:
+    from app.db.models.MzPoliShineDB import RecordTable  # type: ignore[import-error]
+except Exception:  # pragma: no cover - optional dependency path
+    RecordTable = None  # type: ignore[assignment]
+
 useLocTest = True
 if useLocTest:
     PROD_DB_URL = "mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4"
@@ -25,6 +35,125 @@ else:
 LOG = logging.getLogger("controller.http_prod")
 SAVE_DATA_DIR = APP_CONFIG.SAVE_DATA_ROOT
 LOG_BASE_DIR = Path(APP_CONFIG.PROJECT_ROOT) / "logs" / "controller" / "httpbridge"
+
+
+class TaskRunnerGroup:
+    def __init__(self, runners: Iterable[object]) -> None:
+        self._runners: List[object] = [runner for runner in runners if runner is not None]
+
+    def tick(self) -> None:
+        for runner in self._runners:
+            try:
+                runner.tick()
+            except Exception as exc:  # pragma: no cover - defensive
+                LOG.error("Task runner %s failed: %s", getattr(runner, "__class__", runner), exc)
+
+
+class RecordArtifactRunner:
+    def __init__(self, session_factory) -> None:
+        self._session_factory = session_factory
+
+    def tick(self) -> None:
+        if RecordTable is None:
+            return
+        with self._session_factory() as session:
+            records = (
+                session.execute(select(RecordTable).order_by(RecordTable.id.desc()).limit(25))
+                .scalars()
+                .all()
+            )
+            changed = False
+            for record in records:
+                camera_data = record.r_camera_data or {}
+                algo_data = record.r_algorithm_data or {}
+                if not isinstance(camera_data, dict):
+                    camera_data = {}
+                if not isinstance(algo_data, dict):
+                    algo_data = {}
+                pending = bool(camera_data.get("pending_copy") or algo_data.get("pending_copy"))
+                if not pending:
+                    continue
+
+                folder = save_data.ensure_record_folder(int(record.id))
+                save_data.copy_current_artifacts(folder)
+
+                images_map: dict[str, str] = {}
+                for item in folder.iterdir():
+                    if item.is_file() and item.suffix.lower() in save_data.ALLOWED_ARTIFACT_EXTENSIONS:
+                        images_map[item.name] = str(item)
+
+                alg_path, alg_json = save_data.copy_alg_result(folder)
+                camera_matrix = None
+                if alg_json:
+                    camera_matrix = DemoTaskRunner._normalise_camera_matrix(
+                        alg_json.get("cameraToRobotHomMat3d")
+                    )
+
+                analysis_file = folder / "algorithm.json"
+                try:
+                    with analysis_file.open("w", encoding="utf-8") as fp:
+                        json.dump(
+                            {
+                                "record_id": record.id,
+                                "commands": algo_data.get("commands"),
+                                "copied_at": time.time(),
+                            },
+                            fp,
+                            ensure_ascii=False,
+                            indent=2,
+                        )
+                except Exception as exc:  # pragma: no cover - IO warnings
+                    LOG.warning("Failed to write algorithm.json for record %s: %s", record.id, exc)
+
+                try:
+                    save_data.spawn_mesh_builder(int(record.id), folder)
+                except Exception as exc:  # pragma: no cover - mesh conversion best effort
+                    LOG.warning("Mesh generation skipped for record %s: %s", record.id, exc)
+
+                updated_camera = dict(camera_data)
+                updated_camera.update(
+                    {
+                        "pending_copy": False,
+                        "image_dir": str(folder),
+                        "images": images_map,
+                        "image_files": sorted(images_map.keys()),
+                    }
+                )
+
+                updated_algo = dict(algo_data)
+                updated_algo.update(
+                    {
+                        "pending_copy": False,
+                        "artifact_folder": str(folder),
+                        "algorithm_file": str(analysis_file),
+                        "image_dir": str(folder),
+                        "image_files": sorted(images_map.keys()),
+                    }
+                )
+                if alg_path:
+                    updated_algo["alg_result_path"] = str(alg_path)
+                if alg_json is not None:
+                    updated_algo["alg_result"] = alg_json
+                if camera_matrix is not None:
+                    updated_algo["camera_to_robot_matrix"] = camera_matrix
+                    updated_algo["machine_matrix"] = camera_matrix
+
+                record.r_camera_data = updated_camera
+                record.r_algorithm_data = updated_algo
+                try:
+                    LOG.info(
+                        "Record %s camera_to_robot_matrix=%s",
+                        record.id,
+                        json.dumps(updated_algo.get("camera_to_robot_matrix")),
+                    )
+                except Exception:
+                    pass
+                changed = True
+
+            if changed:
+                session.commit()
+            else:
+                session.rollback()
 
 
 def main(argv: Optional[Iterable[str]] = None) -> None:
@@ -68,15 +197,19 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         status_source = DbStatusSource(args.db_url)
         fallback_source = SimulatedStatusSource()
         task_writer = TaskQueueWriter(status_source.session_factory, engine=status_source.engine)
+        artifact_runner = RecordArtifactRunner(status_source.session_factory)
+        runners: List[object] = [artifact_runner]
         if getattr(args, "spawn_demo_runner", False):
-            task_runner = DemoTaskRunner(
+            demo_runner = DemoTaskRunner(
                 status_source.session_factory,
                 save_dir=SAVE_DATA_DIR,
                 task_writer=task_writer,
             )
-            LOG.info("Inline DemoTaskRunner 已启用 (--spawn-demo-runner)。")
+            LOG.info("Inline DemoTaskRunner enabled (--spawn-demo-runner).")
+            runners.insert(0, demo_runner)
         else:
-            LOG.info("未启用内置 DemoTaskRunner，请单独运行 `python -m app.controller.demo_task_runner`。")
+            LOG.info("DemoTaskRunner disabled; running artifact copy tasks only.")
+        task_runner = TaskRunnerGroup(runners)
     except Exception as exc:
         LOG.error("Unable to initialise production database source: %s", exc)
         raise SystemExit(1) from exc

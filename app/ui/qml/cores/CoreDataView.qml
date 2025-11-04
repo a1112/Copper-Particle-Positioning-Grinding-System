@@ -5,7 +5,7 @@ import "../Api" as Api
 // 图像标定核心工具：提供像素/世界/相机坐标互转及夹具查询
 // 全局数据显示中心
 
-QtObject {
+Item {
   id: root
 
   // 标定图像宽高（像素）
@@ -31,7 +31,7 @@ QtObject {
   // 当前光标像素/机床坐标
   property point cursorPixel: Qt.point(-1, -1)
   property var cursorMachine: Qt.vector3d(0, 0, 0)
-  readonly property alias cursorWorld: cursorMachine
+  readonly property var cursorWorld: cursorMachine
   property bool cursorValid: false
   // 当前光标相机坐标（三维）
   property var cursorCamera: Qt.vector3d(0, 0, 0)
@@ -332,6 +332,7 @@ QtObject {
   }
 
   Connections {
+
     target: Datas.TaskDatas
     function onGcodeDataChanged() {
       var gcode = Datas.TaskDatas.gcodeData || {}

@@ -22,6 +22,7 @@ Row {
 
   CheckDelegateBase {
     text: qsTr("原图")
+    visible: false
     checked: Cores.CoreState.showOriginalSource
     onToggled: Cores.CoreState.showOriginalSource = checked
   }
