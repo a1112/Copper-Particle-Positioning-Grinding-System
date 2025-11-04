@@ -118,7 +118,7 @@ def _sample_point_cloud_pixel(x: int, y: int) -> Dict[str, float]:
     }
 
 
-def _resolve_test_image(image_type: str) -> Tuple[Path, str]:
+def _resolve_test_image(image_type: str, variant: str | None = None) -> Tuple[Path, str]:
     key = (image_type or "").strip()
     if not key:
         key = "color"
@@ -128,10 +128,25 @@ def _resolve_test_image(image_type: str) -> Tuple[Path, str]:
         raise HTTPException(status_code=404, detail="Unsupported image type")
 
     candidates: Iterable[str] = _IMAGE_FILE_CANDIDATES.get(canonical, ())
+    candidates_list = list(candidates)
+    variant_norm = (variant or "").strip().lower()
+
+    if variant_norm == "src":
+        src_first = [item for item in candidates_list if item.lower().startswith("src_")]
+        others = [item for item in candidates_list if item not in src_first]
+        candidates_list = src_first + others
+    else:
+        rts_first = [item for item in candidates_list if item.lower().startswith("rts_")]
+        others = [item for item in candidates_list if item not in rts_first]
+        if variant_norm == "rts" or not variant_norm:
+            candidates_list = rts_first + others
+        else:
+            candidates_list = rts_first + others
+
     if not IMAGE_BASE_DIR.exists():
         raise HTTPException(status_code=404, detail="Image directory not found")
 
-    for candidate in candidates:
+    for candidate in candidates_list:
         path = IMAGE_BASE_DIR / candidate
         if path.exists():
             media_type = mimetypes.guess_type(str(path))[0] or "application/octet-stream"
@@ -219,8 +234,8 @@ async def vision_pointcloud_pixel(x: int, y: int) -> Dict[str, Any]:
 
 
 @router.get("/image/test")
-async def image_test(type: str = "color") -> FileResponse:
-    path, media_type = _resolve_test_image(type)
+async def image_test(type: str = "color", variant: str | None = None) -> FileResponse:
+    path, media_type = _resolve_test_image(type, variant)
     return FileResponse(str(path), media_type=media_type, filename=path.name)
 
 

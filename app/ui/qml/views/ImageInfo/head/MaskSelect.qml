@@ -19,4 +19,10 @@ Row {
     checked: Cores.CoreState.showPathOverlay
     onToggled: Cores.CoreState.showPathOverlay = checked
   }
+
+  CheckDelegateBase {
+    text: qsTr("原图")
+    checked: Cores.CoreState.showOriginalSource
+    onToggled: Cores.CoreState.showOriginalSource = checked
+  }
 }

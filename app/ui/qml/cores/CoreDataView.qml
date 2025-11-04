@@ -28,13 +28,16 @@ QtObject {
   readonly property real viewScaleX: viewWidth > 0 ? imageWidth / viewWidth : 0
   readonly property real viewScaleY: viewHeight > 0 ? imageHeight / viewHeight : 0
 
-  // 当前光标像素/世界坐标
+  // 当前光标像素/机床坐标
   property point cursorPixel: Qt.point(-1, -1)
-  property point cursorWorld: Qt.point(0, 0)
+  property var cursorMachine: Qt.vector3d(0, 0, 0)
+  readonly property alias cursorWorld: cursorMachine
   property bool cursorValid: false
   // 当前光标相机坐标（三维）
   property var cursorCamera: Qt.vector3d(0, 0, 0)
   property bool cursorCameraValid: false
+  // 当前机床转换矩阵（4x4）
+  property var machineMatrix: []
 
   // 内部状态：相机坐标请求管理
   property point _pendingCameraPixel: Qt.point(-1, -1)
@@ -119,7 +122,7 @@ QtObject {
   function setCursor(pixelPoint, worldPoint, valid) {
     if (!valid || !pixelPoint) {
       cursorPixel = Qt.point(-1, -1)
-      cursorWorld = Qt.point(0, 0)
+      cursorMachine = Qt.vector3d(0, 0, 0)
       cursorValid = false
       _resetCamera()
       return
@@ -128,10 +131,13 @@ QtObject {
     var px = Qt.point(Number(pixelPoint.x || 0), Number(pixelPoint.y || 0))
     cursorPixel = px
     if (worldPoint) {
-      cursorWorld = Qt.point(Number(worldPoint.x || 0), Number(worldPoint.y || 0))
+      var wx = Number(worldPoint.x || 0)
+      var wy = Number(worldPoint.y || 0)
+      var wz = Number(worldPoint.z || 0)
+      cursorMachine = Qt.vector3d(wx, wy, wz)
     } else {
       var mapped = imageToWorld(px)
-      cursorWorld = Qt.point(mapped.x, mapped.y)
+      cursorMachine = Qt.vector3d(mapped.x, mapped.y, 0)
     }
     cursorValid = true
     cursorCameraValid = false
@@ -197,6 +203,7 @@ QtObject {
     if (!payload || !payload.camera) {
       cursorCamera = Qt.vector3d(0, 0, 0)
       cursorCameraValid = false
+      cursorMachine = _machineFromPixel(cursorPixel)
       return
     }
     var cam = payload.camera
@@ -206,11 +213,17 @@ QtObject {
     if (!(isFinite(cx) && isFinite(cy) && isFinite(cz))) {
       cursorCamera = Qt.vector3d(0, 0, 0)
       cursorCameraValid = false
+      cursorMachine = _machineFromPixel(cursorPixel)
       return
     }
     cursorCamera = Qt.vector3d(cx, cy, cz)
     cursorCameraValid = true
     _lastCameraPixel = Qt.point(targetPixel.x, targetPixel.y)
+    var machineVec = _transformCameraToMachine(cursorCamera)
+    if (machineVec)
+      cursorMachine = machineVec
+    else if (cursorValid)
+      cursorMachine = _machineFromPixel(cursorPixel)
   }
 
   function _drainPendingCameraRequest() {
@@ -234,5 +247,111 @@ QtObject {
     cursorCameraValid = false
     _pendingCameraPixel = Qt.point(-1, -1)
     _lastCameraPixel = Qt.point(-1, -1)
+    if (cursorValid)
+      cursorMachine = _machineFromPixel(cursorPixel)
+    else
+      cursorMachine = Qt.vector3d(0, 0, 0)
+  }
+
+  function _machineFromPixel(px) {
+    if (!px || px.x === undefined || px.y === undefined)
+      return Qt.vector3d(0, 0, 0)
+    var mapped = imageToWorld({ x: Number(px.x), y: Number(px.y) })
+    return Qt.vector3d(Number(mapped.x || 0), Number(mapped.y || 0), 0)
+  }
+
+  function _transformCameraToMachine(cameraVec) {
+    if (!cameraVec)
+      return null
+    if (!machineMatrix || machineMatrix.length !== 4)
+      return null
+    var rows = machineMatrix
+    for (var i = 0; i < 4; ++i) {
+      if (!rows[i] || rows[i].length < 4)
+        return null
+    }
+    var x = Number(cameraVec.x || 0)
+    var y = Number(cameraVec.y || 0)
+    var z = Number(cameraVec.z || 0)
+    var w = 1.0
+    var mx = rows[0][0] * x + rows[0][1] * y + rows[0][2] * z + rows[0][3] * w
+    var my = rows[1][0] * x + rows[1][1] * y + rows[1][2] * z + rows[1][3] * w
+    var mz = rows[2][0] * x + rows[2][1] * y + rows[2][2] * z + rows[2][3] * w
+    return Qt.vector3d(mx, my, mz)
+  }
+
+  function _normaliseMatrix(value) {
+    if (!value)
+      return []
+    var rows = []
+    if (Array.isArray(value)) {
+      if (Array.isArray(value[0])) {
+        for (var i = 0; i < value.length && rows.length < 4; ++i) {
+          var row = value[i]
+          if (!Array.isArray(row))
+            continue
+          var copy = [Number(row[0] || 0), Number(row[1] || 0), Number(row[2] || 0), Number(row[3] || 0)]
+          rows.push(copy)
+        }
+      } else {
+        var flat = []
+        for (var j = 0; j < value.length; ++j)
+          flat.push(Number(value[j] || 0))
+        if (flat.length === 16) {
+          for (var r = 0; r < 4; ++r)
+            rows.push(flat.slice(r * 4, r * 4 + 4))
+        } else if (flat.length === 12) {
+          for (var rr = 0; rr < 4; ++rr) {
+            var base = flat.slice(rr * 3, rr * 3 + 3)
+            rows.push([base[0] || 0, base[1] || 0, base[2] || 0, rr < 3 ? 0 : 1])
+          }
+        }
+      }
+    } else if (typeof value === "object") {
+      var values = []
+      for (var key in value) {
+        if (value.hasOwnProperty(key))
+          values.push(Number(value[key] || 0))
+      }
+      if (values.length === 16) {
+        for (var h = 0; h < 4; ++h)
+          rows.push(values.slice(h * 4, h * 4 + 4))
+      }
+    }
+    if (rows.length === 4) {
+      for (var n = 0; n < 4; ++n) {
+        if (!rows[n] || rows[n].length < 4)
+          rows[n] = [0, 0, 0, n < 3 ? 0 : 1]
+      }
+      rows[3][0] = 0
+      rows[3][1] = 0
+      rows[3][2] = 0
+      rows[3][3] = 1
+    }
+    return rows.length === 4 ? rows : []
+  }
+
+  Connections {
+    target: Datas.TaskDatas
+    function onGcodeDataChanged() {
+      var gcode = Datas.TaskDatas.gcodeData || {}
+      var matrix = gcode.camera_to_robot_matrix || gcode.machine_matrix || gcode.machine || null
+      machineMatrix = _normaliseMatrix(matrix)
+      if (!cursorCameraValid && cursorValid)
+        cursorMachine = _machineFromPixel(cursorPixel)
+      else if (cursorCameraValid) {
+        var machineVec = _transformCameraToMachine(cursorCamera)
+        if (machineVec)
+          cursorMachine = machineVec
+      }
+    }
+  }
+
+  Component.onCompleted: {
+    var gcode = Datas.TaskDatas.gcodeData || {}
+    var matrix = gcode.camera_to_robot_matrix || gcode.machine_matrix || gcode.machine || null
+    machineMatrix = _normaliseMatrix(matrix)
+    if (cursorValid)
+      cursorMachine = _machineFromPixel(cursorPixel)
   }
 }

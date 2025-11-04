@@ -30,6 +30,7 @@ Item {
   property string particleMaskSource: ""
   property bool showParticleMask: false
   property bool showPathOverlay: true
+  property bool showOriginalSource: false
   property url meshSourcePath: Qt.platform.os === "windows"
                                ? "file:///D:/SaveData/current/meshes/defaultobject_mesh.mesh"
                                : ""
@@ -37,7 +38,8 @@ Item {
 
   function refreshImageSource() {
     const queryValue = imageTypeQueryMap[current2DShowName] || "color"
-    current2dImageSource = Api.Urls.api("image/test") + "?type=" + queryValue + "&ts=" + Date.now()
+    const variant = showOriginalSource ? "src" : "rts"
+    current2dImageSource = Api.Urls.api("image/test") + "?type=" + queryValue + "&variant=" + variant + "&ts=" + Date.now()
     refreshParticleMaskSource()
     refresh3dModelSource()
   }
@@ -72,6 +74,7 @@ Item {
     else
       particleMaskSource = ""
   }
+  onShowOriginalSourceChanged: refreshImageSource()
   onMeshSourcePathChanged: refresh3dModelSource()
 
   function refreshDataSources() {

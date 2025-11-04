@@ -312,6 +312,8 @@ class DemoTaskRunner:
                 algorithm_payload["alg_result"] = artifacts.get("alg_result")
             if artifacts.get("camera_matrix") is not None:
                 algorithm_payload["camera_to_robot_matrix"] = artifacts.get("camera_matrix")
+            if artifacts.get("machine_matrix") is not None:
+                algorithm_payload["machine_matrix"] = artifacts.get("machine_matrix")
             record.r_algorithm_data = algorithm_payload
             record.r_warning_data = {"level": "info", "message": "Demo capture pipeline finished"}
         detail["phase"] = "completed"
@@ -441,10 +443,11 @@ class DemoTaskRunner:
         return {
             "folder": str(folder),
             "algorithm_file": str(analysis_file),
-             # optional copy for consumers relying on legacy path
+            # optional copy for consumers relying on legacy path
             "alg_result_path": str(alg_result_path) if alg_result_path else None,
             "alg_result": alg_result_data,
             "camera_matrix": camera_matrix,
+            "machine_matrix": camera_matrix,
             "image_dir": str(image_dir),
             "images": images_map,
         }

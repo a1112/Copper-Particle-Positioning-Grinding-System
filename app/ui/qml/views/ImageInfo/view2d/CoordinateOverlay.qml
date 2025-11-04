@@ -8,7 +8,7 @@ Item {
   anchors.fill: parent
 
   property point hoverPixel: Cores.CoreDataView.cursorPixel
-  property point hoverWorld: Cores.CoreDataView.cursorWorld
+  property var machineCoord: Cores.CoreDataView.cursorMachine
   property bool hoverValid: Cores.CoreDataView.cursorValid
   property var cameraCoord: Cores.CoreDataView.cursorCamera
   property bool cameraValid: Cores.CoreDataView.cursorCameraValid
@@ -72,14 +72,15 @@ Item {
       color: Cores.CoreStyle.text
       font.family: "monospace"
       text: overlay.hoverValid
-            ? qsTr("像素 (%1, %2)\n相机 (%3, %4, %5) mm\机床 (%6, %7) mm")
+            ? qsTr("像素 (%1, %2)\n相机 (%3, %4, %5) mm\n机床 (%6, %7, %8) mm")
                 .arg(Math.round(overlay.hoverPixel.x))
                 .arg(Math.round(overlay.hoverPixel.y))
                 .arg(overlay.cameraValid ? overlay.cameraCoord.x.toFixed(3) : "--")
                 .arg(overlay.cameraValid ? overlay.cameraCoord.y.toFixed(3) : "--")
                 .arg(overlay.cameraValid ? overlay.cameraCoord.z.toFixed(3) : "--")
-                .arg(overlay.hoverWorld.x.toFixed(3))
-                .arg(overlay.hoverWorld.y.toFixed(3))
+                .arg(overlay.machineCoord ? overlay.machineCoord.x.toFixed(3) : "--")
+                .arg(overlay.machineCoord ? overlay.machineCoord.y.toFixed(3) : "--")
+                .arg(overlay.machineCoord ? overlay.machineCoord.z.toFixed(3) : "--")
             : qsTr("移动鼠标查看坐标")
     }
   }
