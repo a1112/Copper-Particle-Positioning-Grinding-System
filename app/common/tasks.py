@@ -8,7 +8,7 @@ from typing import Dict
 class TaskType(IntEnum):
     """Supported high-level task categories persisted in hardware_task_queue."""
 
-    CAPTURE = 10
+    CAPTURE = 5
     EXECUTE = 20
     CONTROL = 30
 

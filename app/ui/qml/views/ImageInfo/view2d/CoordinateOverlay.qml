@@ -72,7 +72,7 @@ Item {
       color: Cores.CoreStyle.text
       font.family: "monospace"
       text: overlay.hoverValid
-            ? qsTr("像素 (%1, %2)\n相机 (%3, %4, %5) mm\n世界 (%6, %7) mm")
+            ? qsTr("像素 (%1, %2)\n相机 (%3, %4, %5) mm\机床 (%6, %7) mm")
                 .arg(Math.round(overlay.hoverPixel.x))
                 .arg(Math.round(overlay.hoverPixel.y))
                 .arg(overlay.cameraValid ? overlay.cameraCoord.x.toFixed(3) : "--")

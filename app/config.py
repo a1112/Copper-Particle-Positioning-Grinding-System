@@ -69,6 +69,7 @@ TEST_DATA_DIR: Path = PROJECT_ROOT / "TestData"
 SAVE_DATA_ROOT: Path = Path(_env_text("COPPER_SAVE_DATA_ROOT", r"D:\SaveData") or r"D:\SaveData")
 SAVE_DATA_RECORDS_DIR: Path = SAVE_DATA_ROOT / "record"
 SAVE_DATA_CURRENT_DIR: Path = SAVE_DATA_ROOT / "current"
+SAVE_DATA_ALG_RESULT_PATH: Path = Path(_env_text("COPPER_ALG_RESULT_PATH", str(SAVE_DATA_ROOT / "alg_result.json")) or str(SAVE_DATA_ROOT / "alg_result.json"))
 SAVE_DATA_BALSAM_PATH: Optional[Path] = None
 _balsam_env = _env_text("COPPER_BALSAM_PATH")
 if _balsam_env:

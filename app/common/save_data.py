@@ -6,6 +6,7 @@ import threading
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import json
 from shutil import copy2
 
 from app import config
@@ -17,6 +18,7 @@ ALLOWED_ARTIFACT_EXTENSIONS = {".tif", ".tiff", ".png", ".json"}
 
 _records_root = config.SAVE_DATA_RECORDS_DIR
 _current_dir = config.SAVE_DATA_CURRENT_DIR
+_alg_result_source = config.SAVE_DATA_ALG_RESULT_PATH
 _mesh_threads: Dict[int, threading.Thread] = {}
 _mesh_threads_lock = threading.Lock()
 _mesh_module = None
@@ -68,6 +70,26 @@ def copy_current_artifacts(target_folder: Path) -> List[Path]:
             continue
         copied.append(destination)
     return copied
+
+
+def copy_alg_result(target_folder: Path) -> tuple[Optional[Path], Optional[dict]]:
+    """Copy alg_result.json into the record folder and return its path and parsed content."""
+    if not _alg_result_source.exists():
+        LOG.warning("Algorithm result source missing at %s; skipping copy.", _alg_result_source)
+        return None, None
+    destination = target_folder / "alg_result.json"
+    try:
+        copy2(_alg_result_source, destination)
+    except Exception as exc:  # pragma: no cover - defensive logging
+        LOG.warning("Failed to copy alg_result.json %s -> %s: %s", _alg_result_source, destination, exc)
+        return None, None
+    try:
+        with destination.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except Exception as exc:  # pragma: no cover - defensive logging
+        LOG.warning("Unable to parse alg_result.json at %s: %s", destination, exc)
+        return destination, None
+    return destination, data
 
 
 def spawn_mesh_builder(record_id: int, record_folder: Path) -> None:
@@ -176,6 +198,7 @@ def _load_mesh_module():
 __all__ = [
     "ALLOWED_ARTIFACT_EXTENSIONS",
     "copy_current_artifacts",
+    "copy_alg_result",
     "ensure_record_folder",
     "ensure_records_root",
     "folder_is_empty",

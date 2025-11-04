@@ -43,7 +43,7 @@ class DemoTaskRunner:
         self._session_factory = session_factory
         self._save_dir = save_dir
         self._task_writer = task_writer
-        self._capture_duration = 2.0
+        self._capture_duration = 10.0
         self._control_duration = 1.0
         self._execute_duration = 3.5
         self._default_device_id = 1
@@ -146,13 +146,28 @@ class DemoTaskRunner:
         )
         tasks: Iterable[HardwareTaskQueue] = session.scalars(stmt).all()
         changed = False
+        latest_record_id = 0
+        latest_task_id = 0
+        if tasks:
+            latest_record_id = max(int(task.record_id or 0) for task in tasks)
+            if latest_record_id <= 0:
+                latest_task_id = max(task.id for task in tasks if task.id is not None)
         for task in tasks:
+            record_id = int(task.record_id or 0)
+            if latest_record_id > 0:
+                if record_id != latest_record_id:
+                    continue
+            elif latest_task_id and task.id != latest_task_id:
+                continue
             detail = dict(task.status_params or {})
             now = time.time()
-            if task.status == int(TaskStatus.PENDING):
+            status_pending = task.status == int(TaskStatus.PENDING)
+            status_running = task.status == int(TaskStatus.RUNNING)
+            if status_pending:
                 detail["phase"] = "capturing"
                 detail["started_at"] = now
                 detail["updated_at"] = now
+                detail["deadline"] = now + self._capture_duration
                 task.status = int(TaskStatus.RUNNING)
                 task.status_params = detail
                 self._mark_record_stage(session, task.record_id, "capture_running")
@@ -165,13 +180,22 @@ class DemoTaskRunner:
                 )
                 changed = True
                 continue
-            started_at = float(detail.get("started_at", 0.0))
-            if started_at and now - started_at < self._capture_duration:
-                if detail.get("updated_at", 0.0) != now:
-                    detail["updated_at"] = now
+
+            if status_running:
+                deadline = float(detail.get("deadline", 0.0))
+                if not deadline:
+                    started_at = float(detail.get("started_at", now))
+                    deadline = started_at + self._capture_duration
+                    detail["deadline"] = deadline
                     task.status_params = detail
                     changed = True
-                continue
+                if now < deadline:
+                    if detail.get("updated_at", 0.0) != now:
+                        detail["updated_at"] = now
+                        task.status_params = detail
+                        changed = True
+                    continue
+
             self._complete_capture_task(session, task, detail)
             changed = True
         return changed
@@ -259,21 +283,39 @@ class DemoTaskRunner:
         artifacts = self._materialise_capture_payload(task, commands)
         if record:
             record.r_progress_data = {"stage": "capture_completed", "timestamp": time.time()}
+            image_listing = artifacts.get("images") or {}
+            if isinstance(image_listing, dict):
+                image_files = sorted(image_listing.keys())
+            else:
+                try:
+                    image_files = list(image_listing)
+                except TypeError:
+                    image_files = []
+
             record.r_camera_data = {
                 "frames": 120,
                 "exposure_ms": 12.5,
                 "image_dir": artifacts.get("image_dir"),
-                "images": artifacts.get("images"),
+                "images": image_listing,
+                "image_files": image_files,
             }
-            record.r_algorithm_data = {
+            algorithm_payload = {
                 "commands": commands,
                 "path_preview": self._build_demo_path(commands),
                 "artifact_folder": artifacts.get("folder"),
+                "algorithm_file": artifacts.get("algorithm_file"),
+                "alg_result_path": artifacts.get("alg_result_path"),
                 "image_dir": artifacts.get("image_dir"),
-                "image_files": artifacts.get("images"),
+                "image_files": image_files,
             }
+            if artifacts.get("alg_result") is not None:
+                algorithm_payload["alg_result"] = artifacts.get("alg_result")
+            if artifacts.get("camera_matrix") is not None:
+                algorithm_payload["camera_to_robot_matrix"] = artifacts.get("camera_matrix")
+            record.r_algorithm_data = algorithm_payload
             record.r_warning_data = {"level": "info", "message": "Demo capture pipeline finished"}
         detail["phase"] = "completed"
+        detail.pop("deadline", None)
         detail["finished_at"] = time.time()
         detail["updated_at"] = time.time()
         task.status = int(TaskStatus.COMPLETED)
@@ -370,10 +412,12 @@ class DemoTaskRunner:
             if copied_paths:
                 LOG.info("Copied %d capture artifacts into %s", len(copied_paths), folder)
 
-        images_map: Dict[str, str] = {
-            path.name: str(path) for path in folder.iterdir()
-            if path.is_file() and path.suffix.lower() in save_data.ALLOWED_ARTIFACT_EXTENSIONS
-        }
+        images_map: Dict[str, str] = {}
+        for path in folder.iterdir():
+            if not path.is_file():
+                continue
+            if path.suffix.lower() in save_data.ALLOWED_ARTIFACT_EXTENSIONS:
+                images_map[path.name] = str(path)
 
         image_dir = folder
         if not images_map:
@@ -382,10 +426,14 @@ class DemoTaskRunner:
             images_map = self._copy_sample_images(image_dir)
             LOG.debug("Fallback sample images prepared at %s", image_dir)
 
+        alg_result_path, alg_result_data = save_data.copy_alg_result(folder)
+        camera_matrix = None
+        if alg_result_data:
+            camera_matrix = self._normalise_camera_matrix(alg_result_data.get("cameraToRobotHomMat3d"))
+
         analysis_file = folder / "algorithm.json"
         with analysis_file.open("w", encoding="utf-8") as fp:
             json.dump({"commands": commands, "task_id": task.id}, fp, ensure_ascii=False, indent=2)
-        images_map.setdefault(analysis_file.name, str(analysis_file))
 
         if record_ref > 0:
             save_data.spawn_mesh_builder(record_ref, folder)
@@ -393,6 +441,10 @@ class DemoTaskRunner:
         return {
             "folder": str(folder),
             "algorithm_file": str(analysis_file),
+             # optional copy for consumers relying on legacy path
+            "alg_result_path": str(alg_result_path) if alg_result_path else None,
+            "alg_result": alg_result_data,
+            "camera_matrix": camera_matrix,
             "image_dir": str(image_dir),
             "images": images_map,
         }
@@ -673,6 +725,38 @@ class DemoTaskRunner:
             last_x = x
             last_y = y
         return points
+
+    @staticmethod
+    def _normalise_camera_matrix(raw: object) -> Optional[list[list[float]]]:
+        if raw is None:
+            return None
+        if isinstance(raw, dict):
+            if "data" in raw:
+                raw = raw["data"]
+            else:
+                raw = list(raw.values())
+        if not isinstance(raw, (list, tuple)):
+            return None
+        values: List[float] = []
+        for item in raw:
+            try:
+                values.append(float(item))
+            except (TypeError, ValueError):
+                values.append(0.0)
+        matrix: List[List[float]] = []
+        if len(values) == 16:
+            for row in range(4):
+                matrix.append(values[row * 4:(row + 1) * 4])
+        elif len(values) == 12:
+            for row in range(4):
+                base = values[row * 3:(row + 1) * 3]
+                extra = 0.0 if row < 3 else 1.0
+                matrix.append(base + [extra])
+        else:
+            return None
+        if len(matrix) == 4 and len(matrix[-1]) == 4:
+            matrix[-1][-1] = 1.0
+        return matrix
 
 
 def _parse_cli_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
