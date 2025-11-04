@@ -115,6 +115,7 @@
         <file>qml/views/Log/LogView.qml</file>
         <file>qml/views/Code/CodeView.qml</file>
         <file>qml/views/Base/BaseCard.qml</file>
+        <file>qml/views/Calibration/CalibrationView.qml</file>
         <file>qml/views/Charts/TorqueChart.qml</file>
         <file>qml/views/Charts/ElevationAreaChart.qml</file>
         <file>qml/views/Charts/RpmChart.qml</file>

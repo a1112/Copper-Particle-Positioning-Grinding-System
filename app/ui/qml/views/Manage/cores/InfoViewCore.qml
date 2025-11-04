@@ -33,8 +33,13 @@ BaseCore {
       key: "elevationChart",
       title: qsTr("高度剖面"),
       source: Qt.resolvedUrl("../../Charts/ElevationAreaChart.qml")
+    },
+    {
+      key: "calibration",
+      title: qsTr("标定采集"),
+      source: Qt.resolvedUrl("../../Calibration/CalibrationView.qml")
     }
   ]
 
-  selectedKeys: ["statusLights", "driveMetrics", "toolInfo", "runState"]
+  selectedKeys: ["statusLights", "driveMetrics", "toolInfo", "runState", "calibration"]
 }

@@ -26,17 +26,19 @@ if not defined _PYTHON (
 )
 echo [INFO] Using Python: %_PYTHON%
 
+if not exist "logs" mkdir "logs"
+
 pushd "%ROOT_DIR%"
-"%_PYTHON%" -m app.ui.main
+"%_PYTHON%" -m app.server.run_api
 set "EXIT_CODE=%ERRORLEVEL%"
 popd
 
 if %EXIT_CODE% neq 0 (
     echo.
-    echo [ERROR] UI exited with code %EXIT_CODE%.
+    echo [ERROR] API exited with code %EXIT_CODE%.
 ) else (
     echo.
-    echo [INFO] UI exited normally.
+    echo [INFO] API exited normally.
 )
 
 echo.
