@@ -12,6 +12,7 @@ from sqlalchemy import select
 
 from app import config as APP_CONFIG
 from app.common import save_data
+from app.common.tasks import TaskStatus, TaskType
 from app.controller.demo_task_runner import DemoTaskRunner
 from app.controller.http_common import (
     DbStatusSource,
@@ -23,8 +24,9 @@ from app.controller.http_common import (
 )
 
 try:
-    from app.db.models.MzPoliShineDB import RecordTable  # type: ignore[import-error]
+    from app.db.models.MzPoliShineDB import HardwareTaskQueue, RecordTable  # type: ignore[import-error]
 except Exception:  # pragma: no cover - optional dependency path
+    HardwareTaskQueue = None  # type: ignore[assignment]
     RecordTable = None  # type: ignore[assignment]
 
 useLocTest = True
@@ -54,24 +56,45 @@ class RecordArtifactRunner:
         self._session_factory = session_factory
 
     def tick(self) -> None:
-        if RecordTable is None:
+        if RecordTable is None or HardwareTaskQueue is None:
             return
         with self._session_factory() as session:
-            records = (
-                session.execute(select(RecordTable).order_by(RecordTable.id.desc()).limit(25))
+            capture_tasks = (
+                session.execute(
+                    select(HardwareTaskQueue)
+                    .where(HardwareTaskQueue.task_type == int(TaskType.CAPTURE))
+                    .where(HardwareTaskQueue.status == int(TaskStatus.COMPLETED))
+                    .order_by(HardwareTaskQueue.id.desc())
+                    .limit(50)
+                )
                 .scalars()
                 .all()
             )
+            if not capture_tasks:
+                session.rollback()
+                return
+
             changed = False
-            for record in records:
+            for task in capture_tasks:
+                record_id = int(task.record_id or 0)
+                if record_id <= 0:
+                    continue
+                record = session.get(RecordTable, record_id)
+                if record is None:
+                    continue
+
                 camera_data = record.r_camera_data or {}
                 algo_data = record.r_algorithm_data or {}
                 if not isinstance(camera_data, dict):
                     camera_data = {}
                 if not isinstance(algo_data, dict):
                     algo_data = {}
+
+                existing_images = camera_data.get("image_files") or algo_data.get("image_files") or []
+                artifact_folder = algo_data.get("artifact_folder")
                 pending = bool(camera_data.get("pending_copy") or algo_data.get("pending_copy"))
-                if not pending:
+
+                if existing_images and artifact_folder and not pending:
                     continue
 
                 folder = save_data.ensure_record_folder(int(record.id))
@@ -137,6 +160,7 @@ class RecordArtifactRunner:
                 if camera_matrix is not None:
                     updated_algo["camera_to_robot_matrix"] = camera_matrix
                     updated_algo["machine_matrix"] = camera_matrix
+                updated_algo.setdefault("commands", algo_data.get("commands", []))
 
                 record.r_camera_data = updated_camera
                 record.r_algorithm_data = updated_algo
