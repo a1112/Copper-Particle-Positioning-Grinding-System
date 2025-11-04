@@ -57,12 +57,12 @@
 
 ## 4. 产物目录
 
-- 算法/图像默认写入 `SaveData/record_<record_id>`；
+- 算法/图像默认写入 `SaveData/record/<record_id>`；
 - 示例图像复制自 `TestData/images`；
 - 结构示例：
   ```
   SaveData/
-    record_000001/
+    record/1/
       algorithm.json         # 包含 commands、path_preview
       image/
         color.png

@@ -23,7 +23,7 @@ if useLocTest:
 else:
     PROD_DB_URL = "mysql+pymysql://remote_user:123456@192.168.1.214/MzPoliShineDB?charset=utf8mb4"
 LOG = logging.getLogger("controller.http_prod")
-SAVE_DATA_DIR = Path(APP_CONFIG.PROJECT_ROOT) / "SaveData"
+SAVE_DATA_DIR = APP_CONFIG.SAVE_DATA_ROOT
 LOG_BASE_DIR = Path(APP_CONFIG.PROJECT_ROOT) / "logs" / "controller" / "httpbridge"
 
 

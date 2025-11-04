@@ -66,6 +66,16 @@ RPC_TIMEOUT: float = _env_float("COPPER_RPC_TIMEOUT", 5.0)
 # Project paths and API server defaults shared by server modules.
 PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
 TEST_DATA_DIR: Path = PROJECT_ROOT / "TestData"
+SAVE_DATA_ROOT: Path = Path(_env_text("COPPER_SAVE_DATA_ROOT", r"D:\SaveData") or r"D:\SaveData")
+SAVE_DATA_RECORDS_DIR: Path = SAVE_DATA_ROOT / "record"
+SAVE_DATA_CURRENT_DIR: Path = SAVE_DATA_ROOT / "current"
+SAVE_DATA_BALSAM_PATH: Optional[Path] = None
+_balsam_env = _env_text("COPPER_BALSAM_PATH")
+if _balsam_env:
+    SAVE_DATA_BALSAM_PATH = Path(_balsam_env)
+else:
+    default_balsam = PROJECT_ROOT / "bin" / "balsam.exe"
+    SAVE_DATA_BALSAM_PATH = default_balsam if default_balsam.exists() else None
 
 # API host/port/log-level used by uvicorn when running the public API.
 APP_HOST: str = _env_text("COPPER_APP_HOST", "127.0.0.1") or "127.0.0.1"

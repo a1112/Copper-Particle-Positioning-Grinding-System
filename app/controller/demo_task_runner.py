@@ -9,7 +9,7 @@ import time
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, List, Optional
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
@@ -24,6 +24,7 @@ from app.db.models.MzPoliShineDB import (
     StatusTable,
     WorkpieceTable,
 )
+from app.common import save_data
 
 
 LOG = logging.getLogger("controller.demo_task_runner")
@@ -50,6 +51,7 @@ class DemoTaskRunner:
         self._heartbeat_counter = 0
         self._sim_elapsed = 0.0
         self._last_metrics_timestamp = time.perf_counter()
+        save_data.ensure_records_root()
 
     # ------------------------------------------------------------------ public
 
@@ -359,33 +361,40 @@ class DemoTaskRunner:
     # --------------------------------------------------------------- utilities
 
     def _materialise_capture_payload(self, task: HardwareTaskQueue, commands: list[dict]) -> Dict[str, object]:
-        folder = None
-        payload = task.task_params or {}
-        if not isinstance(payload, dict):
-            payload = {}
-        raw_folder = payload.get("folder")
-        if isinstance(raw_folder, str) and raw_folder:
-            folder = Path(raw_folder)
-        else:
-            record_ref = task.record_id or task.id
-            folder = self._save_dir / f"record_{record_ref:06d}"
-        folder.mkdir(parents=True, exist_ok=True)
+        record_ref = int(task.record_id or task.id or 0)
+        folder = save_data.ensure_record_folder(record_ref)
+
+        copied_paths: List[Path] = []
+        if save_data.folder_is_empty(folder):
+            copied_paths = save_data.copy_current_artifacts(folder)
+            if copied_paths:
+                LOG.info("Copied %d capture artifacts into %s", len(copied_paths), folder)
+
+        images_map: Dict[str, str] = {
+            path.name: str(path) for path in folder.iterdir()
+            if path.is_file() and path.suffix.lower() in save_data.ALLOWED_ARTIFACT_EXTENSIONS
+        }
+
+        image_dir = folder
+        if not images_map:
+            image_dir = folder / "image"
+            image_dir.mkdir(parents=True, exist_ok=True)
+            images_map = self._copy_sample_images(image_dir)
+            LOG.debug("Fallback sample images prepared at %s", image_dir)
+
         analysis_file = folder / "algorithm.json"
         with analysis_file.open("w", encoding="utf-8") as fp:
             json.dump({"commands": commands, "task_id": task.id}, fp, ensure_ascii=False, indent=2)
-        image_dir = folder / "image"
-        image_dir.mkdir(parents=True, exist_ok=True)
-        images = self._copy_sample_images(image_dir)
-        LOG.info(
-            "Capture artifacts prepared at %s (images=%d)",
-            folder,
-            len(images),
-        )
+        images_map.setdefault(analysis_file.name, str(analysis_file))
+
+        if record_ref > 0:
+            save_data.spawn_mesh_builder(record_ref, folder)
+
         return {
             "folder": str(folder),
             "algorithm_file": str(analysis_file),
             "image_dir": str(image_dir),
-            "images": images,
+            "images": images_map,
         }
 
     def _build_demo_commands(self, seed: int) -> list[dict]:
@@ -721,4 +730,3 @@ def _run_cli(argv: Optional[Iterable[str]] = None) -> None:
 
 if __name__ == "__main__":
     _run_cli()
-

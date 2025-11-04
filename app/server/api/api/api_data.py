@@ -21,8 +21,8 @@ from app.common.task_actions import (
     normalise_action,
 )
 from app import config
+from app.common import save_data
 
-SAVE_DATA_DIR = Path(config.PROJECT_ROOT) / 'SaveData'
 CRITICAL_ALARM_LEVEL = 3
 
 
@@ -235,10 +235,7 @@ def delete_workpiece(workpiece_id: int, session: Session = Depends(get_db_sessio
 
 
 def _ensure_save_dir(record_id: int) -> Path:
-    SAVE_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    folder = SAVE_DATA_DIR / f"record_{record_id:06d}"
-    folder.mkdir(parents=True, exist_ok=True)
-    return folder
+    return save_data.ensure_record_folder(record_id)
 
 
 @router.post('/capture')

@@ -10,8 +10,9 @@ from pathlib import Path
 import threading
 
 from ..api_core import image_router as router
+from app import config
 
-IMAGE_BASE_DIR = Path(r"D:\SaveData\current")
+IMAGE_BASE_DIR = config.SAVE_DATA_CURRENT_DIR
 _override_png = IMAGE_BASE_DIR / "src_IMG_Texture_8Bit.png"
 
 _IMAGE_FILE_CANDIDATES: Dict[str, Tuple[str, ...]] = {
