@@ -22,6 +22,7 @@ from app.common.task_actions import (
 )
 from app import config
 from app.common import save_data
+from app.controller.http_common import program
 
 CRITICAL_ALARM_LEVEL = 3
 
@@ -437,8 +438,15 @@ def task_state_summary(
     control_commands = [_serialize_task(row) for row in control_rows]
 
     gcode_payload: Any = None
-    if record and record.r_algorithm_data:
-        gcode_payload = record.r_algorithm_data
+    alg_record_id = record_filter_id if record_filter_id else (record.id if record else None)
+    alg_path, alg_json = save_data.load_alg_result(alg_record_id)
+    if alg_json:
+        try:
+            gcode_payload = program.build_program_payload_from_alg_data(alg_json)
+            if alg_path:
+                gcode_payload["alg_result_path"] = str(alg_path)
+        except Exception:
+            gcode_payload = {"alg_result": alg_json}
 
     alarm_summary = _alarm_summary_for_record(session, record.id if record else None)
 

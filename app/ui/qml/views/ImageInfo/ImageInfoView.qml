@@ -24,7 +24,7 @@ BaseCard {
   property int fixtureRows: 4
   property real fixtureSizeMm: 8
   property real fixtureMarginMm: 6
-  property var calibrationFixtures: Cores.CoreDataView.fixtures
+  property var calibrationFixtures: Datas.CuttingDatas.fixtures
   property var imageDataCore: Cores.CoreDataView
   implicitHeight: col.implicitHeight + 16
   ColumnLayout {

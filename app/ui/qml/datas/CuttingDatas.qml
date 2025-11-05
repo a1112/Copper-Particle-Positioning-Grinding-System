@@ -6,6 +6,7 @@ QtObject {
   id: root
   property bool connected: false
   property var last: ({})
+  property var fixtures: []
   readonly property real feedRate: (last && last.feed_rate !== undefined) ? Number(last.feed_rate) : 0
   readonly property real downfeedTarget: (last && last.downfeed_target !== undefined) ? Number(last.downfeed_target) : 0
   readonly property real downfeedCurrent: (last && last.downfeed_current !== undefined) ? Number(last.downfeed_current) : 0
@@ -21,10 +22,30 @@ QtObject {
       return
     connected = true
     last = payload
+    if (payload.fixtures !== undefined) {
+      if (Array.isArray(payload.fixtures))
+        fixtures = payload.fixtures
+      else
+        fixtures = []
+    }
   }
 
   function reset() {
     connected = false
     last = ({})
+    fixtures = []
+  }
+
+  function setFixtures(value) {
+    if (value === undefined || value === null) {
+      fixtures = []
+      return
+    }
+    if (Array.isArray(value))
+      fixtures = value
+    else if (typeof value === "object")
+      fixtures = [value]
+    else
+      fixtures = []
   }
 }

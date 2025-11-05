@@ -6,7 +6,7 @@ import logging
 import sys
 import time
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 from sqlalchemy import select
 
@@ -22,6 +22,7 @@ from app.controller.http_common import (
     build_parser,
     run_controller,
 )
+from app.controller.http_common import program
 
 try:
     from app.db.models.MzPoliShineDB import HardwareTaskQueue, RecordTable  # type: ignore[import-error]
@@ -83,15 +84,12 @@ class RecordArtifactRunner:
                     continue
 
                 camera_data = record.r_camera_data or {}
-                algo_data = record.r_algorithm_data or {}
                 if not isinstance(camera_data, dict):
                     camera_data = {}
-                if not isinstance(algo_data, dict):
-                    algo_data = {}
 
-                existing_images = camera_data.get("image_files") or algo_data.get("image_files") or []
-                artifact_folder = algo_data.get("artifact_folder")
-                pending = bool(camera_data.get("pending_copy") or algo_data.get("pending_copy"))
+                existing_images = camera_data.get("image_files") or []
+                artifact_folder = camera_data.get("image_dir")
+                pending = bool(camera_data.get("pending_copy"))
 
                 if existing_images and artifact_folder and not pending:
                     continue
@@ -105,11 +103,15 @@ class RecordArtifactRunner:
                         images_map[item.name] = str(item)
 
                 alg_path, alg_json = save_data.copy_alg_result(folder)
-                camera_matrix = None
+                program_payload: Optional[Dict[str, Any]] = None
                 if alg_json:
-                    camera_matrix = DemoTaskRunner._normalise_camera_matrix(
-                        alg_json.get("cameraToRobotHomMat3d")
-                    )
+                    try:
+                        program_payload = program.build_program_payload_from_alg_data(alg_json)
+                    except Exception as exc:  # pragma: no cover - defensive
+                        LOG.warning("Unable to build program payload for record %s: %s", record.id, exc)
+                camera_matrix = None
+                if program_payload:
+                    camera_matrix = program_payload.get("camera_to_robot_matrix")
 
                 analysis_file = folder / "algorithm.json"
                 try:
@@ -117,7 +119,7 @@ class RecordArtifactRunner:
                         json.dump(
                             {
                                 "record_id": record.id,
-                                "commands": algo_data.get("commands"),
+                                "commands": program_payload.get("commands") if program_payload else [],
                                 "copied_at": time.time(),
                             },
                             fp,
@@ -141,33 +143,20 @@ class RecordArtifactRunner:
                         "image_files": sorted(images_map.keys()),
                     }
                 )
-
-                updated_algo = dict(algo_data)
-                updated_algo.update(
-                    {
-                        "pending_copy": False,
-                        "artifact_folder": str(folder),
-                        "algorithm_file": str(analysis_file),
-                        "image_dir": str(folder),
-                        "image_files": sorted(images_map.keys()),
-                    }
-                )
                 if alg_path:
-                    updated_algo["alg_result_path"] = str(alg_path)
-                if alg_json is not None:
-                    updated_algo["alg_result"] = alg_json
+                    updated_camera["alg_result_path"] = str(alg_path)
+                if program_payload and program_payload.get("fixtures"):
+                    updated_camera["fixtures"] = program_payload["fixtures"]
                 if camera_matrix is not None:
-                    updated_algo["camera_to_robot_matrix"] = camera_matrix
-                    updated_algo["machine_matrix"] = camera_matrix
-                updated_algo.setdefault("commands", algo_data.get("commands", []))
+                    updated_camera["camera_to_robot_matrix"] = camera_matrix
+                    updated_camera["machine_matrix"] = camera_matrix
 
                 record.r_camera_data = updated_camera
-                record.r_algorithm_data = updated_algo
                 try:
                     LOG.info(
                         "Record %s camera_to_robot_matrix=%s",
                         record.id,
-                        json.dumps(updated_algo.get("camera_to_robot_matrix")),
+                        json.dumps(updated_camera.get("camera_to_robot_matrix")),
                     )
                 except Exception:
                     pass

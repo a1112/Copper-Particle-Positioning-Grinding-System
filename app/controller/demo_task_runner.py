@@ -8,14 +8,16 @@ import time
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app import config as APP_CONFIG
+from app.common import save_data
 from app.common.tasks import ControlInstruction, TaskStatus, TaskType
 from app.common.task_actions import friendly_action_name, friendly_action_type, normalise_action
+from app.controller.http_common import program
 from app.db.models.MzPoliShineDB import (
     CuttingStatusTable,
     HardwareTaskQueue,
@@ -274,25 +276,54 @@ class DemoTaskRunner:
 
     def _complete_capture_task(self, session: Session, task: HardwareTaskQueue, detail: dict) -> None:
         record = session.get(RecordTable, task.record_id)
-        commands = self._build_demo_commands(record.id if record else task.id)
-        artifact_folder = None
+        commands: List[dict] = []
+        artifact_folder: Optional[str] = None
         if record:
             artifact_folder = str((APP_CONFIG.SAVE_DATA_ROOT / "record" / str(record.id)).resolve())
+            folder = save_data.ensure_record_folder(int(record.id))
+            save_data.copy_current_artifacts(folder)
+            alg_path, alg_json = save_data.copy_alg_result(folder)
+            program_payload: Optional[Dict[str, Any]] = None
+            if alg_json:
+                try:
+                    program_payload = program.build_program_payload_from_alg_data(alg_json)
+                except Exception as exc:  # pragma: no cover - defensive
+                    LOG.warning("Failed to build program payload for record %s: %s", record.id, exc)
+            if program_payload:
+                commands = program_payload.get("commands", [])
+                camera_matrix = program_payload.get("camera_to_robot_matrix")
+                if camera_matrix:
+                    camera_data = dict(record.r_camera_data or {})
+                    camera_data["camera_to_robot_matrix"] = camera_matrix
+                else:
+                    camera_data = dict(record.r_camera_data or {})
+                camera_data.update(
+                    {
+                        "frames": 120,
+                        "exposure_ms": 12.5,
+                        "pending_copy": False,
+                        "image_dir": artifact_folder,
+                        "image_files": [],
+                    }
+                )
+                record.r_camera_data = camera_data
+                if program_payload.get("fixtures"):
+                    warning_data = dict(record.r_warning_data or {})
+                    warning_data["fixtures"] = program_payload["fixtures"]
+                    record.r_warning_data = warning_data
+            else:
+                record.r_camera_data = {
+                    "frames": 120,
+                    "exposure_ms": 12.5,
+                    "pending_copy": True,
+                    "image_dir": None,
+                    "image_files": [],
+                }
             record.r_progress_data = {"stage": "capture_completed", "timestamp": time.time()}
-            record.r_camera_data = {
-                "frames": 120,
-                "exposure_ms": 12.5,
-                "pending_copy": True,
-                "image_dir": None,
-                "images": {},
+            record.r_warning_data = record.r_warning_data or {
+                "level": "info",
+                "message": "Demo capture pipeline finished",
             }
-            record.r_algorithm_data = {
-                "commands": commands,
-                "path_preview": self._build_demo_path(commands),
-                "artifact_folder": artifact_folder,
-                "pending_copy": True,
-            }
-            record.r_warning_data = {"level": "info", "message": "Demo capture pipeline finished"}
         detail["phase"] = "completed"
         detail.pop("deadline", None)
         detail["finished_at"] = time.time()
@@ -380,21 +411,6 @@ class DemoTaskRunner:
         )
 
     # --------------------------------------------------------------- utilities
-
-    def _build_demo_commands(self, seed: int) -> list[dict]:
-        commands: list[dict] = []
-        base = (seed or 1) % 7
-        for idx in range(3):
-            commands.append(
-                {
-                    "ex": round(5.0 + base * 2.0 + idx * 1.5, 3),
-                    "ey": round(3.0 + base * 1.3 + idx * 0.9, 3),
-                    "ez": round(-0.2 - idx * 0.05, 3),
-                    "r": 1100 + idx * 120,
-                    "v": 18.0 + idx * 3.5,
-                }
-            )
-        return commands
 
     def _enqueue_control_command(self, instruction: ControlInstruction, *, index: int, total: int) -> None:
         if self._task_writer is None:
@@ -636,26 +652,6 @@ class DemoTaskRunner:
     def _decimal(value: float, pattern: str) -> Decimal:
         quantize_target = Decimal(pattern)
         return Decimal(str(value)).quantize(quantize_target, rounding=ROUND_HALF_UP)
-
-    def _build_demo_path(self, commands: list[dict]) -> list[dict]:
-        points: list[dict] = []
-        last_x = 0.0
-        last_y = 0.0
-        for index, cmd in enumerate(commands, start=1):
-            x = float(cmd.get("ex", last_x))
-            y = float(cmd.get("ey", last_y))
-            points.append(
-                {
-                    "index": index,
-                    "x": round(x, 3),
-                    "y": round(y, 3),
-                    "z": float(cmd.get("ez", 0.0)),
-                    "velocity": float(cmd.get("v", 0.0)),
-                }
-            )
-            last_x = x
-            last_y = y
-        return points
 
     @staticmethod
     def _normalise_camera_matrix(raw: object) -> Optional[list[list[float]]]:

@@ -35,6 +35,12 @@ QtObject {
           Datas.DeviceInfoData.applyWorkpiece(payload.workpiece)
         if (payload && payload.gcode !== undefined) {
           Cores.CoreCutting.loadProgram(payload.gcode)
+          if (payload.gcode && payload.gcode.fixtures !== undefined)
+            Datas.CuttingDatas.setFixtures(payload.gcode.fixtures)
+          else
+            Datas.CuttingDatas.setFixtures([])
+        } else {
+          Datas.CuttingDatas.setFixtures([])
         }
         var capture = payload && payload.capture ? payload.capture : null
         var captureRecordId = capture && capture.record_id !== undefined ? Number(capture.record_id) : 0

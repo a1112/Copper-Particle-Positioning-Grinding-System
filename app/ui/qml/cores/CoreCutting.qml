@@ -52,6 +52,11 @@ QtObject {
       return commands
     }
     var normalized = []
+    var previewEntries = []
+    if (rawData && rawData.path_preview && Array.isArray(rawData.path_preview))
+      previewEntries = rawData.path_preview
+    else if (rawData && rawData.pathPreview && Array.isArray(rawData.pathPreview))
+      previewEntries = rawData.pathPreview
     var rawLines = rawData
     if (rawLines && rawLines.lines && Array.isArray(rawLines.lines))
       rawLines = rawLines.lines
@@ -75,6 +80,12 @@ QtObject {
 
     if (!normalized.length && rawData && typeof rawData === "object") {
       normalized.push(_normalizeCommand(rawData, 0))
+    }
+
+    if (Array.isArray(previewEntries) && previewEntries.length > 0) {
+      for (var j = 0; j < previewEntries.length; ++j) {
+        normalized.push(_normalizeCommand(previewEntries[j], normalized.length))
+      }
     }
 
     commands = normalized
