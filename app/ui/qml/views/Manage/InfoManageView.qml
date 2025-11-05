@@ -25,7 +25,6 @@ ColumnLayout {
     Layout.fillHeight: true
     contentWidth: availableWidth
     contentHeight: columnContent.implicitHeight
-
     Column {
       id: columnContent
       width: root.width
@@ -47,7 +46,6 @@ ColumnLayout {
         }
       }
     }
-
     ScrollBar.vertical: ScrollBar { }
   }
 }

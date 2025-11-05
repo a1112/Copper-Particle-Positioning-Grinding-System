@@ -48,6 +48,16 @@ DEFAULT_META_OUTPUT = DEFAULT_SOURCE_DIR / "generated_surface_meta.json"
 DEFAULT_META_COPY = Path("TestData") / "models" / "generated_surface_meta.json"
 
 
+def detect_balsam_executable() -> Optional[Path]:
+    """Resolve the PySide6-packaged balsam.exe if available."""
+    try:
+        import PySide6  # type: ignore
+    except ImportError:  # pragma: no cover - optional dependency
+        return None
+    candidate = Path(PySide6.__file__).with_name("balsam.exe")
+    return candidate if candidate.exists() else None
+
+
 @dataclass(frozen=True)
 class PointCloud:
     x: np.ndarray
@@ -128,8 +138,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--balsam",
         type=Path,
-        default=None,
-        help="Path to Qt's balsam.exe to bake a .mesh asset.",
+        default=detect_balsam_executable(),
+        help="Path to Qt's balsam.exe to bake a .mesh asset (defaults to PySide6 install when available).",
     )
     parser.add_argument(
         "--mesh-output",

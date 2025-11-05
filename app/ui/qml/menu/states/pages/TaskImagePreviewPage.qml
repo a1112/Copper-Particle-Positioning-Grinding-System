@@ -4,8 +4,6 @@ import QtQuick.Layouts
 
 import "../../../cores" as Cores
 import "../../../datas" as Datas
-import "../../../components/Base" as BaseComponents
-
 ScrollView {
   id: root
   required property var statePageCore
@@ -66,12 +64,15 @@ ScrollView {
                 border.color: "#1c2840"
                 clip: true
 
-                BaseComponents.BufferedImage {
+                Image {
                   anchors.fill: parent
                   fillMode: Image.PreserveAspectFit
                   asynchronous: true
                   cache: false
                   source: modelData.url
+                  smooth: true
+                  layer.enabled: true
+                  layer.smooth: true
                 }
               }
 

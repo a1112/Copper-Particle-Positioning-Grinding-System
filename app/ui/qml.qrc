@@ -11,7 +11,6 @@
         <file>qml/components/Base/BaseBaseLabel.qml</file>
         <file>qml/components/Base/BaseButton.qml</file>
         <file>qml/components/Base/BaseImage.qml</file>
-        <file>qml/components/Base/BufferedImage.qml</file>
         <file>qml/components/Base/BorderView.qml</file>
         <file>qml/components/Base/CheckDelegateBase.qml</file>
         <file>qml/components/Base/ComboBoxBase.qml</file>
@@ -149,6 +148,9 @@
         <file>qml/views/RunTimeView/RunTimeView.qml</file>
         <file>qml/views/ImageInfo/view2d/View2D.qml</file>
         <file>qml/views/ImageInfo/view2d/CoordinateOverlay.qml</file>
+        <file>qml/views/ImageInfo/view2d/CoordinateInfo.qml</file>
+        <file>qml/views/ImageInfo/view2d/ImageLayer.qml</file>
+        <file>qml/views/ImageInfo/view2d/MaskLayer.qml</file>
         <file>qml/views/ImageInfo/view2d/FixtureOverlay.qml</file>
         <file>qml/views/ImageInfo/view2d/ToolOverlay.qml</file>
         <file>qml/views/ImageInfo/view3d/Control3D.qml</file>
@@ -230,5 +232,6 @@
         <file>qml/views/Control/PTZItemButton.qml</file>
         <file>qml/cores/CoreDataView.qml</file>
         <file>qml/menu/settings/pages/SettingPage/SettingPageView.qml</file>
+        <file>qml/views/ImageInfo/view3d/layer/LabelLayer.qml</file>
     </qresource>
 </RCC>

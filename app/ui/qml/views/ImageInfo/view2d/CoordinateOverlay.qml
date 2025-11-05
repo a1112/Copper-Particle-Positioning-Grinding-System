@@ -14,6 +14,7 @@ Item {
   property bool cameraValid: Cores.CoreDataView.cursorCameraValid
   property real scaleX: 1.0
   property real scaleY: 1.0
+  property bool showLabel: true
 
   function requestUpdate() { cross.requestPaint() }
 
@@ -55,7 +56,7 @@ Item {
 
   Rectangle {
     id: labelBackground
-    visible: overlay.hoverValid
+    visible: overlay.showLabel && overlay.hoverValid
     radius: 6
     color: Qt.rgba(0.05, 0.09, 0.15, 0.85)
     border.color: Qt.rgba(0.4, 0.7, 1.0, 0.6)

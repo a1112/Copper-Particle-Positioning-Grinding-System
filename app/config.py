@@ -10,6 +10,11 @@ import os
 from pathlib import Path
 from typing import Optional
 
+try:  # optional dependency used to locate bundled balsam.exe
+    import PySide6  # type: ignore
+except ImportError:  # pragma: no cover - optional dependency
+    PySide6 = None  # type: ignore[assignment]
+
 
 def _env_bool(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
@@ -75,8 +80,16 @@ _balsam_env = _env_text("COPPER_BALSAM_PATH")
 if _balsam_env:
     SAVE_DATA_BALSAM_PATH = Path(_balsam_env)
 else:
-    default_balsam = PROJECT_ROOT / "bin" / "balsam.exe"
-    SAVE_DATA_BALSAM_PATH = default_balsam if default_balsam.exists() else None
+    default_balsam = None
+    if PySide6 is not None:
+        pyside_balsam = Path(PySide6.__file__).with_name("balsam.exe")
+        if pyside_balsam.exists():
+            default_balsam = pyside_balsam
+    if default_balsam is None:
+        fallback_balsam = PROJECT_ROOT / "bin" / "balsam.exe"
+        if fallback_balsam.exists():
+            default_balsam = fallback_balsam
+    SAVE_DATA_BALSAM_PATH = default_balsam
 
 # API host/port/log-level used by uvicorn when running the public API.
 APP_HOST: str = _env_text("COPPER_APP_HOST", "127.0.0.1") or "127.0.0.1"
