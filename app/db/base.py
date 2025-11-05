@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
-from pathlib import Path
-from typing import Any, Dict, Iterable, Tuple
+from typing import Any, Dict, Tuple
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
@@ -22,14 +21,6 @@ LOCAL_DB_URL = os.getenv(
     "mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
 )
 ENV_DATABASE_URL = os.getenv("DATABASE_URL")
-
-
-def _sqlite_path() -> Path:
-    """Return the local SQLite file path and ensure the directory exists."""
-    root = Path(__file__).resolve().parents[2]
-    db_dir = root / "database"
-    db_dir.mkdir(parents=True, exist_ok=True)
-    return db_dir / "test.db"
 
 
 def _render_url(url: URL) -> str:
@@ -119,24 +110,25 @@ def _select_db_url() -> Tuple[str, URL]:
 
 def _initialise_engine() -> Tuple[Engine, str]:
     label, url = _select_db_url()
-    candidates: Iterable[Tuple[str, URL]] = ((label, url),)
-    last_error: Exception | None = None
-    for label, url in candidates:
-        try:
-            engine = _attempt_connect(url, label)
-            LOG.info("Connected to %s database: %s", label, _render_url(url))
-            return engine, _render_url(url)
-        except (OperationalError, SQLAlchemyError) as exc:
-            LOG.warning("Unable to connect to %s database (%s): %s", label, _render_url(url), exc)
-            last_error = exc
-        except Exception as exc:  # pragma: no cover - defensive path
-            LOG.exception("Unexpected error connecting to %s database %s", label, _render_url(url))
-            last_error = exc
-    if last_error:
-        LOG.warning("Falling back to local SQLite due to previous errors: %s", last_error)
-    sqlite_url = make_url(f"sqlite:///{_sqlite_path()}")
-    engine = _build_engine(sqlite_url)
-    return engine, _render_url(sqlite_url)
+    try:
+        engine = _attempt_connect(url, label)
+        LOG.info("Connected to %s database: %s", label, _render_url(url))
+        return engine, _render_url(url)
+    except (OperationalError, SQLAlchemyError) as exc:
+        LOG.error(
+            "Unable to connect to %s database (%s) and no fallback is configured: %s",
+            label,
+            _render_url(url),
+            exc,
+        )
+        raise
+    except Exception as exc:  # pragma: no cover - defensive path
+        LOG.exception(
+            "Unexpected error connecting to %s database %s and no fallback is configured.",
+            label,
+            _render_url(url),
+        )
+        raise
 
 
 ENGINE, DATABASE_URL = _initialise_engine()

@@ -1,16 +1,15 @@
 # 数据库数据交互说明
 
-面向需要扩展 API、仿真脚本或 UI 数据流的开发者，本文概述 `app/db` 模块的结构以及常见的读写模式。系统默认使用 SQLAlchemy ORM 连接 MySQL，当无法连通远程实例时会自动回退到本地 SQLite，确保仿真环境可用。
+面向需要扩展 API、仿真脚本或 UI 数据流的开发者，本文概述 `app/db` 模块的结构以及常见的读写模式。系统默认使用 SQLAlchemy ORM 连接 MySQL，若连接失败会立即抛出异常，需开发者显式处理配置或网络问题。
 
 ---
 
-## 1. 数据库连接与回退策略
+## 1. 数据库连接与配置
 
 | 优先级 | 连接串 | 说明 |
 | --- | --- | --- |
 | 1 | `mysql+pymysql://mz:123456@192.168.2.32/MzPoliShineDB` | 生产/共享测试库，3s 超时，失败会尝试自动建库 |
-| 2 | `mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB` | 本机 MySQL，沿用相同 schema |
-| 3 | `sqlite:///database/test.db` | 自动创建，保证离线/CI 可运行 |
+| 2 | `mysql+pymysql://root:nercar@127.0.0.1/MzPoliShineDB` | 本机 MySQL，沿用相同 schema（仅当环境变量显式指向本地时启用） |
 
 入口 `app/db/base.py`：
 
