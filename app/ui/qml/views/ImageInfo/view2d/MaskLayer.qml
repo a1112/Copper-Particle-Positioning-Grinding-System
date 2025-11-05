@@ -30,6 +30,6 @@ Item {
     visible: maskLayer.visibleMask && source !== ""
     layer.enabled: true
     layer.smooth: true
-    layer.mipmaps: true
+
   }
 }

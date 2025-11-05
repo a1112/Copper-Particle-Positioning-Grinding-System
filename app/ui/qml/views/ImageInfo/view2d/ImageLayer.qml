@@ -11,7 +11,6 @@ Item {
   property real contentOpacity: 1.0
 
   signal paintedSizeUpdated()
-  signal statusChanged(int status)
 
   implicitWidth: image.implicitWidth
   implicitHeight: image.implicitHeight
@@ -34,7 +33,7 @@ Item {
     opacity: layer.contentOpacity
     layer.enabled: true
     layer.smooth: true
-    layer.mipmaps: true
+
     onStatusChanged: {
       layer.statusChanged(status)
       layer.paintedSizeUpdated()
