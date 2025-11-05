@@ -199,7 +199,6 @@ class TaskQueueWriter:
                     inserted_id,
                 )
             except SQLAlchemyError as exc:
-                session.rollback()
                 LOG.error("Failed to enqueue hardware task action=%s: %s", action, exc)
 
     def enqueue(

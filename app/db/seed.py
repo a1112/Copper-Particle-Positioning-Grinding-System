@@ -58,8 +58,6 @@ def seed_tool_data(session_factory: Iterable[Session] | None = None) -> None:
         session.commit()
         LOG.info("Seeded %d tool records into tool_list", len(records))
     except Exception as exc:
-        if session is not None:
-            session.rollback()
         LOG.warning("Tool data seeding failed: %s", exc, exc_info=False)
     finally:
         if session is not None:
@@ -94,8 +92,6 @@ def seed_workpiece_data(session_factory: Iterable[Session] | None = None) -> Non
         session.commit()
         LOG.info("Seeded default workpiece record id=%s code=%s", record.id, record.w_workpiece_id)
     except Exception as exc:
-        if session is not None:
-            session.rollback()
         LOG.warning("Workpiece data seeding failed: %s", exc, exc_info=False)
     finally:
         if session is not None:
@@ -145,8 +141,6 @@ def seed_status_data(session_factory: Iterable[Session] | None = None) -> None:
         session.commit()
         LOG.info("Seeded default status record id=%s", record.id)
     except Exception as exc:
-        if session is not None:
-            session.rollback()
         LOG.warning("Status data seeding failed: %s", exc, exc_info=False)
     finally:
         if session is not None:
@@ -177,8 +171,6 @@ def seed_cutting_status_data(session_factory: Iterable[Session] | None = None) -
         session.commit()
         LOG.info("Seeded default cutting status record id=%s", record.id)
     except Exception as exc:
-        if session is not None:
-            session.rollback()
         LOG.warning("Cutting status data seeding failed: %s", exc, exc_info=False)
     finally:
         if session is not None:

@@ -255,7 +255,6 @@ class DbStatusSource(StatusSourceProtocol):
             with self._session_factory() as session:
                 row = self._fetch_status(session)
                 if row is not None:
-                    session.rollback()
                     return
                 seed = StatusTable(  # type: ignore[call-arg]
                     id=1,
@@ -343,10 +342,6 @@ class DbStatusSource(StatusSourceProtocol):
         except SQLAlchemyError as exc:
             raise RuntimeError(f"Failed to query StatusTable: {exc}") from exc
         if row is None:
-            try:
-                session.rollback()
-            except Exception:
-                pass
             self._ensure_default_row()
             with self._session_factory() as retry_session:
                 row = self._fetch_status(retry_session)

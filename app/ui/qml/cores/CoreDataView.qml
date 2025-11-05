@@ -30,11 +30,10 @@ Item {
 
   // 当前光标像素/机床坐标
   property point cursorPixel: Qt.point(-1, -1)
-  property var cursorMachine: Qt.vector3d(0, 0, 0)
+  property var cursorMachine: _nanVector()
   readonly property var cursorWorld: cursorMachine
   property bool cursorValid: false
-  // 当前光标相机坐标（三维）
-  property var cursorCamera: Qt.vector3d(0, 0, 0)
+  property var cursorCamera: _nanVector()
   property bool cursorCameraValid: false
   // 当前机床转换矩阵（4x4）
   property var machineMatrix: []
@@ -52,6 +51,10 @@ Item {
   readonly property real pixelPerWorldY: worldHeight !== 0 ? imageHeight / (worldHeight || 1) : 0
 
   // 像素坐标 -> 世界坐标
+  function _nanVector() {
+    return Qt.vector3d(Number.NaN, Number.NaN, Number.NaN)
+  }
+
   function imageToWorld(point) {
     if (!point)
       return { x: originX, y: originY }
@@ -122,7 +125,7 @@ Item {
   function setCursor(pixelPoint, worldPoint, valid) {
     if (!valid || !pixelPoint) {
       cursorPixel = Qt.point(-1, -1)
-      cursorMachine = Qt.vector3d(0, 0, 0)
+      cursorMachine = _nanVector()
       cursorValid = false
       _resetCamera()
       return
@@ -187,8 +190,9 @@ Item {
         _cameraBusy = false
         // 仅当目标像素仍然有效时清空
         if (_isCurrentPixel(targetPixel)) {
-          cursorCamera = Qt.vector3d(0, 0, 0)
+          cursorCamera = _nanVector()
           cursorCameraValid = false
+          cursorMachine = _nanVector()
         }
         _drainPendingCameraRequest()
       }
@@ -201,9 +205,9 @@ Item {
     if (!_isCurrentPixel(targetPixel))
       return
     if (!payload || !payload.camera) {
-      cursorCamera = Qt.vector3d(0, 0, 0)
+      cursorCamera = _nanVector()
       cursorCameraValid = false
-      cursorMachine = _machineFromPixel(cursorPixel)
+      cursorMachine = _nanVector()
       return
     }
     var cam = payload.camera
@@ -211,9 +215,15 @@ Item {
     var cy = Number(cam.y)
     var cz = Number(cam.z)
     if (!(isFinite(cx) && isFinite(cy) && isFinite(cz))) {
-      cursorCamera = Qt.vector3d(0, 0, 0)
+      cursorCamera = _nanVector()
       cursorCameraValid = false
-      cursorMachine = _machineFromPixel(cursorPixel)
+      cursorMachine = _nanVector()
+      return
+    }
+    if (Math.abs(cx) <= 1e-6 && Math.abs(cy) <= 1e-6 && Math.abs(cz) <= 1e-6) {
+      cursorCamera = _nanVector()
+      cursorCameraValid = false
+      cursorMachine = _nanVector()
       return
     }
     cursorCamera = Qt.vector3d(cx, cy, cz)
@@ -222,8 +232,8 @@ Item {
     var machineVec = _transformCameraToMachine(cursorCamera)
     if (machineVec)
       cursorMachine = machineVec
-    else if (cursorValid)
-      cursorMachine = _machineFromPixel(cursorPixel)
+    else
+      cursorMachine = _nanVector()
   }
 
   function _drainPendingCameraRequest() {
@@ -243,14 +253,11 @@ Item {
   }
 
   function _resetCamera() {
-    cursorCamera = Qt.vector3d(0, 0, 0)
+    cursorCamera = _nanVector()
     cursorCameraValid = false
     _pendingCameraPixel = Qt.point(-1, -1)
     _lastCameraPixel = Qt.point(-1, -1)
-    if (cursorValid)
-      cursorMachine = _machineFromPixel(cursorPixel)
-    else
-      cursorMachine = Qt.vector3d(0, 0, 0)
+    cursorMachine = _nanVector()
   }
 
   function _machineFromPixel(px) {

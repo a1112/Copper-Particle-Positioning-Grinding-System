@@ -68,8 +68,6 @@ class DemoTaskRunner:
             changed |= self._heartbeat_cutting_status(session, metrics)
             if changed:
                 session.commit()
-            else:
-                session.rollback()
 
     # ---------------------------------------------------------------- helpers
 
@@ -493,8 +491,7 @@ class DemoTaskRunner:
             if owns_session:
                 session.commit()
         except Exception:
-            if owns_session:
-                session.rollback()
+            pass
         finally:
             if owns_session:
                 session.close()

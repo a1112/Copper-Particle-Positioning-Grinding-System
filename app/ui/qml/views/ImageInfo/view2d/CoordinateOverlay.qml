@@ -75,12 +75,12 @@ Item {
             ? qsTr("像素 (%1, %2)\n相机 (%3, %4, %5) mm\n机床 (%6, %7, %8) mm")
                 .arg(Math.round(overlay.hoverPixel.x))
                 .arg(Math.round(overlay.hoverPixel.y))
-                .arg(overlay.cameraValid ? overlay.cameraCoord.x.toFixed(3) : "--")
-                .arg(overlay.cameraValid ? overlay.cameraCoord.y.toFixed(3) : "--")
-                .arg(overlay.cameraValid ? overlay.cameraCoord.z.toFixed(3) : "--")
-                .arg(overlay.machineCoord ? overlay.machineCoord.x.toFixed(3) : "--")
-                .arg(overlay.machineCoord ? overlay.machineCoord.y.toFixed(3) : "--")
-                .arg(overlay.machineCoord ? overlay.machineCoord.z.toFixed(3) : "--")
+                .arg(overlay.cameraValid && !isNaN(overlay.cameraCoord.x) ? overlay.cameraCoord.x.toFixed(3) : "--")
+                .arg(overlay.cameraValid && !isNaN(overlay.cameraCoord.y) ? overlay.cameraCoord.y.toFixed(3) : "--")
+                .arg(overlay.cameraValid && !isNaN(overlay.cameraCoord.z) ? overlay.cameraCoord.z.toFixed(3) : "--")
+                .arg(overlay.machineCoord && !isNaN(overlay.machineCoord.x) ? overlay.machineCoord.x.toFixed(3) : "--")
+                .arg(overlay.machineCoord && !isNaN(overlay.machineCoord.y) ? overlay.machineCoord.y.toFixed(3) : "--")
+                .arg(overlay.machineCoord && !isNaN(overlay.machineCoord.z) ? overlay.machineCoord.z.toFixed(3) : "--")
             : qsTr("移动鼠标查看坐标")
     }
   }

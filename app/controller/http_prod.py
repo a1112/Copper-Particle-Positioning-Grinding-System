@@ -71,7 +71,6 @@ class RecordArtifactRunner:
                 .all()
             )
             if not capture_tasks:
-                session.rollback()
                 return
 
             changed = False
@@ -176,8 +175,6 @@ class RecordArtifactRunner:
 
             if changed:
                 session.commit()
-            else:
-                session.rollback()
 
 
 def main(argv: Optional[Iterable[str]] = None) -> None:

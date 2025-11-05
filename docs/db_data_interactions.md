@@ -71,7 +71,7 @@ def get_db_session():
 
 - 每个请求独立 Session，确保线程安全。
 - 写操作需 `session.add(...)` → `session.commit()` → `session.refresh(instance)`，否则 UI 获取不到自增主键。
-- 异常路径应显式 `rollback()` 或让 FastAPI 自动在未提交时回滚。
+- FastAPI 会对异常路径自动回滚未提交的事务，因此无需手动调用 `rollback()`。
 
 ### 3.2 后台任务 / 脚本
 
