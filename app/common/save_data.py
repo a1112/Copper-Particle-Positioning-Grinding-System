@@ -92,6 +92,25 @@ def copy_alg_result(target_folder: Path) -> tuple[Optional[Path], Optional[dict]
     return destination, data
 
 
+def load_alg_result(record_id: Optional[int] = None) -> tuple[Optional[Path], Optional[dict]]:
+    """Load alg_result.json for the given record (fallback to current/default)."""
+    candidates: List[Path] = []
+    if record_id is not None and record_id > 0:
+        candidates.append(ensure_records_root() / str(record_id) / "alg_result.json")
+    candidates.append(_current_dir / "alg_result.json")
+    candidates.append(_alg_result_source)
+
+    for path in candidates:
+        try:
+            if path.exists():
+                with path.open("r", encoding="utf-8") as fh:
+                    data = json.load(fh)
+                return path, data
+        except Exception as exc:  # pragma: no cover - defensive logging
+            LOG.warning("Failed to load alg_result from %s: %s", path, exc)
+    return None, None
+
+
 def spawn_mesh_builder(record_id: int, record_folder: Path) -> None:
     """Kick off background mesh generation for the given record."""
     with _mesh_threads_lock:
@@ -199,6 +218,7 @@ __all__ = [
     "ALLOWED_ARTIFACT_EXTENSIONS",
     "copy_current_artifacts",
     "copy_alg_result",
+    "load_alg_result",
     "ensure_record_folder",
     "ensure_records_root",
     "folder_is_empty",

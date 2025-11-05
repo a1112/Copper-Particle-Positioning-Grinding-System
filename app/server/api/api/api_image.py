@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Tuple
+from typing import Any, Dict, Iterable, Optional, Tuple
 
-from fastapi import HTTPException, Response
+from fastapi import HTTPException, Query, Response
 from fastapi.responses import FileResponse
 
 import mimetypes
 from pathlib import Path
-import threading
-
 from ..api_core import image_router as router
 from app import config
+from app.server.data.pointcloud_cache import PointCloudCache, PointCloudError
 
 IMAGE_BASE_DIR = config.SAVE_DATA_CURRENT_DIR
 _override_png = IMAGE_BASE_DIR / "src_IMG_Texture_8Bit.png"
@@ -48,66 +47,24 @@ _POINT_CLOUD_FILENAMES: Dict[str, Path] = {
     "y": IMAGE_BASE_DIR / "src_IMG_PointCloud_Y.tif",
     "z": IMAGE_BASE_DIR / "src_IMG_PointCloud_Z.tif",
 }
-_point_cloud_cache: Dict[str, Any] = {}
-_point_cloud_mtime: Dict[str, float] = {}
-_point_cloud_shape: Tuple[int, int] | None = None
-_point_cloud_lock = threading.Lock()
+_point_cloud_cache = PointCloudCache(
+    current_dir=config.SAVE_DATA_CURRENT_DIR,
+    records_dir=config.SAVE_DATA_RECORDS_DIR,
+    filenames=_POINT_CLOUD_FILENAMES,
+)
 
 
-def _get_point_cloud_component(axis: str):
-    axis_lower = (axis or "").lower()
-    path = _POINT_CLOUD_FILENAMES.get(axis_lower)
-    if path is None:
-        raise HTTPException(status_code=404, detail="Unsupported point cloud axis")
-
-    with _point_cloud_lock:
-        if not path.exists():
-            _point_cloud_cache.pop(axis_lower, None)
-            _point_cloud_mtime.pop(axis_lower, None)
-            raise HTTPException(status_code=404, detail=f"Point cloud source '{path.name}' missing")
-
-        mtime = path.stat().st_mtime
-        cached = _point_cloud_cache.get(axis_lower)
-        if cached is not None and _point_cloud_mtime.get(axis_lower) == mtime:
-            return cached
-
-        try:
-            import cv2
-            import numpy as np
-        except Exception as exc:  # pragma: no cover - dependency missing
-            raise HTTPException(status_code=500, detail="Point cloud support unavailable") from exc
-
-        data = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
-        if data is None:
-            raise HTTPException(status_code=500, detail=f"Failed to load point cloud component '{path.name}'")
-        if data.ndim >= 3:
-            data = data[:, :, 0]
-        if data.dtype != np.float32:
-            data = data.astype(np.float32, copy=False)
-
-        shape = data.shape[:2]
-        global _point_cloud_shape
-        if _point_cloud_shape is None:
-            _point_cloud_shape = shape
-        elif _point_cloud_shape != shape:
-            raise HTTPException(status_code=500, detail="Point cloud component dimensions mismatch")
-
-        _point_cloud_cache[axis_lower] = data
-        _point_cloud_mtime[axis_lower] = mtime
-        return data
-
-
-def _sample_point_cloud_pixel(x: int, y: int) -> Dict[str, float]:
+def _sample_point_cloud_pixel(x: int, y: int, record_id: Optional[int] = None) -> Dict[str, float]:
     try:
-        data_x = _get_point_cloud_component("x")
-        data_y = _get_point_cloud_component("y")
-        data_z = _get_point_cloud_component("z")
-    except HTTPException:
-        raise
-    except Exception as exc:  # pragma: no cover - defensive
-        raise HTTPException(status_code=500, detail="Point cloud cache unavailable") from exc
+        bundle = _point_cloud_cache.get_bundle(record_id)
+    except PointCloudError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
-    height, width = data_x.shape[:2]
+    data_x = bundle.arrays["x"]
+    data_y = bundle.arrays["y"]
+    data_z = bundle.arrays["z"]
+
+    height, width = bundle.shape
     if not (0 <= x < width and 0 <= y < height):
         raise HTTPException(status_code=400, detail="Pixel coordinates out of bounds")
 
@@ -123,17 +80,20 @@ def _lookup_point_cloud_camera(
     y: float,
     z: float | None = None,
     max_radius: float | None = None,
+    record_id: Optional[int] = None,
 ) -> Dict[str, Any]:
     try:
         import numpy as np
 
-        data_x = _get_point_cloud_component("x")
-        data_y = _get_point_cloud_component("y")
-        data_z = _get_point_cloud_component("z")
-    except HTTPException:
-        raise
+        bundle = _point_cloud_cache.get_bundle(record_id)
+    except PointCloudError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
     except Exception as exc:  # pragma: no cover - defensive fallback
         raise HTTPException(status_code=500, detail="Point cloud cache unavailable") from exc
+
+    data_x = bundle.arrays["x"]
+    data_y = bundle.arrays["y"]
+    data_z = bundle.arrays["z"]
 
     if not np.isfinite(x) or not np.isfinite(y):
         raise HTTPException(status_code=400, detail="Camera coordinates must be finite")
@@ -280,8 +240,12 @@ def _generate_particle_mask_png() -> bytes:
 
 
 @router.get("/vision/pointcloud/pixel")
-async def vision_pointcloud_pixel(x: int, y: int) -> Dict[str, Any]:
-    sample = _sample_point_cloud_pixel(int(x), int(y))
+async def vision_pointcloud_pixel(
+    x: int,
+    y: int,
+    record_id: Optional[int] = Query(default=None),
+) -> Dict[str, Any]:
+    sample = _sample_point_cloud_pixel(int(x), int(y), record_id)
     return {
         "pixel": {"x": int(x), "y": int(y)},
         "camera": sample,
@@ -294,8 +258,9 @@ async def vision_pointcloud_lookup(
     y: float,
     z: float | None = None,
     max_radius: float | None = None,
+    record_id: Optional[int] = Query(default=None),
 ) -> Dict[str, Any]:
-    result = _lookup_point_cloud_camera(x, y, z, max_radius)
+    result = _lookup_point_cloud_camera(x, y, z, max_radius, record_id)
     return result
 
 

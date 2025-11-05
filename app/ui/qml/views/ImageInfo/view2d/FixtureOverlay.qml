@@ -62,17 +62,22 @@ Item {
     model: overlay.hasCalibrationFixtures ? overlay.fixtures.length : overlay.fixturePositions.length
     delegate: Item {
       readonly property bool useCalibration: overlay.hasCalibrationFixtures
-      readonly property var fixture: useCalibration ? overlay.fixtures[index] : overlay.fixturePositions[index]
+      readonly property var fixtureSource: useCalibration ? overlay.fixtures : overlay.fixturePositions
+      readonly property var fixture: (fixtureSource && fixtureSource[index]) ? fixtureSource[index] : ({})
       readonly property var rectData: (useCalibration && fixture && fixture.rect) ? fixture.rect : null
 
-      width: useCalibration ? Number((rectData && rectData.width) || 0) * overlay.scaleX
-                             : overlay.fixtureWidthPx * overlay.scaleX
-      height: useCalibration ? Number((rectData && rectData.height) || 0) * overlay.scaleY
-                              : overlay.fixtureHeightPx * overlay.scaleY
-      x: useCalibration ? Number((rectData && rectData.x) || 0) * overlay.scaleX
-                        : fixture.x * overlay.scaleX - width / 2
-      y: useCalibration ? Number((rectData && rectData.y) || 0) * overlay.scaleY
-                        : fixture.y * overlay.scaleY - height / 2
+      width: useCalibration
+             ? Number((rectData && rectData.width) || 0) * overlay.scaleX
+             : overlay.fixtureWidthPx * overlay.scaleX
+      height: useCalibration
+              ? Number((rectData && rectData.height) || 0) * overlay.scaleY
+              : overlay.fixtureHeightPx * overlay.scaleY
+      x: useCalibration
+         ? Number((rectData && rectData.x) || 0) * overlay.scaleX
+         : Number(fixture.x || 0) * overlay.scaleX - width / 2
+      y: useCalibration
+         ? Number((rectData && rectData.y) || 0) * overlay.scaleY
+         : Number(fixture.y || 0) * overlay.scaleY - height / 2
 
       Rectangle {
         anchors.fill: parent
@@ -89,11 +94,17 @@ Item {
                 ? (parent.parent.fixture && parent.parent.fixture.name
                    ? parent.parent.fixture.name
                    : qsTr("夹具%1").arg(index + 1))
-                : qsTr("%1夹具%2").arg(
-                    parent.parent.fixture.edge === "top" ? qsTr("上") :
-                    parent.parent.fixture.edge === "bottom" ? qsTr("下") :
-                    parent.parent.fixture.edge === "left" ? qsTr("左") : qsTr("右")
-                  ).arg(parent.parent.fixture.index + 1)
+                : (function() {
+                    var edge = parent.parent.fixture && parent.parent.fixture.edge ? parent.parent.fixture.edge : ""
+                    var edgeLabel = edge === "top" ? qsTr("上")
+                                    : edge === "bottom" ? qsTr("下")
+                                    : edge === "left" ? qsTr("左")
+                                    : qsTr("右")
+                    var fixtureIndex = parent.parent.fixture && parent.parent.fixture.index !== undefined
+                                       ? parent.parent.fixture.index
+                                       : index
+                    return qsTr("%1夹具%2").arg(edgeLabel).arg(fixtureIndex + 1)
+                  })()
         }
 
         Rectangle {
@@ -104,8 +115,8 @@ Item {
           color: "#f59e0b"
           border.color: "#d97706"
           border.width: 1
-          readonly property real targetX: Number(fixture.rotation_origin.x || 0) * overlay.scaleX
-          readonly property real targetY: Number(fixture.rotation_origin.y || 0) * overlay.scaleY
+          readonly property real targetX: Number((parent.parent.fixture && parent.parent.fixture.rotation_origin && parent.parent.fixture.rotation_origin.x) || 0) * overlay.scaleX
+          readonly property real targetY: Number((parent.parent.fixture && parent.parent.fixture.rotation_origin && parent.parent.fixture.rotation_origin.y) || 0) * overlay.scaleY
           x: targetX - parent.parent.x - width / 2
           y: targetY - parent.parent.y - height / 2
         }
@@ -113,4 +124,3 @@ Item {
     }
   }
 }
-

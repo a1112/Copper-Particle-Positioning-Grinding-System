@@ -26,6 +26,10 @@ Item {
   property real fixtureMarginMm: 6
   property var fixtures: []
   property var calibrationCore: Cores.CoreDataView
+  property int recordId: Datas.TaskDatas.latestRecordId
+  property bool simulateActive: false
+  property int simulateIndex: -1
+  property int simulateIntervalMs: 80
 
   readonly property real fitScale: {
     if (imageWidth <= 0 || imageHeight <= 0 || width <= 0 || height <= 0)
@@ -192,10 +196,64 @@ Item {
     updateHover(mapped.x, mapped.y)
   }
 
+  function startSimulation() {
+    var pts = pathPoints || []
+    if (!pts || pts.length === 0) {
+      stopSimulation()
+      return
+    }
+    simulateIndex = 0
+    simulateActive = true
+    playbackTimer.start()
+    if (typeof pathCanvas !== "undefined")
+      pathCanvas.requestPaint()
+  }
+
+  function stopSimulation() {
+    if (!simulateActive && simulateIndex < 0)
+      return
+    simulateActive = false
+    playbackTimer.stop()
+    if (typeof pathCanvas !== "undefined")
+      pathCanvas.requestPaint()
+  }
+
+  function toggleSimulation() {
+    if (simulateActive)
+      stopSimulation()
+    else
+      startSimulation()
+  }
+
+  function _stepSimulation() {
+    if (!simulateActive) {
+      playbackTimer.stop()
+      return
+    }
+    var pts = pathPoints || []
+    if (!pts || pts.length === 0) {
+      stopSimulation()
+      return
+    }
+    if (simulateIndex < 0 || simulateIndex >= pts.length)
+      simulateIndex = 0
+    else
+      simulateIndex = (simulateIndex + 1) % pts.length
+    if (typeof pathCanvas !== "undefined")
+      pathCanvas.requestPaint()
+  }
+
   Rectangle {
     anchors.fill: parent
     radius: 4
     color: Cores.CoreStyle.background
+  }
+
+  Timer {
+    id: playbackTimer
+    interval: Math.max(20, view.simulateIntervalMs)
+    repeat: true
+    onTriggered: view._stepSimulation()
   }
 
   Item {
@@ -279,39 +337,69 @@ Item {
             ctx.stroke()
 
             var pts = view.pathPoints || []
-            if (!pts || pts.length < 2)
+            var count = Array.isArray(pts) ? pts.length : 0
+
+            if (count >= 2) {
+              var strokeColor = Cores.CoreCutting.runState === "RUNNING"
+                                ? Cores.CoreStyle.accent
+                                : Cores.CoreStyle.info
+              ctx.strokeStyle = strokeColor
+              ctx.lineWidth = 2
+              ctx.beginPath()
+              for (var i = 0; i < count; ++i) {
+                var px = pts[i].x * view.scaleX
+                var py = pts[i].y * view.scaleY
+                if (i === 0)
+                  ctx.moveTo(px, py)
+                else
+                  ctx.lineTo(px, py)
+              }
+              ctx.stroke()
+            }
+
+            if (count === 0)
               return
 
-            var strokeColor = Cores.CoreCutting.runState === "RUNNING"
-                              ? Cores.CoreStyle.accent
-                              : Cores.CoreStyle.info
-            ctx.strokeStyle = strokeColor
-            ctx.lineWidth = 2
-            ctx.beginPath()
-            for (var i = 0; i < pts.length; ++i) {
-              var px = pts[i].x * view.scaleX
-              var py = pts[i].y * view.scaleY
-              if (i === 0)
-                ctx.moveTo(px, py)
-              else
-                ctx.lineTo(px, py)
+            ctx.lineWidth = 1
+            ctx.font = "10px 'Monospace'"
+            ctx.textAlign = "left"
+            ctx.textBaseline = "top"
+
+            for (var p = 0; p < count; ++p) {
+              var point = pts[p]
+              if (!point)
+                continue
+              var pointX = Number(point.x || 0) * view.scaleX
+              var pointY = Number(point.y || 0) * view.scaleY
+              var isStart = (p === 0)
+              var isEnd = (p === count - 1)
+              var baseColor = isStart ? "#10b981" : (isEnd ? "#ef4444" : "#0ea5e9")
+              var radius = isStart || isEnd ? 4 : 3
+              ctx.beginPath()
+              ctx.fillStyle = baseColor
+              ctx.strokeStyle = "rgba(14,116,144,0.55)"
+              ctx.arc(pointX, pointY, radius, 0, Math.PI * 2)
+              ctx.fill()
+              ctx.stroke()
+
+              if (point.def !== undefined && point.def !== null && point.def !== "") {
+                ctx.fillStyle = Cores.CoreStyle.text
+                ctx.fillText(String(point.def), pointX + 6, pointY - 6)
+              }
             }
-            ctx.stroke()
 
-            var startX = pts[0].x * view.scaleX
-            var startY = pts[0].y * view.scaleY
-            var endX = pts[pts.length - 1].x * view.scaleX
-            var endY = pts[pts.length - 1].y * view.scaleY
-
-            ctx.fillStyle = strokeColor
-            ctx.beginPath()
-            ctx.arc(startX, startY, 4, 0, Math.PI * 2)
-            ctx.fill()
-
-            ctx.fillStyle = Cores.CoreStyle.danger
-            ctx.beginPath()
-            ctx.arc(endX, endY, 4, 0, Math.PI * 2)
-            ctx.fill()
+            if (view.simulateIndex >= 0 && view.simulateIndex < count) {
+              var simPoint = pts[view.simulateIndex]
+              var simX = Number(simPoint.x || 0) * view.scaleX
+              var simY = Number(simPoint.y || 0) * view.scaleY
+              ctx.beginPath()
+              ctx.fillStyle = "#f97316"
+              ctx.strokeStyle = "#fb923c"
+              ctx.lineWidth = 2
+              ctx.arc(simX, simY, 6, 0, Math.PI * 2)
+              ctx.fill()
+              ctx.stroke()
+            }
           }
           onWidthChanged: requestPaint()
           onHeightChanged: requestPaint()
@@ -351,6 +439,7 @@ Item {
           calibrationCore: view.calibrationCore
           scaleX: view.scaleX
           scaleY: view.scaleY
+          recordId: view.recordId
         }
         Layers.CoordinateOverlay {
           id: coordinateLayer
@@ -429,9 +518,29 @@ Item {
     anchors.margins: 12
   }
 
+  Button {
+    id: simulateButton
+    text: view.simulateActive ? qsTr("停止模拟") : qsTr("模拟路径")
+    anchors.top: parent.top
+    anchors.right: parent.right
+    anchors.margins: 12
+    visible: (view.pathPoints && view.pathPoints.length > 0)
+    z: 100
+    onClicked: view.toggleSimulation()
+  }
+
   onPathPointsChanged: {
     if (typeof pathCanvas !== "undefined")
       pathCanvas.requestPaint()
+    var pts = pathPoints || []
+    var count = Array.isArray(pts) ? pts.length : 0
+    if (count === 0) {
+      simulateIndex = -1
+      if (simulateActive)
+        stopSimulation()
+    } else if (simulateIndex >= count) {
+      simulateIndex = count - 1
+    }
   }
   onScaleXChanged: {
     if (typeof pathCanvas !== "undefined")
@@ -495,6 +604,8 @@ Item {
     function onShowPathOverlayChanged() {
       if (typeof pathCanvas !== "undefined")
         pathCanvas.requestPaint()
+      if (!Cores.CoreState.showPathOverlay && view.simulateActive)
+        view.stopSimulation()
     }
     function onParticleMaskSourceChanged() { /* trigger overlay updates via binding */ }
   }
@@ -521,6 +632,17 @@ Item {
     function onMachineMatrixChanged() {
       if (typeof cameraAxes !== "undefined")
         cameraAxes.requestUpdate()
+    }
+  }
+
+  Connections {
+    target: Datas.TaskDatas
+    ignoreUnknownSignals: true
+    function onLatestRecordIdChanged() {
+      if (typeof cameraAxes !== "undefined")
+        cameraAxes.requestUpdate()
+      if (view.simulateActive)
+        view.stopSimulation()
     }
   }
 }

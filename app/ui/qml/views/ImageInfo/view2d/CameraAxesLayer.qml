@@ -13,6 +13,7 @@ Item {
   property var viewItem
   property real scaleX: 1.0
   property real scaleY: 1.0
+  property int recordId: -1
   property point originPixel: Qt.point(-1, -1)
   property point xAxisPixel: Qt.point(-1, -1)
   property point yAxisPixel: Qt.point(-1, -1)
@@ -41,9 +42,13 @@ Item {
       return
     }
 
-    var originPromise = core.cameraToPixel({ x: 0, y: 0, z: 0 })
-    var xPromise = core.cameraToPixel({ x: layer.axisLengthMm, y: 0, z: 0 })
-    var yPromise = core.cameraToPixel({ x: 0, y: layer.axisLengthMm, z: 0 })
+    var lookupOptions = {}
+    if (layer.recordId !== undefined && layer.recordId !== null && layer.recordId > 0)
+      lookupOptions.recordId = layer.recordId
+
+    var originPromise = core.cameraToPixel({ x: 0, y: 0, z: 0 }, lookupOptions)
+    var xPromise = core.cameraToPixel({ x: layer.axisLengthMm, y: 0, z: 0 }, lookupOptions)
+    var yPromise = core.cameraToPixel({ x: 0, y: layer.axisLengthMm, z: 0 }, lookupOptions)
 
     Promise.all([originPromise, xPromise, yPromise]).then(function(results) {
       if (layer._updateToken !== token)
@@ -64,6 +69,7 @@ Item {
   onAxisLengthMmChanged: requestUpdate()
   onViewItemChanged: requestUpdate()
   onCalibrationCoreChanged: requestUpdate()
+  onRecordIdChanged: requestUpdate()
   onScaleXChanged: {
     if (originPixel.x >= 0 && originPixel.y >= 0)
       axesCanvas.requestPaint()

@@ -214,7 +214,12 @@ Item {
     _pendingCameraPixel = Qt.point(-1, -1)
     _cameraRequestId += 1
     var requestId = _cameraRequestId
+    var recordIdValue = Number(Datas.TaskDatas.latestRecordId || 0)
+    if (!isFinite(recordIdValue) || recordIdValue < 0)
+      recordIdValue = 0
     var path = '/vision/pointcloud/pixel?x=' + ix + '&y=' + iy
+    if (recordIdValue > 0)
+      path += '&record_id=' + Math.round(recordIdValue)
     Api.ApiClient.get(path,
       function(resp) {
         _cameraBusy = false
@@ -361,7 +366,19 @@ Item {
   function cameraToPixel(cameraPoint, options) {
     var opts = options || {}
     var vec = _normaliseVector3(cameraPoint)
-    var key = _cameraLookupKey(vec)
+    var recordIdValue = opts.recordId !== undefined && opts.recordId !== null
+                        ? Number(opts.recordId)
+                        : Number(Datas.TaskDatas.latestRecordId || 0)
+    if (!isFinite(recordIdValue) || recordIdValue < 0)
+      recordIdValue = 0
+    var recordKey = recordIdValue > 0 ? Math.round(recordIdValue) : 0
+    var radiusKey = (opts.maxRadius !== undefined && opts.maxRadius !== null)
+                    ? _formatNumberForQuery(opts.maxRadius)
+                    : ""
+    var distanceKey = (opts.maxDistance !== undefined && isFinite(opts.maxDistance))
+                      ? _formatNumberForQuery(opts.maxDistance)
+                      : ""
+    var key = String(recordKey) + "|" + radiusKey + "|" + distanceKey + "|" + _cameraLookupKey(vec)
 
     if (_cameraPixelCache.hasOwnProperty(key)) {
       var cached = _cameraPixelCache[key]
@@ -377,6 +394,8 @@ Item {
     ]
     if (opts.maxRadius !== undefined && opts.maxRadius !== null)
       params.push("max_radius=" + encodeURIComponent(_formatNumberForQuery(opts.maxRadius)))
+    if (recordKey > 0)
+      params.push("record_id=" + encodeURIComponent(String(recordKey)))
 
     var path = "/vision/pointcloud/lookup?" + params.join("&")
 
@@ -401,7 +420,7 @@ Item {
             resolve(Qt.point(-1, -1))
             return
           }
-          var cacheEntry = { x: pxValue, y: pyValue, distance: distance }
+          var cacheEntry = { x: pxValue, y: pyValue, distance: distance, record: recordKey }
           _cameraPixelCache[key] = cacheEntry
           resolve(Qt.point(pxValue, pyValue))
         },
@@ -562,6 +581,9 @@ Item {
         if (machineVec)
           cursorMachine = machineVec
       }
+    }
+    function onLatestRecordIdChanged() {
+      clearCameraPixelCache()
     }
   }
 
