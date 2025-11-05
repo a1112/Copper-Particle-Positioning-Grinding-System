@@ -35,7 +35,7 @@ Item {
     layer.smooth: true
 
     onStatusChanged: {
-      layer.statusChanged(status)
+      // layer.statusChanged(status)
       layer.paintedSizeUpdated()
     }
     onPaintedWidthChanged: layer.paintedSizeUpdated()

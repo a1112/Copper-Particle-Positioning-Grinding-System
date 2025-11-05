@@ -118,6 +118,61 @@ def _sample_point_cloud_pixel(x: int, y: int) -> Dict[str, float]:
     }
 
 
+def _lookup_point_cloud_camera(
+    x: float,
+    y: float,
+    z: float | None = None,
+    max_radius: float | None = None,
+) -> Dict[str, Any]:
+    try:
+        import numpy as np
+
+        data_x = _get_point_cloud_component("x")
+        data_y = _get_point_cloud_component("y")
+        data_z = _get_point_cloud_component("z")
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover - defensive fallback
+        raise HTTPException(status_code=500, detail="Point cloud cache unavailable") from exc
+
+    if not np.isfinite(x) or not np.isfinite(y):
+        raise HTTPException(status_code=400, detail="Camera coordinates must be finite")
+
+    target_x = float(x)
+    target_y = float(y)
+    target_z = float(z) if z is not None else None
+
+    dx = data_x - target_x
+    dy = data_y - target_y
+    dist_sq = dx * dx + dy * dy
+
+    if target_z is not None:
+        dz = data_z - target_z
+        dist_sq = dist_sq + dz * dz
+
+    index = int(np.argmin(dist_sq))
+    rows, cols = data_x.shape[:2]
+    row, col = divmod(index, cols)
+
+    best_dist_sq = float(dist_sq[row, col])
+    best_dist = float(np.sqrt(best_dist_sq))
+
+    if max_radius is not None and best_dist > float(max_radius):
+        raise HTTPException(status_code=404, detail="No point within specified radius")
+
+    result_pixel = {"x": int(col), "y": int(row)}
+    result_camera = {
+        "x": float(data_x[row, col]),
+        "y": float(data_y[row, col]),
+        "z": float(data_z[row, col]),
+    }
+    return {
+        "pixel": result_pixel,
+        "camera": result_camera,
+        "distance": best_dist,
+    }
+
+
 def _resolve_test_image(image_type: str, variant: str | None = None) -> Tuple[Path, str]:
     key = (image_type or "").strip()
     if not key:
@@ -231,6 +286,17 @@ async def vision_pointcloud_pixel(x: int, y: int) -> Dict[str, Any]:
         "pixel": {"x": int(x), "y": int(y)},
         "camera": sample,
     }
+
+
+@router.get("/vision/pointcloud/lookup")
+async def vision_pointcloud_lookup(
+    x: float,
+    y: float,
+    z: float | None = None,
+    max_radius: float | None = None,
+) -> Dict[str, Any]:
+    result = _lookup_point_cloud_camera(x, y, z, max_radius)
+    return result
 
 
 @router.get("/image/test")

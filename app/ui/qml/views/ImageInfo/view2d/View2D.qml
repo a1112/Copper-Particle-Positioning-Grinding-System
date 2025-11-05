@@ -51,6 +51,7 @@ Item {
   property point hoverPixel: Qt.point(-1, -1)
   property point hoverWorld: Qt.point(0, 0)
   property bool hoverValid: false
+  property bool showCameraAxes: true
 
   function worldToPixel(worldPoint) {
     if (!worldPoint || worldPoint.x === undefined || worldPoint.y === undefined)
@@ -200,15 +201,14 @@ Item {
   Item {
     id: viewport
     anchors.fill: parent
-
+    clip: true
     Item {
       id: overlayArea
       width: view.displayWidth
       height: view.displayHeight
       anchors.centerIn: parent
-      visible: captureImage.status === Image.Ready && width > 0 && height > 0
-      clip: true
 
+      visible: captureImage.status === Image.Ready && width > 0 && height > 0
       Item {
         id: contentGroup
         width: overlayArea.width
@@ -242,6 +242,8 @@ Item {
             view._updatePan(view.panOffset)
             pathCanvas.requestPaint()
             coordinateLayer.requestUpdate()
+            if (typeof cameraAxes !== "undefined")
+              cameraAxes.requestUpdate()
           }
         }
         Layers.MaskLayer {
@@ -340,6 +342,16 @@ Item {
           scaleY: view.scaleY
         }
 
+        Layers.CameraAxesLayer {
+          id: cameraAxes
+          anchors.fill: parent
+          z: -1
+          enabled: view.showCameraAxes
+          viewItem: view
+          calibrationCore: view.calibrationCore
+          scaleX: view.scaleX
+          scaleY: view.scaleY
+        }
         Layers.CoordinateOverlay {
           id: coordinateLayer
           anchors.fill: parent
@@ -373,41 +385,42 @@ Item {
         }
       }
 
-      MouseArea {
-        id: interactionArea
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.LeftButton
-        cursorShape: pressed ? Qt.ClosedHandCursor : (view.zoom > 1.0001 ? Qt.OpenHandCursor : Qt.ArrowCursor)
-
-        onPressed: function(mouse) {
-          view._dragLastPos = Qt.point(mouse.x, mouse.y)
-        }
-
-        onPositionChanged: function(mouse) {
-          var localPoint = Qt.point(mouse.x, mouse.y)
-          if (pressed) {
-            var dx = mouse.x - view._dragLastPos.x
-            var dy = mouse.y - view._dragLastPos.y
-            view._applyPanDelta(dx, dy)
-            view._dragLastPos = localPoint
-          }
-          var mapped = contentGroup.mapFromItem(overlayArea, localPoint)
-          view.updateHover(mapped.x, mapped.y)
-        }
-
-        onReleased: view._refreshHover()
-        onCanceled: view._refreshHover()
-        onExited: view.resetHover()
-
-        onWheel: function(wheel) {
-          handleWheelZoom(wheel)
-        }
-      }
-
       onWidthChanged: Cores.CoreDataView.viewWidth = width
       onHeightChanged: Cores.CoreDataView.viewHeight = height
     }
+
+    MouseArea {
+      id: interactionArea
+      anchors.fill: parent
+      hoverEnabled: true
+      acceptedButtons: Qt.LeftButton
+      cursorShape: pressed ? Qt.ClosedHandCursor : (view.zoom > 1.0001 ? Qt.OpenHandCursor : Qt.ArrowCursor)
+
+      onPressed: function(mouse) {
+        view._dragLastPos = Qt.point(mouse.x, mouse.y)
+      }
+
+      onPositionChanged: function(mouse) {
+        var localPoint = Qt.point(mouse.x, mouse.y)
+        if (pressed) {
+          var dx = mouse.x - view._dragLastPos.x
+          var dy = mouse.y - view._dragLastPos.y
+          view._applyPanDelta(dx, dy)
+          view._dragLastPos = localPoint
+        }
+        var mapped = contentGroup.mapFromItem(overlayArea, localPoint)
+        view.updateHover(mapped.x, mapped.y)
+      }
+
+      onReleased: view._refreshHover()
+      onCanceled: view._refreshHover()
+      onExited: view.resetHover()
+
+      onWheel: function(wheel) {
+        handleWheelZoom(wheel)
+      }
+    }
+
   }
 
   Layers.CoordinateInfo {
@@ -452,6 +465,18 @@ Item {
   onHeightChanged: _updatePan(panOffset)
   onDisplayWidthChanged: _updatePan(panOffset)
   onDisplayHeightChanged: _updatePan(panOffset)
+  onCalibrationCoreChanged: {
+    if (typeof cameraAxes !== "undefined")
+      cameraAxes.requestUpdate()
+  }
+  onPixelSizeMmChanged: {
+    if (typeof cameraAxes !== "undefined")
+      cameraAxes.requestUpdate()
+  }
+  onShowCameraAxesChanged: {
+    if (typeof cameraAxes !== "undefined")
+      cameraAxes.requestUpdate()
+  }
 
   Connections {
     target: overlayArea
@@ -472,5 +497,30 @@ Item {
         pathCanvas.requestPaint()
     }
     function onParticleMaskSourceChanged() { /* trigger overlay updates via binding */ }
+  }
+
+  Connections {
+    target: calibrationCore
+    ignoreUnknownSignals: true
+    function onOriginXChanged() {
+      if (typeof cameraAxes !== "undefined")
+        cameraAxes.requestUpdate()
+    }
+    function onOriginYChanged() {
+      if (typeof cameraAxes !== "undefined")
+        cameraAxes.requestUpdate()
+    }
+    function onWorldWidthChanged() {
+      if (typeof cameraAxes !== "undefined")
+        cameraAxes.requestUpdate()
+    }
+    function onWorldHeightChanged() {
+      if (typeof cameraAxes !== "undefined")
+        cameraAxes.requestUpdate()
+    }
+    function onMachineMatrixChanged() {
+      if (typeof cameraAxes !== "undefined")
+        cameraAxes.requestUpdate()
+    }
   }
 }

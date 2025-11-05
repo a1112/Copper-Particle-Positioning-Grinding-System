@@ -233,5 +233,6 @@
         <file>qml/cores/CoreDataView.qml</file>
         <file>qml/menu/settings/pages/SettingPage/SettingPageView.qml</file>
         <file>qml/views/ImageInfo/view3d/layer/LabelLayer.qml</file>
+        <file>qml/views/ImageInfo/view2d/CameraAxesLayer.qml</file>
     </qresource>
 </RCC>

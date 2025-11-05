@@ -37,6 +37,10 @@ Item {
   property bool cursorCameraValid: false
   // 当前机床转换矩阵（4x4）
   property var machineMatrix: []
+  property var cameraMatrix: []
+
+  property var _cameraPixelCache: ({})
+  property var _cameraPixelPending: ({})
 
   // 内部状态：相机坐标请求管理
   property point _pendingCameraPixel: Qt.point(-1, -1)
@@ -76,6 +80,37 @@ Item {
       x: (wx - originX) * pixelPerWorldX,
       y: (wy - originY) * pixelPerWorldY
     }
+  }
+
+  function _normaliseVector3(value) {
+    if (!value)
+      return { x: 0, y: 0, z: 0 }
+    var xVal = value.x !== undefined ? Number(value.x) : Number(value.width || 0)
+    var yVal = value.y !== undefined ? Number(value.y) : Number(value.height || 0)
+    var zRaw = value.z !== undefined ? value.z : (value.depth !== undefined ? value.depth : 0)
+    var zVal = Number(zRaw)
+    return {
+      x: isFinite(xVal) ? xVal : 0,
+      y: isFinite(yVal) ? yVal : 0,
+      z: isFinite(zVal) ? zVal : 0
+    }
+  }
+
+  function _formatNumberForQuery(value) {
+    var num = Number(value)
+    if (!isFinite(num))
+      num = 0
+    return num.toFixed(6)
+  }
+
+  function _cameraLookupKey(cameraPoint) {
+    var vec = _normaliseVector3(cameraPoint)
+    return _formatNumberForQuery(vec.x) + "|" + _formatNumberForQuery(vec.y) + "|" + _formatNumberForQuery(vec.z)
+  }
+
+  function clearCameraPixelCache() {
+    _cameraPixelCache = ({})
+    _cameraPixelPending = ({})
   }
 
   // 根据名称查找夹具
@@ -287,6 +322,106 @@ Item {
     return Qt.vector3d(mx, my, mz)
   }
 
+  function _transformMachineToCamera(machineVec) {
+    if (!machineVec)
+      return null
+    if (!cameraMatrix || cameraMatrix.length !== 4)
+      return null
+    var rows = cameraMatrix
+    for (var i = 0; i < 4; ++i) {
+      if (!rows[i] || rows[i].length < 4)
+        return null
+    }
+    var x = Number(machineVec.x !== undefined ? machineVec.x : machineVec[0] || 0)
+    var y = Number(machineVec.y !== undefined ? machineVec.y : machineVec[1] || 0)
+    var z = Number(machineVec.z !== undefined ? machineVec.z : machineVec[2] || 0)
+    var w = 1.0
+    var cx = rows[0][0] * x + rows[0][1] * y + rows[0][2] * z + rows[0][3] * w
+    var cy = rows[1][0] * x + rows[1][1] * y + rows[1][2] * z + rows[1][3] * w
+    var cz = rows[2][0] * x + rows[2][1] * y + rows[2][2] * z + rows[2][3] * w
+    return { x: cx, y: cy, z: cz }
+  }
+
+  function cameraToMachine(cameraPoint) {
+    var vec = _normaliseVector3(cameraPoint)
+    var transformed = _transformCameraToMachine(Qt.vector3d(vec.x, vec.y, vec.z))
+    if (transformed)
+      return { x: transformed.x, y: transformed.y, z: transformed.z }
+    return vec
+  }
+
+  function machineToCamera(machinePoint) {
+    var vec = _normaliseVector3(machinePoint)
+    var mapped = _transformMachineToCamera(vec)
+    if (mapped)
+      return mapped
+    return vec
+  }
+
+  function cameraToPixel(cameraPoint, options) {
+    var opts = options || {}
+    var vec = _normaliseVector3(cameraPoint)
+    var key = _cameraLookupKey(vec)
+
+    if (_cameraPixelCache.hasOwnProperty(key)) {
+      var cached = _cameraPixelCache[key]
+      return Promise.resolve(Qt.point(cached.x, cached.y))
+    }
+    if (_cameraPixelPending.hasOwnProperty(key))
+      return _cameraPixelPending[key]
+
+    var params = [
+      "x=" + encodeURIComponent(_formatNumberForQuery(vec.x)),
+      "y=" + encodeURIComponent(_formatNumberForQuery(vec.y)),
+      "z=" + encodeURIComponent(_formatNumberForQuery(vec.z))
+    ]
+    if (opts.maxRadius !== undefined && opts.maxRadius !== null)
+      params.push("max_radius=" + encodeURIComponent(_formatNumberForQuery(opts.maxRadius)))
+
+    var path = "/vision/pointcloud/lookup?" + params.join("&")
+
+    var promise = new Promise(function(resolve) {
+      Api.ApiClient.get(path,
+        function(resp) {
+          delete _cameraPixelPending[key]
+          if (!resp || !resp.pixel || resp.pixel.x === undefined || resp.pixel.y === undefined) {
+            resolve(Qt.point(-1, -1))
+            return
+          }
+
+          var distance = resp.distance !== undefined ? Number(resp.distance) : 0
+          if (opts.maxDistance !== undefined && isFinite(opts.maxDistance) && distance > opts.maxDistance) {
+            resolve(Qt.point(-1, -1))
+            return
+          }
+
+          var pxValue = Number(resp.pixel.x)
+          var pyValue = Number(resp.pixel.y)
+          if (!isFinite(pxValue) || !isFinite(pyValue)) {
+            resolve(Qt.point(-1, -1))
+            return
+          }
+          var cacheEntry = { x: pxValue, y: pyValue, distance: distance }
+          _cameraPixelCache[key] = cacheEntry
+          resolve(Qt.point(pxValue, pyValue))
+        },
+        function(status, message) {
+          console.warn("cameraToPixel lookup failed", status, message)
+          delete _cameraPixelPending[key]
+          resolve(Qt.point(-1, -1))
+        }
+      )
+    })
+
+    _cameraPixelPending[key] = promise
+    return promise
+  }
+
+  function machineToPixel(machinePoint, options) {
+    var camera = machineToCamera(machinePoint)
+    return cameraToPixel(camera, options)
+  }
+
   function _normaliseMatrix(value) {
     if (!value)
       return []
@@ -338,13 +473,88 @@ Item {
     return rows.length === 4 ? rows : []
   }
 
+  function _invertMatrix4(matrix) {
+    if (!matrix || matrix.length !== 4)
+      return []
+    var size = 4
+    var src = []
+    var inv = []
+    for (var r = 0; r < size; ++r) {
+      var row = matrix[r]
+      if (!row || row.length < 4)
+        return []
+      for (var c = 0; c < size; ++c) {
+        src[r * size + c] = Number(row[c] || 0)
+        inv[r * size + c] = r === c ? 1 : 0
+      }
+    }
+
+    for (var col = 0; col < size; ++col) {
+      var pivotRow = col
+      var pivotValue = src[col * size + col]
+      var maxAbs = Math.abs(pivotValue)
+      for (var rowSearch = col + 1; rowSearch < size; ++rowSearch) {
+        var candidate = Math.abs(src[rowSearch * size + col])
+        if (candidate > maxAbs) {
+          maxAbs = candidate
+          pivotRow = rowSearch
+        }
+      }
+      if (maxAbs < 1e-9)
+        return []
+
+      if (pivotRow !== col) {
+        for (var swapIndex = 0; swapIndex < size; ++swapIndex) {
+          var srcTmp = src[col * size + swapIndex]
+          src[col * size + swapIndex] = src[pivotRow * size + swapIndex]
+          src[pivotRow * size + swapIndex] = srcTmp
+
+          var invTmp = inv[col * size + swapIndex]
+          inv[col * size + swapIndex] = inv[pivotRow * size + swapIndex]
+          inv[pivotRow * size + swapIndex] = invTmp
+        }
+      }
+
+      pivotValue = src[col * size + col]
+      var invPivot = 1.0 / pivotValue
+      for (var scaleIndex = 0; scaleIndex < size; ++scaleIndex) {
+        src[col * size + scaleIndex] *= invPivot
+        inv[col * size + scaleIndex] *= invPivot
+      }
+
+      for (var rowElim = 0; rowElim < size; ++rowElim) {
+        if (rowElim === col)
+          continue
+        var factor = src[rowElim * size + col]
+        if (Math.abs(factor) < 1e-9)
+          continue
+        for (var elimIndex = 0; elimIndex < size; ++elimIndex) {
+          src[rowElim * size + elimIndex] -= factor * src[col * size + elimIndex]
+          inv[rowElim * size + elimIndex] -= factor * inv[col * size + elimIndex]
+        }
+      }
+    }
+
+    var result = []
+    for (var outRow = 0; outRow < size; ++outRow) {
+      var resultRow = []
+      for (var outCol = 0; outCol < size; ++outCol)
+        resultRow.push(inv[outRow * size + outCol])
+      result.push(resultRow)
+    }
+    return result
+  }
+
   Connections {
 
     target: Datas.TaskDatas
     function onGcodeDataChanged() {
       var gcode = Datas.TaskDatas.gcodeData || {}
       var matrix = gcode.camera_to_robot_matrix || gcode.machine_matrix || gcode.machine || null
-      machineMatrix = _normaliseMatrix(matrix)
+      var normalized = _normaliseMatrix(matrix)
+      machineMatrix = normalized
+      cameraMatrix = normalized.length === 4 ? _invertMatrix4(normalized) : []
+      clearCameraPixelCache()
       if (!cursorCameraValid && cursorValid)
         cursorMachine = _machineFromPixel(cursorPixel)
       else if (cursorCameraValid) {
@@ -358,8 +568,20 @@ Item {
   Component.onCompleted: {
     var gcode = Datas.TaskDatas.gcodeData || {}
     var matrix = gcode.camera_to_robot_matrix || gcode.machine_matrix || gcode.machine || null
-    machineMatrix = _normaliseMatrix(matrix)
+    var normalized = _normaliseMatrix(matrix)
+    machineMatrix = normalized
+    cameraMatrix = normalized.length === 4 ? _invertMatrix4(normalized) : []
+    clearCameraPixelCache()
     if (cursorValid)
       cursorMachine = _machineFromPixel(cursorPixel)
+  }
+
+  Connections {
+    target: Datas.CalibrationData
+    ignoreUnknownSignals: true
+    function onImageWidthChanged() { clearCameraPixelCache() }
+    function onImageHeightChanged() { clearCameraPixelCache() }
+    function onOriginXChanged() { clearCameraPixelCache() }
+    function onOriginYChanged() { clearCameraPixelCache() }
   }
 }
