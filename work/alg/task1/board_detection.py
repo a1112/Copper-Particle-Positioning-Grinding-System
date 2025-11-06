@@ -9,7 +9,6 @@ import numpy as np
 
 from .annotations import BoundingBox, load_labelimg_boxes
 from .config import TaskConfig
-from .data_io import POINT_CLOUD_FILES
 from .models import DownsampledCloud
 
 
