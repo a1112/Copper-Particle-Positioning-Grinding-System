@@ -180,7 +180,6 @@ Page {
             Label { text: qsTr("Y 最大 (mm)"); color: "#e2e8f0" }
             TextFieldBase { text: String(getValue("pre_process.roi.y_max", 0)); onEditingFinished: setNumeric("pre_process.roi.y_max", text) }
           }
-
       }
 
       // Pre-process segmentation
@@ -220,7 +219,7 @@ Page {
             Label { text: qsTr("启用平面距离约束"); color: "#e2e8f0" }
           }
           GridLayout {
-            columns: 2
+            columns:  6
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("采样距离 (mm)"); color: "#e2e8f0" }
@@ -240,12 +239,13 @@ Page {
       // Clustering
       GroupBox {
         title: qsTr("预处理 · 聚类")
+        enabled: false
         Layout.fillWidth: true
         ColumnLayout {
           anchors.fill: parent
           anchors.margins: 12
           GridLayout {
-            columns: 2
+            columns: 6
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("聚类距离阈值"); color: "#e2e8f0" }
@@ -266,7 +266,7 @@ Page {
           anchors.fill: parent
           anchors.margins: 12
           GridLayout {
-            columns: 2
+            columns: 6
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("法线阈值"); color: "#e2e8f0" }
@@ -297,7 +297,7 @@ Page {
 
           Label { text: qsTr("四向气缸区域"); color: "#e2e8f0"; Layout.topMargin: 12 }
           GridLayout {
-            columns: 4
+            columns: 2
             columnSpacing: 10
             rowSpacing: 6
             Repeater {
@@ -312,7 +312,7 @@ Page {
                 spacing: 6
                 Label { text: modelData.label; color: "#cbd5f5" }
                 RowLayout {
-                  spacing: 6
+                  spacing: 3
                   Label { text: qsTr("高度"); color: "#9aa0b5" }
                   TextFieldBase {
                     text: String(getValue("defect.cylinders." + modelData.key + ".height_origin", 0))
@@ -346,7 +346,7 @@ Page {
           anchors.fill: parent
           anchors.margins: 12
           GridLayout {
-            columns: 2
+            columns: 6
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("刀具直径 (mm)"); color: "#e2e8f0" }
@@ -356,7 +356,7 @@ Page {
             Label { text: qsTr("铜板上抬距离"); color: "#e2e8f0" }
             TextFieldBase { text: String(getValue("path_planning.plate_offset", 0)); onEditingFinished: setNumeric("path_planning.plate_offset", text) }
             Label { text: qsTr("Z 进给模式"); color: "#e2e8f0" }
-            ComboBox {
+            ComboBoxBase{
               model: [qsTr("固定进给"), qsTr("线性进给")]
               currentIndex: Number(getValue("path_planning.z_step_mode", 0))
               onActivated: setInteger("path_planning.z_step_mode", index)
@@ -372,7 +372,7 @@ Page {
             Label { text: qsTr("Z 进给最大"); color: "#e2e8f0" }
             TextFieldBase { text: String(getValue("path_planning.z_step_max", 0)); onEditingFinished: setNumeric("path_planning.z_step_max", text) }
             Label { text: qsTr("Y 进给模式"); color: "#e2e8f0" }
-            ComboBox {
+            ComboBoxBase{
               model: [qsTr("固定进给"), qsTr("刀盘系数")]
               currentIndex: Number(getValue("path_planning.y_step_mode", 0))
               onActivated: setInteger("path_planning.y_step_mode", index)
@@ -382,7 +382,7 @@ Page {
             Label { text: qsTr("Y 进给系数"); color: "#e2e8f0" }
             TextFieldBase { text: String(getValue("path_planning.y_step_coeff", 0)); onEditingFinished: setNumeric("path_planning.y_step_coeff", text) }
             Label { text: qsTr("加工排序"); color: "#e2e8f0" }
-            ComboBox {
+            ComboBoxBase{
               model: [qsTr("从上到下"), qsTr("从左到右")]
               currentIndex: Number(getValue("path_planning.sort_mode", 0))
               onActivated: setInteger("path_planning.sort_mode", index)
@@ -415,7 +415,7 @@ Page {
           anchors.fill: parent
           anchors.margins: 12
           GridLayout {
-            columns: 2
+            columns: 6
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("平移 X (mm)"); color: "#e2e8f0" }

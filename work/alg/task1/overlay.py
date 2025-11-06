@@ -86,9 +86,22 @@ def generate_board_outline(
     if result is None:
         result, _ = run_pipeline(config, build_visuals=False)
 
-    mask = result.board_main_region_full
+    mask = result.board_main_region_full.copy()
     fixture_mask = result.fixture_mask_full
     h, w = mask.shape
+
+    if z_range is not None:
+        lower, upper = sorted(z_range)
+        source_z = cv2.imread(str(config.source_dir / POINT_CLOUD_FILES["z"]), cv2.IMREAD_UNCHANGED)
+        if source_z is None:
+            raise FileNotFoundError("Unable to read src_IMG_PointCloud_Z.tif for sizing.")
+        if source_z.ndim == 3:
+            source_z = cv2.cvtColor(source_z, cv2.COLOR_BGR2GRAY)
+        source_z = source_z.astype(np.float32)
+        range_mask = (source_z >= lower) & (source_z <= upper)
+        if range_mask.shape != mask.shape:
+            range_mask = cv2.resize(range_mask.astype(np.uint8), (w, h), interpolation=cv2.INTER_NEAREST).astype(bool)
+        mask &= range_mask
 
     canvas = np.zeros((h, w, 3), dtype=np.uint8)
     canvas[mask] = (180, 180, 180)

@@ -2,8 +2,8 @@
 
 This module operates in pixel space using `D:\SaveData\current\src_IMG_PointCloud_Z.tif` and fixture annotations from `configs/calibration/src_IMG_Color.xml`. The workflow is:
 
-1. Pixels with `Z > reference_plane_z` (default 1765 mm) are set to zero to mark missing depth.
-2. For remaining pixels compute `height_abs = |Z - reference_plane_z|`, giving the convex height relative to the chosen plane.
+1. Pixels with `Z > reference_plane_z` (default 1800 mm) are set to zero to mark missing depth.
+2. Pixels inside the fixture XML are split into board vs clamp by comparing to the global board base height; any point more than ~51 mm above the board is treated as a clamp.
 3. A smoothed base surface is estimated on the board mask; fixture rectangles from the XML are drawn as overlays (no solid fill). Relative protrusion for machining is `height_rel = base_z - Z`.
 4. Pixels with `height_rel >= particle_keep_height` (default 2 mm) outside fixture masks are clustered as particle regions. Toolpaths are planned on the pixel grid for an 80 mm cutter and mapped back to point-cloud coordinates.
 
@@ -13,7 +13,7 @@ This module operates in pixel space using `D:\SaveData\current\src_IMG_PointClou
 python -m work.alg.task1.main \
   --source-dir D:\SaveData\current \
   --output-dir D:\SaveData\current\alg_task1 \
-  --reference-plane-z 1765 \
+  --reference-plane-z 1800 \
   --height-display-max 100 \
   --particle-height 0.8 \
   --tool-diameter 80.0

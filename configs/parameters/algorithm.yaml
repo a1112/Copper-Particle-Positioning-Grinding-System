@@ -1,6 +1,6 @@
 pre_process:
   roi:
-    z_min: 0.0
+    z_min: 11.0
     z_max: 0.0
     x_min: 0.0
     x_max: 0.0
