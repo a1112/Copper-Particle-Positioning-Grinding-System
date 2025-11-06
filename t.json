@@ -1,0 +1,8 @@
+{"action": "manual.single_frame_capture",
+  "params": {"manual": true,
+    "workpiece_id": 1},
+  "device_id": "GRINDER-01",
+  "queued_at": 1761659359.3441784,
+  "task_name": "单帧采集",
+  "action_key": "manual.single_frame_capture",
+  "workpiece_id": 1}
