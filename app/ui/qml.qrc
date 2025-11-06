@@ -234,5 +234,8 @@
         <file>qml/menu/settings/pages/SettingPage/SettingPageView.qml</file>
         <file>qml/views/ImageInfo/view3d/layer/LabelLayer.qml</file>
         <file>qml/views/ImageInfo/view2d/CameraAxesLayer.qml</file>
+        <file>qml/menu/settings/pages/TextFieldBase.qml</file>
+        <file>qml/menu/settings/pages/SettingPage/ComboBoxBase.qml</file>
+        <file>qml/menu/settings/pages/ComboBoxBase.qml</file>
     </qresource>
 </RCC>

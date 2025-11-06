@@ -269,13 +269,6 @@ Popup {
     }
   }
 
-  BusyIndicator {
-    anchors.centerIn: parent
-    visible: loading
-    running: loading
-    z: 10
-  }
-
   Dialog {
     id: exportDialog
     modal: true

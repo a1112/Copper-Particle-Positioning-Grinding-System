@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 Item {
   id: page
+  anchors.fill: parent
   property var data: ({})
 
   function collectPayload() {
@@ -21,8 +22,10 @@ Item {
       color: "#f8fafc"
     }
     Label {
+      anchors.centerIn: parent
+      font.bold: true
+      font.pixelSize: 20
       text: qsTr("暂未开放工艺参数配置。")
-      color: "#94a3b8"
       wrapMode: Text.Wrap
     }
     Item { Layout.fillHeight: true }
