@@ -5,6 +5,7 @@ import "head"
 import "../../Api" as Api
 import "../Base"
 import "../../cores" as Cores
+import "../../datas" as Datas
 import "../../components/btns" as Btns
 import "view2d"
 import "view3d"

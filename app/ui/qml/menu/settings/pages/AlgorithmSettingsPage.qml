@@ -1,9 +1,10 @@
-import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick
 
-Item {
-  id: page
+
+Page {
+  id: page1
   property var data: ({})
   property var formData: defaultTemplate()
 
@@ -140,11 +141,13 @@ Item {
   Flickable {
     anchors.fill: parent
     contentWidth: width
+    contentHeight:col.height
     clip: true
     flickableDirection: Flickable.VerticalFlick
     ScrollBar.vertical: ScrollBar { }
 
     ColumnLayout {
+      id:col
       width: parent.width
       spacing: 16
       anchors.margins: 12
@@ -160,52 +163,45 @@ Item {
       GroupBox {
         title: qsTr("预处理 · 空间 ROI")
         Layout.fillWidth: true
-        ColumnLayout {
-          anchors.fill: parent
-          anchors.margins: 12
           GridLayout {
-            columns: 2
+            columns: 6
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("Z 最小 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.roi.z_min", 0)); onEditingFinished: setNumeric("pre_process.roi.z_min", text) }
+            TextFieldBase { text: String(getValue("pre_process.roi.z_min", 0)); onEditingFinished: setNumeric("pre_process.roi.z_min", text) }
             Label { text: qsTr("Z 最大 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.roi.z_max", 0)); onEditingFinished: setNumeric("pre_process.roi.z_max", text) }
+            TextFieldBase { text: String(getValue("pre_process.roi.z_max", 0)); onEditingFinished: setNumeric("pre_process.roi.z_max", text) }
             Label { text: qsTr("X 最小 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.roi.x_min", 0)); onEditingFinished: setNumeric("pre_process.roi.x_min", text) }
+            TextFieldBase { text: String(getValue("pre_process.roi.x_min", 0)); onEditingFinished: setNumeric("pre_process.roi.x_min", text) }
             Label { text: qsTr("X 最大 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.roi.x_max", 0)); onEditingFinished: setNumeric("pre_process.roi.x_max", text) }
+            TextFieldBase { text: String(getValue("pre_process.roi.x_max", 0)); onEditingFinished: setNumeric("pre_process.roi.x_max", text) }
             Label { text: qsTr("Y 最小 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.roi.y_min", 0)); onEditingFinished: setNumeric("pre_process.roi.y_min", text) }
+            TextFieldBase { text: String(getValue("pre_process.roi.y_min", 0)); onEditingFinished: setNumeric("pre_process.roi.y_min", text) }
             Label { text: qsTr("Y 最大 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.roi.y_max", 0)); onEditingFinished: setNumeric("pre_process.roi.y_max", text) }
+            TextFieldBase { text: String(getValue("pre_process.roi.y_max", 0)); onEditingFinished: setNumeric("pre_process.roi.y_max", text) }
           }
-        }
+
       }
 
       // Pre-process segmentation
       GroupBox {
         title: qsTr("预处理 · 初步分割")
         Layout.fillWidth: true
-        ColumnLayout {
-          anchors.fill: parent
-          anchors.margins: 12
           GridLayout {
-            columns: 2
+            columns: 6
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("领域距离 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.segmentation.distance", 0)); onEditingFinished: setNumeric("pre_process.segmentation.distance", text) }
+            TextFieldBase { text: String(getValue("pre_process.segmentation.distance", 0)); onEditingFinished: setNumeric("pre_process.segmentation.distance", text) }
             Label { text: qsTr("最小点数"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.segmentation.min_points", 0)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pre_process.segmentation.min_points", text) }
+            TextFieldBase { text: String(getValue("pre_process.segmentation.min_points", 0)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pre_process.segmentation.min_points", text) }
             Label { text: qsTr("最大点数"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.segmentation.max_points", 0)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pre_process.segmentation.max_points", text) }
+            TextFieldBase { text: String(getValue("pre_process.segmentation.max_points", 0)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pre_process.segmentation.max_points", text) }
             Label { text: qsTr("直径最小 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.segmentation.diameter_min", 0)); onEditingFinished: setNumeric("pre_process.segmentation.diameter_min", text) }
+            TextFieldBase { text: String(getValue("pre_process.segmentation.diameter_min", 0)); onEditingFinished: setNumeric("pre_process.segmentation.diameter_min", text) }
             Label { text: qsTr("直径最大 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.segmentation.diameter_max", 0)); onEditingFinished: setNumeric("pre_process.segmentation.diameter_max", text) }
+            TextFieldBase { text: String(getValue("pre_process.segmentation.diameter_max", 0)); onEditingFinished: setNumeric("pre_process.segmentation.diameter_max", text) }
           }
-        }
       }
 
       // Plane distance
@@ -228,15 +224,15 @@ Item {
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("采样距离 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.plane_distance.sample_distance", 10)); onEditingFinished: setNumeric("pre_process.plane_distance.sample_distance", text) }
+            TextFieldBase { text: String(getValue("pre_process.plane_distance.sample_distance", 10)); onEditingFinished: setNumeric("pre_process.plane_distance.sample_distance", text) }
             Label { text: qsTr("角度阈值"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.plane_distance.angle_threshold", 1.5)); onEditingFinished: setNumeric("pre_process.plane_distance.angle_threshold", text) }
+            TextFieldBase { text: String(getValue("pre_process.plane_distance.angle_threshold", 1.5)); onEditingFinished: setNumeric("pre_process.plane_distance.angle_threshold", text) }
             Label { text: qsTr("距离阈值"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.plane_distance.distance_threshold", 10)); onEditingFinished: setNumeric("pre_process.plane_distance.distance_threshold", text) }
+            TextFieldBase { text: String(getValue("pre_process.plane_distance.distance_threshold", 10)); onEditingFinished: setNumeric("pre_process.plane_distance.distance_threshold", text) }
             Label { text: qsTr("到平面距离最小"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.plane_distance.plane_distance_min", 3)); onEditingFinished: setNumeric("pre_process.plane_distance.plane_distance_min", text) }
+            TextFieldBase { text: String(getValue("pre_process.plane_distance.plane_distance_min", 3)); onEditingFinished: setNumeric("pre_process.plane_distance.plane_distance_min", text) }
             Label { text: qsTr("到平面距离最大"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.plane_distance.plane_distance_max", 100)); onEditingFinished: setNumeric("pre_process.plane_distance.plane_distance_max", text) }
+            TextFieldBase { text: String(getValue("pre_process.plane_distance.plane_distance_max", 100)); onEditingFinished: setNumeric("pre_process.plane_distance.plane_distance_max", text) }
           }
         }
       }
@@ -253,11 +249,11 @@ Item {
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("聚类距离阈值"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.clustering.distance_threshold", 5)); onEditingFinished: setNumeric("pre_process.clustering.distance_threshold", text) }
+            TextFieldBase { text: String(getValue("pre_process.clustering.distance_threshold", 5)); onEditingFinished: setNumeric("pre_process.clustering.distance_threshold", text) }
             Label { text: qsTr("最小点数"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.clustering.min_points", 5000)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pre_process.clustering.min_points", text) }
+            TextFieldBase { text: String(getValue("pre_process.clustering.min_points", 5000)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pre_process.clustering.min_points", text) }
             Label { text: qsTr("最大点数"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pre_process.clustering.max_points", 5000000)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pre_process.clustering.max_points", text) }
+            TextFieldBase { text: String(getValue("pre_process.clustering.max_points", 5000000)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pre_process.clustering.max_points", text) }
           }
         }
       }
@@ -274,29 +270,29 @@ Item {
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("法线阈值"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.normal_threshold", 0)); onEditingFinished: setNumeric("defect.normal_threshold", text) }
+            TextFieldBase { text: String(getValue("defect.normal_threshold", 0)); onEditingFinished: setNumeric("defect.normal_threshold", text) }
             Label { text: qsTr("左侧偏移"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.cylinder_offset.left", 0)); onEditingFinished: setNumeric("defect.cylinder_offset.left", text) }
+            TextFieldBase { text: String(getValue("defect.cylinder_offset.left", 0)); onEditingFinished: setNumeric("defect.cylinder_offset.left", text) }
             Label { text: qsTr("右侧偏移"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.cylinder_offset.right", 0)); onEditingFinished: setNumeric("defect.cylinder_offset.right", text) }
+            TextFieldBase { text: String(getValue("defect.cylinder_offset.right", 0)); onEditingFinished: setNumeric("defect.cylinder_offset.right", text) }
             Label { text: qsTr("上侧偏移"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.cylinder_offset.up", 0)); onEditingFinished: setNumeric("defect.cylinder_offset.up", text) }
+            TextFieldBase { text: String(getValue("defect.cylinder_offset.up", 0)); onEditingFinished: setNumeric("defect.cylinder_offset.up", text) }
             Label { text: qsTr("下侧偏移"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.cylinder_offset.down", 0)); onEditingFinished: setNumeric("defect.cylinder_offset.down", text) }
+            TextFieldBase { text: String(getValue("defect.cylinder_offset.down", 0)); onEditingFinished: setNumeric("defect.cylinder_offset.down", text) }
             Label { text: qsTr("中心阈值下限"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.bulge_thresholds.center_low", 0)); onEditingFinished: setNumeric("defect.bulge_thresholds.center_low", text) }
+            TextFieldBase { text: String(getValue("defect.bulge_thresholds.center_low", 0)); onEditingFinished: setNumeric("defect.bulge_thresholds.center_low", text) }
             Label { text: qsTr("中心阈值上限"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.bulge_thresholds.center_high", 0)); onEditingFinished: setNumeric("defect.bulge_thresholds.center_high", text) }
+            TextFieldBase { text: String(getValue("defect.bulge_thresholds.center_high", 0)); onEditingFinished: setNumeric("defect.bulge_thresholds.center_high", text) }
             Label { text: qsTr("边缘阈值下限"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.bulge_thresholds.edge_low", 0)); onEditingFinished: setNumeric("defect.bulge_thresholds.edge_low", text) }
+            TextFieldBase { text: String(getValue("defect.bulge_thresholds.edge_low", 0)); onEditingFinished: setNumeric("defect.bulge_thresholds.edge_low", text) }
             Label { text: qsTr("边缘阈值上限"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.bulge_thresholds.edge_high", 0)); onEditingFinished: setNumeric("defect.bulge_thresholds.edge_high", text) }
+            TextFieldBase { text: String(getValue("defect.bulge_thresholds.edge_high", 0)); onEditingFinished: setNumeric("defect.bulge_thresholds.edge_high", text) }
             Label { text: qsTr("气缸高度偏差阈值"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.cylinder_height_threshold", 0)); onEditingFinished: setNumeric("defect.cylinder_height_threshold", text) }
+            TextFieldBase { text: String(getValue("defect.cylinder_height_threshold", 0)); onEditingFinished: setNumeric("defect.cylinder_height_threshold", text) }
             Label { text: qsTr("高度渲染系数"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.render_range_scale", 0)); onEditingFinished: setNumeric("defect.render_range_scale", text) }
+            TextFieldBase { text: String(getValue("defect.render_range_scale", 0)); onEditingFinished: setNumeric("defect.render_range_scale", text) }
             Label { text: qsTr("聚类距离 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("defect.connection_distance", 0)); onEditingFinished: setNumeric("defect.connection_distance", text) }
+            TextFieldBase { text: String(getValue("defect.connection_distance", 0)); onEditingFinished: setNumeric("defect.connection_distance", text) }
           }
 
           Label { text: qsTr("四向气缸区域"); color: "#e2e8f0"; Layout.topMargin: 12 }
@@ -318,19 +314,19 @@ Item {
                 RowLayout {
                   spacing: 6
                   Label { text: qsTr("高度"); color: "#9aa0b5" }
-                  TextField {
+                  TextFieldBase {
                     text: String(getValue("defect.cylinders." + modelData.key + ".height_origin", 0))
                     Layout.preferredWidth: 80
                     onEditingFinished: setNumeric("defect.cylinders." + modelData.key + ".height_origin", text)
                   }
                   Label { text: "X"; color: "#9aa0b5" }
-                  TextField {
+                  TextFieldBase {
                     text: String(getValue("defect.cylinders." + modelData.key + ".extend_x", 0))
                     Layout.preferredWidth: 60
                     onEditingFinished: setNumeric("defect.cylinders." + modelData.key + ".extend_x", text)
                   }
                   Label { text: "Y"; color: "#9aa0b5" }
-                  TextField {
+                  TextFieldBase {
                     text: String(getValue("defect.cylinders." + modelData.key + ".extend_y", 0))
                     Layout.preferredWidth: 60
                     onEditingFinished: setNumeric("defect.cylinders." + modelData.key + ".extend_y", text)
@@ -354,11 +350,11 @@ Item {
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("刀具直径 (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.tool_diameter", 0)); onEditingFinished: setNumeric("path_planning.tool_diameter", text) }
+            TextFieldBase { text: String(getValue("path_planning.tool_diameter", 0)); onEditingFinished: setNumeric("path_planning.tool_diameter", text) }
             Label { text: qsTr("粒子最高点上抬"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.particle_peak_offset", 0)); onEditingFinished: setNumeric("path_planning.particle_peak_offset", text) }
+            TextFieldBase { text: String(getValue("path_planning.particle_peak_offset", 0)); onEditingFinished: setNumeric("path_planning.particle_peak_offset", text) }
             Label { text: qsTr("铜板上抬距离"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.plate_offset", 0)); onEditingFinished: setNumeric("path_planning.plate_offset", text) }
+            TextFieldBase { text: String(getValue("path_planning.plate_offset", 0)); onEditingFinished: setNumeric("path_planning.plate_offset", text) }
             Label { text: qsTr("Z 进给模式"); color: "#e2e8f0" }
             ComboBox {
               model: [qsTr("固定进给"), qsTr("线性进给")]
@@ -366,15 +362,15 @@ Item {
               onActivated: setInteger("path_planning.z_step_mode", index)
             }
             Label { text: qsTr("固定 Z 进给"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.z_step_fixed", 0)); onEditingFinished: setNumeric("path_planning.z_step_fixed", text) }
+            TextFieldBase { text: String(getValue("path_planning.z_step_fixed", 0)); onEditingFinished: setNumeric("path_planning.z_step_fixed", text) }
             Label { text: qsTr("Z 进给系数 K"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.z_step_linear_k", 0)); onEditingFinished: setNumeric("path_planning.z_step_linear_k", text) }
+            TextFieldBase { text: String(getValue("path_planning.z_step_linear_k", 0)); onEditingFinished: setNumeric("path_planning.z_step_linear_k", text) }
             Label { text: qsTr("Z 进给截距 B"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.z_step_linear_b", 0)); onEditingFinished: setNumeric("path_planning.z_step_linear_b", text) }
+            TextFieldBase { text: String(getValue("path_planning.z_step_linear_b", 0)); onEditingFinished: setNumeric("path_planning.z_step_linear_b", text) }
             Label { text: qsTr("Z 进给最小"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.z_step_min", 0)); onEditingFinished: setNumeric("path_planning.z_step_min", text) }
+            TextFieldBase { text: String(getValue("path_planning.z_step_min", 0)); onEditingFinished: setNumeric("path_planning.z_step_min", text) }
             Label { text: qsTr("Z 进给最大"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.z_step_max", 0)); onEditingFinished: setNumeric("path_planning.z_step_max", text) }
+            TextFieldBase { text: String(getValue("path_planning.z_step_max", 0)); onEditingFinished: setNumeric("path_planning.z_step_max", text) }
             Label { text: qsTr("Y 进给模式"); color: "#e2e8f0" }
             ComboBox {
               model: [qsTr("固定进给"), qsTr("刀盘系数")]
@@ -382,9 +378,9 @@ Item {
               onActivated: setInteger("path_planning.y_step_mode", index)
             }
             Label { text: qsTr("固定 Y 进给距"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.y_step_fixed", 0)); onEditingFinished: setNumeric("path_planning.y_step_fixed", text) }
+            TextFieldBase { text: String(getValue("path_planning.y_step_fixed", 0)); onEditingFinished: setNumeric("path_planning.y_step_fixed", text) }
             Label { text: qsTr("Y 进给系数"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.y_step_coeff", 0)); onEditingFinished: setNumeric("path_planning.y_step_coeff", text) }
+            TextFieldBase { text: String(getValue("path_planning.y_step_coeff", 0)); onEditingFinished: setNumeric("path_planning.y_step_coeff", text) }
             Label { text: qsTr("加工排序"); color: "#e2e8f0" }
             ComboBox {
               model: [qsTr("从上到下"), qsTr("从左到右")]
@@ -392,21 +388,21 @@ Item {
               onActivated: setInteger("path_planning.sort_mode", index)
             }
             Label { text: qsTr("气缸安全距离"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.cylinder_safe_distance", 0)); onEditingFinished: setNumeric("path_planning.cylinder_safe_distance", text) }
+            TextFieldBase { text: String(getValue("path_planning.cylinder_safe_distance", 0)); onEditingFinished: setNumeric("path_planning.cylinder_safe_distance", text) }
             Label { text: qsTr("抬刀高度"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.lift_height", 0)); onEditingFinished: setNumeric("path_planning.lift_height", text) }
+            TextFieldBase { text: String(getValue("path_planning.lift_height", 0)); onEditingFinished: setNumeric("path_planning.lift_height", text) }
             Label { text: qsTr("下刀位置偏移"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.cut_start_offset", 0)); onEditingFinished: setNumeric("path_planning.cut_start_offset", text) }
+            TextFieldBase { text: String(getValue("path_planning.cut_start_offset", 0)); onEditingFinished: setNumeric("path_planning.cut_start_offset", text) }
             Label { text: qsTr("路径左偏移"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.end_offset_left", 0)); onEditingFinished: setNumeric("path_planning.end_offset_left", text) }
+            TextFieldBase { text: String(getValue("path_planning.end_offset_left", 0)); onEditingFinished: setNumeric("path_planning.end_offset_left", text) }
             Label { text: qsTr("路径右偏移"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.end_offset_right", 0)); onEditingFinished: setNumeric("path_planning.end_offset_right", text) }
+            TextFieldBase { text: String(getValue("path_planning.end_offset_right", 0)); onEditingFinished: setNumeric("path_planning.end_offset_right", text) }
             Label { text: qsTr("整体偏移 X"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.offset.x", 0)); onEditingFinished: setNumeric("path_planning.offset.x", text) }
+            TextFieldBase { text: String(getValue("path_planning.offset.x", 0)); onEditingFinished: setNumeric("path_planning.offset.x", text) }
             Label { text: qsTr("整体偏移 Y"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.offset.y", 0)); onEditingFinished: setNumeric("path_planning.offset.y", text) }
+            TextFieldBase { text: String(getValue("path_planning.offset.y", 0)); onEditingFinished: setNumeric("path_planning.offset.y", text) }
             Label { text: qsTr("整体偏移 Z"); color: "#e2e8f0" }
-            TextField { text: String(getValue("path_planning.offset.z", 0)); onEditingFinished: setNumeric("path_planning.offset.z", text) }
+            TextFieldBase { text: String(getValue("path_planning.offset.z", 0)); onEditingFinished: setNumeric("path_planning.offset.z", text) }
           }
         }
       }
@@ -423,19 +419,19 @@ Item {
             columnSpacing: 12
             rowSpacing: 8
             Label { text: qsTr("平移 X (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pose_transform.translation.x", 0)); onEditingFinished: setNumeric("pose_transform.translation.x", text) }
+            TextFieldBase{ text: String(getValue("pose_transform.translation.x", 0)); onEditingFinished: setNumeric("pose_transform.translation.x", text) }
             Label { text: qsTr("平移 Y (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pose_transform.translation.y", 0)); onEditingFinished: setNumeric("pose_transform.translation.y", text) }
+            TextFieldBase { text: String(getValue("pose_transform.translation.y", 0)); onEditingFinished: setNumeric("pose_transform.translation.y", text) }
             Label { text: qsTr("平移 Z (mm)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pose_transform.translation.z", 0)); onEditingFinished: setNumeric("pose_transform.translation.z", text) }
+            TextFieldBase { text: String(getValue("pose_transform.translation.z", 0)); onEditingFinished: setNumeric("pose_transform.translation.z", text) }
             Label { text: qsTr("旋转 X (°)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pose_transform.rotation.x", 0)); onEditingFinished: setNumeric("pose_transform.rotation.x", text) }
+            TextFieldBase { text: String(getValue("pose_transform.rotation.x", 0)); onEditingFinished: setNumeric("pose_transform.rotation.x", text) }
             Label { text: qsTr("旋转 Y (°)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pose_transform.rotation.y", 0)); onEditingFinished: setNumeric("pose_transform.rotation.y", text) }
+            TextFieldBase { text: String(getValue("pose_transform.rotation.y", 0)); onEditingFinished: setNumeric("pose_transform.rotation.y", text) }
             Label { text: qsTr("旋转 Z (°)"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pose_transform.rotation.z", 0)); onEditingFinished: setNumeric("pose_transform.rotation.z", text) }
+            TextFieldBase { text: String(getValue("pose_transform.rotation.z", 0)); onEditingFinished: setNumeric("pose_transform.rotation.z", text) }
             Label { text: qsTr("Pose 类型"); color: "#e2e8f0" }
-            TextField { text: String(getValue("pose_transform.type", 0)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pose_transform.type", text) }
+            TextFieldBase { text: String(getValue("pose_transform.type", 0)); inputMethodHints: Qt.ImhDigitsOnly; onEditingFinished: setInteger("pose_transform.type", text) }
           }
         }
       }
