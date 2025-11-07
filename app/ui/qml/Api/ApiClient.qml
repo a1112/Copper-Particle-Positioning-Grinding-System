@@ -14,6 +14,8 @@ QtObject {
 
   // GET
   function get(path, onOk, onErr){ Http.get(root, path, onOk, onErr, showError) }
+  // GET without global error popup
+  function getQuiet(path, onOk, onErr){ Http.get(root, path, onOk, onErr, null) }
   // POST JSON
   function post(path, body, onOk, onErr){ Http.postJson(root, path, body, onOk, onErr, showError) }
   // DELETE

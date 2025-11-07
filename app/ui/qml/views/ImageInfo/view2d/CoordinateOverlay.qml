@@ -85,4 +85,25 @@ Item {
             : qsTr("移动鼠标查看坐标")
     }
   }
+
+  Rectangle {
+    id: statusBanner
+    visible: Cores.CoreDataView.statusMessage.length > 0
+    radius: 6
+    color: Qt.rgba(0.05, 0.09, 0.15, 0.85)
+    border.color: Qt.rgba(0.4, 0.7, 1.0, 0.6)
+    border.width: 1
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.bottom: parent.bottom
+    anchors.margins: 12
+    implicitWidth: statusLabel.implicitWidth + 24
+    implicitHeight: statusLabel.implicitHeight + 12
+
+    Label {
+      id: statusLabel
+      anchors.centerIn: parent
+      color: Cores.CoreStyle.text
+      text: Cores.CoreDataView.statusMessage
+    }
+  }
 }
