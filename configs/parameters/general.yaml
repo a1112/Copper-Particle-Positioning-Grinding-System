@@ -1,2 +1,4 @@
-# 常规参数（预留）
-placeholders: []
+# 常规参数：设备控制区
+device_area:
+  allow_direct_control: false
+  allow_jog: false

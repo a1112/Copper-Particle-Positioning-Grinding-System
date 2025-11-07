@@ -6,7 +6,7 @@ import "../../../components/Base" as BaseComponents
 import "../../../cores" as Cores
 
 ColumnLayout {
-  visible: Cores.CoreState.isUseModel
+  visible: Cores.CoreState.isUseModel && Cores.CoreControl.allowDirectControl
   ControlViewHead{
     id:cvh
   }

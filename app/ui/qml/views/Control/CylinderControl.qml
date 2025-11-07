@@ -11,34 +11,38 @@ BaseCard {
   Layout.fillWidth: true
   visible: true
 
+  readonly property bool directControlEnabled: Cores.CoreControl.allowDirectControl
+  enabled: directControlEnabled
+
   readonly property var cylinders: [
-    { index: 0, label: qsTr("上1") },
-    { index: 1, label: qsTr("上2") },
-    { index: 2, label: qsTr("上3") },
-    { index: 3, label: qsTr("上4") },
-    { index: 4, label: qsTr("右1") },
-    { index: 5, label: qsTr("右2") },
-    { index: 6, label: qsTr("右3") },
-    { index: 7, label: qsTr("右4") },
-    { index: 8, label: qsTr("下1") },
-    { index: 9, label: qsTr("下2") },
-    { index: 10, label: qsTr("下3") },
-    { index: 11, label: qsTr("下4") },
-    { index: 12, label: qsTr("左1") },
-    { index: 13, label: qsTr("左2") },
-    { index: 14, label: qsTr("左3") },
-    { index: 15, label: qsTr("左4") }
+    { index: 0, label: "1" },
+    { index: 1, label: "2" },
+    { index: 2, label: "3" },
+    { index: 3, label: "4" },
+    { index: 4, label: "5" },
+    { index: 5, label: "6" },
+    { index: 6, label: "7" },
+    { index: 7, label: "8" },
+    { index: 8, label: "9" },
+    { index: 9, label: "10" },
+    { index: 10, label: "11" },
+    { index: 11, label: "12" },
+    { index: 12, label: "13" },
+    { index: 13, label: "14" },
+    { index: 14, label: "15" },
+    { index: 15, label: "16" }
   ]
 
   ColumnLayout {
     anchors.fill: parent
-    anchors.margins: 2
-    spacing: 2
+    anchors.margins: 8
+    spacing: 8
+
     GridLayout {
       id: grid
       columns: 4
-      rowSpacing: 2
-      columnSpacing: 2
+      rowSpacing: 6
+      columnSpacing: 6
       Layout.fillWidth: true
 
       Repeater {
@@ -46,8 +50,8 @@ BaseCard {
         delegate: Rectangle {
           property int idx: modelData.index
           property bool open: Cores.CoreControl.isCylinderOpen(idx)
-          Layout.preferredWidth: 40
-          Layout.preferredHeight: 40
+          Layout.preferredWidth: 48
+          Layout.preferredHeight: 48
           radius: 6
           color: open ? Cores.CoreStyle.accent : Cores.CoreStyle.surface
           border.color: open ? Cores.CoreStyle.accent : Cores.CoreStyle.border
@@ -65,6 +69,7 @@ BaseCard {
 
           MouseArea {
             anchors.fill: parent
+            enabled: root.directControlEnabled
             onClicked: Cores.CoreControl.toggleCylinder(idx)
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
@@ -75,18 +80,36 @@ BaseCard {
 
     RowLayout {
       Layout.fillWidth: true
-      spacing: 8
+      spacing: 12
       Btns.ActionButton {
         Layout.fillWidth: true
         text: qsTr("全部开启")
+        enabled: root.directControlEnabled
         onClicked: Cores.CoreControl.openAllCylinders()
       }
       Btns.ActionButton {
         Layout.fillWidth: true
         text: qsTr("全部关闭")
         danger: true
+        enabled: root.directControlEnabled
         onClicked: Cores.CoreControl.closeAllCylinders()
       }
+    }
+  }
+
+  Item {
+    anchors.fill: parent
+    visible: !root.directControlEnabled
+    Rectangle {
+      anchors.fill: parent
+      radius: 8
+      color: "#0f172a"
+      opacity: 0.85
+    }
+    Label {
+      anchors.centerIn: parent
+      text: qsTr("常规设置已禁用设备控制")
+      color: "#94a3b8"
     }
   }
 }

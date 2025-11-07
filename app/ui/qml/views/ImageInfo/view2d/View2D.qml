@@ -271,7 +271,7 @@ Item {
         id: contentGroup
         width: overlayArea.width
         height: overlayArea.height
-        anchors.centerIn: parent
+        // 不进行居中
         transform: [
           Scale {
             origin.x: overlayArea.width / 2
@@ -321,12 +321,10 @@ Item {
               return
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
-
             var centerX = width / 2
             var centerY = height / 2
             var lenX = 16 * view.scaleX
             var lenY = 16 * view.scaleY
-
             ctx.strokeStyle = "#22d3ee"
             ctx.lineWidth = 1.2
             ctx.beginPath()

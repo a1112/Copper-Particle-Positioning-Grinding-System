@@ -28,6 +28,7 @@ BaseCard {
   property var calibrationFixtures: Datas.CuttingDatas.fixtures
   property var imageDataCore: Cores.CoreDataView
   implicitHeight: col.implicitHeight + 16
+
   ColumnLayout {
     id:col
     anchors.fill: parent
