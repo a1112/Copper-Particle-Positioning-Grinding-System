@@ -2,12 +2,11 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Item {
+Pane {
   id: page
   property var data: ({})
   property bool allowDeviceControl: false
   property bool allowJog: false
-
   function collectPayload() {
     var payload = {}
     if (data && typeof data === "object" && !Array.isArray(data)) {
@@ -62,32 +61,24 @@ Item {
 
   ColumnLayout {
     anchors.fill: parent
-    anchors.margins: 16
-    spacing: 12
+    anchors.margins: 2
+    spacing: 5
     Label {
       text: qsTr("常规参数设置")
       font.pixelSize: 18
       font.bold: true
       color: "#f8fafc"
     }
-    Rectangle {
+    GroupBox {
       Layout.fillWidth: true
-      color: "#0f172a"
-      radius: 8
-      border.color: "#1e293b"
-      border.width: 1
+      title: qsTr("设备控制区")
+      font.pixelSize: 16
+      font.bold: true
 
       ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 16
+        anchors.margins: 12
         spacing: 12
-
-        Label {
-          text: qsTr("设备控制区")
-          font.pixelSize: 16
-          font.bold: true
-          color: "#f8fafc"
-        }
 
         RowLayout {
           Layout.fillWidth: true

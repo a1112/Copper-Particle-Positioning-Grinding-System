@@ -4,7 +4,7 @@ import QtQml
 import "../Api" as Api
 import "." as CoreSingletons
 
-QtObject {
+Item {
   id: coreControl
 
   property var cylinderStates: []

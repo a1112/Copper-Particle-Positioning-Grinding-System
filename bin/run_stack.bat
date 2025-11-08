@@ -48,5 +48,4 @@ start "%UI_TITLE%" cmd /k "pushd "%ROOT_DIR%" && "%_PYTHON%" -m app.ui.main"
 echo.
 echo [INFO] Launch commands issued. Each component is running in its own window.
 echo [INFO] Close this window to finish. Child windows stay active until you exit them.
-pause >nul
-exit /b 0
+

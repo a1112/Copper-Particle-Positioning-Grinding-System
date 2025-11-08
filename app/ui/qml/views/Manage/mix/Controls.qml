@@ -15,11 +15,9 @@ ColumnLayout {
     Layout.fillWidth: true
     Layout.fillHeight: true
     ControlViews.CylinderControl {
-
     }
     ControlViews.PTZControl {
       id: ptzControl
-
     }
   }
 }

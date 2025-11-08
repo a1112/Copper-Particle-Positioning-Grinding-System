@@ -7,15 +7,16 @@ import "../Base"
 import "../../cores" as Cores
 import "../../datas" as Datas
 import "../../components/btns" as Btns
+import "." as ImageInfo
 import "view2d"
 import "view3d"
 BaseCard {
   id: root
 
-
+  property var viewCore: ImageInfo.ViewCore
   property int refreshMs: 150
   property var pathPoints: Cores.CoreCutting.displayImagePath || []
-  readonly property int maxPath: 2000
+  readonly property int maxPath: 200
   property url meshSource3d: Cores.CoreState.current3dModelSource
   property real imageWidthPx: Cores.CoreDataView.imageWidth
   property real imageHeightPx: Cores.CoreDataView.imageHeight
@@ -52,6 +53,7 @@ BaseCard {
         fixtureMarginMm: root.fixtureMarginMm
         fixtures: root.calibrationFixtures
         calibrationCore: root.imageDataCore
+
       }
       View3D{
         meshSource: root.meshSource3d

@@ -6,6 +6,7 @@ import "../../../Api" as Api
 import "../../../cores" as Cores
 import "../../../datas" as Datas
 import "." as Layers
+import ".." as ImageInfo
 
 /* 二维图像视图
  * 展示加工区实时画面，并叠加夹具、刀具与坐标提示信息。
@@ -27,9 +28,13 @@ Item {
   property var fixtures: []
   property var calibrationCore: Cores.CoreDataView
   property int recordId: Datas.TaskDatas.latestRecordId
-  property bool simulateActive: false
-  property int simulateIndex: -1
-  property int simulateIntervalMs: 80
+  property var viewCore: ImageInfo.ViewCore
+
+
+  readonly property real currentZoom: viewCore ? viewCore.zoom : 1.0
+  readonly property point currentPanOffset: viewCore ? viewCore.panOffset : Qt.point(0, 0)
+  readonly property bool simulateActive: viewCore ? viewCore.simulateActive : false
+  readonly property int currentSimulateIndex: viewCore ? viewCore.simulateIndex : -1
 
   readonly property real fitScale: {
     if (imageWidth <= 0 || imageHeight <= 0 || width <= 0 || height <= 0)
@@ -44,131 +49,60 @@ Item {
   readonly property real scaleX: fitScale
   readonly property real scaleY: fitScale
 
-  property real zoom: 1.0
-  property real minZoom: 0.5
-  property real maxZoom: 4.0
-  property point panOffset: Qt.point(0, 0)
-  property point _dragLastPos: Qt.point(0, 0)
-  property real _pinchStartZoom: 1.0
-  property point _pinchStartPan: Qt.point(0, 0)
-
-  property point hoverPixel: Qt.point(-1, -1)
-  property point hoverWorld: Qt.point(0, 0)
-  property bool hoverValid: false
-  property bool showCameraAxes: true
-
-  function worldToPixel(worldPoint) {
-    if (!worldPoint || worldPoint.x === undefined || worldPoint.y === undefined)
-      return Qt.point(-1, -1)
-    if (calibrationCore && calibrationCore.worldToImage !== undefined) {
-      var mapped = calibrationCore.worldToImage(worldPoint)
-      return Qt.point(mapped.x, mapped.y)
-    }
-    if (pixelSizeMm <= 0)
-      return Qt.point(-1, -1)
-    return Qt.point(worldPoint.x / pixelSizeMm, worldPoint.y / pixelSizeMm)
-  }
-
   function resetHover() {
-    var invalidPixel = Qt.point(-1, -1)
-    hoverPixel = invalidPixel
-    hoverWorld = Qt.point(0, 0)
-    hoverValid = false
-    Cores.CoreDataView.clearCursor()
-    coordinateLayer.requestUpdate()
+    if (!viewCore)
+      return
+    viewCore.resetHover({
+                          coordinateLayer: coordinateLayer,
+                          clearCursor: function() { Cores.CoreDataView.clearCursor() }
+                        })
   }
 
   function updateHover(localX, localY) {
-    Cores.CoreDataView.viewPixel = Qt.point(localX, localY)
-    if (scaleX <= 0 || scaleY <= 0) {
-      resetHover()
+    if (!viewCore)
       return
-    }
-    var px = localX / scaleX
-    var py = localY / scaleY
-    if (px < 0 || py < 0 || px > imageWidth || py > imageHeight) {
-      resetHover()
-      return
-    }
-    var pixelPoint = Qt.point(px, py)
-    hoverPixel = pixelPoint
-    var worldPoint
-    if (calibrationCore && calibrationCore.imageToWorld !== undefined)
-      worldPoint = calibrationCore.imageToWorld({ x: px, y: py })
-    else
-      worldPoint = { x: px * pixelSizeMm, y: py * pixelSizeMm }
-    var worldPointQt = Qt.point(worldPoint.x, worldPoint.y)
-    hoverWorld = worldPointQt
-    hoverValid = true
-    Cores.CoreDataView.setCursor(pixelPoint, worldPointQt, true)
-    coordinateLayer.requestUpdate()
+    viewCore.updateHover(localX, localY, {
+                           scaleX: scaleX,
+                           scaleY: scaleY,
+                           imageWidth: imageWidth,
+                           imageHeight: imageHeight,
+                           pixelSizeMm: pixelSizeMm,
+                           calibrationCore: calibrationCore,
+                           coordinateLayer: coordinateLayer,
+                           onHoverChanged: function(pixelPoint, worldPoint) {
+                             Cores.CoreDataView.setCursor(pixelPoint, worldPoint, true)
+                           }
+                         })
   }
 
-  function _clampZoom(value) {
-    var candidate = value
-    if (!isFinite(candidate) || candidate <= 0)
-      candidate = 1
-    return Math.min(maxZoom, Math.max(minZoom, candidate))
-  }
-
-  function _contentHalfWidth() {
-    if (displayWidth <= 0 || zoom <= 0)
-      return 0
-    return displayWidth * zoom / 2
-  }
-
-  function _contentHalfHeight() {
-    if (displayHeight <= 0 || zoom <= 0)
-      return 0
-    return displayHeight * zoom / 2
-  }
-
-  function _clampPan(point) {
-    if (width <= 0 || height <= 0)
-      return Qt.point(0, 0)
-    var maxX = Math.max(0, _contentHalfWidth() - width / 2)
-    var maxY = Math.max(0, _contentHalfHeight() - height / 2)
-    var clampedX = Math.max(-maxX, Math.min(maxX, point.x))
-    var clampedY = Math.max(-maxY, Math.min(maxY, point.y))
-    return Qt.point(clampedX, clampedY)
-  }
-
-  function _updatePan(point) {
-    var clamped = _clampPan(point)
-    if (clamped.x !== panOffset.x || clamped.y !== panOffset.y) {
-      panOffset = clamped
-      if (typeof coordinateLayer !== "undefined")
-        coordinateLayer.requestUpdate()
-      if (typeof pathCanvas !== "undefined")
-        pathCanvas.requestPaint()
-      _refreshHover()
+  function _corePanContext() {
+    return {
+      width: overlayArea ? overlayArea.width : width,
+      height: overlayArea ? overlayArea.height : height,
+      displayWidth: displayWidth,
+      displayHeight: displayHeight,
+      coordinateLayer: coordinateLayer,
+      pathCanvas: pathCanvas,
+      refreshHover: _refreshHover
     }
   }
 
   function _applyPanDelta(dx, dy) {
-    if (zoom <= 1.0) {
-      if (panOffset.x !== 0 || panOffset.y !== 0)
-        _updatePan(Qt.point(0, 0))
+    if (!viewCore)
       return
-    }
-    _updatePan(Qt.point(panOffset.x + dx, panOffset.y + dy))
+    viewCore.applyPanDelta(dx, dy, _corePanContext())
+  }
+
+  function _updatePan(point) {
+    if (!viewCore)
+      return
+    viewCore.updatePan(point, _corePanContext())
   }
 
   function _setZoom(targetZoom, focusPoint) {
-    var clamped = _clampZoom(targetZoom)
-    if (Math.abs(clamped - zoom) < 0.0001)
+    if (!viewCore)
       return
-    var focus = focusPoint || Qt.point(displayWidth / 2, displayHeight / 2)
-    var offsetX = focus.x - displayWidth / 2
-    var offsetY = focus.y - displayHeight / 2
-    var deltaZoom = zoom - clamped
-    zoom = clamped
-    _updatePan(Qt.point(panOffset.x + offsetX * deltaZoom, panOffset.y + offsetY * deltaZoom))
-    if (typeof pathCanvas !== "undefined")
-      pathCanvas.requestPaint()
-    if (typeof coordinateLayer !== "undefined")
-      coordinateLayer.requestUpdate()
-    _refreshHover()
+    viewCore.setZoom(targetZoom, focusPoint, _corePanContext())
   }
 
   function handleWheelZoom(wheel) {
@@ -182,63 +116,64 @@ Item {
       return
     var localPoint = Qt.point(wheel.x, wheel.y)
     var mappedPoint = contentGroup.mapFromItem(overlayArea, localPoint)
-    _setZoom(zoom * factor, mappedPoint)
+    _setZoom(currentZoom * factor, mappedPoint)
     wheel.accepted = true
   }
 
   function _refreshHover() {
-    if (typeof interactionArea === "undefined" || typeof contentGroup === "undefined")
+    if (typeof contentGroup === "undefined" || !viewCore || !viewCore.hoverValid)
       return
-    if (!interactionArea.containsMouse)
+    var localX = viewCore.hoverPixel.x * scaleX
+    var localY = viewCore.hoverPixel.y * scaleY
+    if (!overlayArea || localX < 0 || localY < 0 || localX > overlayArea.width || localY > overlayArea.height) {
+      resetHover()
       return
-    var pointer = Qt.point(interactionArea.mouseX, interactionArea.mouseY)
-    var mapped = contentGroup.mapFromItem(overlayArea, pointer)
-    updateHover(mapped.x, mapped.y)
+    }
+    updateHover(localX, localY)
   }
 
   function startSimulation() {
-    var pts = pathPoints || []
-    if (!pts || pts.length === 0) {
-      stopSimulation()
+    if (!viewCore)
       return
-    }
-    simulateIndex = 0
-    simulateActive = true
+    var started = viewCore.startSimulation(pathPoints)
+    if (!started)
+      return
     playbackTimer.start()
     if (typeof pathCanvas !== "undefined")
       pathCanvas.requestPaint()
   }
 
   function stopSimulation() {
-    if (!simulateActive && simulateIndex < 0)
+    if (!viewCore)
       return
-    simulateActive = false
+    var changed = viewCore.stopSimulation()
+    if (!changed)
+      return
     playbackTimer.stop()
     if (typeof pathCanvas !== "undefined")
       pathCanvas.requestPaint()
   }
 
   function toggleSimulation() {
-    if (simulateActive)
-      stopSimulation()
+    if (!viewCore)
+      return
+    var active = viewCore.toggleSimulation(pathPoints)
+    if (active)
+      playbackTimer.start()
     else
-      startSimulation()
+      playbackTimer.stop()
+    if (typeof pathCanvas !== "undefined")
+      pathCanvas.requestPaint()
   }
 
   function _stepSimulation() {
-    if (!simulateActive) {
+    if (!viewCore)
+      return
+    var progressed = viewCore.stepSimulation(pathPoints)
+    if (!progressed) {
       playbackTimer.stop()
       return
     }
-    var pts = pathPoints || []
-    if (!pts || pts.length === 0) {
-      stopSimulation()
-      return
-    }
-    if (simulateIndex < 0 || simulateIndex >= pts.length)
-      simulateIndex = 0
-    else
-      simulateIndex = (simulateIndex + 1) % pts.length
     if (typeof pathCanvas !== "undefined")
       pathCanvas.requestPaint()
   }
@@ -251,8 +186,9 @@ Item {
 
   Timer {
     id: playbackTimer
-    interval: Math.max(20, view.simulateIntervalMs)
+    interval: Math.max(20, view.viewCore ? view.viewCore.simulateIntervalMs : 80)
     repeat: true
+    running: view.simulateActive
     onTriggered: view._stepSimulation()
   }
 
@@ -276,12 +212,12 @@ Item {
           Scale {
             origin.x: overlayArea.width / 2
             origin.y: overlayArea.height / 2
-            xScale: view.zoom
-            yScale: view.zoom
+            xScale: view.currentZoom
+            yScale: view.currentZoom
           },
           Translate {
-            x: view.panOffset.x
-            y: view.panOffset.y
+            x: view.currentPanOffset.x
+            y: view.currentPanOffset.y
           }
         ]
 
@@ -297,7 +233,7 @@ Item {
               Datas.CalibrationData.imageWidth = sourceSize.width
               Datas.CalibrationData.imageHeight = sourceSize.height
             }
-            view._updatePan(view.panOffset)
+            view._updatePan(view.currentPanOffset)
             pathCanvas.requestPaint()
             coordinateLayer.requestUpdate()
             if (typeof cameraAxes !== "undefined")
@@ -339,8 +275,8 @@ Item {
 
             if (count >= 2) {
               var strokeColor = Cores.CoreCutting.runState === "RUNNING"
-                                ? Cores.CoreStyle.accent
-                                : Cores.CoreStyle.info
+                  ? Cores.CoreStyle.accent
+                  : Cores.CoreStyle.info
               ctx.strokeStyle = strokeColor
               ctx.lineWidth = 2
               ctx.beginPath()
@@ -386,8 +322,8 @@ Item {
               }
             }
 
-            if (view.simulateIndex >= 0 && view.simulateIndex < count) {
-              var simPoint = pts[view.simulateIndex]
+            if (view.currentSimulateIndex >= 0 && view.currentSimulateIndex < count) {
+              var simPoint = pts[view.currentSimulateIndex]
               var simX = Number(simPoint.x || 0) * view.scaleX
               var simY = Number(simPoint.y || 0) * view.scaleY
               ctx.beginPath()
@@ -432,7 +368,7 @@ Item {
           id: cameraAxes
           anchors.fill: parent
           z: -1
-          enabled: view.showCameraAxes
+          enabled: view.viewCore ? view.viewCore.showCameraAxes : true
           viewItem: view
           calibrationCore: view.calibrationCore
           scaleX: view.scaleX
@@ -453,21 +389,27 @@ Item {
         target: null
         onActiveChanged: {
           if (active) {
-            minimumScale = view.minZoom / view.zoom
-            maximumScale = view.maxZoom / view.zoom
-            view._pinchStartZoom = view.zoom
-            view._pinchStartPan = view.panOffset
+            var minValue = view.viewCore ? view.viewCore.minZoom : 0.5
+            var maxValue = view.viewCore ? view.viewCore.maxZoom : 4.0
+            minimumScale = minValue / view.currentZoom
+            maximumScale = maxValue / view.currentZoom
+            if (view.viewCore) {
+              view.viewCore.pinchStartZoom = view.currentZoom
+              view.viewCore.pinchStartPan = view.currentPanOffset
+            }
           } else {
             view._refreshHover()
           }
         }
         onScaleChanged: {
-          var desired = view._pinchStartZoom * scale
+          var baseZoom = view.viewCore ? view.viewCore.pinchStartZoom : view.currentZoom
+          var desired = baseZoom * scale
           var focus = contentGroup.mapFromItem(overlayArea, centroid.position)
           view._setZoom(desired, focus)
         }
         onTranslationChanged: {
-          var newPan = Qt.point(view._pinchStartPan.x + translation.x, view._pinchStartPan.y + translation.y)
+          var basePan = view.viewCore ? view.viewCore.pinchStartPan : view.currentPanOffset
+          var newPan = Qt.point(basePan.x + translation.x, basePan.y + translation.y)
           view._updatePan(newPan)
         }
       }
@@ -481,19 +423,22 @@ Item {
       anchors.fill: parent
       hoverEnabled: true
       acceptedButtons: Qt.LeftButton
-      cursorShape: pressed ? Qt.ClosedHandCursor : (view.zoom > 1.0001 ? Qt.OpenHandCursor : Qt.ArrowCursor)
+      cursorShape: pressed ? Qt.ClosedHandCursor : (view.currentZoom > 1.0001 ? Qt.OpenHandCursor : Qt.ArrowCursor)
 
       onPressed: function(mouse) {
-        view._dragLastPos = Qt.point(mouse.x, mouse.y)
+        if (view.viewCore)
+          view.viewCore.dragLastPos = Qt.point(mouse.x, mouse.y)
       }
 
       onPositionChanged: function(mouse) {
         var localPoint = Qt.point(mouse.x, mouse.y)
         if (pressed) {
-          var dx = mouse.x - view._dragLastPos.x
-          var dy = mouse.y - view._dragLastPos.y
+          var lastPos = view.viewCore ? view.viewCore.dragLastPos : Qt.point(mouse.x, mouse.y)
+          var dx = mouse.x - lastPos.x
+          var dy = mouse.y - lastPos.y
           view._applyPanDelta(dx, dy)
-          view._dragLastPos = localPoint
+          if (view.viewCore)
+            view.viewCore.dragLastPos = localPoint
         }
         var mapped = contentGroup.mapFromItem(overlayArea, localPoint)
         view.updateHover(mapped.x, mapped.y)
@@ -509,13 +454,11 @@ Item {
     }
 
   }
-
   Layers.CoordinateInfo {
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.margins: 12
   }
-
   Button {
     id: simulateButton
     text: view.simulateActive ? qsTr("停止模拟") : qsTr("模拟路径")
@@ -533,11 +476,12 @@ Item {
     var pts = pathPoints || []
     var count = Array.isArray(pts) ? pts.length : 0
     if (count === 0) {
-      simulateIndex = -1
+      if (view.viewCore)
+        view.viewCore.simulateIndex = -1
       if (simulateActive)
         stopSimulation()
-    } else if (simulateIndex >= count) {
-      simulateIndex = count - 1
+    } else if (view.viewCore && view.viewCore.simulateIndex >= count) {
+      view.viewCore.simulateIndex = count - 1
     }
   }
   onScaleXChanged: {
@@ -553,25 +497,10 @@ Item {
       coordinateLayer.requestUpdate()
   }
 
-  onZoomChanged: {
-    _updatePan(panOffset)
-    if (typeof pathCanvas !== "undefined")
-      pathCanvas.requestPaint()
-    if (typeof coordinateLayer !== "undefined")
-      coordinateLayer.requestUpdate()
-  }
-
-  onPanOffsetChanged: {
-    if (typeof coordinateLayer !== "undefined")
-      coordinateLayer.requestUpdate()
-    if (typeof pathCanvas !== "undefined")
-      pathCanvas.requestPaint()
-    _refreshHover()
-  }
-  onWidthChanged: _updatePan(panOffset)
-  onHeightChanged: _updatePan(panOffset)
-  onDisplayWidthChanged: _updatePan(panOffset)
-  onDisplayHeightChanged: _updatePan(panOffset)
+  onWidthChanged: _updatePan(currentPanOffset)
+  onHeightChanged: _updatePan(currentPanOffset)
+  onDisplayWidthChanged: _updatePan(currentPanOffset)
+  onDisplayHeightChanged: _updatePan(currentPanOffset)
   onCalibrationCoreChanged: {
     if (typeof cameraAxes !== "undefined")
       cameraAxes.requestUpdate()
@@ -580,11 +509,6 @@ Item {
     if (typeof cameraAxes !== "undefined")
       cameraAxes.requestUpdate()
   }
-  onShowCameraAxesChanged: {
-    if (typeof cameraAxes !== "undefined")
-      cameraAxes.requestUpdate()
-  }
-
   Connections {
     target: overlayArea
     function onWidthChanged() {
@@ -606,6 +530,29 @@ Item {
         view.stopSimulation()
     }
     function onParticleMaskSourceChanged() { /* trigger overlay updates via binding */ }
+  }
+
+  Connections {
+    target: viewCore
+    ignoreUnknownSignals: true
+    function onZoomChanged() {
+      _updatePan(view.currentPanOffset)
+      if (typeof pathCanvas !== "undefined")
+        pathCanvas.requestPaint()
+      if (typeof coordinateLayer !== "undefined")
+        coordinateLayer.requestUpdate()
+    }
+    function onPanOffsetChanged() {
+      if (typeof coordinateLayer !== "undefined")
+        coordinateLayer.requestUpdate()
+      if (typeof pathCanvas !== "undefined")
+        pathCanvas.requestPaint()
+      _refreshHover()
+    }
+    function onShowCameraAxesChanged() {
+      if (typeof cameraAxes !== "undefined")
+        cameraAxes.requestUpdate()
+    }
   }
 
   Connections {
