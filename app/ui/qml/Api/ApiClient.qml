@@ -54,5 +54,9 @@ QtObject {
   function listGroupImages(serial, onOk, onErr){ get('/test/group/' + encodeURIComponent(serial) + '/images', onOk, onErr) }
   function createGroup(serial, note, onOk, onErr){ post('/test/group/create', { serial: serial, note: note }, onOk, onErr) }
   function addImageToGroup(serial, name, onOk, onErr){ post('/test/group/' + encodeURIComponent(serial) + '/add_image?name=' + encodeURIComponent(name), {}, onOk, onErr) }
+
+  function visionListCameras(onOk, onErr){ get('/vision/cameras', onOk, onErr) }
+  function task1Defaults(onOk, onErr){ get('/test/task1/defaults', onOk, onErr) }
+  function task1Run(payload, onOk, onErr){ post('/test/task1/run', payload, onOk, onErr) }
 }
 

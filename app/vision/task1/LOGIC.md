@@ -1,6 +1,6 @@
 # Task1 管线逻辑说明
 
-以下文档用于记录 `work/alg/task1/` 模块当前的处理流程，便于日后提出或追踪需求。
+以下文档用于记录 `app/vision/task1/` 模块当前的处理流程，便于日后提出或追踪需求。
 
 ## 1. 总体流程
 
@@ -54,6 +54,6 @@
 
 ## 6. 使用提示
 
-- 运行：`python -m work.alg.task1.main --source-dir <数据目录> --output-dir <输出目录>`。
+- 运行：`python -m app.vision.task1.main --source-dir <数据目录> --output-dir <输出目录>`。
 - 若需调整高度差阈值，可修改 `particle_keep_height`、`board_mask_reference_height` 等配置。
 - 新增调试图层时，可在 `visualization.generate_visualizations` 中扩展；`export.export_visuals` 会自动输出对应文件。

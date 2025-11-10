@@ -12,10 +12,12 @@ except ImportError:  # Fallback for direct script execution without a package co
     import sys
     from pathlib import Path as _Path
 
-    sys.path.append(str(_Path(__file__).resolve().parents[1]))
-    from task1.config import TaskConfig
-    from task1.export import export_summary, export_visuals
-    from task1.pipeline import run_pipeline
+    project_root = _Path(__file__).resolve().parents[3]
+    if str(project_root) not in sys.path:
+        sys.path.append(str(project_root))
+    from app.vision.task1.config import TaskConfig
+    from app.vision.task1.export import export_summary, export_visuals
+    from app.vision.task1.pipeline import run_pipeline
 
 
 def main(argv: Optional[Iterable[str]] = None) -> None:

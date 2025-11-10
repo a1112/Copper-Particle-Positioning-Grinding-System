@@ -2,3 +2,6 @@
 device_area:
   allow_direct_control: false
   allow_jog: false
+camera:
+  profile: sim
+  serial: ""
