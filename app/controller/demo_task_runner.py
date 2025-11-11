@@ -10,7 +10,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
-from sqlalchemy import create_engine, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app import config as APP_CONFIG
@@ -723,7 +723,9 @@ def _parse_cli_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
 
 def _run_cli(argv: Optional[Iterable[str]] = None) -> None:
     args = _parse_cli_args(argv)
-    engine = create_engine(args.db_url, future=True, pool_pre_ping=True, pool_recycle=1800)
+    from app.db.base import create_engine_ensuring_database
+
+    engine = create_engine_ensuring_database(args.db_url)
     session_factory = sessionmaker(bind=engine, future=True, expire_on_commit=False)
     runner = DemoTaskRunner(session_factory, save_dir=Path(args.save_dir))
     tick_count = 0

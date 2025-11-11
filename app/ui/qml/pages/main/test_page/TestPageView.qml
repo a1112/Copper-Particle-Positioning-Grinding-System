@@ -244,12 +244,7 @@ Item {
                     text: String(root.parameterValue(modelData.key, modelData.default))
                     selectByMouse: true
                     enabled: true
-                    validator: modelData.type === "int"
-                               ? IntValidator {
-                                   bottom: modelData.min !== undefined ? modelData.min : -2147483648
-                                   top: modelData.max !== undefined ? modelData.max : 2147483647
-                                 }
-                               : DoubleValidator {
+                    validator:  DoubleValidator {
                                    bottom: modelData.min !== undefined ? modelData.min : -2147483648
                                    top: modelData.max !== undefined ? modelData.max : 2147483647
                                    decimals: 3
