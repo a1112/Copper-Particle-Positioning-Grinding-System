@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Dict, Optional
 
-from sqlalchemy import create_engine, select
+from sqlalchemy import select
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
@@ -88,13 +88,12 @@ class DbStatusSource(StatusSourceProtocol):
         connect_args: Dict[str, Any] = {}
         if db_url.startswith("mysql"):
             connect_args["connect_timeout"] = 3
-        self._engine = engine or create_engine(
-            db_url,
-            future=True,
-            pool_pre_ping=True,
-            pool_recycle=1800,
-            connect_args=connect_args,
-        )
+        if engine is None:
+            from app.db.base import create_engine_ensuring_database
+
+            self._engine = create_engine_ensuring_database(db_url)
+        else:
+            self._engine = engine
         self._session_factory = sessionmaker(bind=self._engine, future=True, expire_on_commit=False)
         LOG.info("DB status source connected to %s", self._mask_password(db_url))
         self._ensure_default_row()
