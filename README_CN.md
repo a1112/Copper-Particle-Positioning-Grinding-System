@@ -18,3 +18,8 @@ python -m app.main
 - configs: 配方与设备/标定示例
 - runs: 运行产物
 - tests: 测试用例
+
+
+ps，清除git：
+    cmdkey /dele
+
