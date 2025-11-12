@@ -28,18 +28,13 @@ Item {
       Layout.fillWidth: true
       Layout.fillHeight: true
       currentIndex: tabBar.currentIndex
-
       Pages.TaskStatusSummaryPage {
       }
-
       Pages.TaskCommandListPage {
         statePageCore: root.statePageCore
       }
-
       Pages.TaskImagePreviewPage {
-        statePageCore: root.statePageCore
       }
-
       Pages.TaskPathPreviewPage {
       }
     }

@@ -28,7 +28,7 @@ Item {
   property var fixtures: []
   property var calibrationCore: Cores.CoreDataView
   property int recordId: Datas.TaskDatas.latestRecordId
-  property var viewCore: ImageInfo.ViewCore
+  property var viewCore: ImageInfo.ViewCore{}
 
 
   readonly property real currentZoom: viewCore ? viewCore.zoom : 1.0

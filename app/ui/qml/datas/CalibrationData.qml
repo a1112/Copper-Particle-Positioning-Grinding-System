@@ -6,9 +6,9 @@ Item {
   id: root
 
   // 图像宽度（像素）
-   property int imageWidth: 0//_state.imageWidth
+  readonly property alias imageWidth: _state.imageWidth
   // 图像高度（像素）
-  property int imageHeight:0// _state.imageHeight
+  readonly property alias imageHeight: _state.imageHeight
 
   // 世界坐标宽度（毫米或配置单位）
   readonly property alias worldWidth: _state.worldWidth

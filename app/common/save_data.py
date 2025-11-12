@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import logging
+import shutil
 import threading
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import json
 from shutil import copy2
 
 from app import config
@@ -23,6 +24,8 @@ _mesh_threads: Dict[int, threading.Thread] = {}
 _mesh_threads_lock = threading.Lock()
 _mesh_module = None
 _mesh_module_lock = threading.Lock()
+_debug_seed_lock = threading.Lock()
+_debug_sample_dir = config.TEST_DATA_DIR / "1"
 
 
 def ensure_records_root() -> Path:
@@ -49,8 +52,54 @@ def folder_is_empty(folder: Path) -> bool:
     return False
 
 
+def _seed_current_dir_with_debug_samples() -> None:
+    """Replicate TestData/1 assets into SaveData/current when running in debug mode."""
+    if not config.DEBUG:
+        return
+    if not _debug_sample_dir.exists():
+        return
+    try:
+        needs_seed = folder_is_empty(_current_dir)
+    except Exception:
+        needs_seed = False
+    if not needs_seed:
+        return
+
+    with _debug_seed_lock:
+        if not folder_is_empty(_current_dir):
+            return
+        try:
+            _current_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            LOG.warning("Unable to prepare SaveData current directory at %s: %s", _current_dir, exc)
+            return
+
+        copied = 0
+        for item in _debug_sample_dir.iterdir():
+            destination = _current_dir / item.name
+            try:
+                if item.is_dir():
+                    shutil.copytree(item, destination, dirs_exist_ok=True)
+                elif item.is_file():
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    copy2(item, destination)
+                else:
+                    continue
+                copied += 1
+            except Exception as exc:
+                LOG.warning("Failed to seed sample %s -> %s: %s", item, destination, exc)
+        if copied:
+            LOG.info(
+                "Seeded %s with %d sample entries from %s for debug mode fallback.",
+                _current_dir,
+                copied,
+                _debug_sample_dir,
+            )
+
+
 def copy_current_artifacts(target_folder: Path) -> List[Path]:
     """Copy known capture artifacts from the current directory into the target folder."""
+    _seed_current_dir_with_debug_samples()
     copied: List[Path] = []
     if not _current_dir.exists():
         LOG.warning("SaveData current directory missing at %s; nothing to copy.", _current_dir)

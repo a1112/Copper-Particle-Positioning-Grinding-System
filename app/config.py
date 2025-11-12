@@ -7,6 +7,7 @@ so both API and UI can share the same toggles.
 from __future__ import annotations
 
 import os
+import socket
 from pathlib import Path
 from typing import Optional
 
@@ -55,7 +56,8 @@ def _env_int(name: str, default: int) -> int:
 # DEBUG flag: enable extra logging/diagnostics across API and UI.
 # Priority: COPPER_DEBUG > DEBUG > default False
 DEBUG: bool = _env_bool("COPPER_DEBUG", _env_bool("DEBUG", False))
-
+if socket.gethostname() in ['lcx_ace']:
+    DEBUG = True
 # DATA MODE flag: determines whether simulated ("sim") or runtime/production ("runtime") backends are used.
 _DATA_MODE_RAW = _env_text("COPPER_DATA_MODE", _env_text("COPPER_RUNTIME_MODE", "http")) or "sim"
 DATA_MODE: str = _DATA_MODE_RAW.lower()

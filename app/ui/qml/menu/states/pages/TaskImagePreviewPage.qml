@@ -6,8 +6,6 @@ import "../../../cores" as Cores
 import "../../../datas" as Datas
 ScrollView {
   id: root
-  required property var statePageCore
-
   Layout.fillWidth: true
   Layout.fillHeight: true
 
