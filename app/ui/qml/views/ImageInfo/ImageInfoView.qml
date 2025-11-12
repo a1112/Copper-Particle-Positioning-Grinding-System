@@ -28,7 +28,32 @@ BaseCard {
   property real fixtureMarginMm: 6
   property var calibrationFixtures: Cores.CoreDataView.fixtures
   property var imageDataCore: Cores.CoreDataView
+  readonly property var algResultData: {
+    var gcode = Datas.TaskDatas.gcodeData || {}
+    if (gcode && gcode.alg_result !== undefined && gcode.alg_result !== null)
+      return gcode.alg_result
+    if (gcode && gcode.algResult !== undefined && gcode.algResult !== null)
+      return gcode.algResult
+    return null
+  }
+  property var defectAreaRects: defectArray(["lzRects", "lz_rects"])
+  property var defectSingleRects: defectArray(["singleLzRects", "single_lz_rects"])
   implicitHeight: col.implicitHeight + 16
+
+  function defectArray(fieldNames) {
+    var alg = algResultData
+    if (!alg || typeof alg !== "object")
+      return []
+    var defect = alg.defectResult || alg.defect_result
+    if (!defect || typeof defect !== "object")
+      return []
+    for (var i = 0; i < fieldNames.length; ++i) {
+      var key = fieldNames[i]
+      if (defect[key] && Array.isArray(defect[key]))
+        return defect[key]
+    }
+    return []
+  }
 
   ColumnLayout {
     id:col
@@ -52,6 +77,8 @@ BaseCard {
         fixtureSizeMm: root.fixtureSizeMm
         fixtureMarginMm: root.fixtureMarginMm
         fixtures: root.calibrationFixtures
+        defectAreaRects: root.defectAreaRects
+        defectSingleRects: root.defectSingleRects
         calibrationCore: root.imageDataCore
 
       }

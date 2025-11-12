@@ -6,9 +6,11 @@ from pathlib import Path
 from math import sqrt
 from typing import Any, Dict, List, Mapping, Optional, Sequence
 
+from app import config
+
 LOG = logging.getLogger("controller.http.program")
 
-DEFAULT_ALG_RESULT_PATH = Path("D:/SaveData/alg_result.json")
+DEFAULT_ALG_RESULT_PATH = config.SAVE_DATA_ALG_RESULT_PATH
 
 
 def _safe_float(value: Any) -> float:

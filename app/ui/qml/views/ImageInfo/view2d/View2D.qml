@@ -26,6 +26,8 @@ Item {
   property real fixtureSizeMm: 8
   property real fixtureMarginMm: 6
   property var fixtures: []
+  property var defectAreaRects: []
+  property var defectSingleRects: []
   property var calibrationCore: Cores.CoreDataView
   property int recordId: Datas.TaskDatas.latestRecordId
   property var viewCore: ImageInfo.ViewCore{}
@@ -338,6 +340,14 @@ Item {
           onWidthChanged: requestPaint()
           onHeightChanged: requestPaint()
           Component.onCompleted: requestPaint()
+        }
+
+        Layers.DefectOverlay {
+          anchors.fill: parent
+          areaRects: view.defectAreaRects
+          singleRects: view.defectSingleRects
+          scaleX: view.scaleX
+          scaleY: view.scaleY
         }
 
         Layers.FixtureOverlay {

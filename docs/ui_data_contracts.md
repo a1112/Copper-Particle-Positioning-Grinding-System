@@ -93,7 +93,23 @@ WebSocket `/ws/status` 周期推送的载荷会被 `Datas.StatusDatas.ingest()`�
 
 ---
 
-## 3. 配置 / 元数据（`/config/meta`）
+## 3. 算法结果（`/data/tasks/state` → `gcode.alg_result`）
+
+`TaskWork` 轮询 `/data/tasks/state` 后会将 `payload.gcode.alg_result` 缓存在 `Datas.TaskDatas.gcodeData`。算法产物中的缺陷统计与图层信息在 UI 中有如下用途：
+
+| 字段 | 类型 | 说明 | UI 消费位置 |
+| ---- | ---- | ---- | ------------ |
+| `defectResult.lzAreaTotalMM` | number | 粒子区域面积（mm^2） | CuttingStatisticsView |
+| `defectResult.lzHeightMax` | number | 粒子最高点高度（mm） | CuttingStatisticsView |
+| `defectResult.lzNum` | number | 粒子数量 | CuttingStatisticsView |
+| `defectResult.lzRects` | array | 粒子工作区域矩形，像素坐标 | ImageInfo 2D 叠加层（区域底色） |
+| `defectResult.singleLzRects` | array | 单颗粒分布矩形，像素坐标 | ImageInfo 2D 叠加层（红色方块） |
+
+矩形字段均遵循 `{ X1, X2, Y1, Y2 }` 或 `{ x1, x2, y1, y2 }` 结构，单位为 `sListPPtsImage` 对应的像素坐标。叠加层会随 2D 视图缩放/拖拽联动。
+
+---
+
+## 4. 配置 / 元数据（`/config/meta`）
 
 配置接口为静态信息，主要绑定以下视图：
 
@@ -110,7 +126,7 @@ WebSocket `/ws/status` 周期推送的载荷会被 `Datas.StatusDatas.ingest()`�
 
 ---
 
-## 4. 编写模拟数据的要点
+## 5. 编写模拟数据的要点
 
 1. 字段名支持驼峰与下划线，建议两种命名同时输出，便于前端兼容。
 2. 时间戳统一使用秒级浮点或 ISO8601 字符串；UI 侧会优先解析浮点值。
