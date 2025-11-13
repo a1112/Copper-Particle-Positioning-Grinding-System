@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import "../../../Api" as Api
+import "../../../../Api" as Api
 
 Pane {
   id: page

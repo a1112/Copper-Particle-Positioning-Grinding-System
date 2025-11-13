@@ -4,7 +4,10 @@ import QtQuick.Layouts
 import "../../Api" as Api
 import "../../components/btns" as Btns
 import "../../cores" as Cores
-import "pages"
+import "pages/General" as GeneralPages
+import "pages/Process" as ProcessPages
+import "pages/Algorithm" as AlgorithmPages
+import "pages/Tools" as ToolPages
 
 Popup {
   id: root
@@ -258,25 +261,25 @@ Popup {
         Layout.fillHeight: true
         currentIndex: root.currentIndex
 
-        GeneralSettingsPage {
+        GeneralPages.GeneralSettingsPage {
           id: generalPage
           Layout.fillWidth: true
           Layout.fillHeight: true
         }
 
-        ProcessSettingsPage {
+        ProcessPages.ProcessSettingsPage {
           id: processPage
           Layout.fillWidth: true
           Layout.fillHeight: true
         }
 
-        AlgorithmSettingsPage {
+        AlgorithmPages.AlgorithmSettingsPage {
           id: algorithmPage
           Layout.fillWidth: true
           Layout.fillHeight: true
         }
 
-        ToolSettingsPage {
+        ToolPages.ToolSettingsPage {
           id: toolPage
           Layout.fillWidth: true
           Layout.fillHeight: true

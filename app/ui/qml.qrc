@@ -135,10 +135,10 @@
         <file>qml/menu/settings/SettingPage.qml</file>
         <file>qml/menu/settings/SettingPageHead.qml</file>
         <file>qml/menu/settings/SettingPageTitle.qml</file>
-        <file>qml/menu/settings/pages/GeneralSettingsPage.qml</file>
-        <file>qml/menu/settings/pages/ProcessSettingsPage.qml</file>
-        <file>qml/menu/settings/pages/AlgorithmSettingsPage.qml</file>
-        <file>qml/menu/settings/pages/ToolSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/General/GeneralSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/Process/ProcessSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/Algorithm/AlgorithmSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/Tools/ToolSettingsPage.qml</file>
         <file>qml/menu/settings/SettingSectionList.qml</file>
         <file>qml/views/Base/BaseHead.qml</file>
         <file>qml/views/ImageInfo/head/ViewChioseItem.qml</file>
