@@ -72,7 +72,7 @@ def _ensure_qrc_resources() -> None:
 
 def _run_minimal_ui() -> int:
     """Run a lightweight UI without Python backend bindings."""
-from PySide6.QtGui import QGuiApplication, QIcon
+    from PySide6.QtGui import QGuiApplication, QIcon
     from PySide6.QtQml import QQmlApplicationEngine
     from PySide6.QtCore import QCoreApplication, QUrl
     from app.ui.src.image_provider import CameraImageProvider
