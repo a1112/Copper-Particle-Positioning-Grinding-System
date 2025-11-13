@@ -39,7 +39,7 @@ ApplicationWindow {
 
   // 窗口标题
   title: Cores.CoreUI.title
+  // Window icon configured via QGuiApplication in app.ui.main
 
 
 }
-
