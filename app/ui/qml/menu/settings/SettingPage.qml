@@ -368,7 +368,7 @@ Popup {
 
   Popup {
     id: resultPopup
-    parent: root
+
     modal: false
     focus: false
     padding: 16

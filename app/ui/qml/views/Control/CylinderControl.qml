@@ -47,7 +47,7 @@ BaseCard {
 
       Repeater {
         model: cylinders
-        delegate: Rectangle {
+        Rectangle {
           property int idx: modelData.index
           property bool open: Cores.CoreControl.isCylinderOpen(idx)
           Layout.preferredWidth: 48
