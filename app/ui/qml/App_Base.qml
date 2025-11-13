@@ -39,7 +39,8 @@ ApplicationWindow {
 
   // 窗口标题
   title: Cores.CoreUI.title
+  // 任务栏 / 标题栏图标
+  icon.source: "qrc:/resource/app.ico"
 
 
 }
-

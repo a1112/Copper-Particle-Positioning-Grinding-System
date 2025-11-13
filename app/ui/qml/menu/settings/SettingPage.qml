@@ -383,9 +383,9 @@ Popup {
       radius: 10
       opacity: 0.95
     }
-    contentItem: Column {
+     Column {
       spacing: 6
-      implicitWidth: 360
+
       Label {
         text: resultPopup.isError ? qsTr("操作失败") : qsTr("操作成功")
         font.bold: true

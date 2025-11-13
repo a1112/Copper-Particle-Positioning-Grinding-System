@@ -72,7 +72,7 @@ def _ensure_qrc_resources() -> None:
 
 def _run_minimal_ui() -> int:
     """Run a lightweight UI without Python backend bindings."""
-    from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon
     from PySide6.QtQml import QQmlApplicationEngine
     from PySide6.QtCore import QCoreApplication, QUrl
     from app.ui.src.image_provider import CameraImageProvider
@@ -93,6 +93,10 @@ def _run_minimal_ui() -> int:
             sys.stderr.write(traceback.format_exc() + "\n")
         except Exception:
             pass
+    try:
+        app.setWindowIcon(QIcon(":/resource/app.ico"))
+    except Exception:
+        pass
 
     provider = CameraImageProvider()
     engine.addImageProvider("camera", provider)
