@@ -16,19 +16,19 @@
 1. 确认 `dll/` 目录中的 `YKCat2.dll`、`NoSys.dll` 等文件与控制器版本一致，必要时从正式安装目录复制。
 2. 在 64 位 Windows + Python 环境执行：
    ```powershell
-   cd F:\Copper-Particle-Positioning-Grinding-System\demo\procon_python
-   python -m demo.procon_python.example_usage --axis 0 --distance 100
+   cd F:\Copper-Particle-Positioning-Grinding-System\app\devices\procon
+   python -m app.devices.procon.example_usage --axis 0 --distance 100
    ```
    - `--ip` / `--port` 可选，默认使用共享内存模式（与 GantryMilling 一致）。
    - 运行前请确认控制器、急停、总线状态均已准备就绪。
 
 ## 示例命令
-- 轴状态采集：`python -m demo.procon_python.example.device_demo status --axis 0`
-- 温度读取（需提供现场 PDO 索引）：`python -m demo.procon_python.example.device_demo status --axis 0 --temperature 0x2324:1 --temperature-size 2`
-- 绝对定位：`python -m demo.procon_python.example.device_demo move --axis 0 --position 120 --velocity 80`
-- 恒速运行：`python -m demo.procon_python.example.device_demo velocity --axis 0 --velocity 50`
-- 气缸动作：`python -m demo.procon_python.example.device_demo cylinder-set --output 0:3 --state 1 --feedback 0:4`
-- 气缸状态：`python -m demo.procon_python.example.device_demo cylinder-get --output 0:3 --feedback 0:4`
+- 轴状态采集：`python -m app.devices.procon.example.device_demo status --axis 0`
+- 温度读取（需提供现场 PDO 索引）：`python -m app.devices.procon.example.device_demo status --axis 0 --temperature 0x2324:1 --temperature-size 2`
+- 绝对定位：`python -m app.devices.procon.example.device_demo move --axis 0 --position 120 --velocity 80`
+- 恒速运行：`python -m app.devices.procon.example.device_demo velocity --axis 0 --velocity 50`
+- 气缸动作：`python -m app.devices.procon.example.device_demo cylinder-set --output 0:3 --state 1 --feedback 0:4`
+- 气缸状态：`python -m app.devices.procon.example.device_demo cylinder-get --output 0:3 --feedback 0:4`
 
 ## 核心能力
 `ProConController` 封装了常见的底层接口：

@@ -35,8 +35,8 @@ SplitView {
       // 右列：程序/代码状态
     }
     Manage.FootManageView{
-        SplitView.fillWidth: true
-        SplitView.preferredHeight: 265
+      SplitView.fillWidth: true
+      SplitView.preferredHeight: 265
     }
   }
   Manage.CodeManageView{

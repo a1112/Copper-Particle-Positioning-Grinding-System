@@ -41,6 +41,7 @@ Item {
 
   property var _cameraPixelCache: ({})
   property var _cameraPixelPending: ({})
+  property string statusMessage: ""
 
   // 内部状态：相机坐标请求管理
   property point _pendingCameraPixel: Qt.point(-1, -1)
@@ -220,14 +221,19 @@ Item {
     var path = '/vision/pointcloud/pixel?x=' + ix + '&y=' + iy
     if (recordIdValue > 0)
       path += '&record_id=' + Math.round(recordIdValue)
-    Api.ApiClient.get(path,
+    Api.ApiClient.getQuiet(path,
       function(resp) {
         _cameraBusy = false
+        statusMessage = ""
         _applyCameraResponse(requestId, targetPixel, resp)
         _drainPendingCameraRequest()
       },
       function(status, message) {
         _cameraBusy = false
+        if (status === 404 && String(message).indexOf("Point cloud component") !== -1)
+          statusMessage = qsTr("采集识别中...")
+        else
+          statusMessage = ""
         // 仅当目标像素仍然有效时清空
         if (_isCurrentPixel(targetPixel)) {
           cursorCamera = _nanVector()
@@ -274,6 +280,7 @@ Item {
       cursorMachine = machineVec
     else
       cursorMachine = _nanVector()
+    statusMessage = ""
   }
 
   function _drainPendingCameraRequest() {
@@ -298,6 +305,7 @@ Item {
     _pendingCameraPixel = Qt.point(-1, -1)
     _lastCameraPixel = Qt.point(-1, -1)
     cursorMachine = _nanVector()
+    statusMessage = ""
   }
 
   function _machineFromPixel(px) {
@@ -400,7 +408,7 @@ Item {
     var path = "/vision/pointcloud/lookup?" + params.join("&")
 
     var promise = new Promise(function(resolve) {
-      Api.ApiClient.get(path,
+      Api.ApiClient.getQuiet(path,
         function(resp) {
           delete _cameraPixelPending[key]
           if (!resp || !resp.pixel || resp.pixel.x === undefined || resp.pixel.y === undefined) {
@@ -422,11 +430,16 @@ Item {
           }
           var cacheEntry = { x: pxValue, y: pyValue, distance: distance, record: recordKey }
           _cameraPixelCache[key] = cacheEntry
+          statusMessage = ""
           resolve(Qt.point(pxValue, pyValue))
         },
         function(status, message) {
           console.warn("cameraToPixel lookup failed", status, message)
           delete _cameraPixelPending[key]
+          if (status === 404 && String(message).indexOf("Point cloud component") !== -1)
+            statusMessage = qsTr("采集识别中...")
+          else
+            statusMessage = ""
           resolve(Qt.point(-1, -1))
         }
       )

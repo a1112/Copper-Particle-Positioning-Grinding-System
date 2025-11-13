@@ -11,7 +11,7 @@ from typing import Iterable, Optional, Sequence
 
 __all__ = ["DigitalPoint", "ProConDllError", "ProConController"]
 
-from demo.procon_python import YKCat2
+from . import YKCat2
 
 
 class ProConDllError(RuntimeError):
@@ -636,7 +636,11 @@ class ProConController:
             raise ProConDllError(f"Include directory not found: {self._include_dir}")
         if str(self._include_dir) not in sys.path:
             sys.path.insert(0, str(self._include_dir))
-        self._ykcat2 = importlib.import_module("YKCat2")
+        try:
+            self._ykcat2 = importlib.import_module(".YKCat2", package=__package__)
+        except Exception:
+            # Fallback to absolute import for compatibility with legacy sys.path usage
+            self._ykcat2 = importlib.import_module("YKCat2")
 
     def _load_runtime(self) -> None:
         if self._dll:

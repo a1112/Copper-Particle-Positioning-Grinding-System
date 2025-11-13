@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 import "../Base"
 import "../../cores" as Cores
+import "../../datas" as Datas
 import "base"
 BaseCard {
   id: root
@@ -46,6 +47,39 @@ BaseCard {
       return pad(hours) + ":" + pad(minutes) + ":" + pad(secs)
     return pad(minutes) + ":" + pad(secs)
   }
+
+  function _resolveDefectResult() {
+    var gcode = Datas.TaskDatas.gcodeData || {}
+    if (!gcode)
+      return null
+    var alg = gcode.alg_result || gcode.algResult
+    if (!alg || typeof alg !== "object")
+      return null
+    var defect = alg.defectResult || alg.defect_result
+    return (defect && typeof defect === "object") ? defect : null
+  }
+
+  function _defectValue(keys) {
+    var defect = root.defectResult
+    if (!defect)
+      return undefined
+    for (var i = 0; i < keys.length; ++i) {
+      var key = keys[i]
+      if (defect[key] !== undefined && defect[key] !== null)
+        return defect[key]
+    }
+    return undefined
+  }
+
+  function _toNumber(value) {
+    var num = Number(value)
+    return isNaN(num) ? Number.NaN : num
+  }
+
+  readonly property var defectResult: _resolveDefectResult()
+  readonly property real defectAreaTotal: _toNumber(_defectValue(["lzAreaTotalMM", "lz_area_total_mm"]))
+  readonly property real defectHeightMax: _toNumber(_defectValue(["lzHeightMax", "lz_height_max"]))
+  readonly property real defectParticleCount: _toNumber(_defectValue(["lzNum", "lz_num"]))
 
   ColumnLayout {
     id: contentColumn
@@ -114,6 +148,27 @@ BaseCard {
         titleText: qsTr("最大速度")
         valueText: root.formatNumber(Cores.CoreCutting.maxFeedRate, "mm/s", 3)
         valueColor: Cores.CoreStyle.primary
+      }
+
+      InfoRowItem {
+        Layout.fillWidth: true
+        titleText: qsTr("粒子面积")
+        valueText: root.formatNumber(root.defectAreaTotal, "mm^2", 2)
+        valueColor: Cores.CoreStyle.warning
+      }
+
+      InfoRowItem {
+        Layout.fillWidth: true
+        titleText: qsTr("粒子最大高度")
+        valueText: root.formatNumber(root.defectHeightMax, "mm", 2)
+        valueColor: Cores.CoreStyle.accent
+      }
+
+      InfoRowItem {
+        Layout.fillWidth: true
+        titleText: qsTr("粒子数量")
+        valueText: root.formatNumber(root.defectParticleCount, qsTr("个"), 0)
+        valueColor: Cores.CoreStyle.info
       }
     }
   }

@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import HTTPException
 
 from app.server.api.services.calibration_loader import CalibrationSettingsLoader
+from app.server.api.services.task1_runtime import get_task1_runner
 from ..api_core import vision_router as router
 
 _CALIBRATION_LOADER = CalibrationSettingsLoader()
@@ -14,3 +15,9 @@ async def get_calibration() -> dict:
     if not data:
         raise HTTPException(status_code=404, detail="Calibration data not available")
     return data
+
+
+@router.get("/vision/cameras")
+def list_cameras() -> dict:
+    runner = get_task1_runner()
+    return {"profiles": runner.camera_profiles()}

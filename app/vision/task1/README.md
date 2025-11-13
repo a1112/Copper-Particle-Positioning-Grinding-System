@@ -10,7 +10,7 @@ This module operates in pixel space using `D:\SaveData\current\src_IMG_PointClou
 ## Quick Start
 
 ```bash
-python -m work.alg.task1.main \
+python -m app.vision.task1.main \
   --source-dir D:\SaveData\current \
   --output-dir D:\SaveData\current\alg_task1 \
   --reference-plane-z 1800 \
@@ -33,5 +33,5 @@ python -m work.alg.task1.main \
 | `z_without_fixtures.tif` | Depth map with fixture pixels set to zero. |
 | `spindle_path.png`, `spindle_path.npy` | Spindle centre-line image and numeric path list (`[x, y, z, feed, cluster, pass, kind]`). |
 
-Re-run `python -m work.alg.task1.main` with different parameters whenever you need to regenerate the dataset.
+Re-run `python -m app.vision.task1.main` with different parameters whenever you need to regenerate the dataset.
 

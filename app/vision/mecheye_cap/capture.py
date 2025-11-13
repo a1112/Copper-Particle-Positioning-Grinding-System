@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Optional, Sequence
-x
+
 LOG = logging.getLogger(__name__)
 
 try:  # Optional deps for saving outputs
@@ -26,6 +26,9 @@ class CaptureResult:
     color_path: Optional[Path]
     depth_path: Optional[Path]
     point_cloud_path: Optional[Path]
+    color_array: Optional["np.ndarray"] = None
+    depth_array: Optional["np.ndarray"] = None
+    point_map: Optional["np.ndarray"] = None
 
 
 class MechEyeCapture:
@@ -172,10 +175,20 @@ class MechEyeCapture:
                 )
 
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        color_path = self._persist_color(frame_2d, timestamp)
-        depth_path = self._persist_depth(frame_3d, timestamp)
-        cloud_path = self._persist_point_cloud(frame_3d, timestamp)
-        return CaptureResult(color_path=color_path, depth_path=depth_path, point_cloud_path=cloud_path)
+        color_array = self._extract_array(frame_2d, ("colorMap", "rgbMap", "image")) if frame_2d is not None else None
+        depth_array = self._extract_array(frame_3d, ("depthMap", "zMap")) if frame_3d is not None else None
+        point_map = self._extract_array(frame_3d, ("pointMap", "xyzMap")) if frame_3d is not None else None
+        color_path = self._persist_color(frame_2d, timestamp, existing_array=color_array)
+        depth_path = self._persist_depth(frame_3d, timestamp, existing_array=depth_array)
+        cloud_path = self._persist_point_cloud(frame_3d, timestamp, existing_array=point_map)
+        return CaptureResult(
+            color_path=color_path,
+            depth_path=depth_path,
+            point_cloud_path=cloud_path,
+            color_array=color_array,
+            depth_array=depth_array,
+            point_map=point_map,
+        )
 
     def _invoke_device_method(self, candidates: Iterable[str] | str, *args: Any) -> bool:
         names = [candidates] if isinstance(candidates, str) else list(candidates)
@@ -186,8 +199,8 @@ class MechEyeCapture:
                 return True
         return False
 
-    def _persist_color(self, frame: Any, tag: str) -> Optional[Path]:
-        if frame is None:
+    def _persist_color(self, frame: Any, tag: str, *, existing_array: Optional["np.ndarray"] = None) -> Optional[Path]:
+        if frame is None and existing_array is None:
             return None
         path = self.output_dir / f"{tag}_color.png"
         for attr in ("saveColorMap", "save_color_map", "saveRGBImage", "save"):
@@ -195,7 +208,7 @@ class MechEyeCapture:
             if callable(fn):
                 fn(str(path))
                 return path
-        array = self._extract_array(frame, field_candidates=("colorMap", "rgbMap", "image"))
+        array = existing_array or self._extract_array(frame, field_candidates=("colorMap", "rgbMap", "image"))
         if array is None:
             return None
         if cv2 is None:
@@ -205,8 +218,8 @@ class MechEyeCapture:
         cv2.imwrite(str(path), array[:, :, ::-1])
         return path
 
-    def _persist_depth(self, frame: Any, tag: str) -> Optional[Path]:
-        if frame is None:
+    def _persist_depth(self, frame: Any, tag: str, *, existing_array: Optional["np.ndarray"] = None) -> Optional[Path]:
+        if frame is None and existing_array is None:
             return None
         path = self.output_dir / f"{tag}_depth.tiff"
         for attr in ("saveDepthMap", "save_depth_map", "saveZMap"):
@@ -214,7 +227,7 @@ class MechEyeCapture:
             if callable(fn):
                 fn(str(path))
                 return path
-        array = self._extract_array(frame, field_candidates=("depthMap", "zMap"))
+        array = existing_array or self._extract_array(frame, field_candidates=("depthMap", "zMap"))
         if array is None:
             return None
         if cv2 is None:
@@ -223,8 +236,8 @@ class MechEyeCapture:
         cv2.imwrite(str(path), array)
         return path
 
-    def _persist_point_cloud(self, frame: Any, tag: str) -> Optional[Path]:
-        if frame is None:
+    def _persist_point_cloud(self, frame: Any, tag: str, *, existing_array: Optional["np.ndarray"] = None) -> Optional[Path]:
+        if frame is None and existing_array is None:
             return None
         path = self.output_dir / f"{tag}_cloud.ply"
         for attr in ("savePointCloud", "save_point_cloud", "savePLY", "exportPointCloud"):
@@ -232,7 +245,7 @@ class MechEyeCapture:
             if callable(fn):
                 fn(str(path))
                 return path
-        array = self._extract_array(frame, field_candidates=("pointMap", "xyzMap"))
+        array = existing_array or self._extract_array(frame, field_candidates=("pointMap", "xyzMap"))
         if array is None:
             return None
         np = self._require_numpy()

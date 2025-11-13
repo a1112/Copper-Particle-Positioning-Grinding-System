@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 
-from work.alg.task1.config import TaskConfig
-from work.alg.task1.models import DownsampledCloud, PlaneModel
-from work.alg.task1.path_planner import plan_toolpaths
-from work.alg.task1.plane_fit import fit_board_plane
-from work.alg.task1.segmentation import compute_board_mask, detect_particles
+from app.vision.task1.config import TaskConfig
+from app.vision.task1.models import DownsampledCloud, PlaneModel
+from app.vision.task1.path_planner import plan_toolpaths
+from app.vision.task1.plane_fit import fit_board_plane
+from app.vision.task1.segmentation import compute_board_mask, detect_particles
 
 
 def _synthetic_cloud(size: int = 32) -> DownsampledCloud:

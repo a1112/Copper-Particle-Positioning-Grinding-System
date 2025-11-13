@@ -21,6 +21,12 @@ SplitView {
     SplitView.minimumWidth: 320
   }
 
+  Controls{
+    SplitView.preferredWidth: 400
+    SplitView.fillHeight: true
+    SplitView.minimumWidth: 300
+  }
+
   ChartViews.ElevationAreaChart {
     visible: false
     id: elevationChart
@@ -29,7 +35,7 @@ SplitView {
     SplitView.minimumWidth: 300
 
   }
-Controls{
+  Controls{
     SplitView.preferredWidth: 400
     SplitView.minimumWidth: 300
     SplitView.fillHeight: true

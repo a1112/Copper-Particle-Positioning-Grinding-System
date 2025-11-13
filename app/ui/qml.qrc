@@ -152,6 +152,7 @@
         <file>qml/views/ImageInfo/view2d/ImageLayer.qml</file>
         <file>qml/views/ImageInfo/view2d/MaskLayer.qml</file>
         <file>qml/views/ImageInfo/view2d/FixtureOverlay.qml</file>
+        <file>qml/views/ImageInfo/view2d/DefectOverlay.qml</file>
         <file>qml/views/ImageInfo/view2d/ToolOverlay.qml</file>
         <file>qml/views/ImageInfo/view3d/Control3D.qml</file>
         <file>qml/views/ImageInfo/view3d/Core3D.qml</file>
@@ -237,5 +238,6 @@
         <file>qml/menu/settings/pages/TextFieldBase.qml</file>
         <file>qml/menu/settings/pages/SettingPage/ComboBoxBase.qml</file>
         <file>qml/menu/settings/pages/ComboBoxBase.qml</file>
+        <file>qml/views/ImageInfo/ViewCore.qml</file>
     </qresource>
 </RCC>

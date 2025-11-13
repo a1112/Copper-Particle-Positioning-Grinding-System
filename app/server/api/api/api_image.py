@@ -117,8 +117,8 @@ def _lookup_point_cloud_camera(
     best_dist_sq = float(dist_sq[row, col])
     best_dist = float(np.sqrt(best_dist_sq))
 
-    if max_radius is not None and best_dist > float(max_radius):
-        raise HTTPException(status_code=404, detail="No point within specified radius")
+    # if max_radius is not None and best_dist > float(max_radius):
+    #     raise HTTPException(status_code=404, detail="No point within specified radius")
 
     result_pixel = {"x": int(col), "y": int(row)}
     result_camera = {

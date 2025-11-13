@@ -88,7 +88,17 @@ Popup {
     Cores.CoreSettings.parameterTools = cloneArray(settingsData.tools)
   }
 
-  function refresh() {
+  function showOperationResult(message, isError) {
+    if (!resultPopup)
+      return
+    resultPopup.message = message || ""
+    resultPopup.isError = !!isError
+    resultPopup.open()
+    resultPopupTimer.restart()
+  }
+
+  function refresh(showPopup) {
+    var notifyResult = showPopup !== false
     loading = true
     errorText = ""
     if (header.statusLabel)
@@ -106,14 +116,21 @@ Popup {
         algorithmPage.data = settingsData.algorithm
         toolPage.tools = settingsData.tools
         persistSettingsCache()
+        if (notifyResult)
+          showOperationResult(qsTr("参数已刷新"), false)
       } catch (err) {
         errorText = qsTr("加载失败: %1").arg(err)
+        if (notifyResult)
+          showOperationResult(errorText, true)
       } finally {
         loading = false
       }
     }, function(status, message) {
       loading = false
-      errorText = qsTr("加载失败: %1").arg(message || status)
+      var failureText = qsTr("加载失败: %1").arg(message || status)
+      errorText = failureText
+      if (notifyResult)
+        showOperationResult(failureText, true)
     })
   }
 
@@ -145,9 +162,12 @@ Popup {
         toolPage.tools = resp.tools || []
         settingsData.tools = resp.tools || []
         persistSettingsCache()
+        showOperationResult(qsTr("刀具参数保存成功"), false)
         header.statusLabel.text = qsTr("刀具参数已保存")
       }, function(status, message) {
-        errorText = qsTr("保存失败: %1").arg(message || status)
+        var failure = qsTr("保存失败: %1").arg(message || status)
+        errorText = failure
+        showOperationResult(failure, true)
       })
       return
     }
@@ -161,9 +181,12 @@ Popup {
         settingsData.algorithm = saved
       currentPage().data = saved
       persistSettingsCache()
+      showOperationResult(qsTr("参数保存成功"), false)
       header.statusLabel.text = qsTr("参数已保存")
     }, function(status, message) {
-      errorText = qsTr("保存失败: %1").arg(message || status)
+      var failureMsg = qsTr("保存失败: %1").arg(message || status)
+      errorText = failureMsg
+      showOperationResult(failureMsg, true)
     })
   }
 
@@ -343,12 +366,52 @@ Popup {
     }
   }
 
+  Popup {
+    id: resultPopup
+    parent: root
+    modal: false
+    focus: false
+    padding: 16
+    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+    x: parent ? (parent.width - width) / 2 : 0
+    y: parent ? parent.height - height - 32 : 0
+    property string message: ""
+    property bool isError: false
+    background: Rectangle {
+      color: resultPopup.isError ? "#7f1d1d" : "#064e3b"
+      border.color: resultPopup.isError ? "#fca5a5" : "#6ee7b7"
+      radius: 10
+      opacity: 0.95
+    }
+    contentItem: Column {
+      spacing: 6
+      implicitWidth: 360
+      Label {
+        text: resultPopup.isError ? qsTr("操作失败") : qsTr("操作成功")
+        font.bold: true
+        color: "#f8fafc"
+      }
+      Label {
+        text: resultPopup.message
+        wrapMode: Label.Wrap
+        color: "#f1f5f9"
+      }
+    }
+    Timer {
+      id: resultPopupTimer
+      interval: 2600
+      repeat: false
+      running: false
+      onTriggered: resultPopup.close()
+    }
+  }
+
   Component.onCompleted: {
     applyCachedSettings()
     var tabIndex = Cores.CoreSettings ? Cores.CoreSettings.parameterTabIndex : 0
     if (tabIndex < 0 || tabIndex >= categories.length)
       tabIndex = 0
     currentIndex = tabIndex
-    refresh()
+    refresh(false)
   }
 }

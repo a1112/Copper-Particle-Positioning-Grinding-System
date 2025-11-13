@@ -14,6 +14,8 @@ QtObject {
 
   // GET
   function get(path, onOk, onErr){ Http.get(root, path, onOk, onErr, showError) }
+  // GET without global error popup
+  function getQuiet(path, onOk, onErr){ Http.get(root, path, onOk, onErr, null) }
   // POST JSON
   function post(path, body, onOk, onErr){ Http.postJson(root, path, body, onOk, onErr, showError) }
   // DELETE
@@ -52,5 +54,9 @@ QtObject {
   function listGroupImages(serial, onOk, onErr){ get('/test/group/' + encodeURIComponent(serial) + '/images', onOk, onErr) }
   function createGroup(serial, note, onOk, onErr){ post('/test/group/create', { serial: serial, note: note }, onOk, onErr) }
   function addImageToGroup(serial, name, onOk, onErr){ post('/test/group/' + encodeURIComponent(serial) + '/add_image?name=' + encodeURIComponent(name), {}, onOk, onErr) }
+
+  function visionListCameras(onOk, onErr){ get('/vision/cameras', onOk, onErr) }
+  function task1Defaults(onOk, onErr){ get('/test/task1/defaults', onOk, onErr) }
+  function task1Run(payload, onOk, onErr){ post('/test/task1/run', payload, onOk, onErr) }
 }
 

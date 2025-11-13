@@ -1,2 +1,10 @@
-# 工艺参数（预留）
-placeholders: []
+# 工艺参数默认配置
+motion:
+  air_cut_speed: 0.0          # 空跑速度 (mm/s)
+  air_cut_speed_max: 0.0      # 最大空跑速度 (mm/s)
+  feed_speed: 0.0             # 进给速度 (mm/s)
+  feed_speed_max: 0.0         # 最大进给速度 (mm/s)
+  jog_speed: 0.0              # 点动速度 (mm/s)
+spindle:
+  rpm: 0.0                    # 主轴转速 (rpm)
+  tool_diameter: 0.0          # 刀具直径 (mm)

@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from sqlalchemy import MetaData, Table, create_engine, select
+from sqlalchemy import MetaData, Table, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
@@ -52,7 +52,9 @@ class TaskQueueWriter:
         connect_args: Dict[str, Any] = {}
         if db_url.startswith("mysql"):
             connect_args["connect_timeout"] = 3
-        engine = create_engine(db_url, future=True, pool_pre_ping=True, pool_recycle=1800, connect_args=connect_args)
+        from app.db.base import create_engine_ensuring_database
+
+        engine = create_engine_ensuring_database(db_url)
         session_factory = sessionmaker(bind=engine, future=True, expire_on_commit=False)
         return cls(session_factory, engine=engine, owns_engine=True)
 
