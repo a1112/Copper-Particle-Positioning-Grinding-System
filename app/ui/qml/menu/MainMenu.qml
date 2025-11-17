@@ -26,8 +26,6 @@ Menu {
   }
 
   MainMenus.InterfaceMenu {
-    settingsDrawer: settingsDrawer
-    settingsPage: settingsPage
   }
 
   MenuItem {

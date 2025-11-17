@@ -8,7 +8,7 @@ from PySide6.QtCore import QCoreApplication, QSettings
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
-from app.api.server import create_app
+from app.server.api.api_core import app
 from app.config import DATA_MODE, DATA_ENDPOINT
 from app.runtime.environment import bootstrap_environment
 from app.ui.src.highlighter import HighlighterBridge
@@ -50,7 +50,7 @@ class Runtime:
         self.i18n: Optional[LocalizationManager] = None
 
         # API
-        self.api_app = create_app(self.provider, self.orch, self.motion)
+        self.api_app = app
         self.api_ctl = ApiController()
 
         # Qt objects

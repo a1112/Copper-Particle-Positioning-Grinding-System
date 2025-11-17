@@ -89,6 +89,10 @@
         <file>qml/dialogs/GlobErrorDialog.qml</file>
         <file>qml/dialogs/TestImagesDialog.qml</file>
         <file>qml/dialogs/DataEntryDialog.qml</file>
+        <file>qml/dialogs/calibration/CalibrationDialog.qml</file>
+        <file>qml/dialogs/calibration/CalibrationImagePane.qml</file>
+        <file>qml/dialogs/calibration/CalibrationGroupPanel.qml</file>
+        <file>qml/dialogs/calibration/CalibrationPointsPanel.qml</file>
         <file>qml/main.qml</file>
         <file>qml/menu/SettingsDrawer.qml</file>
         <file>qml/minimal.qml</file>
@@ -239,5 +243,6 @@
         <file>qml/menu/settings/pages/SettingPage/ComboBoxBase.qml</file>
         <file>qml/menu/settings/pages/ComboBoxBase.qml</file>
         <file>qml/views/ImageInfo/ViewCore.qml</file>
+        <file>qml/components/Base/TextFieldBase.qml</file>
     </qresource>
 </RCC>
