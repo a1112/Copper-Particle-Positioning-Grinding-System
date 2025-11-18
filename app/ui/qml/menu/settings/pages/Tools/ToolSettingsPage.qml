@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-
+import "../"
 Item {
   id: page
   property var tools: []
@@ -122,42 +122,42 @@ Item {
               anchors.margins: 6
               spacing: 12
 
-              TextField {
+              TextFieldBase {
                 text: model
                 Layout.preferredWidth: 140
                 placeholderText: qsTr("型号")
                 onTextChanged: toolModel.setProperty(index, "model", text)
               }
 
-              TextField {
+              TextFieldBase{
                 text: String(diameter)
                 Layout.preferredWidth: 90
                 inputMethodHints: Qt.ImhPreferNumbers
                 onEditingFinished: toolModel.setProperty(index, "diameter", Number(text) || 0)
               }
 
-              TextField {
+              TextFieldBase{
                 text: String(length)
                 Layout.preferredWidth: 90
                 inputMethodHints: Qt.ImhPreferNumbers
                 onEditingFinished: toolModel.setProperty(index, "length", Number(text) || 0)
               }
 
-              TextField {
+              TextFieldBase{
                 text: String(usage)
                 Layout.preferredWidth: 120
                 inputMethodHints: Qt.ImhDigitsOnly
                 onEditingFinished: toolModel.setProperty(index, "usage", parseInt(text, 10) || 0)
               }
 
-              TextField {
+              TextFieldBase{
                 text: String(life)
                 Layout.preferredWidth: 130
                 inputMethodHints: Qt.ImhDigitsOnly
                 onEditingFinished: toolModel.setProperty(index, "life", parseInt(text, 10) || 0)
               }
 
-              TextField {
+              TextFieldBase{
                 text: String(status)
                 Layout.preferredWidth: 70
                 inputMethodHints: Qt.ImhDigitsOnly

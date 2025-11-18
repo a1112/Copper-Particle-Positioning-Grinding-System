@@ -20,18 +20,19 @@ ColumnLayout {
       Layout.fillWidth: true
       title: (modelData && modelData.label) || (modelData && modelData.id) || qsTr("未命名分组")
       property string groupId: modelData && modelData.id ? modelData.id : ""
-      GridLayout {
+      Flow {
         width: parent.width
         id: grid
-        columns: 3
-        rowSpacing: 2
-        columnSpacing: 5
+        // columns: 3
+        // rowSpacing: 2
+        // columnSpacing: 5
         Repeater {
           model: modelData && modelData.fields ? modelData.fields : []
             AutoSettingsPageShowItem{
-              width:root.width/grid.columns
+              width:grid.width/3-2
             }
         }
+
       }
     }
   }
