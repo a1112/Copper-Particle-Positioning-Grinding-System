@@ -244,5 +244,6 @@
         <file>qml/menu/settings/pages/ComboBoxBase.qml</file>
         <file>qml/views/ImageInfo/ViewCore.qml</file>
         <file>qml/components/Base/TextFieldBase.qml</file>
+        <file>qml/menu/settings/pages/Auto/AutoSettingsPage.qml</file>
     </qresource>
 </RCC>

@@ -19,5 +19,6 @@ Settings {
   property var parameterGeneral: ({})
   property var parameterProcess: ({})
   property var parameterAlgorithm: ({})
+  property var parameterAuto: ({})
   property var parameterTools: []
 }

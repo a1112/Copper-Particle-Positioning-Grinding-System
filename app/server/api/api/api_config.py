@@ -7,11 +7,13 @@ from sqlalchemy.orm import Session
 from app.db import SessionLocal
 from app.db.models.tool_record import ToolRecord
 from app.server.api.services.settings_store import SettingsStore
+from app.server.api.services.auto_config_loader import AutoConfigLoader
 from app.server.api.services.meta_loader import MetaDataLoader
 
 from ..api_core import config_router as router
 
 _SETTINGS_STORE = SettingsStore()
+_AUTO_LOADER = AutoConfigLoader()
 _META_LOADER = MetaDataLoader()
 
 
@@ -28,6 +30,7 @@ async def config_settings():
     session: Session = SessionLocal()
     try:
         categories = _SETTINGS_STORE.fetch_all(session)
+        categories["by_auto"] = _AUTO_LOADER.build_all(session)
         tools = session.query(ToolRecord).order_by(ToolRecord.id.asc()).all()
         return {"categories": categories, "tools": [record.to_dict() for record in tools]}
     except Exception as exc:

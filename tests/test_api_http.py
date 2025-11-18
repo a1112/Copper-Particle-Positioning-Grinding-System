@@ -76,9 +76,12 @@ def test_config_settings_bundle(client):
     data = r.json()
     assert "categories" in data
     categories = data["categories"]
-    assert "general" in categories
-    assert "process" in categories
-    assert "algorithm" in categories
+    assert {"general", "process", "algorithm"}.issubset(categories.keys())
+    auto_categories = categories.get("by_auto", {})
+    assert isinstance(auto_categories, dict)
+    assert "process_auto" in auto_categories
+    sample = auto_categories["process_auto"]
+    assert "groups" in sample
     algorithm = categories["algorithm"]
     assert "pre_process" in algorithm
     assert "defect" in algorithm
@@ -97,7 +100,14 @@ def test_settings_parameters_roundtrip(client):
     assert r.status_code == 200
     payload = r.json()
     categories = payload.get("categories", {})
-    assert set(categories.keys()) == {"general", "process", "algorithm"}
+    assert {"general", "process", "algorithm"}.issubset(categories.keys())
+    assert isinstance(categories.get("by_auto", {}), dict)
+    auto_categories = categories.get("by_auto", {})
+    assert "process_auto" in auto_categories
+    sample_auto = auto_categories["process_auto"]
+    assert "groups" in sample_auto
+    assert isinstance(sample_auto.get("groups"), list)
+    assert sample_auto.get("values", {}).get("motion", {}).get("feed_speed") == 0.0
     assert "placeholders" in categories["general"]
     assert "placeholders" in categories["process"]
     assert "pre_process" in categories["algorithm"]
