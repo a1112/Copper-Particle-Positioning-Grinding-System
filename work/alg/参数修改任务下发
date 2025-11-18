@@ -1,0 +1,29 @@
+#  参数修改任务下发
+    当参数 进行修改时，在 HardwareTaskQueue 增加 对应的修改任务：
+        在 ACTION_META 中增加 对应的任务
+        修改的表格通过 task_params 指定  ParamSettings 中的 category
+
+# 动态配置界面，
+    在 参数设置中心 中 动态的通过 configs\template\configs 中的 配置文件进行 创建设置界面
+        目前界面已有的功能暂时保持不变，在 categories 增加 以 configs 中 文件的动态数据
+        by_auto
+
+    配置文件类型  .yaml
+    内容包含：
+        id， label，  等 提供给 categories 的数据 categories 增加 by_auto 字段。 未配置则回退到 文件基础名称
+        根据 Group 分区（顶层字段），
+            单个字段：
+                类型：默认  TextField
+                id: json 数据中的 key
+                label: 显示名称  （未配置则使用 id）
+                默认值： 为提供则为 0
+
+    提交 导出... 使用目前已有的按钮
+
+    运行流程： 1，server 启动时，加载 configs\template\configs 中的 配置yaml, 使用对应的 Config类
+             2，server 将 配置文件转换为json 形式 提供给界面。
+             3，界面首次打开配置中心时，根据 json 数据进行创建 GroupBox  GridLayout {Label TextFieldBase(类型控制)}
+             4，数据来源 如果 ParamSettings 有对应的配置表，server 进行一次访问(替换当前默认值)，否则使用默认值。
+             5, 保存（保存到数据库），刷新（重新读取数据库） 注意 对 HardwareTaskQueue 的添加
+
+    根据当前的工艺参数 的数据编写 yaml,我来测试有效性
