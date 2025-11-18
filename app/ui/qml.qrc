@@ -245,5 +245,7 @@
         <file>qml/views/ImageInfo/ViewCore.qml</file>
         <file>qml/components/Base/TextFieldBase.qml</file>
         <file>qml/menu/settings/pages/Auto/AutoSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/Auto/AutoSettingsPageMain.qml</file>
+        <file>qml/menu/settings/pages/Auto/AutoSettingsPageShowItem.qml</file>
     </qresource>
 </RCC>
