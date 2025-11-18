@@ -2,7 +2,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick
 
-
+import "../"
 Page {
   id: page1
   property var data: ({})

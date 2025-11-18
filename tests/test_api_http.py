@@ -15,7 +15,8 @@ from app.db.models.hardware_task_queue import HardwareTaskQueue
 from app.db.models.record_table import RecordTable
 from app.db.models.workpiece_table import WorkpieceTable
 from app.db.models.tool_record import ToolRecord
-from app.common.task_actions import friendly_action_name, friendly_action_type, normalise_action
+from app.common.task_actions import PARAM_UPDATE_ACTION, friendly_action_name, friendly_action_type, normalise_action
+from app.common.tasks import TaskStatus
 
 
 def test_root_docs_hint(client):
@@ -75,9 +76,12 @@ def test_config_settings_bundle(client):
     data = r.json()
     assert "categories" in data
     categories = data["categories"]
-    assert "general" in categories
-    assert "process" in categories
-    assert "algorithm" in categories
+    assert {"general", "process", "algorithm"}.issubset(categories.keys())
+    auto_categories = categories.get("by_auto", {})
+    assert isinstance(auto_categories, dict)
+    assert "process_auto" in auto_categories
+    sample = auto_categories["process_auto"]
+    assert "groups" in sample
     algorithm = categories["algorithm"]
     assert "pre_process" in algorithm
     assert "defect" in algorithm
@@ -89,13 +93,21 @@ def test_settings_parameters_roundtrip(client):
     with SessionLocal() as session:
         session.execute(delete(ParamSettings))
         session.execute(delete(ToolRecord))
+        session.execute(delete(HardwareTaskQueue))
         session.commit()
 
     r = client.get("/settings/parameters")
     assert r.status_code == 200
     payload = r.json()
     categories = payload.get("categories", {})
-    assert set(categories.keys()) == {"general", "process", "algorithm"}
+    assert {"general", "process", "algorithm"}.issubset(categories.keys())
+    assert isinstance(categories.get("by_auto", {}), dict)
+    auto_categories = categories.get("by_auto", {})
+    assert "process_auto" in auto_categories
+    sample_auto = auto_categories["process_auto"]
+    assert "groups" in sample_auto
+    assert isinstance(sample_auto.get("groups"), list)
+    assert sample_auto.get("values", {}).get("motion", {}).get("feed_speed") == 0.0
     assert "placeholders" in categories["general"]
     assert "placeholders" in categories["process"]
     assert "pre_process" in categories["algorithm"]
@@ -118,6 +130,17 @@ def test_settings_parameters_roundtrip(client):
     updated = r.json().get("payload", {})
     assert updated["pre_process"]["plane_distance"]["enabled"] is True
     assert updated["defect"]["normal_threshold"] == 0.25
+
+    with SessionLocal() as session:
+        tasks = session.query(HardwareTaskQueue).order_by(HardwareTaskQueue.id.asc()).all()
+        assert len(tasks) == 1
+        task = tasks[-1]
+        params = task.task_params or {}
+        assert task.task_name == friendly_action_name(PARAM_UPDATE_ACTION)
+        assert task.task_type == friendly_action_type(PARAM_UPDATE_ACTION)
+        assert params.get("action_key") == normalise_action(PARAM_UPDATE_ACTION)
+        assert params.get("params", {}).get("category") == "algorithm"
+        assert task.status == int(TaskStatus.PENDING)
 
     r = client.get("/settings/parameters/algorithm")
     assert r.status_code == 200
@@ -142,6 +165,11 @@ def test_settings_parameters_roundtrip(client):
     imported = r.json().get("payload", {})
     assert imported["pre_process"]["plane_distance"]["enabled"] is False
     assert imported["pre_process"]["plane_distance"]["distance_threshold"] == 5.5
+
+    with SessionLocal() as session:
+        tasks = session.query(HardwareTaskQueue).order_by(HardwareTaskQueue.id.asc()).all()
+        assert len(tasks) == 2
+        assert tasks[-1].task_params.get("params", {}).get("category") == "algorithm"
 
     r = client.post("/settings/parameters/algorithm/import", json={"content": 123})
     assert r.status_code == 400

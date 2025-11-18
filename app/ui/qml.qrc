@@ -89,6 +89,10 @@
         <file>qml/dialogs/GlobErrorDialog.qml</file>
         <file>qml/dialogs/TestImagesDialog.qml</file>
         <file>qml/dialogs/DataEntryDialog.qml</file>
+        <file>qml/dialogs/calibration/CalibrationDialog.qml</file>
+        <file>qml/dialogs/calibration/CalibrationImagePane.qml</file>
+        <file>qml/dialogs/calibration/CalibrationGroupPanel.qml</file>
+        <file>qml/dialogs/calibration/CalibrationPointsPanel.qml</file>
         <file>qml/main.qml</file>
         <file>qml/menu/SettingsDrawer.qml</file>
         <file>qml/minimal.qml</file>
@@ -135,10 +139,10 @@
         <file>qml/menu/settings/SettingPage.qml</file>
         <file>qml/menu/settings/SettingPageHead.qml</file>
         <file>qml/menu/settings/SettingPageTitle.qml</file>
-        <file>qml/menu/settings/pages/GeneralSettingsPage.qml</file>
-        <file>qml/menu/settings/pages/ProcessSettingsPage.qml</file>
-        <file>qml/menu/settings/pages/AlgorithmSettingsPage.qml</file>
-        <file>qml/menu/settings/pages/ToolSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/General/GeneralSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/Process/ProcessSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/Algorithm/AlgorithmSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/Tools/ToolSettingsPage.qml</file>
         <file>qml/menu/settings/SettingSectionList.qml</file>
         <file>qml/views/Base/BaseHead.qml</file>
         <file>qml/views/ImageInfo/head/ViewChioseItem.qml</file>
@@ -239,5 +243,9 @@
         <file>qml/menu/settings/pages/SettingPage/ComboBoxBase.qml</file>
         <file>qml/menu/settings/pages/ComboBoxBase.qml</file>
         <file>qml/views/ImageInfo/ViewCore.qml</file>
+        <file>qml/components/Base/TextFieldBase.qml</file>
+        <file>qml/menu/settings/pages/Auto/AutoSettingsPage.qml</file>
+        <file>qml/menu/settings/pages/Auto/AutoSettingsPageMain.qml</file>
+        <file>qml/menu/settings/pages/Auto/AutoSettingsPageShowItem.qml</file>
     </qresource>
 </RCC>

@@ -2,25 +2,32 @@ import QtQuick.Controls
 
 Menu {
   id: root
-  property var settingsDrawer: null
-  property var settingsPage: null
-
   title: qsTr("界面功能")
-
   MenuItem {
-    text: qsTr("打开设置抽屉")
-    visible: root.settingsDrawer && !root.settingsDrawer.visible
+    text: qsTr("设置抽屉")
     onTriggered: {
-      if (root.settingsDrawer && root.settingsDrawer.open)
-        root.settingsDrawer.open()
+      settingsDrawer.open()
     }
   }
 
   MenuItem {
-    text: qsTr("配置中心...")
+    text: qsTr("配置中心")
     onTriggered: {
-      if (root.settingsPage && root.settingsPage.open)
-        root.settingsPage.open()
+      settingsPage.open()
+    }
+  }
+  MenuItem {
+    text: qsTr("状态中心")
+    onTriggered: {
+      statePage.open()
+    }
+  }
+
+  MenuItem {
+    text: qsTr("标定设置")
+    onTriggered: {
+      if (calibrationDialog && calibrationDialog.openDialog)
+        calibrationDialog.openDialog()
     }
   }
 }

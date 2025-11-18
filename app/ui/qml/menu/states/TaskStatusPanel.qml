@@ -31,7 +31,6 @@ Item {
       Pages.TaskStatusSummaryPage {
       }
       Pages.TaskCommandListPage {
-        statePageCore: root.statePageCore
       }
       Pages.TaskImagePreviewPage {
       }

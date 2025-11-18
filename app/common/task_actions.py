@@ -4,6 +4,7 @@ from typing import Dict, Tuple
 
 DEFAULT_TASK_NAME = "控制指令"
 DEFAULT_TASK_TYPE = 99
+PARAM_UPDATE_ACTION = "params.update"
 
 ACTION_META: Dict[str, Tuple[str, int]] = {
     "capture": ("采集", 5),
@@ -27,6 +28,7 @@ ACTION_META: Dict[str, Tuple[str, int]] = {
     "manual.clear_upload": ("清除上传的指令", 46),
     "manual.initialize": ("初始化", 47),
     "manual.initialize_secondary": ("初始化", 48),
+    PARAM_UPDATE_ACTION: ("参数更新", 50),
 }
 
 
@@ -53,6 +55,7 @@ __all__ = [
     "ACTION_META",
     "DEFAULT_TASK_NAME",
     "DEFAULT_TASK_TYPE",
+    "PARAM_UPDATE_ACTION",
     "friendly_action_name",
     "friendly_action_type",
     "get_action_meta",

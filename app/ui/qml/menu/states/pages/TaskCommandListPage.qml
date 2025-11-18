@@ -9,7 +9,7 @@ import "../../../components/btns" as Btn
 
 ScrollView {
   id: root
-  required property var statePageCore
+
 
   Layout.fillWidth: true
   Layout.fillHeight: true

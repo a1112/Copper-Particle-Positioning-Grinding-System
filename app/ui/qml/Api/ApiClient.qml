@@ -44,6 +44,22 @@ QtObject {
   function settingsToolList(onOk, onErr){ Http.get(root, '/settings/tools', onOk, onErr, showError) }
   function settingsSaveTools(tools, onOk, onErr){ Http.putJson(root, '/settings/tools', { tools: tools }, onOk, onErr, showError) }
   function calibration(onOk, onErr){ get('/vision/calibration', onOk, onErr) }
+  function calibrationList(onOk, onErr){ get('/vision/calibrations', onOk, onErr) }
+  function calibrationDetail(name, onOk, onErr){ get('/vision/calibrations/' + encodeURIComponent(name), onOk, onErr) }
+  function calibrationCreate(name, recordId, onOk, onErr){ post('/vision/calibrations', { name: name, record_id: recordId }, onOk, onErr) }
+  function calibrationActivate(name, onOk, onErr){ post('/vision/calibrations/' + encodeURIComponent(name) + '/activate', {}, onOk, onErr) }
+  function calibrationSave(name, payload, onOk, onErr){ Http.putJson(root, '/vision/calibrations/' + encodeURIComponent(name) + '/data', payload, onOk, onErr, showError) }
+  function calibrationDelete(name, onOk, onErr){ del('/vision/calibrations/' + encodeURIComponent(name), onOk, onErr) }
+  function calibrationImportImage(name, sourcePath, useCurrent, onOk, onErr){
+    post('/vision/calibrations/' + encodeURIComponent(name) + '/import-image',
+      { source_path: sourcePath, use_current: useCurrent }, onOk, onErr)
+  }
+  function calibrationCompute(name, points, onOk, onErr){
+    post('/vision/calibrations/' + encodeURIComponent(name) + '/compute', { points: points }, onOk, onErr)
+  }
+  function calibrationRename(name, newName, onOk, onErr){
+    post('/vision/calibrations/' + encodeURIComponent(name) + '/rename', { name: newName }, onOk, onErr)
+  }
   // Test images
   function listTestImages(onOk, onErr){ get('/test/images', onOk, onErr) }
   function loadTestImage(name, onOk, onErr){ post('/test/load_image?name=' + encodeURIComponent(name), {}, onOk, onErr) }

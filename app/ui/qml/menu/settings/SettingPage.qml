@@ -4,7 +4,11 @@ import QtQuick.Layouts
 import "../../Api" as Api
 import "../../components/btns" as Btns
 import "../../cores" as Cores
-import "pages"
+import "pages/Auto" as AutoPages
+import "pages/General" as GeneralPages
+import "pages/Process" as ProcessPages
+import "pages/Algorithm" as AlgorithmPages
+import "pages/Tools" as ToolPages
 
 Popup {
   id: root
@@ -22,18 +26,17 @@ Popup {
     general: {},
     process: {},
     algorithm: {},
+    by_auto: {},
     tools: []
   })
 
-  readonly property var categories: [
-    { id: "general", label: qsTr("常规参数"), page: generalPage },
-    { id: "process", label: qsTr("工艺参数"), page: processPage },
-    { id: "algorithm", label: qsTr("算法参数"), page: algorithmPage },
-    { id: "tools", label: qsTr("刀具参数"), page: toolPage }
-  ]
+  property var categories: []
+  property var autoPages: []
 
   property int currentIndex: 0
-  readonly property string currentCategory: categories.length > 0 ? categories[currentIndex].id : ""
+  readonly property string currentCategory: categories.length > 0 && currentIndex >= 0 && currentIndex < categories.length
+      ? categories[currentIndex].id
+      : ""
 
   onCurrentIndexChanged: {
     if (Cores.CoreSettings && Cores.CoreSettings.parameterTabIndex !== currentIndex)
@@ -60,23 +63,60 @@ Popup {
     }
   }
 
+  function _isAutoCategory(category) {
+    return settingsData.by_auto && settingsData.by_auto.hasOwnProperty(category)
+  }
+
+  function clearAutoPages() {
+    autoPages = []
+  }
+
+  function rebuildCategories(autoMap) {
+    clearAutoPages()
+    var list = [
+      { id: "general", label: qsTr("常规参数"), page: generalPage },
+      { id: "process", label: qsTr("工艺参数"), page: processPage },
+      { id: "algorithm", label: qsTr("算法参数"), page: algorithmPage },
+      { id: "tools", label: qsTr("刀具参数"), page: toolPage }
+    ]
+    var autos = []
+    if (autoMap && typeof autoMap === "object") {
+      var keys = Object.keys(autoMap).sort()
+      for (var idx = 0; idx < keys.length; idx++) {
+        var key = keys[idx]
+        var meta = autoMap[key] || {}
+        var label = meta.label || key
+        autos.push({ id: key, label: label, data: meta })
+      }
+    }
+    autoPages = autos
+    categories = list.concat(autos)
+    if (currentIndex >= categories.length)
+      currentIndex = categories.length - 1
+    if (currentIndex < 0 && categories.length > 0)
+      currentIndex = 0
+  }
+
   function applyCachedSettings() {
     if (!Cores.CoreSettings)
       return
     var cachedGeneral = cloneMap(Cores.CoreSettings.parameterGeneral)
     var cachedProcess = cloneMap(Cores.CoreSettings.parameterProcess)
     var cachedAlgorithm = cloneMap(Cores.CoreSettings.parameterAlgorithm)
+    var cachedAuto = cloneMap(Cores.CoreSettings.parameterAuto)
     var cachedTools = cloneArray(Cores.CoreSettings.parameterTools)
     settingsData = {
       general: cachedGeneral,
       process: cachedProcess,
       algorithm: cachedAlgorithm,
+      by_auto: cachedAuto,
       tools: cachedTools
     }
     generalPage.data = cachedGeneral
     processPage.data = cachedProcess
     algorithmPage.data = cachedAlgorithm
     toolPage.tools = cachedTools
+    rebuildCategories(cachedAuto)
   }
 
   function persistSettingsCache() {
@@ -85,6 +125,7 @@ Popup {
     Cores.CoreSettings.parameterGeneral = cloneMap(settingsData.general)
     Cores.CoreSettings.parameterProcess = cloneMap(settingsData.process)
     Cores.CoreSettings.parameterAlgorithm = cloneMap(settingsData.algorithm)
+    Cores.CoreSettings.parameterAuto = cloneMap(settingsData.by_auto)
     Cores.CoreSettings.parameterTools = cloneArray(settingsData.tools)
   }
 
@@ -109,8 +150,10 @@ Popup {
           general: resp.categories && resp.categories.general ? resp.categories.general : {},
           process: resp.categories && resp.categories.process ? resp.categories.process : {},
           algorithm: resp.categories && resp.categories.algorithm ? resp.categories.algorithm : {},
+          by_auto: resp.categories && resp.categories.by_auto ? resp.categories.by_auto : {},
           tools: resp.tools ? resp.tools : []
         }
+        rebuildCategories(settingsData.by_auto)
         generalPage.data = settingsData.general
         processPage.data = settingsData.process
         algorithmPage.data = settingsData.algorithm
@@ -141,7 +184,10 @@ Popup {
       return null
     if (currentIndex < 0 || currentIndex >= categories.length)
       return null
-    return categories[currentIndex].page
+    var item = pageStack.itemAt(currentIndex)
+    if (item && item.item) // Loader items
+      item = item.item
+    return item
   }
 
   function collectPayload() {
@@ -179,6 +225,8 @@ Popup {
         settingsData.process = saved
       else if (category === "algorithm")
         settingsData.algorithm = saved
+      else
+        settingsData.by_auto[category] = saved
       currentPage().data = saved
       persistSettingsCache()
       showOperationResult(qsTr("参数保存成功"), false)
@@ -258,29 +306,52 @@ Popup {
         Layout.fillHeight: true
         currentIndex: root.currentIndex
 
-        GeneralSettingsPage {
+        GeneralPages.GeneralSettingsPage {
           id: generalPage
           Layout.fillWidth: true
           Layout.fillHeight: true
         }
 
-        ProcessSettingsPage {
+        ProcessPages.ProcessSettingsPage {
           id: processPage
           Layout.fillWidth: true
           Layout.fillHeight: true
         }
 
-        AlgorithmSettingsPage {
+        AlgorithmPages.AlgorithmSettingsPage {
           id: algorithmPage
           Layout.fillWidth: true
           Layout.fillHeight: true
         }
 
-        ToolSettingsPage {
+        ToolPages.ToolSettingsPage {
           id: toolPage
           Layout.fillWidth: true
           Layout.fillHeight: true
         }
+        Repeater {
+          id: autoPageRepeater
+          model: autoPages
+          delegate: Loader {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            sourceComponent: autoPageComponent
+            onLoaded: {
+              if (!item)
+                return
+              item.data = modelData.data || {}
+              item.categoryId = modelData.id || ""
+            }
+          }
+        }
+      }
+    }
+
+    Component {
+      id: autoPageComponent
+      AutoPages.AutoSettingsPage {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
       }
     }
 
@@ -347,6 +418,9 @@ Popup {
         } else if (root.currentCategory === "algorithm") {
           settingsData.algorithm = payload
           algorithmPage.data = payload
+        } else if (_isAutoCategory(root.currentCategory)) {
+          settingsData.by_auto[root.currentCategory] = payload
+          currentPage().data = payload
         }
         persistSettingsCache()
         header.statusLabel.text = qsTr("参数已导入")
@@ -368,7 +442,7 @@ Popup {
 
   Popup {
     id: resultPopup
-    parent: root
+
     modal: false
     focus: false
     padding: 16

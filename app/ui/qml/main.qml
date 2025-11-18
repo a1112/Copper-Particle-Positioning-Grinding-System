@@ -16,6 +16,7 @@ import "datas" as Datas
 import "works" as Works
 import "test"
 import "action"
+import "dialogs/calibration" as CalibrationDialogs
 
 App_Base {
   // 应用窗口实例
@@ -32,12 +33,13 @@ App_Base {
   Shortcuts {}
   DataEntryDialog { id: dataEntryDialog }
   GlobErrorDialog { id: errorDialog }
-  TestImagesDialog { id: testDialog }
-  SettingsDrawer { id: settingsDrawer }
-  SettingPage{id: settingsPage}
-  StatePage{id:statePage}
-  TestWindow{id:testWindow}
-  EstopDialog {id: estopDialog}
+  TestImagesDialog { id: testDialog }   //
+  SettingsDrawer { id: settingsDrawer } // 设置抽屉
+  SettingPage{id: settingsPage}         // 配置中心
+  StatePage{id:statePage}               // 状态中心
+  TestWindow{id:testWindow}             // 测试
+  EstopDialog {id: estopDialog}         // 急停弹窗
+  CalibrationDialogs.CalibrationDialog { id: calibrationDialog } // 标定设置
 
   MainLayouts {
     anchors.fill: parent
