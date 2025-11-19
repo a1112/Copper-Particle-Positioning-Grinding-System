@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 
 import "../Base"
-import "../Labels"
+
 import "../../cores" as Cores
 
 BtnBase {
