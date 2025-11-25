@@ -383,7 +383,7 @@ Page {
             TextFieldBase { text: String(getValue("path_planning.y_step_coeff", 0)); onEditingFinished: setNumeric("path_planning.y_step_coeff", text) }
             Label { text: qsTr("加工排序"); color: "#e2e8f0" }
             ComboBoxBase{
-              model: [qsTr("从上到下"), qsTr("从左到右")]
+              model: [qsTr("从上到下"),qsTr("从下到上"), qsTr("从左到右"),qsTr("从右到左"),qsTr("局部最近"),qsTr("全局最短")]
               currentIndex: Number(getValue("path_planning.sort_mode", 0))
               onActivated: setInteger("path_planning.sort_mode", index)
             }

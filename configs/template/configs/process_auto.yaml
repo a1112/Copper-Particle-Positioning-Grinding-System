@@ -1,27 +1,40 @@
-id: process_auto
-label: 工艺参数（自动）
+id: process
+label: 工艺参数
+
+
 motion:
   label: 运动参数
-  air_cut_speed:
+  rapidSpeed:
     label: 空跑速度
     default: 0.0
-  air_cut_speed_max:
-    label: 最大空跑速度
+  stepDistance:
+    label: 步动距离
     default: 0.0
-  feed_speed:
-    label: 进给速度
+  workpieceSurfaceHeight:
+    label: 工件表面高度
     default: 0.0
-  feed_speed_max:
-    label: 最大进给速度
-    default: 0.0
-  jog_speed:
+  jogSpeed:
     label: 点动速度
     default: 0.0
+
+
 spindle:
   label: 主轴
+
   rpm:
     label: 主轴转速
     default: 0.0
+
   tool_diameter:
     label: 刀具直径
     default: 0.0
+  lineSpacing:
+    label: 行刀间距
+    default: 0.0
+  cuttingDepth:
+    label: 吃刀深度
+    default: 0.0
+  feedRate:
+    label: 进给速度
+    default: 0.0
+
