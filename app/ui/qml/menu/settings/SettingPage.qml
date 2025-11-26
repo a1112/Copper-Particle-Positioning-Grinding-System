@@ -75,7 +75,6 @@ Popup {
     clearAutoPages()
     var list = [
       { id: "general", label: qsTr("常规参数"), page: generalPage },
-      { id: "process", label: qsTr("工艺参数"), page: processPage },
       { id: "algorithm", label: qsTr("算法参数"), page: algorithmPage },
       { id: "tools", label: qsTr("刀具参数"), page: toolPage }
     ]
@@ -312,11 +311,7 @@ Popup {
           Layout.fillHeight: true
         }
 
-        ProcessPages.ProcessSettingsPage {
-          id: processPage
-          Layout.fillWidth: true
-          Layout.fillHeight: true
-        }
+
 
         AlgorithmPages.AlgorithmSettingsPage {
           id: algorithmPage
@@ -343,6 +338,11 @@ Popup {
               item.categoryId = modelData.id || ""
             }
           }
+        }
+                ProcessPages.ProcessSettingsPage {
+          id: processPage
+          Layout.fillWidth: true
+          Layout.fillHeight: true
         }
       }
     }
