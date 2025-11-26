@@ -10,6 +10,7 @@ Item {
   property var cylinderStates: []
   property bool allowDirectControl: false
   property bool allowJogging: false
+  property bool requireEstopConfirmation: true
 
   function _ensureCylinderStates() {
     if (!Array.isArray(cylinderStates) || cylinderStates.length !== 16) {
@@ -146,15 +147,31 @@ Item {
     cylinderStates = arr
   }
 
-  function _deviceAreaConfig() {
-    var general = CoreSingletons.CoreSettings ? CoreSingletons.CoreSettings.parameterGeneral : {}
+  function _generalSettingsPayload() {
+    if (!CoreSingletons.CoreSettings)
+      return {}
+    var general = CoreSingletons.CoreSettings.parameterGeneral
     if (!general || typeof general !== "object")
       return {}
+    return general
+  }
+
+  function _deviceAreaConfig() {
+    var general = _generalSettingsPayload()
     if (general.device_area && typeof general.device_area === "object")
       return general.device_area
     if (general.deviceArea && typeof general.deviceArea === "object")
       return general.deviceArea
     return {}
+  }
+
+  function _safetyConfig() {
+    var general = _generalSettingsPayload()
+    if (general.safety && typeof general.safety === "object")
+      return general.safety
+    if (general.safe_settings && typeof general.safe_settings === "object")
+      return general.safe_settings
+    return general
   }
 
   function refreshPermissions() {
@@ -172,6 +189,14 @@ Item {
       allowJogging = allowDirectControl && !!area.allowJog
     else
       allowJogging = false
+
+    var safety = _safetyConfig()
+    if (safety && safety.hasOwnProperty("estop_double_confirm"))
+      requireEstopConfirmation = !!safety.estop_double_confirm
+    else if (safety && safety.hasOwnProperty("estopDoubleConfirm"))
+      requireEstopConfirmation = !!safety.estopDoubleConfirm
+    else
+      requireEstopConfirmation = true
   }
 
   Component.onCompleted: refreshPermissions()

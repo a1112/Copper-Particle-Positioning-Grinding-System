@@ -5,3 +5,5 @@ device_area:
 camera:
   profile: sim
   serial: ""
+safety:
+  estop_double_confirm: true

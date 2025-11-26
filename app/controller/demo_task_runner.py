@@ -348,7 +348,7 @@ class DemoTaskRunner:
             return
 
         control_task = HardwareTaskQueue(
-            task_name=f"control-{task.record_id}",
+            task_name=f"控制-{task.record_id}",
             task_type=int(TaskType.CONTROL),
             workpiece_id=task.workpiece_id,
             record_id=task.record_id,

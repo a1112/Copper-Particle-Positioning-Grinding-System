@@ -37,6 +37,10 @@ BaseCard {
   property real currentMachineY: 0
   property real currentMachineZ: 0
 
+  property real imageZoom: 1.0
+  property real minImageZoom: 0.5
+  property real maxImageZoom: 4.0
+
   ListModel {
     id: sampleModel
   }
@@ -121,6 +125,34 @@ BaseCard {
     machineXField.text = numberToText(currentMachineX, 3)
     machineYField.text = numberToText(currentMachineY, 3)
     machineZField.text = numberToText(currentMachineZ, 3)
+  }
+
+  function setImageZoom(targetZoom) {
+    var minZ = minImageZoom
+    var maxZ = maxImageZoom
+    var z = Number(targetZoom)
+    if (!isFinite(z) || z <= 0)
+      z = 1.0
+    if (z < minZ)
+      z = minZ
+    if (z > maxZ)
+      z = maxZ
+    if (Math.abs(z - imageZoom) < 0.0001)
+      return
+    imageZoom = z
+  }
+
+  function handleImageWheelZoom(wheel) {
+    var delta = wheel.angleDelta && wheel.angleDelta.y !== 0
+               ? wheel.angleDelta.y / 120
+               : (wheel.pixelDelta ? wheel.pixelDelta.y / 120 : 0)
+    if (delta === 0)
+      return
+    var factor = Math.pow(1.2, delta)
+    if (Math.abs(factor - 1) < 0.0001)
+      return
+    setImageZoom(imageZoom * factor)
+    wheel.accepted = true
   }
 
   function mapToPixel(localX, localY) {
@@ -626,51 +658,62 @@ BaseCard {
               anchors.fill: parent
               clip: true
 
-              Image {
-                id: cameraImage
-                anchors.fill: parent
-                fillMode: Image.PreserveAspectFit
-                asynchronous: true
-                cache: false
-                source: Cores.CoreState.current2dImageSource
-              }
-
               Item {
-                id: overlay
-                x: (imageContainer.width - cameraImage.paintedWidth) / 2
-                y: (imageContainer.height - cameraImage.paintedHeight) / 2
-                width: cameraImage.paintedWidth
-                height: cameraImage.paintedHeight
-                visible: width > 0 && height > 0 && cameraImage.status === Image.Ready
-
-                Rectangle {
-                  width: 1
-                  height: parent.height
-                  color: Cores.CoreStyle.muted
-                  opacity: 0.35
-                  visible: root.currentPixelValid
-                  x: Math.max(-width, root.overlayPixelX())
+                id: contentGroup
+                anchors.fill: parent
+                transform: Scale {
+                  origin.x: contentGroup.width / 2
+                  origin.y: contentGroup.height / 2
+                  xScale: root.imageZoom
+                  yScale: root.imageZoom
                 }
 
-                Rectangle {
-                  width: parent.width
-                  height: 1
-                  color: Cores.CoreStyle.muted
-                  opacity: 0.35
-                  visible: root.currentPixelValid
-                  y: Math.max(-height, root.overlayPixelY())
+                Image {
+                  id: cameraImage
+                  anchors.fill: parent
+                  fillMode: Image.PreserveAspectFit
+                  asynchronous: true
+                  cache: false
+                  source: Cores.CoreState.current2dImageSource
                 }
 
-                Rectangle {
-                  width: 14
-                  height: 14
-                  radius: 7
-                  border.width: 2
-                  border.color: Cores.CoreStyle.accent
-                  color: "#00000000"
-                  visible: root.currentPixelValid
-                  x: root.overlayPixelX() - width / 2
-                  y: root.overlayPixelY() - height / 2
+                Item {
+                  id: overlay
+                  x: (imageContainer.width - cameraImage.paintedWidth) / 2
+                  y: (imageContainer.height - cameraImage.paintedHeight) / 2
+                  width: cameraImage.paintedWidth
+                  height: cameraImage.paintedHeight
+                  visible: width > 0 && height > 0 && cameraImage.status === Image.Ready
+
+                  Rectangle {
+                    width: 1
+                    height: parent.height
+                    color: Cores.CoreStyle.muted
+                    opacity: 0.35
+                    visible: root.currentPixelValid
+                    x: Math.max(-width, root.overlayPixelX())
+                  }
+
+                  Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: Cores.CoreStyle.muted
+                    opacity: 0.35
+                    visible: root.currentPixelValid
+                    y: Math.max(-height, root.overlayPixelY())
+                  }
+
+                  Rectangle {
+                    width: 14
+                    height: 14
+                    radius: 7
+                    border.width: 2
+                    border.color: Cores.CoreStyle.accent
+                    color: "#00000000"
+                    visible: root.currentPixelValid
+                    x: root.overlayPixelX() - width / 2
+                    y: root.overlayPixelY() - height / 2
+                  }
                 }
               }
 
@@ -680,7 +723,9 @@ BaseCard {
                 hoverEnabled: true
                 cursorShape: Qt.CrossCursor
                 onClicked: function(mouse) {
-                  var pixel = root.mapToPixel(mouse.x, mouse.y)
+                  var localPoint = Qt.point(mouse.x, mouse.y)
+                  var mappedPoint = contentGroup.mapFromItem(imageContainer, localPoint)
+                  var pixel = root.mapToPixel(mappedPoint.x, mappedPoint.y)
                   if (!pixel) {
                     showMessage(qsTr("请点击有效图像区域"), true)
                     return
@@ -688,6 +733,9 @@ BaseCard {
                   setPixel(pixel)
                   showMessage(qsTr("已选择像素 (%1, %2)").arg(numberToText(pixel.x, 2)).arg(numberToText(pixel.y, 2)), false)
                   requestCameraSample(pixel)
+                }
+                onWheel: function(wheel) {
+                  root.handleImageWheelZoom(wheel)
                 }
               }
             }

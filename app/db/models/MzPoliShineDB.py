@@ -8,6 +8,7 @@ from .param_machine import ParamMachine
 from .process_history import ProcessHistory
 from .quality_table import QualityTable
 from .record_table import RecordTable
+from .system_logs import SystemLog
 from .status_table import StatusTable
 from .workpiece_table import WorkpieceTable
 from .tool_record import ToolRecord
@@ -22,6 +23,7 @@ __all__ = [
     "ProcessHistory",
     "QualityTable",
     "RecordTable",
+    "SystemLog",
     "StatusTable",
     "WorkpieceTable",
     "ToolRecord"

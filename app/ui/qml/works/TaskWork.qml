@@ -95,22 +95,6 @@ QtObject {
     })
   }
 
-  function enqueueExecute(recordId, workpieceId, onOk, onErr) {
-    var body = {}
-    if (recordId)
-      body.record_id = recordId
-    if (!body.record_id && workpieceId)
-      body.workpiece_id = workpieceId
-    Api.ApiClient.post("/data/tasks/execute", body, function(resp) {
-      refresh()
-      if (onOk)
-        onOk(resp)
-    }, function(status, message) {
-      if (onErr)
-        onErr(status, message)
-    })
-  }
-
   function clearCommands(onOk, onErr) {
     Api.ApiClient.del("/data/tasks/control", function(resp) {
       refresh()

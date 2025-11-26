@@ -9,6 +9,7 @@ Pane {
   property var data: ({})
   property bool allowDeviceControl: false
   property bool allowJog: false
+  property bool estopDoubleConfirm: true
   property string cameraProfile: "sim"
   property string cameraSerial: ""
 
@@ -36,6 +37,12 @@ Pane {
     camera.profile = cameraProfile || "sim"
     camera.serial = cameraSerial || ""
     payload.camera = camera
+
+    var safety = payload.safety
+    if (!safety || typeof safety !== "object")
+      safety = {}
+    safety.estop_double_confirm = !!estopDoubleConfirm
+    payload.safety = safety
     return payload
   }
 
@@ -59,6 +66,18 @@ Pane {
     return {}
   }
 
+  function _safetySettings() {
+    if (!data || typeof data !== "object")
+      return {}
+    if (data.safety && typeof data.safety === "object")
+      return data.safety
+    if (data.safe_settings && typeof data.safe_settings === "object")
+      return data.safe_settings
+    if (data.estop_double_confirm !== undefined)
+      return { estop_double_confirm: data.estop_double_confirm }
+    return {}
+  }
+
   function _syncFromData() {
     var area = _deviceArea()
     allowDeviceControl = area.hasOwnProperty("allow_direct_control")
@@ -72,6 +91,12 @@ Pane {
     if (camera.profile)
       cameraProfile = camera.profile
     cameraSerial = camera.serial || ""
+
+    var safety = _safetySettings()
+    if (safety.hasOwnProperty("estop_double_confirm"))
+      estopDoubleConfirm = !!safety.estop_double_confirm
+    else
+      estopDoubleConfirm = true
   }
 
   function _cameraIndexFor(profileId) {
@@ -178,6 +203,41 @@ Pane {
         }
         Label {
           text: qsTr("关闭后即使显示控制区，仍禁止发送点动指令。")
+          color: "#94a3b8"
+          wrapMode: Text.Wrap
+        }
+      }
+    }
+
+    GroupBox {
+      Layout.fillWidth: true
+      title: qsTr("安全设置")
+      font.pixelSize: 16
+      font.bold: true
+
+      ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 12
+        spacing: 12
+
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: 12
+          Label {
+            text: qsTr("急停二次确认")
+            color: "#cbd5f5"
+            Layout.fillWidth: true
+          }
+          Switch {
+            checked: page.estopDoubleConfirm
+            onToggled: {
+              page.estopDoubleConfirm = checked
+              page._writeBack()
+            }
+          }
+        }
+        Label {
+          text: qsTr("关闭后点击急停按钮或快捷指令会立即执行急停，请确认周围环境安全。")
           color: "#94a3b8"
           wrapMode: Text.Wrap
         }

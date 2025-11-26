@@ -6,8 +6,6 @@ import Qt5Compat.GraphicalEffects
 import "../../cores" as Cores
 import "../../Api" as Api
 import "../../datas" as Datas
-import "../../works" as Works
-
 Rectangle {
   id: startBtn
   property bool running: false
@@ -19,14 +17,14 @@ Rectangle {
                                   : Qt.darker(accentColor, running ? 1.25 : 1.35)
   readonly property color highlightColor: Qt.lighter(accentColor, running ? 1.25 : 1.45)
   readonly property color labelColor: running ? "#f8fafc" : "#0f172a"
-  readonly property bool canStart: Datas.TaskDatas.executeReady
+  readonly property bool canStart: Cores.CoreButtonState.deviceAvailable
   readonly property bool controlEnabled: Datas.StatusDatas.controlEnabled
 
   Layout.alignment: Qt.AlignVCenter
   Layout.preferredWidth: visible ? width : 0
   Layout.preferredHeight: visible ? height : 0
   visible: Cores.CoreState.currentRunModelIndex === 1
-  enabled: !busy && controlEnabled && (running || (!Datas.TaskDatas.alarmLocked && canStart))
+  enabled: !busy && controlEnabled && (running || canStart)
   height: Math.max(36, parent ? parent.height * 0.8 : 36)
   width: height * 2.4
   radius: 8
@@ -107,19 +105,18 @@ Rectangle {
       Cores.CoreError.showError(qsTr("执行准备未就绪"))
       return
     }
+    var params = {}
+    if (Datas.TaskDatas.readyRecordId > 0)
+      params.record_id = Datas.TaskDatas.readyRecordId
+    if (Datas.TaskDatas.workpieceId > 0)
+      params.workpiece_id = Datas.TaskDatas.workpieceId
     busy = true
-    Works.TaskWork.enqueueExecute(Datas.TaskDatas.readyRecordId, Datas.TaskDatas.workpieceId, function() {
-      Api.ApiClient.startRun(function() {
-        busy = false
-      }, function(_, msg) {
-        busy = false
-        var startError = msg !== undefined ? msg : qsTr("startRun 调用失败！")
-        Cores.CoreError.showError(startError)
-      })
+    Api.ApiClient.startRun(params, function() {
+      busy = false
     }, function(_, msg) {
       busy = false
-      var err = msg !== undefined ? msg : qsTr("enqueueExecute 调用失败！")
-      Cores.CoreError.showError(err)
+      var startError = msg !== undefined ? msg : qsTr("startRun 调用失败！")
+      Cores.CoreError.showError(startError)
     })
   }
 }

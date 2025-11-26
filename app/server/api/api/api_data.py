@@ -49,11 +49,6 @@ class CaptureRequestPayload(BaseModel):
     note: Optional[str] = None
 
 
-class ExecuteRequestPayload(BaseModel):
-    record_id: Optional[int] = None
-    workpiece_id: Optional[int] = None
-
-
 class AlarmResetPayload(BaseModel):
     handler: Optional[str] = None
 
@@ -72,7 +67,6 @@ CONTROL_TASK_TYPES.add(30)
 
 _STAGE_TYPE_MAP = {
     "capture": {friendly_action_type("capture")},
-    "execute": {friendly_action_type("start"), friendly_action_type("run.start")},
     "control": {
         friendly_action_type("manual.defect_detection"),
         friendly_action_type("manual.defect_detection_secondary"),
@@ -260,45 +254,6 @@ def create_capture_record(payload: CaptureRequestPayload, session: Session = Dep
     }
 
 
-@router.post('/data/tasks/execute')
-def enqueue_execute_task(payload: ExecuteRequestPayload, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
-    record = None
-    if payload.record_id:
-        record = session.get(RecordTable, payload.record_id)
-        if record is None:
-            raise HTTPException(status_code=404, detail='Record not found')
-    if record is None:
-        workpiece = _get_workpiece(session, payload.workpiece_id)
-        record = session.execute(
-            select(RecordTable)
-            .where(RecordTable.workpiece_id == workpiece.id)
-            .order_by(desc(RecordTable.id))
-        ).scalars().first()
-        if record is None:
-            raise HTTPException(status_code=400, detail='No capture record available for this workpiece')
-    execute_action = "run.start"
-    task = HardwareTaskQueue(
-        task_name=friendly_action_name(execute_action),
-        task_type=friendly_action_type(execute_action),
-        workpiece_id=record.workpiece_id,
-        record_id=record.id,
-        status=int(TaskStatus.PENDING),
-        task_params={
-            'action': execute_action,
-            'action_key': normalise_action(execute_action),
-            'record_id': record.id,
-            'workpiece_id': record.workpiece_id,
-            'queued_at': datetime.utcnow().timestamp(),
-        },
-        status_params={'phase': 'queued'},
-        device_id=1,
-    )
-    session.add(task)
-    session.commit()
-    session.refresh(task)
-    return {'ok': True, 'task': _serialize_task(task)}
-
-
 @router.get('/data/records/{record_id}/alarms')
 def list_record_alarms(record_id: int, session: Session = Depends(get_db_session)) -> Dict[str, Any]:
     record = session.get(RecordTable, record_id)
@@ -412,21 +367,19 @@ def task_state_summary(
         record_filter_id = record.id
 
     latest_capture = _latest_stage_task(session, "capture", record_filter_id)
-    latest_execute = _latest_stage_task(session, "execute", record_filter_id)
+    latest_execute = None
     latest_control = _latest_stage_task(session, "control", record_filter_id)
 
     capture_active = bool(
         latest_capture and latest_capture.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
     )
-    execute_active = bool(
-        latest_execute and latest_execute.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
-    )
+    execute_active = False
     control_active = bool(
         latest_control and latest_control.status in (int(TaskStatus.PENDING), int(TaskStatus.RUNNING))
     )
 
     ready_capture = not capture_active
-    ready_execute = ready_capture and not execute_active
+    ready_execute = ready_capture
     ready_control = not control_active
 
     control_stmt = select(HardwareTaskQueue).where(
@@ -454,7 +407,7 @@ def task_state_summary(
         'workpiece': _serialize_workpiece(workpiece) if workpiece else None,
         'latest_record': record.id if record else None,
         'capture': _serialize_task(latest_capture) if latest_capture else None,
-        'execute': _serialize_task(latest_execute) if latest_execute else None,
+        'execute': None,
         'control': _serialize_task(latest_control) if latest_control else None,
         'command_record_id': record_filter_id,
         'command_list': control_commands,

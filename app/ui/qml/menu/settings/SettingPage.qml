@@ -375,7 +375,7 @@ Popup {
       open()
     }
 
-    contentItem: TextArea {
+     TextArea {
       text: exportDialog.textValue
       readOnly: true
       wrapMode: TextArea.WrapAnywhere
@@ -429,7 +429,7 @@ Popup {
       })
     }
 
-    contentItem: TextArea {
+     TextArea {
       text: importDialog.content
       wrapMode: TextArea.WrapAnywhere
       selectByMouse: true

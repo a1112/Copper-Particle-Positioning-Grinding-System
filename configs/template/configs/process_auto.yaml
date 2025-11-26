@@ -1,7 +1,7 @@
-id: process_auto
-label: 工艺参数（自动）
+id: process_auto1
+label: 工艺参数（自动1）
 motion:
-  label: 运动参数
+  label: 运动参数11
   air_cut_speed:
     label: 空跑速度
     default: 0.0

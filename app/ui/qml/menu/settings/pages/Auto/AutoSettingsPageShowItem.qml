@@ -11,7 +11,6 @@ RowLayout {
     text: ((modelData && modelData.label) || (modelData && modelData.id) || "" )+" "
     color: "#e5e7eb"
     Layout.alignment: Qt.AlignVCenter
-    anchors.verticalCenter: parent.verticalCenter
   }
   TextFieldBase {
     id: input

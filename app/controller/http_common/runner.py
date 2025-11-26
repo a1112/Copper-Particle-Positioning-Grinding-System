@@ -119,6 +119,7 @@ async def run_controller(
     task_writer: Optional[TaskQueueWriter] = None,
     task_runner: Optional[object] = None,
     file_logger: Optional[HttpBridgeFileLogger] = None,
+    log_forwarder: Optional[object] = None,
 ) -> None:
     state = ControllerState(label=args.label)
     control_host, control_port = _parse_control_endpoint(args.http_control)
@@ -254,6 +255,22 @@ async def run_controller(
                     LOG.info("Flushed %d control log entries", flushed)
             except Exception as exc:
                 LOG.error("Control log flush failed: %s", exc)
+
+            if log_forwarder is not None:
+                try:
+                    db_logs = await asyncio.to_thread(log_forwarder.poll)
+                except Exception as exc:
+                    LOG.error("System log poll failed: %s", exc)
+                    db_logs = []
+                if db_logs:
+                    try:
+                        ok_third = service.publish_logs(db_logs)
+                        if file_logger:
+                            file_logger.write_many("third_party_logs", db_logs, ok=bool(ok_third))
+                    except Exception as exc:
+                        LOG.error("System log push failed: %s", exc)
+                        if file_logger:
+                            file_logger.write_many("third_party_logs", db_logs, ok=False, error=str(exc))
 
             if task_runner is not None:
                 try:

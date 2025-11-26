@@ -291,9 +291,8 @@ Item {
             function friendlyCommandName(action) {
       var mapping = {
         "capture": qsTr("采集"),
-        "run.start": qsTr("开始执行"),
         "start": qsTr("开始执行"),
-        "run.stop": qsTr("停止执行"),
+
         "stop": qsTr("停止执行"),
         "run.pause": qsTr("暂停"),
         "pause": qsTr("暂停"),

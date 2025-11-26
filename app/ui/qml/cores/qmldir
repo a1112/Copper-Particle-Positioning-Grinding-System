@@ -10,3 +10,4 @@ singleton CoreControl 1.0 CoreControl.qml
 singleton CoreCurrent 1.0 CoreCurrent.qml
 singleton CoreCutting 1.0 CoreCutting.qml
 singleton CoreDataView 1.0 CoreDataView.qml
+singleton CoreButtonState 1.0 CoreButtonState.qml

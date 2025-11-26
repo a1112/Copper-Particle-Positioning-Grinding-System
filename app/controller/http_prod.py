@@ -5,10 +5,11 @@ import json
 import logging
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 
 from app import config as APP_CONFIG
 from app.common import save_data
@@ -25,10 +26,15 @@ from app.controller.http_common import (
 from app.controller.http_common import program
 
 try:
-    from app.db.models.MzPoliShineDB import HardwareTaskQueue, RecordTable  # type: ignore[import-error]
+    from app.db.models.MzPoliShineDB import (
+        HardwareTaskQueue,
+        RecordTable,
+        SystemLog,
+    )  # type: ignore[import-error]
 except Exception:  # pragma: no cover - optional dependency path
     HardwareTaskQueue = None  # type: ignore[assignment]
     RecordTable = None  # type: ignore[assignment]
+    SystemLog = None  # type: ignore[assignment]
 
 useLocTest = True
 if useLocTest:
@@ -166,6 +172,90 @@ class RecordArtifactRunner:
                 session.commit()
 
 
+class SystemLogForwarder:
+    LEVEL_MAP = {
+        1: "DEBUG",
+        2: "INFO",
+        3: "SUCCESS",
+        4: "WARNING",
+        5: "ERROR",
+    }
+    SOURCE_MAP = {
+        1: "system",
+        2: "database",
+        3: "device",
+        4: "camera",
+        5: "vision",
+        6: "path",
+        7: "command",
+        8: "fixture",
+    }
+
+    def __init__(self, session_factory, *, batch_size: int = 100) -> None:
+        self._session_factory = session_factory
+        self._batch_size = max(int(batch_size), 1)
+        now = datetime.utcnow()
+        self._start_time = now
+        self._cursor_time = now
+        self._cursor_id = 0
+
+    def poll(self) -> List[Dict[str, Any]]:
+        if SystemLog is None:
+            return []
+        with self._session_factory() as session:
+            stmt = (
+                select(SystemLog)
+                .where(
+                    or_(
+                        SystemLog.log_time > self._cursor_time,
+                        and_(SystemLog.log_time == self._cursor_time, SystemLog.id > self._cursor_id),
+                    )
+                )
+                .order_by(SystemLog.log_time.asc(), SystemLog.id.asc())
+                .limit(self._batch_size)
+            )
+            rows = session.execute(stmt).scalars().all()
+        if not rows:
+            return []
+
+        entries: List[Dict[str, Any]] = []
+        for row in rows:
+            entries.append(self._serialize(row))
+
+        last = rows[-1]
+        if last.log_time:
+            self._cursor_time = last.log_time
+        self._cursor_id = int(getattr(last, "id", self._cursor_id) or self._cursor_id)
+        return entries
+
+    @property
+    def start_time(self) -> datetime:
+        return self._start_time
+
+    def _serialize(self, row: SystemLog) -> Dict[str, Any]:
+        log_ts = self._to_timestamp(getattr(row, "log_time", None))
+        level_name = self.LEVEL_MAP.get(int(getattr(row, "log_type", 0) or 0), "INFO")
+        source_label = self.SOURCE_MAP.get(int(getattr(row, "info_type", 0) or 0), "system")
+        message = str(getattr(row, "content", ""))
+        return {
+            "ts": log_ts,
+            "level": level_name,
+            "name": source_label,
+            "msg": message,
+            "log_type": getattr(row, "log_type", None),
+            "info_type": getattr(row, "info_type", None),
+        }
+
+    @staticmethod
+    def _to_timestamp(value: Optional[datetime]) -> float:
+        if value is None:
+            return time.time()
+        try:
+            return value.timestamp()
+        except Exception:
+            return time.time()
+
+
 def main(argv: Optional[Iterable[str]] = None) -> None:
     parser = build_parser(
         "HTTP production controller that streams StatusTable snapshots.",
@@ -203,6 +293,7 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         except Exception as exc:
             LOG.warning("Database initialisation failed: %s", exc, exc_info=False)
 
+    log_forwarder = None
     try:
         status_source = DbStatusSource(args.db_url)
         fallback_source = SimulatedStatusSource()
@@ -220,6 +311,14 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         else:
             LOG.info("DemoTaskRunner disabled; running artifact copy tasks only.")
         task_runner = TaskRunnerGroup(runners)
+        if SystemLog is None:
+            LOG.warning("SystemLog model unavailable; third-party log forwarding disabled.")
+        else:
+            log_forwarder = SystemLogForwarder(status_source.session_factory)
+            LOG.info(
+                "SystemLog forwarder initialised and watching for new entries after %s.",
+                log_forwarder.start_time.isoformat(),
+            )
     except Exception as exc:
         LOG.error("Unable to initialise production database source: %s", exc)
         raise SystemExit(1) from exc
@@ -233,6 +332,7 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
                 task_writer=task_writer,
                 task_runner=task_runner,
                 file_logger=file_logger,
+                log_forwarder=log_forwarder,
             )
         )
     except KeyboardInterrupt:

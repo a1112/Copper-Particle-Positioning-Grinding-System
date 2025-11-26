@@ -35,7 +35,7 @@ class RuntimeBusinessService(BusinessService):
             return await self._handle_reset()
         if action in {"stop", "run.stop"}:
             return await self._handle_stop()
-        if action == "run.start":
+        if action in {"run.start", "start"}:
             return await self._handle_run_start(params)
         if action in {"motion.home", "home"}:
             return await self._handle_motion_home()

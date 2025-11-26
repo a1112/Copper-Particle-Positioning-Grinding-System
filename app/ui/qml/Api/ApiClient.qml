@@ -26,7 +26,20 @@ QtObject {
   }
 
   // Convenience APIs
-  function startRun(onOk, onErr){ control('start', {}, onOk, onErr) }
+  function startRun(params, onOk, onErr){
+    var payload = {}
+    var successCb = onOk
+    var errorCb = onErr
+    if (params && typeof params === "function") {
+      successCb = params
+      errorCb = onOk
+    } else if (params && typeof params === "object") {
+      payload = params
+    }
+    if (!payload || typeof payload !== "object")
+      payload = {}
+    control('start', payload, successCb, errorCb)
+  }
   function stopRun(onOk, onErr){ control('stop', {}, onOk, onErr) }
   function setSpeed(vFast, vWork, onOk, onErr){ control('motion.set_speed', { v_fast: vFast, v_work: vWork }, onOk, onErr) }
   function jog(axis, dir, speed, onOk, onErr){ control('motion.jog', { axis: axis, direction: dir, speed: speed }, onOk, onErr) }

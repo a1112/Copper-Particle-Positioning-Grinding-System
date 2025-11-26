@@ -54,7 +54,9 @@ Item {
     FillItem {}
     RunModelSelect {}
     FillItem {}
-    EstopBtn {}
+    EstopBtn {
+      estopEnable:Cores.CoreButtonState.estopEnable
+    }
     CaptureButton {}
     SemiAutoStartBtn { running: root.isRunning }
 

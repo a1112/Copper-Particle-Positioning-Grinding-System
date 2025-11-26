@@ -13,7 +13,9 @@ BaseCard {
   readonly property int padding: 5
   implicitHeight: contentColumn.implicitHeight + padding * 2
 
-  readonly property string runState: Datas.DeviceInfoData.runState
+  readonly property string deviceRunState: Cores.CoreButtonState.deviceRunState
+  readonly property string captureRunState: Cores.CoreButtonState.captureRunState
+  readonly property string actionRunState: Cores.CoreButtonState.actionRunState
   readonly property string runMode: Datas.DeviceInfoData.runMode
   readonly property string serialNumber: Datas.TaskDatas.latestRecordId
 
@@ -45,9 +47,25 @@ BaseCard {
 
     InfoRowItem {
       Layout.fillWidth: true
-      titleText: qsTr("运行状态")
-      valueText: root.runState
-      valueColor: root.stateColor(root.runState)
+      titleText: qsTr("设备运行状态")
+      valueText: root.deviceRunState
+      valueColor: root.stateColor(root.deviceRunState)
+      valueFont.pointSize: 15
+    }
+
+    InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("采集运行状态")
+      valueText: root.captureRunState
+      valueColor: root.stateColor(root.captureRunState)
+      valueFont.pointSize: 15
+    }
+
+    InfoRowItem {
+      Layout.fillWidth: true
+      titleText: qsTr("动作运行状态")
+      valueText: root.actionRunState
+      valueColor: root.stateColor(root.actionRunState)
       valueFont.pointSize: 15
     }
 

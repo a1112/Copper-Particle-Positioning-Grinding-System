@@ -51,10 +51,6 @@ BaseCard {
     )
   }
 
-  function isRunningOrPaused() {
-    return ["RUNNING", "PAUSED"].indexOf(root.runState) !== -1
-  }
-
   ColumnLayout {
     anchors.fill: parent
     spacing: 10
@@ -76,26 +72,26 @@ BaseCard {
 
       Btns.ActionButton {
         text: qsTr("启动")
-        enabled: Datas.StatusDatas.controlEnabled && root.hasProgram && root.runState !== "RUNNING"
+        enabled: root.hasProgram && (Datas.StatusDatas.forceEnableControls || Cores.CoreButtonState.actionStartAvailable)
         onClicked: startProgram()
       }
 
       Btns.ActionButton {
         text: qsTr("停止")
         danger: true
-        enabled: Datas.StatusDatas.controlEnabled && isRunningOrPaused()
+        enabled: Datas.StatusDatas.forceEnableControls || Cores.CoreButtonState.actionStopAvailable
         onClicked: stopProgram()
       }
 
       Btns.ActionButton {
         text: qsTr("复位")
         danger: true
-        enabled: Datas.StatusDatas.controlEnabled && isRunningOrPaused()
+        enabled: Datas.StatusDatas.forceEnableControls || Cores.CoreButtonState.actionResetAvailable
       }
       Btns.ActionButton {
         text: qsTr("重新执行")
         danger: true
-        enabled: Datas.StatusDatas.controlEnabled && isRunningOrPaused()
+        enabled: Datas.StatusDatas.forceEnableControls || Cores.CoreButtonState.actionReplayAvailable
       }
     }
   }
