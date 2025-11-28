@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import "../../../Api" as Api
 import "../../../cores" as Cores
 import "../../../datas" as Datas
+import "../../../works" as Works
 import "." as Layers
 import ".." as ImageInfo
 
@@ -37,6 +38,7 @@ Item {
   readonly property point currentPanOffset: viewCore ? viewCore.panOffset : Qt.point(0, 0)
   readonly property bool simulateActive: viewCore ? viewCore.simulateActive : false
   readonly property int currentSimulateIndex: viewCore ? viewCore.simulateIndex : -1
+  readonly property bool controlsEnabled: Datas.StatusDatas.forceEnableControls || Datas.StatusDatas.controlEnabled
 
   readonly property real fitScale: {
     if (imageWidth <= 0 || imageHeight <= 0 || width <= 0 || height <= 0)
@@ -132,6 +134,99 @@ Item {
       return
     }
     updateHover(localX, localY)
+  }
+
+  function _cloneParams(source) {
+    if (!source || typeof source !== "object")
+      return {}
+    var copy = {}
+    for (var key in source) {
+      if (!source.hasOwnProperty(key))
+        continue
+      copy[key] = source[key]
+    }
+    return copy
+  }
+
+  function _buildControlParams(extraParams) {
+    var params = _cloneParams(extraParams)
+    var currentRecord = Cores.CoreCurrent.record && Cores.CoreCurrent.record.id ? Number(Cores.CoreCurrent.record.id) : 0
+    if (currentRecord > 0)
+      params.record_id = currentRecord
+    else if (Datas.TaskDatas.readyRecordId && Datas.TaskDatas.readyRecordId > 0)
+      params.record_id = Datas.TaskDatas.readyRecordId
+    else if (Datas.TaskDatas.latestRecordId && Datas.TaskDatas.latestRecordId > 0)
+      params.record_id = Datas.TaskDatas.latestRecordId
+
+    var currentWorkpiece = Cores.CoreCurrent.workpiece && Cores.CoreCurrent.workpiece.id ? Number(Cores.CoreCurrent.workpiece.id) : 0
+    if (currentWorkpiece > 0)
+      params.workpiece_id = currentWorkpiece
+    else if (Datas.TaskDatas.workpieceId && Datas.TaskDatas.workpieceId > 0)
+      params.workpiece_id = Datas.TaskDatas.workpieceId
+
+    params.manual = true
+    return params
+  }
+
+  function dispatchContextControl(actionKey, extraParams) {
+    if (!actionKey)
+      return
+    if (!Datas.StatusDatas.forceEnableControls && !Datas.StatusDatas.controlEnabled)
+      return
+    var params = _buildControlParams(extraParams)
+    if (params.workpiece_id && params.workpiece_id > 0) {
+      Cores.CoreCurrent.updateWorkpiece({
+                                          id: params.workpiece_id,
+                                          code: Datas.TaskDatas.workpieceCode,
+                                          type: Datas.TaskDatas.workpieceType
+                                        })
+    }
+    if (params.record_id && params.record_id > 0)
+      Cores.CoreCurrent.updateRecord({ id: params.record_id })
+    Cores.CoreCurrent.pushControl(actionKey, params, { source: "view2d_context_menu" })
+    Api.ApiClient.control(actionKey, params, function() {
+      Works.TaskWork.refresh()
+    }, function(_, errMessage) {
+      console.warn("View2D control action failed", actionKey, errMessage)
+      Works.TaskWork.refresh()
+    })
+  }
+
+  Menu {
+    id: quickActionMenu
+    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+    MenuItem {
+      text: qsTr("气缸全部夹紧")
+      enabled: view.controlsEnabled
+      onTriggered: view.dispatchContextControl("cylinder.clamp_all")
+    }
+    MenuItem {
+      text: qsTr("气缸全部松开")
+      enabled: view.controlsEnabled
+      onTriggered: view.dispatchContextControl("cylinder.release_all")
+    }
+    MenuSeparator {}
+    MenuItem {
+      text: qsTr("主轴位置回零")
+      enabled: view.controlsEnabled
+      onTriggered: view.dispatchContextControl("motion.home")
+    }
+    MenuItem {
+      text: qsTr("主轴Z值回零")
+      enabled: view.controlsEnabled
+      onTriggered: view.dispatchContextControl("spindle.home_z")
+    }
+    MenuItem {
+      text: qsTr("主轴换刀")
+      enabled: view.controlsEnabled
+      onTriggered: view.dispatchContextControl("spindle.tool_change")
+    }
+    MenuItem {
+      text: qsTr("主轴停止")
+      enabled: view.controlsEnabled
+      onTriggered: view.dispatchContextControl("spindle.stop")
+    }
   }
 
   function startSimulation() {
@@ -432,17 +527,26 @@ Item {
       id: interactionArea
       anchors.fill: parent
       hoverEnabled: true
-      acceptedButtons: Qt.LeftButton
-      cursorShape: pressed ? Qt.ClosedHandCursor : (view.currentZoom > 1.0001 ? Qt.OpenHandCursor : Qt.ArrowCursor)
+      acceptedButtons: Qt.LeftButton | Qt.RightButton
+      cursorShape: (interactionArea.pressedButtons & Qt.LeftButton) ? Qt.ClosedHandCursor
+                                                                   : (view.currentZoom > 1.0001 ? Qt.OpenHandCursor : Qt.ArrowCursor)
 
       onPressed: function(mouse) {
+        if (mouse.button === Qt.RightButton) {
+          if (quickActionMenu)
+            quickActionMenu.popup(interactionArea, mouse.x, mouse.y)
+          mouse.accepted = true
+          return
+        }
+        if (mouse.button !== Qt.LeftButton)
+          return
         if (view.viewCore)
           view.viewCore.dragLastPos = Qt.point(mouse.x, mouse.y)
       }
 
       onPositionChanged: function(mouse) {
         var localPoint = Qt.point(mouse.x, mouse.y)
-        if (pressed) {
+        if ((interactionArea.pressedButtons & Qt.LeftButton) !== 0) {
           var lastPos = view.viewCore ? view.viewCore.dragLastPos : Qt.point(mouse.x, mouse.y)
           var dx = mouse.x - lastPos.x
           var dy = mouse.y - lastPos.y

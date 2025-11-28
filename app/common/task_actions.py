@@ -29,6 +29,11 @@ ACTION_META: Dict[str, Tuple[str, int]] = {
     "manual.initialize": ("初始化", 47),
     "manual.initialize_secondary": ("初始化", 48),
     PARAM_UPDATE_ACTION: ("参数更新", 50),
+    "cylinder.clamp_all": ("气缸全部夹紧", 51),
+    "cylinder.release_all": ("气缸全部松开", 52),
+    "spindle.tool_change": ("主轴换刀", 54),
+    "spindle.stop": ("主轴停止", 55),
+    "spindle.home_z": ("主轴Z值回零", 56),
 }
 
 

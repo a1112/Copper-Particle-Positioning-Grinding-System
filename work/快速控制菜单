@@ -1,0 +1,9 @@
+在 2D 显示视图增加鼠标右键菜单
+    菜单内容为
+            气缸全部夹紧  新建 ACTION_META 51
+            气缸全部松开  新建 ACTION_META 52
+            主轴位置回零   使用 ACTION_META 6
+            主轴换刀      新建 ACTION_META 54
+            主轴停止    新建 ACTION_META 55
+
+进行点击时，创建任务
