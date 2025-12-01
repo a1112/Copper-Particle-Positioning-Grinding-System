@@ -227,6 +227,16 @@ Item {
       enabled: view.controlsEnabled
       onTriggered: view.dispatchContextControl("spindle.stop")
     }
+    MenuItem {
+      text: qsTr("排屑打开")
+      enabled: view.controlsEnabled
+      onTriggered: view.dispatchContextControl("chip.open")
+    }
+    MenuItem {
+      text: qsTr("排屑关闭")
+      enabled: view.controlsEnabled
+      onTriggered: view.dispatchContextControl("chip.close")
+    }
   }
 
   function startSimulation() {

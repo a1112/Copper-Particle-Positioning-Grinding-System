@@ -17,7 +17,7 @@ Rectangle {
   property bool _observedCaptureRunning: false
 
   Layout.alignment: Qt.AlignVCenter
-  enabled: Datas.StatusDatas.forceEnableControls || (!busy && canTriggerCapture)
+  enabled: true // Datas.StatusDatas.forceEnableControls || (!busy && canTriggerCapture)
   implicitHeight: Math.max(34, parent ? parent.height * 0.75 : 34)
   implicitWidth: implicitHeight * 2.1
   radius: 8
@@ -34,7 +34,7 @@ Rectangle {
 
   MouseArea {
     anchors.fill: parent
-    enabled: Datas.StatusDatas.forceEnableControls || captureBtn.enabled
+    enabled:  captureBtn.enabled //Datas.StatusDatas.forceEnableControls
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: captureBtn.triggerCapture()
