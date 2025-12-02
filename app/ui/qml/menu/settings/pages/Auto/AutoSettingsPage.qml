@@ -8,9 +8,12 @@ Pane {
   property string categoryId: ""
   property var data: ({})
   property var values: ({})
+  property var savedValues: ({})
   property var groupRepeaterModel
+  property color dirtyColor: "#facc15"
   onDataChanged: {
     values = cloneMap(data && data.values ? data.values : {})
+    savedValues = cloneMap(data && data.values ? data.values : {})
     groupRepeaterModel = (data && data.groups) ? data.groups : []
   }
   ColumnLayout{
@@ -51,6 +54,35 @@ Pane {
     if (!Number.isNaN(num))
       return num
     return value
+  }
+
+  function _savedValue(groupId, fieldId, defaultValue) {
+    if (!groupId || !fieldId)
+      return defaultValue
+    var groupValues = (savedValues && savedValues[groupId]) ? savedValues[groupId] : {}
+    var val = groupValues[fieldId]
+    if (val === undefined || val === null)
+      return defaultValue
+    return val
+  }
+
+  function _valuesEqual(a, b) {
+    if (a === b)
+      return true
+    var numA = Number(a)
+    var numB = Number(b)
+    if (!Number.isNaN(numA) && !Number.isNaN(numB))
+      return numA === numB
+    return String(a || "") === String(b || "")
+  }
+
+  function _isFieldDirty(groupId, fieldId, defaultValue) {
+    return !_valuesEqual(_currentValue({ groupId: groupId, id: fieldId, default: defaultValue }),
+                         _savedValue(groupId, fieldId, defaultValue))
+  }
+
+  function _labelColor(groupId, fieldId, defaultValue, normalColor) {
+    return _isFieldDirty(groupId, fieldId, defaultValue) ? dirtyColor : normalColor
   }
 
   function cloneMap(value) {

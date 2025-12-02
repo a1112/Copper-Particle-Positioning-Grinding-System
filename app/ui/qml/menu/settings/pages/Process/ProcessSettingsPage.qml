@@ -7,6 +7,8 @@ Page {
   id: page
   property var data: ({})
   property var formData: defaultTemplate()
+  property var savedData: defaultTemplate()
+  property color dirtyColor: "#facc15"
 
   function defaultTemplate() {
     return {
@@ -49,6 +51,18 @@ Page {
 
   function collectPayload() { return deepCopy(formData) }
 
+  function getSavedValue(path, fallback) {
+    var node = savedData
+    var parts = path.split(".")
+    for (var i = 0; i < parts.length; ++i) {
+      var key = parts[i]
+      if (!node || !(key in node))
+        return fallback
+      node = node[key]
+    }
+    return node !== undefined ? node : fallback
+  }
+
   function getValue(path, fallback) {
     var node = formData
     var parts = path.split(".")
@@ -81,8 +95,35 @@ Page {
     setValue(path, value)
   }
 
-  onDataChanged: formData = mergeDefaults(data)
-  Component.onCompleted: formData = mergeDefaults(data)
+  function valuesEqual(a, b) {
+    if (a === b)
+      return true
+    if (typeof a === "number" && typeof b === "number" && isNaN(a) && isNaN(b))
+      return true
+    var numA = Number(a)
+    var numB = Number(b)
+    if (!isNaN(numA) && !isNaN(numB))
+      return numA === numB
+    if (typeof a === "boolean" || typeof b === "boolean")
+      return !!a === !!b
+    return String(a) === String(b)
+  }
+
+  function isDirty(path, fallback) {
+    return !valuesEqual(getValue(path, fallback), getSavedValue(path, fallback))
+  }
+
+  function labelColor(path, normalColor, fallback) {
+    return isDirty(path, fallback) ? dirtyColor : normalColor
+  }
+
+  function syncFromData(source) {
+    savedData = mergeDefaults(source)
+    formData = mergeDefaults(source)
+  }
+
+  onDataChanged: syncFromData(data)
+  Component.onCompleted: syncFromData(data)
 
   ColumnLayout {
     anchors.fill: parent
@@ -107,30 +148,35 @@ Page {
           columnSpacing: 16
           rowSpacing: 8
 
-          Label { text: qsTr("空跑速度 (mm/s)"); color: "#e2e8f0" }
+          Label { text: qsTr("空跑速度 (mm/s)"); color: labelColor("motion.air_cut_speed", "#e2e8f0", 0) }
           TextFieldBase {
+            dirty: isDirty("motion.air_cut_speed", 0)
             text: String(getValue("motion.air_cut_speed", 0))
             onEditingFinished: setNumeric("motion.air_cut_speed", text)
           }
-          Label { text: qsTr("最大空跑速度 (mm/s)"); color: "#e2e8f0" }
+          Label { text: qsTr("最大空跑速度 (mm/s)"); color: labelColor("motion.air_cut_speed_max", "#e2e8f0", 0) }
           TextFieldBase {
+            dirty: isDirty("motion.air_cut_speed_max", 0)
             text: String(getValue("motion.air_cut_speed_max", 0))
             onEditingFinished: setNumeric("motion.air_cut_speed_max", text)
           }
 
-          Label { text: qsTr("进给速度 (mm/s)"); color: "#e2e8f0" }
+          Label { text: qsTr("进给速度 (mm/s)"); color: labelColor("motion.feed_speed", "#e2e8f0", 0) }
           TextFieldBase {
+            dirty: isDirty("motion.feed_speed", 0)
             text: String(getValue("motion.feed_speed", 0))
             onEditingFinished: setNumeric("motion.feed_speed", text)
           }
-          Label { text: qsTr("最大进给速度 (mm/s)"); color: "#e2e8f0" }
+          Label { text: qsTr("最大进给速度 (mm/s)"); color: labelColor("motion.feed_speed_max", "#e2e8f0", 0) }
           TextFieldBase {
+            dirty: isDirty("motion.feed_speed_max", 0)
             text: String(getValue("motion.feed_speed_max", 0))
             onEditingFinished: setNumeric("motion.feed_speed_max", text)
           }
 
-          Label { text: qsTr("点动速度 (mm/s)"); color: "#e2e8f0" }
+          Label { text: qsTr("点动速度 (mm/s)"); color: labelColor("motion.jog_speed", "#e2e8f0", 0) }
           TextFieldBase {
+            dirty: isDirty("motion.jog_speed", 0)
             text: String(getValue("motion.jog_speed", 0))
             onEditingFinished: setNumeric("motion.jog_speed", text)
           }
@@ -149,14 +195,16 @@ Page {
           columnSpacing: 16
           rowSpacing: 8
 
-          Label { text: qsTr("主轴转速 (rpm)"); color: "#e2e8f0" }
+          Label { text: qsTr("主轴转速 (rpm)"); color: labelColor("spindle.rpm", "#e2e8f0", 0) }
           TextFieldBase {
+            dirty: isDirty("spindle.rpm", 0)
             text: String(getValue("spindle.rpm", 0))
             onEditingFinished: setNumeric("spindle.rpm", text)
           }
 
-          Label { text: qsTr("刀具直径 (mm)"); color: "#e2e8f0" }
+          Label { text: qsTr("刀具直径 (mm)"); color: labelColor("spindle.tool_diameter", "#e2e8f0", 0) }
           TextFieldBase {
+            dirty: isDirty("spindle.tool_diameter", 0)
             text: String(getValue("spindle.tool_diameter", 0))
             onEditingFinished: setNumeric("spindle.tool_diameter", text)
           }

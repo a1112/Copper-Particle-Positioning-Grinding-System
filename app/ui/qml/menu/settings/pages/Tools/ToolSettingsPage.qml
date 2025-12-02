@@ -5,15 +5,74 @@ import "../"
 Item {
   id: page
   property var tools: []
+  property var savedTools: []
+  property color dirtyColor: "#facc15"
   property ListModel toolModel: ListModel { }
 
   onToolsChanged: reload()
   Component.onCompleted: reload()
 
+  function cloneTools(arr) {
+    if (!Array.isArray(arr))
+      return []
+    try {
+      return JSON.parse(JSON.stringify(arr))
+    } catch (err) {
+      return []
+    }
+  }
+
+  function valuesEqual(a, b) {
+    if (a === b)
+      return true
+    var numA = Number(a)
+    var numB = Number(b)
+    if (!isNaN(numA) && !isNaN(numB))
+      return numA === numB
+    return String(a || "") === String(b || "")
+  }
+
+  function _savedEntryFor(index) {
+    if (!Array.isArray(savedTools))
+      return {}
+    var current = toolModel.get(index)
+    if (current && current.id !== undefined) {
+      for (var i = 0; i < savedTools.length; ++i) {
+        if (savedTools[i] && savedTools[i].id === current.id)
+          return savedTools[i]
+      }
+    }
+    if (index >= 0 && index < savedTools.length)
+      return savedTools[index]
+    return {}
+  }
+
+  function _savedValueFor(index, key) {
+    var saved = _savedEntryFor(index) || {}
+    var mapping = {
+      model: "model",
+      diameter: "diameter_mm",
+      length: "length_mm",
+      usage: "usage_minutes",
+      life: "service_life_minutes",
+      status: "status"
+    }
+    var savedKey = mapping.hasOwnProperty(key) ? mapping[key] : key
+    return saved[savedKey]
+  }
+
+  function isToolFieldDirty(index, key) {
+    var current = toolModel.get(index)
+    if (!current)
+      return false
+    return !valuesEqual(current[key], _savedValueFor(index, key))
+  }
+
   function reload() {
     toolModel.clear()
     if (!Array.isArray(tools))
       return
+    savedTools = cloneTools(tools)
     for (var i = 0; i < tools.length; ++i) {
       var item = tools[i] || {}
       toolModel.append({
@@ -123,6 +182,7 @@ Item {
               spacing: 12
 
               TextFieldBase {
+                dirty: isToolFieldDirty(index, "model")
                 text: model
                 Layout.preferredWidth: 140
                 placeholderText: qsTr("型号")
@@ -130,6 +190,7 @@ Item {
               }
 
               TextFieldBase{
+                dirty: isToolFieldDirty(index, "diameter")
                 text: String(diameter)
                 Layout.preferredWidth: 90
                 inputMethodHints: Qt.ImhPreferNumbers
@@ -137,6 +198,7 @@ Item {
               }
 
               TextFieldBase{
+                dirty: isToolFieldDirty(index, "length")
                 text: String(length)
                 Layout.preferredWidth: 90
                 inputMethodHints: Qt.ImhPreferNumbers
@@ -144,6 +206,7 @@ Item {
               }
 
               TextFieldBase{
+                dirty: isToolFieldDirty(index, "usage")
                 text: String(usage)
                 Layout.preferredWidth: 120
                 inputMethodHints: Qt.ImhDigitsOnly
@@ -151,6 +214,7 @@ Item {
               }
 
               TextFieldBase{
+                dirty: isToolFieldDirty(index, "life")
                 text: String(life)
                 Layout.preferredWidth: 130
                 inputMethodHints: Qt.ImhDigitsOnly
@@ -158,6 +222,7 @@ Item {
               }
 
               TextFieldBase{
+                dirty: isToolFieldDirty(index, "status")
                 text: String(status)
                 Layout.preferredWidth: 70
                 inputMethodHints: Qt.ImhDigitsOnly
