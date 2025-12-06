@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional, Tuple
 
+from app.common.task_actions import ACTION_META, normalise_action as normalise_task_action
 from .program import DEFAULT_ALG_RESULT_PATH
 from .state import ControllerState
 from .tasks import TaskQueueWriter
@@ -69,7 +70,7 @@ def create_control_handler(
 
     def handler(action: str, params: Dict[str, object]) -> Dict[str, object]:
         LOG.info("Control handler received action=%s params=%s", action, dict(params))
-        normalized = action.strip().lower()
+        normalized = normalise_task_action(action)
         if not normalized:
             state.register_command(action, False, "Empty action")
             return {"ok": False, "message": "Empty action"}
@@ -128,6 +129,13 @@ def create_control_handler(
             state.register_command(action, True, "Program playback stopped")
             _enqueue(action, params, workpiece_id=workpiece_id, record_id=record_id)
             return {"ok": True, "message": "Program playback stopped"}
+
+        if normalized in ACTION_META:
+            message = f"Control command dispatched: {action}"
+            state.register_command(action, True, message)
+            _enqueue(action, params, workpiece_id=workpiece_id, record_id=record_id)
+            _refresh_program_if_needed(state, normalized)
+            return {"ok": True, "message": message}
 
         state.register_command(action, False, f"Unsupported action: {action}")
         fallback_params = dict(params or {})
