@@ -36,7 +36,7 @@ ACTION_META: Dict[str, Tuple[str, int]] = {
     "spindle.home_z": ("主轴Z值回零", 56),
     "chip.open": ("排屑打开", 57),
     "chip.close": ("排屑关闭", 58),
-    "manual.check": ("手动点检", 59),
+    "manual.check": ("手动点检", 61),
 }
 
 
