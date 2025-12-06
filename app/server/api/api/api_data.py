@@ -70,6 +70,7 @@ _STAGE_TYPE_MAP = {
     "control": {
         friendly_action_type("manual.defect_detection"),
         friendly_action_type("manual.defect_detection_secondary"),
+        friendly_action_type("manual.check"),
     },
 }
 
