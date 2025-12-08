@@ -299,18 +299,13 @@ ApplicationWindow {
         if (!latest)
           return
         var status = Number(latest.status)
-        if (status === 0) {
-          matrixCountStatus = 0  // 已下发 / 排队中
+        // 同步状态码到界面（0/1/2/3）
+        matrixCountStatus = isNaN(status) ? -1 : status
+        if (status === 0 || status === 1)
           return
-        }
-        if (status === 1) {
-          matrixCountStatus = 1  // 计数中
-          return
-        }
         matrixCountActive = false
         var detailObj = latest.status_detail || latest.statusDetail || {}
         if (status === 3) {
-          matrixCountStatus = 3
           var msg = detailObj && (detailObj.message || detailObj.detail || detailObj.error) || ""
           if (!msg)
             msg = qsTr("矩阵计数失败，详见任务列表")

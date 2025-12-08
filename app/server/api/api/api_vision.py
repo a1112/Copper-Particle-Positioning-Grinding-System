@@ -3,12 +3,13 @@ from __future__ import annotations
 from datetime import datetime
 
 from fastapi import Depends, HTTPException
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from app.common.tasks import TaskStatus
 from app.common.task_actions import friendly_action_name, friendly_action_type, normalise_action
 from app.db import SessionLocal
-from app.db.models.hardware_task_queue import HardwareTaskQueue
+from app.db.models.MzPoliShineDB import HardwareTaskQueue, RecordTable
 from app.server.api.services.calibration_manager import CalibrationManager
 from app.server.api.services.task1_runtime import get_task1_runner
 from ..api_core import vision_router as router
@@ -154,10 +155,15 @@ async def enqueue_matrix_count_task(name: str, payload: dict | None = None, sess
         [0.0, 0.0, 0.0, 0.0],
         [0.0, 0.0, 0.0, 0.0],
     ]
+    # 关联到最新的记录，确保 /data/tasks/state 能看到该任务
+    record_row = session.execute(select(RecordTable).order_by(desc(RecordTable.id))).scalars().first()
+    record_id = record_row.id if record_row is not None else None
+
     task = HardwareTaskQueue(
         task_name=task_name,
         task_type=type_code,
         device_id=1,
+        record_id=record_id,
         task_params=task_params,
         status=int(TaskStatus.PENDING),
         status_params={
