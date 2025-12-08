@@ -290,21 +290,31 @@ Item {
       enabled: view.controlsEnabled
       onTriggered: view.dispatchContextControl("spindle.stop")
     }
-    MenuItem {
-      text: qsTr("排屑打开")
-      enabled: view.controlsEnabled
-      onTriggered: view.dispatchContextControl("chip.open")
-    }
-    MenuItem {
-      text: qsTr("排屑关闭")
-      enabled: view.controlsEnabled
-      onTriggered: view.dispatchContextControl("chip.close")
-    }
-    MenuItem {
-      text: qsTr("手动点检")
-      enabled: view.controlsEnabled
-      onTriggered: view.triggerManualCheck()
-    }
+      MenuItem {
+        text: qsTr("排屑打开")
+        enabled: view.controlsEnabled
+        onTriggered: view.dispatchContextControl("chip.open")
+      }
+      MenuItem {
+        text: qsTr("排屑关闭")
+        enabled: view.controlsEnabled
+        onTriggered: view.dispatchContextControl("chip.close")
+      }
+      MenuItem {
+        text: qsTr("气吹打开")
+        enabled: view.controlsEnabled
+        onTriggered: view.dispatchContextControl("air_blow.open")
+      }
+      MenuItem {
+        text: qsTr("气吹关闭")
+        enabled: view.controlsEnabled
+        onTriggered: view.dispatchContextControl("air_blow.close")
+      }
+      MenuItem {
+        text: qsTr("手动点检")
+        enabled: view.controlsEnabled
+        onTriggered: view.triggerManualCheck()
+      }
   }
 
   function startSimulation() {
