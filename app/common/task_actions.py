@@ -39,6 +39,8 @@ ACTION_META: Dict[str, Tuple[str, int]] = {
     "air_blow.open": ("气吹打开", 59),
     "air_blow.close": ("气吹关闭", 60),
     "manual.check": ("手动点检", 61),
+    "manual.auto_check": ("自动点检", 62),
+    "manual.matrix_count": ("矩阵计数", 63),
 }
 
 

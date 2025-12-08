@@ -7,8 +7,9 @@ import "."
 
 Rectangle {
   required property int index
-    required property var modelData
-  property var point:modelData
+  required property var detailRef
+  required property var modelData
+  property var point: modelData
 
   width: list.width
   height: col.height + 5
@@ -43,6 +44,16 @@ Rectangle {
       point.machine = { x: null, y: null, z: null }
   }
 
+  function _writeBack() {
+    if (!detailRef || !detailRef.points)
+      return
+    var pts = detailRef.points
+    if (index < 0 || index >= pts.length)
+      return
+    pts[index] = point
+    detailRef.points = pts
+  }
+
   ColumnLayout {
     id: col
     width: parent.width
@@ -62,9 +73,10 @@ Rectangle {
         labelText: qsTr("Px")
         field.implicitHeight: tf_implicitHeight
         field.text: point && point.pixel ? point.pixel.x : ""
-        field.onEditingFinished: {
+        field.onTextChanged: {
           _ensurePixel()
           point.pixel.x = _num(field.text)
+          _writeBack()
         }
       }
 
@@ -72,9 +84,10 @@ Rectangle {
         labelText: "Y"
         field.implicitHeight: tf_implicitHeight
         field.text: point && point.pixel ? point.pixel.y : ""
-        field.onEditingFinished: {
+        field.onTextChanged: {
           _ensurePixel()
           point.pixel.y = _num(field.text)
+          _writeBack()
         }
       }
 
@@ -83,9 +96,10 @@ Rectangle {
         field.implicitHeight: tf_implicitHeight
         field.width: 50
         field.text: point && point.camera ? point.camera.x : ""
-        field.onEditingFinished: {
+        field.onTextChanged: {
           _ensureCamera()
           point.camera.x = _num(field.text)
+          _writeBack()
         }
       }
 
@@ -94,9 +108,10 @@ Rectangle {
         field.implicitHeight: tf_implicitHeight
         field.width: 50
         field.text: point && point.camera ? point.camera.y : ""
-        field.onEditingFinished: {
+        field.onTextChanged: {
           _ensureCamera()
           point.camera.y = _num(field.text)
+          _writeBack()
         }
       }
 
@@ -105,9 +120,10 @@ Rectangle {
         field.implicitHeight: tf_implicitHeight
         field.width: 50
         field.text: point && point.camera ? point.camera.z : ""
-        field.onEditingFinished: {
+        field.onTextChanged: {
           _ensureCamera()
           point.camera.z = _num(field.text)
+          _writeBack()
         }
       }
     }
@@ -122,9 +138,10 @@ Rectangle {
         field.implicitHeight: tf_implicitHeight
         field.width: 50
         field.text: point && point.machine ? point.machine.x : ""
-        field.onEditingFinished: {
+        field.onTextChanged: {
           _ensureMachine()
           point.machine.x = _num(field.text)
+          _writeBack()
         }
       }
 
@@ -133,9 +150,10 @@ Rectangle {
         field.implicitHeight: tf_implicitHeight
         field.width: 50
         field.text: point && point.machine ? point.machine.y : ""
-        field.onEditingFinished: {
+        field.onTextChanged: {
           _ensureMachine()
           point.machine.y = _num(field.text)
+          _writeBack()
         }
       }
 
@@ -144,9 +162,10 @@ Rectangle {
         field.implicitHeight: tf_implicitHeight
         field.width: 50
         field.text: point && point.machine ? point.machine.z : ""
-        field.onEditingFinished: {
+        field.onTextChanged: {
           _ensureMachine()
           point.machine.z = _num(field.text)
+          _writeBack()
         }
       }
     }

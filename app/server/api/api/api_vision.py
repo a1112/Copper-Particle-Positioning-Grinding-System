@@ -1,12 +1,27 @@
 from __future__ import annotations
 
-from fastapi import HTTPException
+from datetime import datetime
 
+from fastapi import Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.common.tasks import TaskStatus
+from app.common.task_actions import friendly_action_name, friendly_action_type, normalise_action
+from app.db import SessionLocal
+from app.db.models.hardware_task_queue import HardwareTaskQueue
 from app.server.api.services.calibration_manager import CalibrationManager
 from app.server.api.services.task1_runtime import get_task1_runner
 from ..api_core import vision_router as router
 
 _CALIBRATION_MANAGER = CalibrationManager()
+
+
+def get_db_session():
+  db = SessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()
 
 
 @router.get("/vision/calibration")
@@ -106,3 +121,42 @@ async def compute_calibration_matrices(name: str, payload: dict | None = None) -
         raise HTTPException(status_code=400, detail="points must be a list")
     matrices = _CALIBRATION_MANAGER.compute_matrices(points)
     return {"matrices": matrices}
+
+
+@router.post("/vision/calibrations/{name}/matrix-count")
+async def enqueue_matrix_count_task(name: str, payload: dict | None = None, session: Session = Depends(get_db_session)) -> dict:
+    payload = payload or {}
+    points = payload.get("points") or []
+    if not isinstance(points, list):
+        raise HTTPException(status_code=400, detail="points must be a list")
+    if len(points) < 3:
+        raise HTTPException(status_code=400, detail="points 至少需要 3 个点")
+
+    action_key = "manual.matrix_count"
+    normalized = normalise_action(action_key)
+    task_name = friendly_action_name(action_key)
+    type_code = friendly_action_type(action_key)
+
+    task_params = {
+        "action": action_key,
+        "action_key": normalized,
+        "action_name": task_name,
+        "params": {
+            "calibration": name,
+            "points": points,
+        },
+        "queued_at": datetime.utcnow().timestamp(),
+    }
+    task = HardwareTaskQueue(
+        task_name=task_name,
+        task_type=type_code,
+        device_id=1,
+        task_params=task_params,
+        status=int(TaskStatus.PENDING),
+        status_params={"phase": "queued", "source": "calibration.matrix_count"},
+        created_by="api.vision.calibration",
+    )
+    session.add(task)
+    session.commit()
+    session.refresh(task)
+    return {"task_id": task.id}

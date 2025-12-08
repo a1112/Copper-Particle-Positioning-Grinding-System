@@ -8,7 +8,9 @@ GroupBox {
 
   title: qsTr("点位数据")
   property int tf_implicitHeight: 32
+  // 外部传入的数据源与 detail 引用
   property var pointsModel
+  property var detailRef
   property int selectedIndex: -1
   property var matrices: ({})
   property string matricesText: ""
@@ -68,6 +70,7 @@ GroupBox {
         onCurrentIndexChanged: root.selectedIndex = currentIndex
 
         delegate: PintItem {
+          detailRef: root.detailRef
         }
       }
     }
