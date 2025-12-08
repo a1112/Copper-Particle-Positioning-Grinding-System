@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
+import QtQuick.Window
 import "../../Api" as Api
 import "../../components/btns" as Btns
 import "../../works" as Works
@@ -10,9 +11,9 @@ import "." as CalibrationParts
 ApplicationWindow {
   id: root
   visible: false
-  width: 1280
-  height: 760
-
+  width: Screen.width*0.7
+  height: Screen.height*0.7
+  title: "标定设置"
   property var overview: ({ active: "", groups: [], globals: {} })
   property string currentGroup: ""
   property var detail: ({
@@ -25,19 +26,16 @@ ApplicationWindow {
     annotation: ""
   })
   property int selectedIndex: -1
-  ListModel { id: pointsModel }
-  property var editor: ({
-    pixelX: "",
-    pixelY: "",
-    cameraX: "",
-    cameraY: "",
-    cameraZ: "",
-    machineX: "",
-    machineY: "",
-    machineZ: ""
-  })
   property string statusText: ""
   property bool statusIsError: false
+
+
+  property var pointsModel_: detail.points
+
+  function flushPointsModel(){
+      pointsModel_=""
+      pointsModel_ = detail.points
+  }
 
   signal saved()
 
@@ -50,13 +48,6 @@ ApplicationWindow {
     visible = false
   }
 
-  function syncPointsModel() {
-    pointsModel.clear()
-    var pts = detail.points || []
-    for (var i = 0; i < pts.length; ++i)
-      pointsModel.append({ item: pts[i] })
-  }
-
   function loadOverview() {
     Api.ApiClient.calibrationList(function(payload) {
       overview = payload || { active: "", groups: [], globals: {} }
@@ -64,6 +55,7 @@ ApplicationWindow {
         var target = currentGroup || overview.active || overview.groups[0].name
         loadGroup(target)
       }
+      showMessage(qsTr("标定列表已刷新"), false)
     }, function(status, message) {
       showMessage(qsTr("标定列表获取失败: %1").arg(message || status), true)
     })
@@ -76,8 +68,6 @@ ApplicationWindow {
       detail = payload || detail
       currentGroup = detail.name || name
       selectedIndex = -1
-      syncPointsModel()
-      clearEditor()
     }, function(status, message) {
       showMessage(qsTr("加载标定组失败: %1").arg(message || status), true)
     })
@@ -88,7 +78,6 @@ ApplicationWindow {
       detail = payload || detail
       currentGroup = detail.name
       loadOverview()
-      syncPointsModel()
       showMessage(qsTr("已切换到标定组 %1").arg(currentGroup), false)
       if (Works.CalibrationWork && Works.CalibrationWork.refresh)
         Works.CalibrationWork.refresh()
@@ -102,7 +91,6 @@ ApplicationWindow {
       detail = payload || detail
       currentGroup = detail.name
       loadOverview()
-      syncPointsModel()
       showMessage(qsTr("已创建标定组 %1").arg(currentGroup), false)
       if (Works.CalibrationWork && Works.CalibrationWork.refresh)
         Works.CalibrationWork.refresh()
@@ -120,7 +108,6 @@ ApplicationWindow {
         loadGroup(next)
       else
         detail = ({ points: [], matrices: {}, image: {}, annotation: "" })
-      syncPointsModel()
       showMessage(qsTr("标定组已删除"), false)
     }, function(status, message) {
       showMessage(qsTr("删除标定组失败: %1").arg(message || status), true)
@@ -174,21 +161,17 @@ ApplicationWindow {
     editor.pixelY = y.toFixed(3)
   }
 
-  function clearEditor() {
-    editor = {
-      pixelX: "", pixelY: "",
-      cameraX: "", cameraY: "", cameraZ: "",
-      machineX: "", machineY: "", machineZ: ""
-    }
-  }
-
   function addPoint() {
-    var pt = buildPointFromEditor()
-    if (!pt)
-      return
-    detail.points = (detail.points || []).concat([pt])
-    pointsModel.append({ item: pt })
+    var pt = {
+      pixel: { x: null, y: null },
+      camera: { x: null, y: null, z: null },
+      machine: { x: null, y: null, z: null }
+    }
+    var pts = detail.points || []
+    pts = pts.concat([pt])
+    detail.points = pts
     selectedIndex = detail.points.length - 1
+    flushPointsModel()
     showMessage(qsTr("已添加点位"), false)
   }
 
@@ -207,64 +190,80 @@ ApplicationWindow {
   function updatePoint() {
     if (selectedIndex < 0 || selectedIndex >= (detail.points || []).length)
       return
-    var pt = buildPointFromEditor()
-    if (!pt)
-      return
-    detail.points[selectedIndex] = pt
-    detail.points = detail.points.slice()
-    pointsModel.setProperty(selectedIndex, "item", pt)
+
     showMessage(qsTr("已更新点位"), false)
   }
 
   function removePoint() {
     if (selectedIndex < 0 || selectedIndex >= (detail.points || []).length)
       return
-    detail.points.splice(selectedIndex, 1)
-    detail.points = detail.points.slice()
-    pointsModel.remove(selectedIndex, 1)
+    var pts = detail.points || []
+    pts.splice(selectedIndex, 1)
+    detail.points = pts
     selectedIndex = -1
-    clearEditor()
+    flushPointsModel()
     showMessage(qsTr("点位已删除"), false)
   }
 
   function buildPointFromEditor() {
-    function num(val) {
-      if (val === undefined || val === null)
-        return null
-      var n = Number(String(val).trim())
-      return isNaN(n) ? null : n
-    }
-    var px = num(editor.pixelX)
-    var py = num(editor.pixelY)
-    if (px === null || py === null) {
-      showMessage(qsTr("像素坐标不能为空"), true)
-      return null
-    }
-    return {
-      pixel: { x: px, y: py },
-      camera: { x: num(editor.cameraX), y: num(editor.cameraY), z: num(editor.cameraZ) },
-      machine: { x: num(editor.machineX), y: num(editor.machineY), z: num(editor.machineZ) }
-    }
+    return null
   }
 
   function loadPointToEditor(index) {
     if (index < 0 || index >= (detail.points || []).length)
       return
-    var pt = detail.points[index]
     selectedIndex = index
-    editor.pixelX = (pt.pixel && pt.pixel.x !== undefined) ? pt.pixel.x : ""
-    editor.pixelY = (pt.pixel && pt.pixel.y !== undefined) ? pt.pixel.y : ""
-    editor.cameraX = pt.camera && pt.camera.x !== undefined ? pt.camera.x : ""
-    editor.cameraY = pt.camera && pt.camera.y !== undefined ? pt.camera.y : ""
-    editor.cameraZ = pt.camera && pt.camera.z !== undefined ? pt.camera.z : ""
-    editor.machineX = pt.machine && pt.machine.x !== undefined ? pt.machine.x : ""
-    editor.machineY = pt.machine && pt.machine.y !== undefined ? pt.machine.y : ""
-    editor.machineZ = pt.machine && pt.machine.z !== undefined ? pt.machine.z : ""
   }
 
   function showMessage(text, isError) {
     statusText = text || ""
     statusIsError = !!isError
+    if (!text)
+      return
+    resultPopup.message = text
+    resultPopup.isError = !!isError
+    resultPopup.open()
+    resultPopupTimer.restart()
+  }
+
+  Popup {
+    id: resultPopup
+
+    modal: false
+    focus: false
+    padding: 16
+    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+    x: (root.width - width) / 2
+    y: root.height - height - 32
+    property string message: ""
+    property bool isError: false
+    background: Rectangle {
+      color: resultPopup.isError ? "#7f1d1d" : "#064e3b"
+      border.color: resultPopup.isError ? "#fca5a5" : "#6ee7b7"
+      radius: 10
+      opacity: 0.95
+    }
+    Column {
+      spacing: 6
+
+      Label {
+        text: resultPopup.isError ? qsTr("操作失败") : qsTr("操作成功")
+        font.bold: true
+        color: "#f8fafc"
+      }
+      Label {
+        text: resultPopup.message
+        wrapMode: Label.Wrap
+        color: "#f1f5f9"
+      }
+    }
+    Timer {
+      id: resultPopupTimer
+      interval: 2600
+      repeat: false
+      running: false
+      onTriggered: resultPopup.close()
+    }
   }
 
   ColumnLayout {
@@ -290,7 +289,7 @@ ApplicationWindow {
       }
 
       ColumnLayout {
-        SplitView.preferredWidth: 500
+        SplitView.preferredWidth: 800
         SplitView.fillHeight: true
         spacing: 5
 
@@ -323,9 +322,8 @@ ApplicationWindow {
         CalibrationParts.CalibrationPointsPanel {
           Layout.fillWidth: true
           Layout.fillHeight: true
-          pointsModel: pointsModel
+          pointsModel:pointsModel_
           selectedIndex: root.selectedIndex
-          editor: root.editor
           matrices: detail.matrices || {}
           onSelectRequested: function(idx) { root.loadPointToEditor(idx) }
           onAddRequested: root.addPoint()

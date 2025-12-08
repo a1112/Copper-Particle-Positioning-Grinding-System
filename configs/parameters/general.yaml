@@ -7,3 +7,7 @@ camera:
   serial: ""
 safety:
   estop_double_confirm: true
+inspection:
+  baseline: 0.0
+  alarm_range: 0.5
+  auto_check_enabled: false

@@ -16,10 +16,9 @@ from app.common.tasks import TaskStatus
 from app.common.task_actions import (
     ACTION_META,
     DEFAULT_TASK_TYPE as TASK_DEFAULT_TYPE,
-    friendly_action_name,
     friendly_action_type,
-    normalise_action,
 )
+from app.server.api.services.settings_store import SettingsStore
 from app import config
 from app.common import save_data
 from app.controller.http_common import program
@@ -73,6 +72,21 @@ _STAGE_TYPE_MAP = {
         friendly_action_type("manual.check"),
     },
 }
+
+def _load_check_settings(session: Session) -> Dict[str, Any]:
+    """Load inspection threshold config from manual general settings."""
+    store = SettingsStore()
+    general = store.fetch_category(session, "general") or {}
+    section = general.get("inspection") or general.get("check") or {}
+    baseline = float(section.get("baseline") or 0.0)
+    alarm_range = float(section.get("alarm_range") or 0.5)
+    auto_enabled_raw = section.get("auto_check_enabled")
+    auto_enabled = bool(auto_enabled_raw)
+    return {
+        "baseline": baseline,
+        "alarm_range": alarm_range,
+        "auto_enabled": auto_enabled,
+    }
 
 def _serialize_workpiece(row: WorkpieceTable) -> Dict[str, Any]:
     return {

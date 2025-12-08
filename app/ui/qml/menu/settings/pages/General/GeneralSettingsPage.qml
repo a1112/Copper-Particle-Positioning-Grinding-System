@@ -15,6 +15,9 @@ Pane {
   property bool estopDoubleConfirm: true
   property string cameraProfile: "sim"
   property string cameraSerial: ""
+  property real inspectionBaseline: 0.0
+  property real inspectionAlarmRange: 0.5
+  property bool inspectionAutoEnabled: false
 
   ListModel { id: cameraModel }
 
@@ -72,6 +75,13 @@ Pane {
       safety = {}
     safety.estop_double_confirm = !!estopDoubleConfirm
     payload.safety = safety
+    var inspection = payload.inspection
+    if (!inspection || typeof inspection !== "object")
+      inspection = {}
+    inspection.baseline = Number(inspectionBaseline) || 0.0
+    inspection.alarm_range = Number(inspectionAlarmRange) || 0.5
+    inspection.auto_check_enabled = !!inspectionAutoEnabled
+    payload.inspection = inspection
     return payload
   }
 
@@ -131,6 +141,47 @@ Pane {
       return { estop_double_confirm: savedData.estop_double_confirm }
     return {}
   }
+
+  function _inspectionSettings() {
+    if (!data || typeof data !== "object")
+      return {}
+    if (data.inspection && typeof data.inspection === "object")
+      return data.inspection
+    if (data.check && typeof data.check === "object")
+      return data.check
+    return {}
+  }
+
+  function _savedInspectionSettings() {
+    if (!savedData || typeof savedData !== "object")
+      return {}
+    if (savedData.inspection && typeof savedData.inspection === "object")
+      return savedData.inspection
+    if (savedData.check && typeof savedData.check === "object")
+      return savedData.check
+    return {}
+  }
+
+  function _savedInspectionBaseline() {
+    var s = _savedInspectionSettings()
+    return s.baseline !== undefined ? Number(s.baseline) : 0.0
+  }
+
+  function _savedInspectionAlarmRange() {
+    var s = _savedInspectionSettings()
+    return s.alarm_range !== undefined ? Number(s.alarm_range) : 0.5
+  }
+
+  function _savedInspectionAutoEnabled() {
+    var s = _savedInspectionSettings()
+    if (s.hasOwnProperty("auto_check_enabled"))
+      return !!s.auto_check_enabled
+    return false
+  }
+
+  function isInspectionBaselineDirty() { return !valuesEqual(inspectionBaseline, _savedInspectionBaseline()) }
+  function isInspectionAlarmRangeDirty() { return !valuesEqual(inspectionAlarmRange, _savedInspectionAlarmRange()) }
+  function isInspectionAutoDirty() { return !valuesEqual(inspectionAutoEnabled, _savedInspectionAutoEnabled()) }
 
   function _savedAllowDeviceControl() {
     var area = _savedDeviceArea()
@@ -194,6 +245,11 @@ Pane {
       estopDoubleConfirm = !!safety.estop_double_confirm
     else
       estopDoubleConfirm = true
+
+    var insp = _inspectionSettings()
+    inspectionBaseline = insp.baseline !== undefined ? Number(insp.baseline) : 0.0
+    inspectionAlarmRange = insp.alarm_range !== undefined ? Number(insp.alarm_range) : 0.5
+    inspectionAutoEnabled = insp.auto_check_enabled === undefined ? false : !!insp.auto_check_enabled
   }
 
   function _cameraIndexFor(profileId) {
@@ -241,9 +297,16 @@ Pane {
     _syncFromData()
     _loadCameraProfiles()
   }
-
-  ColumnLayout {
+  Flickable {
     anchors.fill: parent
+    contentWidth: width
+    contentHeight:col.height
+    clip: true
+    flickableDirection: Flickable.VerticalFlick
+    ScrollBar.vertical: ScrollBar { }
+  ColumnLayout {
+    id:col
+    width: parent.width
     anchors.margins: 2
     spacing: 5
     Label {
@@ -414,6 +477,78 @@ Pane {
       }
     }
 
+    GroupBox {
+      Layout.fillWidth: true
+      title: qsTr("点检设置")
+      font.pixelSize: 16
+      font.bold: true
+
+      ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 12
+        spacing: 12
+
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: 12
+          Label {
+            text: qsTr("点检基准值")
+            color: colorWhenDirty(isInspectionBaselineDirty(), "#cbd5f5")
+            Layout.preferredWidth: 120
+          }
+          TextFieldBase {
+            dirty: isInspectionBaselineDirty()
+            Layout.fillWidth: true
+            text: String(inspectionBaseline)
+            onEditingFinished: {
+              var v = Number(text)
+              inspectionBaseline = isNaN(v) ? 0.0 : v
+              page._writeBack()
+            }
+          }
+        }
+
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: 12
+          Label {
+            text: qsTr("点检报警范围")
+            color: colorWhenDirty(isInspectionAlarmRangeDirty(), "#cbd5f5")
+            Layout.preferredWidth: 120
+          }
+          TextFieldBase {
+            dirty: isInspectionAlarmRangeDirty()
+            Layout.fillWidth: true
+            text: String(inspectionAlarmRange)
+            onEditingFinished: {
+              var v = Number(text)
+              inspectionAlarmRange = isNaN(v) ? 0.5 : v
+              page._writeBack()
+            }
+            placeholderText: qsTr("默认 0.5")
+          }
+        }
+
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: 12
+          Label {
+            text: qsTr("自动点检")
+            color: colorWhenDirty(isInspectionAutoDirty(), "#cbd5f5")
+            Layout.fillWidth: true
+          }
+          Switch {
+            checked: inspectionAutoEnabled
+            onToggled: {
+              inspectionAutoEnabled = checked
+              page._writeBack()
+            }
+          }
+        }
+      }
+    }
+
     Item { Layout.fillHeight: true }
   }
+}
 }

@@ -43,7 +43,12 @@ class AutoConfigLoader:
             group_values = values.get(group["id"], {})
             for field in group["fields"]:
                 resolved = dict(field)
-                resolved["value"] = group_values.get(field["id"], field["default"])
+                val = group_values.get(field["id"], field["default"])
+                # Ensure booleans stay booleans instead of 0/1 when stored as numeric in DB/YAML
+                if field.get("type") == "CheckBox" and isinstance(val, (int, float)):
+                    resolved["value"] = bool(val)
+                else:
+                    resolved["value"] = val
                 group_copy["fields"].append(resolved)
             groups.append(group_copy)
         flattened = self._flatten_values(groups)

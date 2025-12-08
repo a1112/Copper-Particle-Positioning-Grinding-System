@@ -58,6 +58,20 @@ Item {
   property int manualCheckLastTaskId: 0
   property string manualCheckActionKey: "manual.check"
   property string manualCheckMessage: ""
+  // 点检阈值（从设置界面读取）
+  property real checkBaseline: 0.0
+  property real checkAlarmRange: 0.5
+
+  function _applyCheckSettings() {
+    if (!Cores.CoreSettings)
+      return
+    var general = Cores.CoreSettings.parameterGeneral || {}
+    var section = general.inspection || general.check || {}
+    var b = Number(section.baseline)
+    var r = Number(section.alarm_range)
+    checkBaseline = isNaN(b) ? 0.0 : b
+    checkAlarmRange = isNaN(r) ? 0.5 : r
+  }
 
   function resetHover() {
     if (!viewCore)
@@ -229,6 +243,26 @@ Item {
       Cores.CoreError.showError(qsTr("手动点检下发失败: %1").arg(errMessage))
       Works.TaskWork.refresh()
     })
+  }
+
+  function _handleCheckResult(zValue, isAuto) {
+    var baseline = checkBaseline
+    var alarmRange = checkAlarmRange
+    var diff = zValue - baseline
+    var absDiff = Math.abs(diff)
+    var ok = absDiff <= alarmRange
+    var statusText = ok ? qsTr("成功") : qsTr("失败")
+    var message = qsTr("点检值: %1\n点检基准: %2\n报警范围: %3\n差值: %4\n点检判断: %5")
+        .arg(Number(zValue).toFixed(3))
+        .arg(Number(baseline).toFixed(3))
+        .arg(Number(alarmRange).toFixed(3))
+        .arg(Number(diff).toFixed(3))
+        .arg(statusText)
+    if (ok) {
+      Cores.CoreError.showError(message)
+    } else {
+      Cores.CoreError.showError(message)
+    }
   }
 
   function dispatchContextControl(actionKey, extraParams) {
@@ -694,8 +728,15 @@ Item {
       var status = Number(statusRaw)
       if (status === 2) { // COMPLETED
         view.manualCheckActive = false
-        view.manualCheckMessage = qsTr("【%1】指令执行成功").arg(view.manualCheckActionKey)
-        manualCheckMessageTimer.restart()
+        var detail = latest.status_detail || latest.statusDetail || {}
+        var params = detail.params || detail
+        var zValue = params && params.z_value !== undefined ? Number(params.z_value) : NaN
+        if (!isNaN(zValue)) {
+          view._handleCheckResult(zValue, !!params.auto)
+        } else {
+          view.manualCheckMessage = qsTr("【%1】指令执行成功").arg(view.manualCheckActionKey)
+          manualCheckMessageTimer.restart()
+        }
       } else if (status === 3) { // FAILED
         view.manualCheckActive = false
         var detail = latest.status_detail || latest.statusDetail || {}
@@ -717,6 +758,10 @@ Item {
     interval: 4000
     repeat: false
     onTriggered: view.manualCheckMessage = ""
+  }
+
+  Component.onCompleted: {
+    _applyCheckSettings()
   }
 
   Rectangle {
@@ -750,6 +795,12 @@ Item {
     visible: (view.pathPoints && view.pathPoints.length > 0)
     z: 100
     onClicked: view.toggleSimulation()
+  }
+
+  Connections {
+    target: Cores.CoreSettings
+    ignoreUnknownSignals: true
+    function onParameterGeneralChanged() { view._applyCheckSettings() }
   }
 
   onPathPointsChanged: {
