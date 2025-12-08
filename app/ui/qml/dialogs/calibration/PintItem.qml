@@ -3,15 +3,20 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import "../../components/Base"
 import "../../components/btns" as Btns
-import "."
 
 Rectangle {
+  // 在列表中的索引
   required property int index
-  required property var detailRef
-  required property var modelData
-  property var point: modelData
+  // 外部传入的标定明细引用（detail）
+  required property var item // 使用 required property var 声明变了存在 即可
 
-  width: list.width
+  required property var detailRef
+  // 由 ListModel 的 item 角色提供的点数据
+  property var point: item
+  // 文本框高度由外部面板传入
+  property int tf_implicitHeight: 32
+
+  width: parent ? parent.width : 0
   height: col.height + 5
   color: ListView.isCurrentItem ? "#020617" : "transparent"
   border.color: "#1e293b"
@@ -21,8 +26,8 @@ Rectangle {
     anchors.fill: parent
     hoverEnabled: true
     onClicked: {
-      list.currentIndex = index
-      root.selectRequested(index)
+      if (ListView.view)
+        ListView.view.currentIndex = index
     }
   }
 

@@ -147,13 +147,24 @@ async def enqueue_matrix_count_task(name: str, payload: dict | None = None, sess
         },
         "queued_at": datetime.utcnow().timestamp(),
     }
+    # 初始模板：全 0 矩阵，便于设备侧按相同结构覆盖
+    zero_matrix = [
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ]
     task = HardwareTaskQueue(
         task_name=task_name,
         task_type=type_code,
         device_id=1,
         task_params=task_params,
         status=int(TaskStatus.PENDING),
-        status_params={"phase": "queued", "source": "calibration.matrix_count"},
+        status_params={
+            "phase": "queued",
+            "source": "calibration.matrix_count",
+            "matrix": zero_matrix,
+        },
         created_by="api.vision.calibration",
     )
     session.add(task)

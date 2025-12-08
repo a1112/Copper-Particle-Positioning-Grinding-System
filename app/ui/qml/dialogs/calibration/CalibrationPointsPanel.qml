@@ -70,7 +70,9 @@ GroupBox {
         onCurrentIndexChanged: root.selectedIndex = currentIndex
 
         delegate: PintItem {
+          // index: index 不要写 index: index 导致 无法访问 index 了
           detailRef: root.detailRef
+          tf_implicitHeight: root.tf_implicitHeight
         }
       }
     }

@@ -14,8 +14,6 @@ RowLayout {
   }
 
   TextFieldBase {
-    implicitHeight: tf_implicitHeight
     id: input
   }
 }
-

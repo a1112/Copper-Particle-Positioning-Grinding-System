@@ -29,7 +29,18 @@ ApplicationWindow {
   property string statusText: ""
   property bool statusIsError: false
 
-  // ListView 直接绑定 detail.points，通过重置 detail.points 触发刷新
+  // 点位列表模型，由 detail.points 同步构建
+  ListModel { id: pointsModel }
+  // 矩阵计数状态：-1=无任务, 0=已下发,1=计数中,2=完成,3=失败
+  property int matrixCountStatus: -1
+
+  function syncPointsModel() {
+    pointsModel.clear()
+    var pts = detail.points || []
+    for (var i = 0; i < pts.length; ++i) {
+      pointsModel.append({ item: pts[i] })
+    }
+  }
 
   signal saved()
 
@@ -62,6 +73,9 @@ ApplicationWindow {
       detail = payload || detail
       currentGroup = detail.name || name
       selectedIndex = -1
+      matrixCountActive = false
+      matrixCountStatus = -1
+      syncPointsModel()
     }, function(status, message) {
       showMessage(qsTr("加载标定组失败: %1").arg(message || status), true)
     })
@@ -85,6 +99,7 @@ ApplicationWindow {
       detail = payload || detail
       currentGroup = detail.name
       loadOverview()
+      syncPointsModel()
       showMessage(qsTr("已创建标定组 %1").arg(currentGroup), false)
       if (Works.CalibrationWork && Works.CalibrationWork.refresh)
         Works.CalibrationWork.refresh()
@@ -102,6 +117,7 @@ ApplicationWindow {
         loadGroup(next)
       else
         detail = ({ points: [], matrices: {}, image: {}, annotation: "" })
+      syncPointsModel()
       showMessage(qsTr("标定组已删除"), false)
     }, function(status, message) {
       showMessage(qsTr("删除标定组失败: %1").arg(message || status), true)
@@ -151,20 +167,33 @@ ApplicationWindow {
   }
 
   function applyPixel(x, y) {
-    editor.pixelX = x.toFixed(3)
-    editor.pixelY = y.toFixed(3)
+    var pts = detail.points || []
+    if (selectedIndex < 0 || selectedIndex >= pts.length) {
+      showMessage(qsTr("请先在右侧选择一个点位"), true)
+      return
+    }
+    var pt = pts[selectedIndex] || {}
+    if (!pt.pixel)
+      pt.pixel = { x: null, y: null }
+    pt.pixel.x = Number(x.toFixed(3))
+    pt.pixel.y = Number(y.toFixed(3))
+    pts[selectedIndex] = pt
+    detail.points = pts
+    if (selectedIndex >= 0 && selectedIndex < pointsModel.count)
+      pointsModel.setProperty(selectedIndex, "item", pt)
   }
 
   function addPoint() {
     var pt = {
-      pixel: { x: null, y: null },
-      camera: { x: null, y: null, z: null },
-      machine: { x: null, y: null, z: null }
+      pixel: { x: 0, y: 0 },
+      camera: { x: 0, y: 0, z: 0 },
+      machine: { x: 0, y: 0, z: 0 }
     }
     var pts = detail.points || []
     pts = pts.concat([pt])
     detail.points = pts
     selectedIndex = detail.points.length - 1
+    pointsModel.append({ item: pt })
     showMessage(qsTr("已添加点位"), false)
   }
 
@@ -194,6 +223,7 @@ ApplicationWindow {
       { points: pts },
       function(resp) {
         matrixCountActive = true
+        matrixCountStatus = 0  // 0: 已下发
         showMessage(qsTr("矩阵计数任务已下发"), false)
       },
       function(status, message) {
@@ -215,6 +245,9 @@ ApplicationWindow {
     var pts = detail.points || []
     pts.splice(selectedIndex, 1)
     detail.points = pts
+    // 同步删除 ListModel 中对应条目
+    if (selectedIndex >= 0 && selectedIndex < pointsModel.count)
+      pointsModel.remove(selectedIndex, 1)
     selectedIndex = -1
     showMessage(qsTr("点位已删除"), false)
   }
@@ -266,11 +299,18 @@ ApplicationWindow {
         if (!latest)
           return
         var status = Number(latest.status)
-        if (status === 0 || status === 1)
+        if (status === 0) {
+          matrixCountStatus = 0  // 已下发 / 排队中
           return
+        }
+        if (status === 1) {
+          matrixCountStatus = 1  // 计数中
+          return
+        }
         matrixCountActive = false
         var detailObj = latest.status_detail || latest.statusDetail || {}
         if (status === 3) {
+          matrixCountStatus = 3
           var msg = detailObj && (detailObj.message || detailObj.detail || detailObj.error) || ""
           if (!msg)
             msg = qsTr("矩阵计数失败，详见任务列表")
@@ -278,6 +318,7 @@ ApplicationWindow {
           return
         }
         if (status === 2) {
+          matrixCountStatus = 2
           var params = detailObj.params || detailObj
           // 后端返回结构为 { matrix: [...] }
           var mat = params.matrix || params.camera_to_machine || params.cameraToMachine || null
@@ -400,11 +441,10 @@ ApplicationWindow {
         CalibrationParts.CalibrationPointsPanel {
           Layout.fillWidth: true
           Layout.fillHeight: true
-          pointsModel: detail.points || []
+          pointsModel: pointsModel
           detailRef: detail
           selectedIndex: root.selectedIndex
           matrices: detail.matrices || {}
-          onSelectRequested: function(idx) { root.loadPointToEditor(idx) }
           onAddRequested: root.addPoint()
           onUpdateRequested: root.updatePoint()
           onDeleteRequested: root.removePoint()
@@ -427,9 +467,27 @@ ApplicationWindow {
         Layout.fillWidth: true
         wrapMode: Label.Wrap
       }
+      Label {
+        // 矩阵计数状态显示：0:已下发,1:计数中,2:计数完成,3:计数失败
+        text: matrixCountStatus < 0
+              ? ""
+              : (matrixCountStatus === 0
+                   ? qsTr("已下发")
+                   : (matrixCountStatus === 1
+                        ? qsTr("计数中")
+                        : (matrixCountStatus === 2
+                             ? qsTr("计数完成")
+                             : qsTr("计数失败"))))
+        color: matrixCountStatus === 3
+               ? "#ef4444"
+               : (matrixCountStatus === 2 ? "#10b981" : "#e5e7eb")
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        Layout.preferredWidth: 80
+      }
       Btns.ActionButton {
         text: qsTr("矩阵计数")
-        enabled: (detail.points || []).length >= 3
+        enabled: (detail.points || []).length >= 3 && !matrixCountActive
         onClicked: startMatrixCountTask()
       }
       Btns.ActionButton {
