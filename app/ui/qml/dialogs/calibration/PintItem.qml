@@ -21,13 +21,16 @@ Rectangle {
   color: ListView.isCurrentItem ? "#020617" : "transparent"
   border.color: "#1e293b"
   border.width: ListView.isCurrentItem ? 1 : 0
-
+  onFocusChanged: {
+    if (focus){
+        list.currentIndex = index
+    }
+  }
   MouseArea {
     anchors.fill: parent
     hoverEnabled: true
     onClicked: {
-      if (ListView.view)
-        ListView.view.currentIndex = index
+        list.currentIndex = index
     }
   }
 
@@ -57,6 +60,7 @@ Rectangle {
       return
     pts[index] = point
     detailRef.points = pts
+    list.currentIndex = index
   }
 
   ColumnLayout {

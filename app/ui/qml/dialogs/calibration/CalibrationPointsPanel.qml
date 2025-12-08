@@ -68,7 +68,6 @@ GroupBox {
         model: root.pointsModel ? root.pointsModel : []
         currentIndex: root.selectedIndex
         onCurrentIndexChanged: root.selectedIndex = currentIndex
-
         delegate: PintItem {
           // index: index 不要写 index: index 导致 无法访问 index 了
           detailRef: root.detailRef
@@ -90,8 +89,7 @@ GroupBox {
       }
 
       RowLayout {
-      Layout.fillWidth: true
-
+        Layout.fillWidth: true
         anchors.margins: 0
         spacing: 6
         Label {
