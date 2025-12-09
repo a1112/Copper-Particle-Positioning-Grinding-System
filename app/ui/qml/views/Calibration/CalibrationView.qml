@@ -6,13 +6,14 @@ import "../Base"
 import "../../cores" as Cores
 import "../../datas" as Datas
 import "../../Api" as Api
+import "../ImageInfo/view2d" as View2D
 
 BaseCard {
   id: root
 
   Layout.fillWidth: true
   Layout.fillHeight: true
-  implicitHeight: contentLayout.implicitHeight + 24
+  implicitHeight: contentLayout.implicitHeight + 32
 
   readonly property real _epsilon: 1e-9
   property bool cameraRequestActive: false
@@ -639,7 +640,7 @@ BaseCard {
       Item {
         Layout.fillWidth: true
         Layout.fillHeight: true
-        Layout.preferredWidth: 520
+        Layout.preferredWidth: 640
 
         ColumnLayout {
           anchors.fill: parent
@@ -648,7 +649,7 @@ BaseCard {
           Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.minimumHeight: 320
+            Layout.minimumHeight: 400
             radius: 6
             color: Cores.CoreStyle.background
             border.color: Cores.CoreStyle.border
@@ -684,6 +685,19 @@ BaseCard {
                   width: cameraImage.paintedWidth
                   height: cameraImage.paintedHeight
                   visible: width > 0 && height > 0 && cameraImage.status === Image.Ready
+
+                  // 夹具与点检区域覆盖
+                  View2D.FixtureOverlay {
+                    anchors.fill: parent
+                    imageWidth: Datas.CalibrationData.imageWidth > 0 ? Datas.CalibrationData.imageWidth : cameraImage.sourceSize.width
+                    imageHeight: Datas.CalibrationData.imageHeight > 0 ? Datas.CalibrationData.imageHeight : cameraImage.sourceSize.height
+                    pixelSizeMm: (Datas.CalibrationData.worldWidth > 0 && Datas.CalibrationData.imageWidth > 0)
+                                 ? Datas.CalibrationData.worldWidth / Datas.CalibrationData.imageWidth
+                                 : 0.2
+                    scaleX: cameraImage.paintedWidth > 0 && imageWidth > 0 ? cameraImage.paintedWidth / imageWidth : 1.0
+                    scaleY: cameraImage.paintedHeight > 0 && imageHeight > 0 ? cameraImage.paintedHeight / imageHeight : 1.0
+                    fixtures: Datas.CalibrationData.fixtures
+                  }
 
                   Rectangle {
                     width: 1

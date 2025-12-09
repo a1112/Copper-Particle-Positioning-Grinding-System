@@ -1,8 +1,46 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
+import json
 from pathlib import Path
 from typing import Dict, Iterable
+
+
+CALIBRATION_ROOT = Path("configs") / "calibration"
+CALIBRATION_STATE_PATH = CALIBRATION_ROOT / "calibration.json"
+CALIBRATION_TEMPLATE_ANNOTATION = Path("configs") / "template" / "src_IMG_Color.xml"
+CALIBRATION_ANNOTATION_NAME = "src_IMG_Color.xml"
+
+
+def resolve_default_fixture_annotation() -> Path | None:
+    """从 calibration.json 中解析当前标定组并返回默认的夹具标注文件路径。
+
+    优先顺序：
+    1. configs/calibration/calibration.json 指定的 active_group 目录下的 src_IMG_Color.xml
+    2. 旧版平铺路径 configs/calibration/src_IMG_Color.xml
+    3. 模板路径 configs/template/src_IMG_Color.xml
+    """
+    try:
+        if CALIBRATION_STATE_PATH.exists():
+            with CALIBRATION_STATE_PATH.open("r", encoding="utf-8") as fh:
+                state = json.load(fh)
+            active_group = state.get("active_group")
+            if active_group:
+                candidate = CALIBRATION_ROOT / active_group / CALIBRATION_ANNOTATION_NAME
+                if candidate.exists():
+                    return candidate
+    except Exception:
+        # 任意解析错误时退回到旧路径 / 模板路径
+        pass
+
+    legacy = CALIBRATION_ROOT / CALIBRATION_ANNOTATION_NAME
+    if legacy.exists():
+        return legacy
+
+    if CALIBRATION_TEMPLATE_ANNOTATION.exists():
+        return CALIBRATION_TEMPLATE_ANNOTATION
+
+    return None
 
 
 @dataclass(slots=True)
@@ -112,7 +150,7 @@ class TaskConfig:
         parser.add_argument(
             "--fixture-annotation",
             type=Path,
-            default=defaults.fixture_annotation or Path("configs/calibration/src_IMG_Color.xml"),
+            default=None,
             help="LabelImg XML annotating fixture regions.",
         )
         parser.add_argument(
@@ -161,7 +199,7 @@ class TaskConfig:
         config.finish_allowance = max(0.0, options.finish_allowance)
         config.reference_plane_z = options.reference_plane_z
         config.height_display_max = max(1e-3, options.height_display_max)
-        config.fixture_annotation = options.fixture_annotation
+        config.fixture_annotation = options.fixture_annotation or resolve_default_fixture_annotation()
         config.particle_keep_height = max(0.0, options.particle_keep_height)
         config.fixture_merge_particle_px = max(1, options.fixture_merge_px)
         config.fixture_near_distance_px = max(0, options.fixture_near_px)

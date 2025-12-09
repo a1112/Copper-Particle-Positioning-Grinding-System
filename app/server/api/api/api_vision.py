@@ -1,12 +1,28 @@
 from __future__ import annotations
 
-from fastapi import HTTPException
+from datetime import datetime
 
+from fastapi import Depends, HTTPException
+from sqlalchemy import desc, select
+from sqlalchemy.orm import Session
+
+from app.common.tasks import TaskStatus
+from app.common.task_actions import friendly_action_name, friendly_action_type, normalise_action
+from app.db import SessionLocal
+from app.db.models.MzPoliShineDB import HardwareTaskQueue, RecordTable
 from app.server.api.services.calibration_manager import CalibrationManager
 from app.server.api.services.task1_runtime import get_task1_runner
 from ..api_core import vision_router as router
 
 _CALIBRATION_MANAGER = CalibrationManager()
+
+
+def get_db_session():
+  db = SessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()
 
 
 @router.get("/vision/calibration")
@@ -106,3 +122,58 @@ async def compute_calibration_matrices(name: str, payload: dict | None = None) -
         raise HTTPException(status_code=400, detail="points must be a list")
     matrices = _CALIBRATION_MANAGER.compute_matrices(points)
     return {"matrices": matrices}
+
+
+@router.post("/vision/calibrations/{name}/matrix-count")
+async def enqueue_matrix_count_task(name: str, payload: dict | None = None, session: Session = Depends(get_db_session)) -> dict:
+    payload = payload or {}
+    points = payload.get("points") or []
+    if not isinstance(points, list):
+        raise HTTPException(status_code=400, detail="points must be a list")
+    if len(points) < 3:
+        raise HTTPException(status_code=400, detail="points 至少需要 3 个点")
+
+    action_key = "manual.matrix_count"
+    normalized = normalise_action(action_key)
+    task_name = friendly_action_name(action_key)
+    type_code = friendly_action_type(action_key)
+
+    task_params = {
+        "action": action_key,
+        "action_key": normalized,
+        "action_name": task_name,
+        "params": {
+            "calibration": name,
+            "points": points,
+        },
+        "queued_at": datetime.utcnow().timestamp(),
+    }
+    # 初始模板：全 0 矩阵，便于设备侧按相同结构覆盖
+    zero_matrix = [
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ]
+    # 关联到最新的记录，确保 /data/tasks/state 能看到该任务
+    record_row = session.execute(select(RecordTable).order_by(desc(RecordTable.id))).scalars().first()
+    record_id = record_row.id if record_row is not None else None
+
+    task = HardwareTaskQueue(
+        task_name=task_name,
+        task_type=type_code,
+        device_id=1,
+        record_id=record_id,
+        task_params=task_params,
+        status=int(TaskStatus.PENDING),
+        status_params={
+            "phase": "queued",
+            "source": "calibration.matrix_count",
+            "matrix": zero_matrix,
+        },
+        created_by="api.vision.calibration",
+    )
+    session.add(task)
+    session.commit()
+    session.refresh(task)
+    return {"task_id": task.id}

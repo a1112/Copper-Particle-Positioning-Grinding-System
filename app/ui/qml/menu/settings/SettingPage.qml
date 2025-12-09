@@ -6,7 +6,6 @@ import "../../components/btns" as Btns
 import "../../cores" as Cores
 import "pages/Auto" as AutoPages
 import "pages/General" as GeneralPages
-import "pages/Process" as ProcessPages
 import "pages/Algorithm" as AlgorithmPages
 import "pages/Tools" as ToolPages
 
@@ -100,19 +99,17 @@ Popup {
     if (!Cores.CoreSettings)
       return
     var cachedGeneral = cloneMap(Cores.CoreSettings.parameterGeneral)
-    var cachedProcess = cloneMap(Cores.CoreSettings.parameterProcess)
     var cachedAlgorithm = cloneMap(Cores.CoreSettings.parameterAlgorithm)
     var cachedAuto = cloneMap(Cores.CoreSettings.parameterAuto)
     var cachedTools = cloneArray(Cores.CoreSettings.parameterTools)
     settingsData = {
       general: cachedGeneral,
-      process: cachedProcess,
+      process: cloneMap(Cores.CoreSettings.parameterProcess),
       algorithm: cachedAlgorithm,
       by_auto: cachedAuto,
       tools: cachedTools
     }
     generalPage.data = cachedGeneral
-    processPage.data = cachedProcess
     algorithmPage.data = cachedAlgorithm
     toolPage.tools = cachedTools
     rebuildCategories(cachedAuto)
@@ -154,7 +151,6 @@ Popup {
         }
         rebuildCategories(settingsData.by_auto)
         generalPage.data = settingsData.general
-        processPage.data = settingsData.process
         algorithmPage.data = settingsData.algorithm
         toolPage.tools = settingsData.tools
         persistSettingsCache()
@@ -281,20 +277,35 @@ Popup {
         Layout.fillHeight: true
         clip: true
         model: categories
-        delegate: Rectangle {
+        delegate: Column {
           width: categoryList.width
-          height: 44
-          color: index === root.currentIndex ? Cores.CoreStyle.accent : "#1f2937"
-          radius: 6
-          border.color: index === root.currentIndex ? Cores.CoreStyle.accent : "#374151"
-          Text {
-            anchors.centerIn: parent
-            text: modelData.label
-            color: index === root.currentIndex ? "#000000" : "#d1d5db"
+          spacing: 4
+
+          // 分割线：将手动创建的页面与自动创建的页面进行区分
+          Rectangle {
+            width: parent.width
+            height: 1
+            color: "#4b5563"
+            opacity: 0.9
+            visible: root.autoPages.length > 0 && index === (categories.length - root.autoPages.length)
           }
-          MouseArea {
-            anchors.fill: parent
-            onClicked: root.currentIndex = index
+
+          Rectangle {
+            width: categoryList.width
+            height: 44
+            color: index === root.currentIndex ? Cores.CoreStyle.accent : "#1f2937"
+            radius: 6
+            border.color: index === root.currentIndex ? Cores.CoreStyle.accent : "#374151"
+
+            Text {
+              anchors.centerIn: parent
+              text: modelData.label
+              color: index === root.currentIndex ? "#000000" : "#d1d5db"
+            }
+            MouseArea {
+              anchors.fill: parent
+              onClicked: root.currentIndex = index
+            }
           }
         }
       }
@@ -310,7 +321,6 @@ Popup {
           Layout.fillWidth: true
           Layout.fillHeight: true
         }
-
 
 
         AlgorithmPages.AlgorithmSettingsPage {
@@ -338,11 +348,6 @@ Popup {
               item.categoryId = modelData.id || ""
             }
           }
-        }
-                ProcessPages.ProcessSettingsPage {
-          id: processPage
-          Layout.fillWidth: true
-          Layout.fillHeight: true
         }
       }
     }
@@ -414,7 +419,6 @@ Popup {
           generalPage.data = payload
         } else if (root.currentCategory === "process") {
           settingsData.process = payload
-          processPage.data = payload
         } else if (root.currentCategory === "algorithm") {
           settingsData.algorithm = payload
           algorithmPage.data = payload

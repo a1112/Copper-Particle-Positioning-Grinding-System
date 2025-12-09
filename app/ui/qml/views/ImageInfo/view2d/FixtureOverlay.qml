@@ -5,7 +5,8 @@ import "../../../cores" as Cores
 
 Item {
   id: overlay
-  anchors.fill: parent
+  width: parent.width
+  height: parent.height
 
   // Legacy fallback parameters (grid-based fixtures)
   property int columns: 4

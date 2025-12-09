@@ -1,19 +1,51 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-
+import "../"
 import "../../../../Api" as Api
 
 Pane {
   id: page
   property var data: ({})
+  property var savedData: ({})
+  property bool _internalChange: false
+  property color dirtyColor: "#facc15"
   property bool allowDeviceControl: false
   property bool allowJog: false
   property bool estopDoubleConfirm: true
   property string cameraProfile: "sim"
   property string cameraSerial: ""
+  property real inspectionBaseline: 0.0
+  property real inspectionAlarmRange: 0.5
+  property bool inspectionAutoEnabled: false
 
   ListModel { id: cameraModel }
+
+  function cloneMap(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      return {}
+    try {
+      return JSON.parse(JSON.stringify(value))
+    } catch (err) {
+      return {}
+    }
+  }
+
+  function colorWhenDirty(dirty, normalColor) {
+    return dirty ? dirtyColor : normalColor
+  }
+
+  function valuesEqual(a, b) {
+    if (a === b)
+      return true
+    if (typeof a === "boolean" || typeof b === "boolean")
+      return !!a === !!b
+    var numA = Number(a)
+    var numB = Number(b)
+    if (!isNaN(numA) && !isNaN(numB))
+      return numA === numB
+    return String(a || "") === String(b || "")
+  }
 
   function collectPayload() {
     var payload = {}
@@ -43,18 +75,28 @@ Pane {
       safety = {}
     safety.estop_double_confirm = !!estopDoubleConfirm
     payload.safety = safety
+    var inspection = payload.inspection
+    if (!inspection || typeof inspection !== "object")
+      inspection = {}
+    inspection.baseline = Number(inspectionBaseline) || 0.0
+    inspection.alarm_range = Number(inspectionAlarmRange) || 0.5
+    inspection.auto_check_enabled = !!inspectionAutoEnabled
+    payload.inspection = inspection
     return payload
   }
 
-  function _deviceArea() {
-    if (!data || typeof data !== "object")
+  function _deviceAreaFrom(source) {
+    if (!source || typeof source !== "object")
       return {}
-    if (data.device_area && typeof data.device_area === "object")
-      return data.device_area
-    if (data.deviceArea && typeof data.deviceArea === "object")
-      return data.deviceArea
+    if (source.device_area && typeof source.device_area === "object")
+      return source.device_area
+    if (source.deviceArea && typeof source.deviceArea === "object")
+      return source.deviceArea
     return {}
   }
+
+  function _deviceArea() { return _deviceAreaFrom(data) }
+  function _savedDeviceArea() { return _deviceAreaFrom(savedData) }
 
   function _cameraSettings() {
     if (!data || typeof data !== "object")
@@ -63,6 +105,16 @@ Pane {
       return data.camera
     if (data.camera_settings && typeof data.camera_settings === "object")
       return data.camera_settings
+    return {}
+  }
+
+  function _savedCameraSettings() {
+    if (!savedData || typeof savedData !== "object")
+      return {}
+    if (savedData.camera && typeof savedData.camera === "object")
+      return savedData.camera
+    if (savedData.camera_settings && typeof savedData.camera_settings === "object")
+      return savedData.camera_settings
     return {}
   }
 
@@ -77,6 +129,102 @@ Pane {
       return { estop_double_confirm: data.estop_double_confirm }
     return {}
   }
+
+  function _savedSafetySettings() {
+    if (!savedData || typeof savedData !== "object")
+      return {}
+    if (savedData.safety && typeof savedData.safety === "object")
+      return savedData.safety
+    if (savedData.safe_settings && typeof savedData.safe_settings === "object")
+      return savedData.safe_settings
+    if (savedData.estop_double_confirm !== undefined)
+      return { estop_double_confirm: savedData.estop_double_confirm }
+    return {}
+  }
+
+  function _inspectionSettings() {
+    if (!data || typeof data !== "object")
+      return {}
+    if (data.inspection && typeof data.inspection === "object")
+      return data.inspection
+    if (data.check && typeof data.check === "object")
+      return data.check
+    return {}
+  }
+
+  function _savedInspectionSettings() {
+    if (!savedData || typeof savedData !== "object")
+      return {}
+    if (savedData.inspection && typeof savedData.inspection === "object")
+      return savedData.inspection
+    if (savedData.check && typeof savedData.check === "object")
+      return savedData.check
+    return {}
+  }
+
+  function _savedInspectionBaseline() {
+    var s = _savedInspectionSettings()
+    return s.baseline !== undefined ? Number(s.baseline) : 0.0
+  }
+
+  function _savedInspectionAlarmRange() {
+    var s = _savedInspectionSettings()
+    return s.alarm_range !== undefined ? Number(s.alarm_range) : 0.5
+  }
+
+  function _savedInspectionAutoEnabled() {
+    var s = _savedInspectionSettings()
+    if (s.hasOwnProperty("auto_check_enabled"))
+      return !!s.auto_check_enabled
+    return false
+  }
+
+  function isInspectionBaselineDirty() { return !valuesEqual(inspectionBaseline, _savedInspectionBaseline()) }
+  function isInspectionAlarmRangeDirty() { return !valuesEqual(inspectionAlarmRange, _savedInspectionAlarmRange()) }
+  function isInspectionAutoDirty() { return !valuesEqual(inspectionAutoEnabled, _savedInspectionAutoEnabled()) }
+
+  function _savedAllowDeviceControl() {
+    var area = _savedDeviceArea()
+    if (area.hasOwnProperty("allow_direct_control"))
+      return !!area.allow_direct_control
+    if (area.hasOwnProperty("allowDirectControl"))
+      return !!area.allowDirectControl
+    return false
+  }
+
+  function _savedAllowJog() {
+    var area = _savedDeviceArea()
+    if (area.hasOwnProperty("allow_jog"))
+      return !!area.allow_jog
+    if (area.hasOwnProperty("allowJog"))
+      return !!area.allowJog
+    return false
+  }
+
+  function _savedCameraProfileId() {
+    var camera = _savedCameraSettings()
+    if (camera.profile)
+      return camera.profile
+    return "sim"
+  }
+
+  function _savedCameraSerial() {
+    var camera = _savedCameraSettings()
+    return camera.serial || ""
+  }
+
+  function _savedEstopDoubleConfirm() {
+    var safety = _savedSafetySettings()
+    if (safety.hasOwnProperty("estop_double_confirm"))
+      return !!safety.estop_double_confirm
+    return true
+  }
+
+  function isAllowDeviceControlDirty() { return !valuesEqual(allowDeviceControl, _savedAllowDeviceControl()) }
+  function isAllowJogDirty() { return !valuesEqual(allowJog, _savedAllowJog()) }
+  function isCameraProfileDirty() { return !valuesEqual(cameraProfile, _savedCameraProfileId()) }
+  function isCameraSerialDirty() { return !valuesEqual(cameraSerial, _savedCameraSerial()) }
+  function isEstopDirty() { return !valuesEqual(estopDoubleConfirm, _savedEstopDoubleConfirm()) }
 
   function _syncFromData() {
     var area = _deviceArea()
@@ -97,6 +245,11 @@ Pane {
       estopDoubleConfirm = !!safety.estop_double_confirm
     else
       estopDoubleConfirm = true
+
+    var insp = _inspectionSettings()
+    inspectionBaseline = insp.baseline !== undefined ? Number(insp.baseline) : 0.0
+    inspectionAlarmRange = insp.alarm_range !== undefined ? Number(insp.alarm_range) : 0.5
+    inspectionAutoEnabled = insp.auto_check_enabled === undefined ? false : !!insp.auto_check_enabled
   }
 
   function _cameraIndexFor(profileId) {
@@ -112,7 +265,9 @@ Pane {
   }
 
   function _writeBack() {
+    _internalChange = true
     data = collectPayload()
+    _internalChange = false
   }
 
   function _loadCameraProfiles() {
@@ -132,14 +287,26 @@ Pane {
     })
   }
 
-  onDataChanged: _syncFromData()
+  onDataChanged: {
+    if (!_internalChange)
+      savedData = cloneMap(data)
+    _syncFromData()
+  }
   Component.onCompleted: {
+    savedData = cloneMap(data)
     _syncFromData()
     _loadCameraProfiles()
   }
-
-  ColumnLayout {
+  Flickable {
     anchors.fill: parent
+    contentWidth: width
+    contentHeight:col.height
+    clip: true
+    flickableDirection: Flickable.VerticalFlick
+    ScrollBar.vertical: ScrollBar { }
+  ColumnLayout {
+    id:col
+    width: parent.width
     anchors.margins: 2
     spacing: 5
     Label {
@@ -165,7 +332,7 @@ Pane {
           spacing: 12
           Label {
             text: qsTr("允许直接控制设备")
-            color: "#cbd5f5"
+            color: colorWhenDirty(isAllowDeviceControlDirty(), "#cbd5f5")
             Layout.fillWidth: true
           }
           Switch {
@@ -189,7 +356,7 @@ Pane {
           spacing: 12
           Label {
             text: qsTr("允许点动")
-            color: "#cbd5f5"
+            color: colorWhenDirty(isAllowJogDirty(), "#cbd5f5")
             Layout.fillWidth: true
           }
           Switch {
@@ -225,7 +392,7 @@ Pane {
           spacing: 12
           Label {
             text: qsTr("急停二次确认")
-            color: "#cbd5f5"
+            color: colorWhenDirty(isEstopDirty(), "#cbd5f5")
             Layout.fillWidth: true
           }
           Switch {
@@ -260,10 +427,11 @@ Pane {
           spacing: 12
           Label {
             text: qsTr("相机类型")
-            color: "#cbd5f5"
+            color: colorWhenDirty(isCameraProfileDirty(), "#cbd5f5")
             Layout.preferredWidth: 120
           }
-          ComboBox {
+          ComboBoxBase {
+            dirty: isCameraProfileDirty()
             Layout.preferredWidth: 240
             model: cameraModel
             textRole: "label"
@@ -292,10 +460,11 @@ Pane {
           spacing: 12
           Label {
             text: qsTr("首选序列号")
-            color: "#cbd5f5"
+            color: colorWhenDirty(isCameraSerialDirty(), "#cbd5f5")
             Layout.preferredWidth: 120
           }
-          TextField {
+          TextFieldBase {
+            dirty: isCameraSerialDirty()
             Layout.fillWidth: true
             placeholderText: qsTr("可选：限制连接具体设备")
             text: page.cameraSerial
@@ -308,6 +477,78 @@ Pane {
       }
     }
 
+    GroupBox {
+      Layout.fillWidth: true
+      title: qsTr("点检设置")
+      font.pixelSize: 16
+      font.bold: true
+
+      ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 12
+        spacing: 12
+
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: 12
+          Label {
+            text: qsTr("点检基准值")
+            color: colorWhenDirty(isInspectionBaselineDirty(), "#cbd5f5")
+            Layout.preferredWidth: 120
+          }
+          TextFieldBase {
+            dirty: isInspectionBaselineDirty()
+            Layout.fillWidth: true
+            text: String(inspectionBaseline)
+            onEditingFinished: {
+              var v = Number(text)
+              inspectionBaseline = isNaN(v) ? 0.0 : v
+              page._writeBack()
+            }
+          }
+        }
+
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: 12
+          Label {
+            text: qsTr("点检报警范围")
+            color: colorWhenDirty(isInspectionAlarmRangeDirty(), "#cbd5f5")
+            Layout.preferredWidth: 120
+          }
+          TextFieldBase {
+            dirty: isInspectionAlarmRangeDirty()
+            Layout.fillWidth: true
+            text: String(inspectionAlarmRange)
+            onEditingFinished: {
+              var v = Number(text)
+              inspectionAlarmRange = isNaN(v) ? 0.5 : v
+              page._writeBack()
+            }
+            placeholderText: qsTr("默认 0.5")
+          }
+        }
+
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: 12
+          Label {
+            text: qsTr("自动点检")
+            color: colorWhenDirty(isInspectionAutoDirty(), "#cbd5f5")
+            Layout.fillWidth: true
+          }
+          Switch {
+            checked: inspectionAutoEnabled
+            onToggled: {
+              inspectionAutoEnabled = checked
+              page._writeBack()
+            }
+          }
+        }
+      }
+    }
+
     Item { Layout.fillHeight: true }
   }
+}
 }

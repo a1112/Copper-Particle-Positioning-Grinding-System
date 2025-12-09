@@ -55,6 +55,97 @@ BaseCard {
     return []
   }
 
+  function _parseNumeric(value) {
+    if (value === undefined || value === null)
+      return NaN
+    var direct = Number(value)
+    if (!isNaN(direct))
+      return direct
+    if (typeof value === "string") {
+      var cleaned = value.replace(/[^0-9+-.]/g, "")
+      if (cleaned.length === 0)
+        return NaN
+      var parsed = Number(cleaned)
+      if (!isNaN(parsed))
+        return parsed
+    }
+    return NaN
+  }
+
+  function _resolveToolDiameter(payload) {
+    var candidates = []
+    if (payload) {
+      if (payload.tool_diameter !== undefined)
+        candidates.push(payload.tool_diameter)
+      if (payload.toolDiameter !== undefined)
+        candidates.push(payload.toolDiameter)
+      if (payload.cutter_diameter !== undefined)
+        candidates.push(payload.cutter_diameter)
+      if (payload.spindle && payload.spindle.tool_diameter !== undefined)
+        candidates.push(payload.spindle.tool_diameter)
+      if (payload.tool && payload.tool.diameter !== undefined)
+        candidates.push(payload.tool.diameter)
+    }
+    candidates.push(Datas.ToolInfoData.toolDiameter)
+    for (var i = 0; i < candidates.length; ++i) {
+      var numeric = _parseNumeric(candidates[i])
+      if (!isNaN(numeric) && numeric > 0)
+        return numeric
+    }
+    return NaN
+  }
+
+  function _buildToolSnapshot(payload) {
+    var message = payload
+    if (!message || typeof message !== "object")
+      message = Datas.StatusDatas.lastMessage
+    if (!message || typeof message !== "object")
+      return {}
+
+    var pose = message.tool_position || message.toolPosition || message.position
+    if (!pose || typeof pose !== "object")
+      return {}
+
+    var xValue = pose.x !== undefined ? pose.x : (pose.X !== undefined ? pose.X : pose[0])
+    var yValue = pose.y !== undefined ? pose.y : (pose.Y !== undefined ? pose.Y : pose[1])
+    var zValue = pose.z !== undefined ? pose.z : (pose.Z !== undefined ? pose.Z : pose[2])
+
+    var x = _parseNumeric(xValue)
+    var y = _parseNumeric(yValue)
+    if (isNaN(x) || isNaN(y))
+      return {}
+
+    var snapshot = { x: x, y: y }
+    var z = _parseNumeric(zValue)
+    if (!isNaN(z))
+      snapshot.z = z
+
+    var rpmSources = [
+          message.spindle_rpm,
+          message.spindleRPM,
+          message.spindle_speed,
+          message.spindle ? message.spindle.rpm : undefined
+        ]
+    for (var r = 0; r < rpmSources.length; ++r) {
+      var rpmValue = _parseNumeric(rpmSources[r])
+      if (!isNaN(rpmValue)) {
+        snapshot.rpm = rpmValue
+        break
+      }
+    }
+
+    var diameter = _resolveToolDiameter(message)
+    if (!isNaN(diameter))
+      snapshot.diameter = diameter
+
+    return snapshot
+  }
+
+  function _refreshToolWorldPosition(payload) {
+    var snapshot = _buildToolSnapshot(payload)
+    toolWorldPosition = snapshot
+  }
+
   ColumnLayout {
     id:col
     anchors.fill: parent
@@ -86,5 +177,23 @@ BaseCard {
         meshSource: root.meshSource3d
       }
     }
+  }
+
+  Connections {
+    target: Datas.StatusDatas
+    function onMessageReceived(payload) {
+      root._refreshToolWorldPosition(payload)
+    }
+  }
+
+  Connections {
+    target: Datas.ToolInfoData
+    function onToolDiameterChanged() {
+      root._refreshToolWorldPosition(Datas.StatusDatas.lastMessage)
+    }
+  }
+
+  Component.onCompleted: {
+    _refreshToolWorldPosition(Datas.StatusDatas.lastMessage)
   }
 }

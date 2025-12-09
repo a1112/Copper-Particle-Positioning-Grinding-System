@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 
 from .annotations import BoundingBox, load_labelimg_boxes
-from .config import TaskConfig
+from .config import TaskConfig, resolve_default_fixture_annotation
 from .models import DownsampledCloud
 
 
@@ -78,7 +78,7 @@ def _load_fixture_mask_and_boxes(config: TaskConfig, shape: Tuple[int, int]) -> 
     if config.fixture_annotation:
         ann_path = Path(config.fixture_annotation)
     else:
-        ann_path = Path("configs") / "calibration" / "src_IMG_Color.xml"
+        ann_path = resolve_default_fixture_annotation() or (Path("configs") / "calibration" / "src_IMG_Color.xml")
         if not ann_path.exists():
             # Try common color image names in the capture folder
             png = config.source_dir / "src_IMG_Color.png"

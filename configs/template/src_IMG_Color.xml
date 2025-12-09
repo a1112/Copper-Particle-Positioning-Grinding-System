@@ -1,7 +1,7 @@
 <annotation>
-	<folder>calibration</folder>
+	<folder>calib_20251117_133900</folder>
 	<filename>src_IMG_Color.png</filename>
-	<path>F:\Copper-Particle-Positioning-Grinding-System\configs\calibration\src_IMG_Color.png</path>
+	<path>D:\Project\Copper-Particle-Positioning-Grinding-System\configs\calibration\calib_20251117_133900\src_IMG_Color.png</path>
 	<source>
 		<database>Unknown</database>
 	</source>
@@ -201,6 +201,18 @@
 			<ymin>314</ymin>
 			<xmax>680</xmax>
 			<ymax>370</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>Check</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>1053</xmin>
+			<ymin>1220</ymin>
+			<xmax>1117</xmax>
+			<ymax>1263</ymax>
 		</bndbox>
 	</object>
 </annotation>

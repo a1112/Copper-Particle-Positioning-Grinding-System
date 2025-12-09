@@ -52,6 +52,26 @@ Item {
   readonly property real displayHeight: imageHeight > 0 ? imageHeight * fitScale : 0
   readonly property real scaleX: fitScale
   readonly property real scaleY: fitScale
+  // 最近一次手动点检监控上下文
+  property bool manualCheckActive: false
+  property int manualCheckRecordId: 0
+  property int manualCheckLastTaskId: 0
+  property string manualCheckActionKey: "manual.check"
+  property string manualCheckMessage: ""
+  // 点检阈值（从设置界面读取）
+  property real checkBaseline: 0.0
+  property real checkAlarmRange: 0.5
+
+  function _applyCheckSettings() {
+    if (!Cores.CoreSettings)
+      return
+    var general = Cores.CoreSettings.parameterGeneral || {}
+    var section = general.inspection || general.check || {}
+    var b = Number(section.baseline)
+    var r = Number(section.alarm_range)
+    checkBaseline = isNaN(b) ? 0.0 : b
+    checkAlarmRange = isNaN(r) ? 0.5 : r
+  }
 
   function resetHover() {
     if (!viewCore)
@@ -168,6 +188,83 @@ Item {
     return params
   }
 
+  // 从标定夹具中提取点检区域（名称以 Check 开头）
+  function _buildCheckRegions() {
+    var regions = []
+    var list = fixtures || []
+    for (var i = 0; i < list.length; ++i) {
+      var fixture = list[i]
+      if (!fixture || !fixture.name)
+        continue
+      var name = String(fixture.name)
+      if (name.indexOf("Check") !== 0 && name.indexOf("check") !== 0)
+        continue
+      var rect = null
+      if (calibrationCore && calibrationCore.fixtureRectWorld !== undefined) {
+        rect = calibrationCore.fixtureRectWorld(fixture)
+      } else if (fixture.rect) {
+        rect = fixture.rect
+      }
+      if (!rect)
+        continue
+      regions.push({
+                     name: name,
+                     rect: {
+                       x: Number(rect.x || 0),
+                       y: Number(rect.y || 0),
+                       width: Number(rect.width || 0),
+                       height: Number(rect.height || 0)
+                     }
+                   })
+    }
+    return regions
+  }
+
+  function triggerManualCheck() {
+    if (!Datas.StatusDatas.forceEnableControls && !Datas.StatusDatas.controlEnabled)
+      return
+    var regions = _buildCheckRegions()
+    if (!regions || regions.length === 0) {
+      Cores.CoreError.showError(qsTr("未检测到点检区域，请检查标定标注"))
+      return
+    }
+    var baseParams = _buildControlParams({})
+    manualCheckRecordId = baseParams.record_id || 0
+    manualCheckLastTaskId = 0
+    manualCheckActive = true
+    manualCheckMessage = ""
+    var params = _cloneParams(baseParams)
+    params.check_regions = regions
+    Cores.CoreCurrent.pushControl(manualCheckActionKey, params, { source: "view2d_manual_check" })
+    Api.ApiClient.control(manualCheckActionKey, params, function() {
+      Works.TaskWork.refresh()
+    }, function(_, errMessage) {
+      console.warn("Manual check control action failed", errMessage)
+      Cores.CoreError.showError(qsTr("手动点检下发失败: %1").arg(errMessage))
+      Works.TaskWork.refresh()
+    })
+  }
+
+  function _handleCheckResult(zValue, isAuto) {
+    var baseline = checkBaseline
+    var alarmRange = checkAlarmRange
+    var diff = zValue - baseline
+    var absDiff = Math.abs(diff)
+    var ok = absDiff <= alarmRange
+    var statusText = ok ? qsTr("成功") : qsTr("失败")
+    var message = qsTr("点检值: %1\n点检基准: %2\n报警范围: %3\n差值: %4\n点检判断: %5")
+        .arg(Number(zValue).toFixed(3))
+        .arg(Number(baseline).toFixed(3))
+        .arg(Number(alarmRange).toFixed(3))
+        .arg(Number(diff).toFixed(3))
+        .arg(statusText)
+    if (ok) {
+      Cores.CoreError.showError(message)
+    } else {
+      Cores.CoreError.showError(message)
+    }
+  }
+
   function dispatchContextControl(actionKey, extraParams) {
     if (!actionKey)
       return
@@ -227,6 +324,31 @@ Item {
       enabled: view.controlsEnabled
       onTriggered: view.dispatchContextControl("spindle.stop")
     }
+      MenuItem {
+        text: qsTr("排屑打开")
+        enabled: view.controlsEnabled
+        onTriggered: view.dispatchContextControl("chip.open")
+      }
+      MenuItem {
+        text: qsTr("排屑关闭")
+        enabled: view.controlsEnabled
+        onTriggered: view.dispatchContextControl("chip.close")
+      }
+      MenuItem {
+        text: qsTr("气吹打开")
+        enabled: view.controlsEnabled
+        onTriggered: view.dispatchContextControl("air_blow.open")
+      }
+      MenuItem {
+        text: qsTr("气吹关闭")
+        enabled: view.controlsEnabled
+        onTriggered: view.dispatchContextControl("air_blow.close")
+      }
+      MenuItem {
+        text: qsTr("手动点检")
+        enabled: view.controlsEnabled
+        onTriggered: view.triggerManualCheck()
+      }
   }
 
   function startSimulation() {
@@ -568,6 +690,97 @@ Item {
     }
 
   }
+
+  // 手动点检任务状态监听
+  Timer {
+    id: manualCheckMonitor
+    interval: 1000
+    repeat: true
+    running: view.manualCheckActive
+    onTriggered: {
+      var commands = Datas.TaskDatas.controlCommands || []
+      var latestId = -1
+      var latest = null
+      for (var i = 0; i < commands.length; ++i) {
+        var entry = commands[i]
+        if (!entry)
+          continue
+        var key = entry.command_key || entry.commandKey || entry.command
+        if (!key || String(key).toLowerCase() !== view.manualCheckActionKey)
+          continue
+        var recId = Number(entry.record_id || 0)
+        if (view.manualCheckRecordId > 0 && recId !== view.manualCheckRecordId)
+          continue
+        var tid = Number(entry.id || entry.task_id || entry.taskId || 0)
+        if (!isFinite(tid))
+          tid = 0
+        if (tid >= latestId) {
+          latestId = tid
+          latest = entry
+        }
+      }
+      if (!latest)
+        return
+      view.manualCheckLastTaskId = latestId
+      var statusRaw = latest.status
+      if (statusRaw === undefined && latest.state !== undefined)
+        statusRaw = latest.state
+      var status = Number(statusRaw)
+      if (status === 2) { // COMPLETED
+        view.manualCheckActive = false
+        var detail = latest.status_detail || latest.statusDetail || {}
+        var params = detail.params || detail
+        var zValue = params && params.z_value !== undefined ? Number(params.z_value) : NaN
+        if (!isNaN(zValue)) {
+          view._handleCheckResult(zValue, !!params.auto)
+        } else {
+          view.manualCheckMessage = qsTr("【%1】指令执行成功").arg(view.manualCheckActionKey)
+          manualCheckMessageTimer.restart()
+        }
+      } else if (status === 3) { // FAILED
+        view.manualCheckActive = false
+        var detail = latest.status_detail || latest.statusDetail || {}
+        var msg = ""
+        if (detail && typeof detail === "object") {
+          msg = detail.message || detail.detail || detail.error || ""
+        }
+        if (!msg && detail)
+          msg = String(detail)
+        if (!msg)
+          msg = qsTr("点检执行失败，详见任务列表")
+        Cores.CoreError.showError(qsTr("手动点检失败: %1").arg(msg))
+      }
+    }
+  }
+
+  Timer {
+    id: manualCheckMessageTimer
+    interval: 4000
+    repeat: false
+    onTriggered: view.manualCheckMessage = ""
+  }
+
+  Component.onCompleted: {
+    _applyCheckSettings()
+  }
+
+  Rectangle {
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.bottom: parent.bottom
+    anchors.bottomMargin: 8
+    radius: 6
+    color: Qt.rgba(0.08, 0.08, 0.08, 0.8)
+    visible: view.manualCheckMessage && view.manualCheckMessage.length > 0
+    implicitWidth: msgLabel.implicitWidth + 24
+    implicitHeight: msgLabel.implicitHeight + 12
+
+    Label {
+      id: msgLabel
+      anchors.centerIn: parent
+      color: "white"
+      text: view.manualCheckMessage
+    }
+  }
   Layers.CoordinateInfo {
     anchors.top: parent.top
     anchors.left: parent.left
@@ -582,6 +795,12 @@ Item {
     visible: (view.pathPoints && view.pathPoints.length > 0)
     z: 100
     onClicked: view.toggleSimulation()
+  }
+
+  Connections {
+    target: Cores.CoreSettings
+    ignoreUnknownSignals: true
+    function onParameterGeneralChanged() { view._applyCheckSettings() }
   }
 
   onPathPointsChanged: {

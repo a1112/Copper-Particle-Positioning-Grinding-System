@@ -15,7 +15,16 @@ Dialog {
   modal: true
   standardButtons: Dialog.Ok
   visible: Cores.CoreError.globErrorVisible
-  contentItem: Text { text: Cores.CoreError.globErrorText; wrapMode: Text.WordWrap; color: "white"; width: 420 }
+  contentItem: TextArea {
+    text: Cores.CoreError.globErrorText
+    readOnly: true
+    wrapMode: TextEdit.Wrap
+    color: "white"
+    selectByMouse: true
+    selectByKeyboard: true
+    background: null
+    width: 420
+  }
   background: Rectangle { color: "#5b0000"; radius: 10 }
 
   onAccepted: Cores.CoreError.globErrorVisible = false

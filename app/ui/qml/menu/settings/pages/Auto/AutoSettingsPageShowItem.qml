@@ -4,20 +4,36 @@ import QtQuick.Layouts
 import "../"
 
 RowLayout {
-   property string groupId: groupBox.groupId
+  property string groupId: groupBox.groupId
 
   Label {
     Layout.fillWidth: true
-    text: ((modelData && modelData.label) || (modelData && modelData.id) || "" )+" "
-    color: "#e5e7eb"
+    text: ((modelData && modelData.label) || (modelData && modelData.id) || "") + " "
+    color: _labelColor(groupBox.groupId, modelData.id, modelData.default, "#e5e7eb")
     Layout.alignment: Qt.AlignVCenter
   }
+
+  // Boolean field rendered as switch
+  Switch {
+    id: checkBoxField
+    visible: modelData && modelData.type === "CheckBox"
+    enabled: visible
+    checked: !!_currentValue({ groupId: groupBox.groupId, id: modelData.id, default: modelData.default })
+    onToggled: _updateValue(groupBox.groupId, modelData.id, checked ? 1 : 0)
+    Layout.alignment: Qt.AlignVCenter
+  }
+
+  // Default numeric/text field
   TextFieldBase {
     id: input
+    visible: !(modelData && modelData.type === "CheckBox")
+    enabled: visible
+    dirty: _isFieldDirty(groupBox.groupId, modelData.id, modelData.default)
     text: String(_currentValue({ groupId: groupBox.groupId, id: modelData.id, default: modelData.default }))
     onEditingFinished: _updateValue(groupBox.groupId, modelData.id, text)
   }
-  Item{
+
+  Item {
     width: 10
     height: 1
   }

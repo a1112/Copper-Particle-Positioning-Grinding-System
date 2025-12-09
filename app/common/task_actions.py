@@ -34,6 +34,13 @@ ACTION_META: Dict[str, Tuple[str, int]] = {
     "spindle.tool_change": ("主轴换刀", 54),
     "spindle.stop": ("主轴停止", 55),
     "spindle.home_z": ("主轴Z值回零", 56),
+    "chip.open": ("排屑打开", 57),
+    "chip.close": ("排屑关闭", 58),
+    "air_blow.open": ("气吹打开", 59),
+    "air_blow.close": ("气吹关闭", 60),
+    "manual.check": ("手动点检", 61),
+    "manual.auto_check": ("自动点检", 62),
+    "manual.matrix_count": ("矩阵计数", 63),
 }
 
 

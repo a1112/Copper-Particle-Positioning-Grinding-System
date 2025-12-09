@@ -248,5 +248,7 @@
         <file>qml/menu/settings/pages/Auto/AutoSettingsPageMain.qml</file>
         <file>qml/menu/settings/pages/Auto/AutoSettingsPageShowItem.qml</file>
         <file>qml/cores/CoreButtonState.qml</file>
+        <file>qml/dialogs/calibration/PintItem.qml</file>
+        <file>qml/dialogs/calibration/PointField.qml</file>
     </qresource>
 </RCC>

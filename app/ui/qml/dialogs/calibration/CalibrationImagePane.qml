@@ -4,6 +4,8 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import "../../cores" as Cores
 import "../../components/btns" as Btns
+import "../../datas" as Datas
+import "../../views/ImageInfo/view2d" as View2D
 Item {
   id: root
   property url currentImage: ""
@@ -88,22 +90,40 @@ Item {
         source: root.currentImage
       }
 
+      // 夹具/点检区域覆盖，严格对齐到图像绘制区域左上角
+      View2D.FixtureOverlay {
+        x: (image.width - image.paintedWidth) / 2
+        y: (image.height - image.paintedHeight) / 2
+        width: image.paintedWidth
+        height: image.paintedHeight
+        visible: width > 0 && height > 0
+
+        imageWidth: Datas.CalibrationData.imageWidth > 0 ? Datas.CalibrationData.imageWidth : _sourceWidth()
+        imageHeight: Datas.CalibrationData.imageHeight > 0 ? Datas.CalibrationData.imageHeight : _sourceHeight()
+        pixelSizeMm: (Datas.CalibrationData.worldWidth > 0 && Datas.CalibrationData.imageWidth > 0)
+                     ? Datas.CalibrationData.worldWidth / Datas.CalibrationData.imageWidth
+                     : 0.2
+        scaleX: width > 0 && imageWidth > 0 ? width / imageWidth : 1.0
+        scaleY: height > 0 && imageHeight > 0 ? height / imageHeight : 1.0
+        fixtures: Datas.CalibrationData.fixtures
+      }
       MouseArea {
         anchors.fill: parent
         hoverEnabled: true
-        onPositionChanged: {
+        onPositionChanged: function(mouse) {
           var pt = root._mapMouseToImage(mouse.x, mouse.y)
           root.cursorPixel = pt
           var w = Cores.CoreDataView.imageToWorld(pt)
           root.mappedWorld = Qt.point(Number(w.x || 0), Number(w.y || 0))
         }
-        onClicked: {
+        onClicked: function(mouse) {
           var pt = root._mapMouseToImage(mouse.x, mouse.y)
           root.pixelClicked(pt.x, pt.y)
         }
       }
 
       Repeater {
+
         model: root.points
         delegate: Rectangle {
           required property int index
