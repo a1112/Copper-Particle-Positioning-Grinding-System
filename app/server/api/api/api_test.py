@@ -26,7 +26,7 @@ class Task1RunPayload(BaseModel):
     build_visuals: bool = Field(True, alias="buildVisuals")
 
     class Config:
-        allow_population_by_field_name = True
+        validate_by_name = True
 
 
 def _format_capture(data) -> Optional[Dict[str, Any]]:

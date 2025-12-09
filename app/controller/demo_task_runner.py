@@ -23,6 +23,7 @@ from app.db.models.MzPoliShineDB import (
     HardwareTaskQueue,
     RecordTable,
     StatusTable,
+    SystemLog,
     WorkpieceTable,
 )
 
@@ -51,6 +52,8 @@ class DemoTaskRunner:
         self._heartbeat_counter = 0
         self._sim_elapsed = 0.0
         self._last_metrics_timestamp = time.perf_counter()
+        self._system_log_interval = 15.0
+        self._last_system_log_ts = 0.0
 
     # ------------------------------------------------------------------ public
 
@@ -68,6 +71,7 @@ class DemoTaskRunner:
             metrics = self._simulate_operational_metrics()
             changed |= self._heartbeat_status_table(session, metrics)
             changed |= self._heartbeat_cutting_status(session, metrics)
+            changed |= self._heartbeat_system_log(session, metrics)
             if changed:
                 session.commit()
 
@@ -593,6 +597,29 @@ class DemoTaskRunner:
             metrics["elapsed"],
             metrics["velocity"],
         )
+        return True
+
+    def _heartbeat_system_log(self, session: Session, metrics: dict[str, float]) -> bool:
+        if SystemLog is None:
+            return False
+        now = time.time()
+        if now - self._last_system_log_ts < self._system_log_interval:
+            return False
+        self._last_system_log_ts = now
+        content = (
+            f"[demo] heartbeat tick={metrics.get('tick', 0)} "
+            f"feed={metrics.get('feed_rate', 0.0):.2f} "
+            f"torque={metrics.get('torque', 0.0):.2f}"
+        )
+        session.add(
+            SystemLog(
+                log_time=datetime.utcnow(),
+                log_type=2,
+                info_type=1,
+                content=content,
+            )
+        )
+        LOG.info("SystemLog heartbeat emitted (%s)", content)
         return True
 
     def _simulate_operational_metrics(self) -> dict[str, float]:

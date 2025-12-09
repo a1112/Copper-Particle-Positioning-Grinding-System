@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import select
 
 from app import config as APP_CONFIG
 from app.common import save_data
@@ -194,10 +194,8 @@ class SystemLogForwarder:
     def __init__(self, session_factory, *, batch_size: int = 100) -> None:
         self._session_factory = session_factory
         self._batch_size = max(int(batch_size), 1)
-        now = datetime.utcnow()
-        self._start_time = now
-        self._cursor_time = now
-        self._cursor_id = 0
+        self._start_time = datetime.utcnow()
+        self._cursor_id = self._initial_cursor()
 
     def poll(self) -> List[Dict[str, Any]]:
         if SystemLog is None:
@@ -205,13 +203,8 @@ class SystemLogForwarder:
         with self._session_factory() as session:
             stmt = (
                 select(SystemLog)
-                .where(
-                    or_(
-                        SystemLog.log_time > self._cursor_time,
-                        and_(SystemLog.log_time == self._cursor_time, SystemLog.id > self._cursor_id),
-                    )
-                )
-                .order_by(SystemLog.log_time.asc(), SystemLog.id.asc())
+                .where(SystemLog.id > self._cursor_id)
+                .order_by(SystemLog.id.asc())
                 .limit(self._batch_size)
             )
             rows = session.execute(stmt).scalars().all()
@@ -223,8 +216,6 @@ class SystemLogForwarder:
             entries.append(self._serialize(row))
 
         last = rows[-1]
-        if last.log_time:
-            self._cursor_time = last.log_time
         self._cursor_id = int(getattr(last, "id", self._cursor_id) or self._cursor_id)
         return entries
 
@@ -254,6 +245,22 @@ class SystemLogForwarder:
             return value.timestamp()
         except Exception:
             return time.time()
+
+    def _initial_cursor(self) -> int:
+        if SystemLog is None:
+            return 0
+        try:
+            with self._session_factory() as session:
+                last_id = (
+                    session.execute(
+                        select(SystemLog.id).order_by(SystemLog.id.desc()).limit(1)
+                    )
+                    .scalars()
+                    .first()
+                )
+        except Exception:
+            return 0
+        return int(last_id or 0)
 
 
 def main(argv: Optional[Iterable[str]] = None) -> None:

@@ -40,3 +40,4 @@ app/ui/rc_qml.py
 /configs/calibration/calib_20251117_154014/
 /app/ui/.qtcreator/
 *.autosave
+app/ui/CMakeLists.txt.user

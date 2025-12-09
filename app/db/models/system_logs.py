@@ -41,4 +41,3 @@ class SystemLog(Base):
 
 
 __all__ = ["SystemLog"]
-
