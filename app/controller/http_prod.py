@@ -223,6 +223,10 @@ class SystemLogForwarder:
     def start_time(self) -> datetime:
         return self._start_time
 
+    @property
+    def cursor_id(self) -> int:
+        return self._cursor_id
+
     def _serialize(self, row: SystemLog) -> Dict[str, Any]:
         log_ts = self._to_timestamp(getattr(row, "log_time", None))
         level_name = self.LEVEL_MAP.get(int(getattr(row, "log_type", 0) or 0), "INFO")

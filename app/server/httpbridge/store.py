@@ -8,7 +8,7 @@ from typing import Any, Deque, Dict, Iterable, Mapping
 class HttpDataStore:
     """Thread-safe store keeping the latest snapshots pushed via HTTP bridge."""
 
-    def __init__(self, *, log_capacity: int = 500) -> None:
+    def __init__(self, *, log_capacity: int = 1500) -> None:
         self._status: Dict[str, Any] = {}
         self._cutting: Dict[str, Any] = {}
         self._program: list[str] = []

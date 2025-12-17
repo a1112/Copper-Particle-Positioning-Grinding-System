@@ -6,7 +6,7 @@ from collections import deque
 from typing import Deque, Dict, Any, List, Optional
 
 
-_BUFFER: Deque[Dict[str, Any]] = deque(maxlen=1000)
+_BUFFER: Deque[Dict[str, Any]] = deque(maxlen=2000)
 
 
 def _fmt_time(ts: float) -> str:

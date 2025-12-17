@@ -259,6 +259,11 @@ async def run_controller(
             if log_forwarder is not None:
                 try:
                     db_logs = await asyncio.to_thread(log_forwarder.poll)
+                    # cursor_id = getattr(log_forwarder, "cursor_id", None)
+                    # if cursor_id is not None:
+                    #     LOG.info("System log poll completed entries=%d cursor=%s", len(db_logs), cursor_id)
+                    # else:
+                    #     LOG.info("System log poll completed entries=%d", len(db_logs))
                 except Exception as exc:
                     LOG.error("System log poll failed: %s", exc)
                     db_logs = []
