@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import time
 from typing import Any, Dict
 
@@ -36,5 +35,9 @@ def test_ws_logs_history_and_append(client: TestClient) -> None:
                 # Basic shape
                 assert item.get("level") in {"INFO", "WARN", "ERROR", "DEBUG"}
                 assert isinstance(item.get("ts"), (int, float))
-                                # extra field: human time string\n                assert isinstance(item.get('time'), str) and ':' in item.get('time')\n                break\n        assert seen, "did not receive append for test log within timeout"
+                # extra field: human time string
+                assert isinstance(item.get("time"), str) and ":" in item.get("time")
+                break
+
+        assert seen, "did not receive append for test log within timeout"
 

@@ -24,7 +24,20 @@ QtObject {
   }
   function wsCode() {
     return 'ws://' + Cores.CoreSettings.apiHost + ':' + Cores.CoreSettings.apiPort + '/ws/code'
-  }  function docs() { return base() + '/docs' }
+  }
+  function wsTasksState(recordId) {
+    var baseUrl = 'ws://' + Cores.CoreSettings.apiHost + ':' + Cores.CoreSettings.apiPort + '/ws/tasks/state'
+    if (recordId !== undefined && recordId !== null) {
+      var rid = Number(recordId)
+      if (!isNaN(rid) && rid > 0)
+        return baseUrl + '?record_id=' + encodeURIComponent(String(rid))
+    }
+    return baseUrl
+  }
+
+  function docs() {
+    return base() + '/docs'
+  }
 }
 
 

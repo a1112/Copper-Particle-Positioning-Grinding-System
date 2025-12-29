@@ -19,8 +19,8 @@ def _bootstrap_app() -> "tuple[object, object]":
 
     # Import HTTP route modules so their routers get populated
     # Import ws modules (ws_status requires injected status_fn in tests)
-    from app.server.api.api import api_config, api_image, api_status, api_settings, api_test  # noqa: F401
-    from app.server.api.ws import ws_status, ws_logs  # noqa: F401
+    from app.server.api.api import api_config, api_data, api_image, api_status, api_settings, api_test  # noqa: F401
+    from app.server.api.ws import ws_logs, ws_status, ws_tasks  # noqa: F401
 
     # Attach routers to the FastAPI app (idempotent)
     core.include_router()

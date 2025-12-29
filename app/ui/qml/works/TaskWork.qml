@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick
+import QtWebSockets
 import "../Api" as Api
 import "../datas" as Datas
 import "../cores" as Cores
@@ -7,20 +8,47 @@ import "../cores" as Cores
 QtObject {
   id: root
 
-  property Timer pollTimer: Timer {
-    id: poller
-    interval: 2500
-    repeat: true
+  property QtObject __ws: WebSocket {
+    id: ws
+    url: Api.Urls.wsTasksState()
+    active: false
+
+    onStatusChanged: function(status) {
+      if (isClosedStatus(status)) {
+        ws.active = false
+        reconnectTimer.restart()
+      } else if (status === WebSocket.Open) {
+        refresh()
+      }
+    }
+
+    onTextMessageReceived: function(message) {
+      try {
+        var payload = JSON.parse(message)
+        applyPayload(payload)
+      } catch (err) {
+        // ignore malformed payload
+      }
+    }
+  }
+
+  property Timer __reconnectTimer: Timer {
+    id: reconnectTimer
+    interval: 2000
     running: false
-    onTriggered: root.refresh()
+    repeat: false
+    onTriggered: ws.active = true
   }
 
   function start() {
     refresh()
+    if (!ws.active)
+      ws.active = true
   }
 
   function stop() {
-    poller.stop()
+    reconnectTimer.stop()
+    ws.active = false
   }
 
   property int _prevCaptureRecordId: 0
@@ -29,70 +57,61 @@ QtObject {
 
   function refresh() {
     Api.ApiClient.get("/data/tasks/state", function(payload) {
-      try {
-        Datas.TaskDatas.applyState(payload)
-        if (payload && payload.workpiece)
-          Datas.DeviceInfoData.applyWorkpiece(payload.workpiece)
-        if (payload && payload.gcode !== undefined) {
-          Cores.CoreCutting.loadProgram(payload.gcode)
-          if (payload.gcode && payload.gcode.fixtures !== undefined)
-            Datas.CuttingDatas.setFixtures(payload.gcode.fixtures)
-          else
-            Datas.CuttingDatas.setFixtures([])
-        } else {
-          Datas.CuttingDatas.setFixtures([])
-        }
-        var capture = payload && payload.capture ? payload.capture : null
-        var captureRecordId = capture && capture.record_id !== undefined ? Number(capture.record_id) : 0
-        var captureStatus = capture && capture.status !== undefined ? Number(capture.status) : -1
-        var execute = payload && payload.execute ? payload.execute : null
-        var executeStatus = execute && execute.status !== undefined ? Number(execute.status) : -1
-        var control = payload && payload.control ? payload.control : null
-        var controlStatus = control && control.status !== undefined ? Number(control.status) : -1
-        var latestRecordId = payload && payload.latest_record !== undefined ? Number(payload.latest_record) : 0
-
-        if (isNaN(captureRecordId))
-          captureRecordId = 0
-        if (isNaN(captureStatus))
-          captureStatus = -1
-        if (isNaN(executeStatus))
-          executeStatus = -1
-        if (isNaN(controlStatus))
-          controlStatus = -1
-        if (isNaN(latestRecordId))
-          latestRecordId = 0
-
-        var shouldPoll = false
-        var statuses = [captureStatus, executeStatus, controlStatus]
-        for (var i = 0; i < statuses.length; ++i) {
-          if (statuses[i] === 0 || statuses[i] === 1) {
-            shouldPoll = true
-            break
-          }
-        }
-        if (shouldPoll) {
-          if (!poller.running)
-            poller.start()
-        } else if (poller.running) {
-          poller.stop()
-        }
-
-        var captureStatusChanged = (captureRecordId !== _prevCaptureRecordId) || (captureStatus !== _prevCaptureStatus)
-        var recordChanged = latestRecordId !== _prevLatestRecordId && latestRecordId > 0
-        _prevCaptureRecordId = captureRecordId
-        _prevCaptureStatus = captureStatus
-        _prevLatestRecordId = latestRecordId
-
-        if ((captureStatusChanged && captureStatus === 2) || recordChanged) {
-          if (Cores && Cores.CoreState && Cores.CoreState.refreshDataSources)
-            Cores.CoreState.refreshDataSources()
-        }
-      } catch (err) {
-        console.warn("TaskWork refresh parse failed", err)
-      }
+      applyPayload(payload)
     }, function(status, message) {
       console.warn("TaskWork refresh error", status, message)
     })
+  }
+
+  function applyPayload(payload) {
+    if (!payload)
+      return
+    try {
+      Datas.TaskDatas.applyState(payload)
+      if (payload && payload.workpiece)
+        Datas.DeviceInfoData.applyWorkpiece(payload.workpiece)
+      if (payload && payload.gcode !== undefined) {
+        Cores.CoreCutting.loadProgram(payload.gcode)
+        if (payload.gcode && payload.gcode.fixtures !== undefined)
+          Datas.CuttingDatas.setFixtures(payload.gcode.fixtures)
+        else
+          Datas.CuttingDatas.setFixtures([])
+      } else {
+        Datas.CuttingDatas.setFixtures([])
+      }
+      var capture = payload && payload.capture ? payload.capture : null
+      var captureRecordId = capture && capture.record_id !== undefined ? Number(capture.record_id) : 0
+      var captureStatus = capture && capture.status !== undefined ? Number(capture.status) : -1
+      var execute = payload && payload.execute ? payload.execute : null
+      var executeStatus = execute && execute.status !== undefined ? Number(execute.status) : -1
+      var control = payload && payload.control ? payload.control : null
+      var controlStatus = control && control.status !== undefined ? Number(control.status) : -1
+      var latestRecordId = payload && payload.latest_record !== undefined ? Number(payload.latest_record) : 0
+
+      if (isNaN(captureRecordId))
+        captureRecordId = 0
+      if (isNaN(captureStatus))
+        captureStatus = -1
+      if (isNaN(executeStatus))
+        executeStatus = -1
+      if (isNaN(controlStatus))
+        controlStatus = -1
+      if (isNaN(latestRecordId))
+        latestRecordId = 0
+
+      var captureStatusChanged = (captureRecordId !== _prevCaptureRecordId) || (captureStatus !== _prevCaptureStatus)
+      var recordChanged = latestRecordId !== _prevLatestRecordId && latestRecordId > 0
+      _prevCaptureRecordId = captureRecordId
+      _prevCaptureStatus = captureStatus
+      _prevLatestRecordId = latestRecordId
+
+      if ((captureStatusChanged && captureStatus === 2) || recordChanged) {
+        if (Cores && Cores.CoreState && Cores.CoreState.refreshDataSources)
+          Cores.CoreState.refreshDataSources()
+      }
+    } catch (err) {
+      console.warn("TaskWork refresh parse failed", err)
+    }
   }
 
   function clearCommands(onOk, onErr) {
@@ -117,6 +136,15 @@ QtObject {
       if (onErr)
         onErr(status, message)
     })
+  }
+
+  function reconnect() {
+    stop()
+    reconnectTimer.restart()
+  }
+
+  function isClosedStatus(status) {
+    return [WebSocket.Error, WebSocket.Closed].indexOf(status) !== -1
   }
 }
 

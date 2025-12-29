@@ -59,7 +59,7 @@ def _bootstrap_api_modules(log, orch, motion: IMotionController) -> None:
         api_data,
         api_test,
     )
-    from app.server.api.ws import ws_code, ws_logs, ws_status
+    from app.server.api.ws import ws_code, ws_logs, ws_status, ws_tasks
     # Inject image provider if available
     include_router()
 

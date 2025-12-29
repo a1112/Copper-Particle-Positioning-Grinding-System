@@ -372,6 +372,13 @@ def task_state_summary(
     record_id: Optional[int] = Query(default=None),
     session: Session = Depends(get_db_session),
 ) -> Dict[str, Any]:
+    return build_task_state_summary(session=session, record_id=record_id)
+
+
+def build_task_state_summary(
+    session: Session,
+    record_id: Optional[int] = None,
+) -> Dict[str, Any]:
     workpiece = _ensure_default_workpiece(session)
     record = session.execute(select(RecordTable).order_by(desc(RecordTable.id))).scalars().first()
 
