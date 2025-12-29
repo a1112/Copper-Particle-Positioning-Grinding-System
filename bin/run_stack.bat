@@ -42,9 +42,6 @@ start "%API_TITLE%" cmd /k "pushd "%ROOT_DIR%" && "%_PYTHON%" -m app.server.run_
 echo [INFO] Launching %HTTP_TITLE%
 start "%HTTP_TITLE%" cmd /k "pushd "%ROOT_DIR%" && "%_PYTHON%" -m app.controller.http_prod"
 
-echo [INFO] Launching %UI_TITLE%
-start "%UI_TITLE%" cmd /k "pushd "%ROOT_DIR%" && "%_PYTHON%" -m app.ui.main"
-
 echo.
 echo [INFO] Launch commands issued. Each component is running in its own window.
 echo [INFO] Close this window to finish. Child windows stay active until you exit them.
