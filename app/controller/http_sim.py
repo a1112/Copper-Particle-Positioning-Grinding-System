@@ -5,6 +5,7 @@ import logging
 import sys
 from typing import Iterable, Optional
 
+from app import config as APP_CONFIG
 from app.controller.http_common import (
     DbStatusSource,
     SimulatedStatusSource,
@@ -13,7 +14,7 @@ from app.controller.http_common import (
     run_controller,
 )
 
-SIM_DB_URL = "mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4"
+SIM_DB_URL = APP_CONFIG.DEFAULT_DB_URL
 LOG = logging.getLogger("controller.http_sim")
 
 

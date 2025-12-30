@@ -41,4 +41,7 @@ app/ui/rc_qml.py
 /app/ui/.qtcreator/
 *.autosave
 app/ui/CMakeLists.txt.user
+*.rcc
+*.user
+*.user.*
 /configs/calibration/

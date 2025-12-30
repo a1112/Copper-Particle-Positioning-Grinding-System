@@ -175,10 +175,9 @@ class CalibrationManager:
     """Manage calibration groups stored under configs/calibration/."""
 
     def __init__(self, calibration_root: str | Path | None = None) -> None:
-        base = Path(__file__).resolve().parents[4]
-        self._root = Path(calibration_root) if calibration_root else base / "configs" / "calibration"
+        self._root = Path(calibration_root) if calibration_root else config.CALIBRATION_DIR
         self._state_path = self._root / _STATE_FILENAME
-        self._template_xml = base / "configs" / "template" / "src_IMG_Color.xml"
+        self._template_xml = config.CALIBRATION_TEMPLATE_ANNOTATION
         self._ensure_ready()
 
     # ------------------------------------------------------------------ State

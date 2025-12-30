@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
 from app.config import DATA_MODE, DATA_ENDPOINT
@@ -24,10 +24,16 @@ def main() -> None:
 
     app = QGuiApplication(sys.argv)
     from PySide6.QtCore import QCoreApplication, QUrl, QSettings
+    from app.ui.main import _ensure_qrc_resources
 
     QCoreApplication.setOrganizationName("CopperSystem")
     QCoreApplication.setOrganizationDomain("example.local")
     QCoreApplication.setApplicationName("Copper UI")
+    try:
+        _ensure_qrc_resources()
+        app.setWindowIcon(QIcon(":/resource/app.ico"))
+    except Exception:
+        pass
 
     translations_dir = Path(__file__).resolve().parent.joinpath("ui", "i18n")
     initial_language = read_persisted_language()

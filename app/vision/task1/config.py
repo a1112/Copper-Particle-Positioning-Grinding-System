@@ -5,10 +5,12 @@ import json
 from pathlib import Path
 from typing import Dict, Iterable
 
+from app import config as APP_CONFIG
 
-CALIBRATION_ROOT = Path("configs") / "calibration"
-CALIBRATION_STATE_PATH = CALIBRATION_ROOT / "calibration.json"
-CALIBRATION_TEMPLATE_ANNOTATION = Path("configs") / "template" / "src_IMG_Color.xml"
+
+CALIBRATION_ROOT = APP_CONFIG.CALIBRATION_DIR
+CALIBRATION_STATE_PATH = APP_CONFIG.CALIBRATION_STATE_PATH
+CALIBRATION_TEMPLATE_ANNOTATION = APP_CONFIG.CALIBRATION_TEMPLATE_ANNOTATION
 CALIBRATION_ANNOTATION_NAME = "src_IMG_Color.xml"
 
 
@@ -47,8 +49,8 @@ def resolve_default_fixture_annotation() -> Path | None:
 class TaskConfig:
     """任务 1 管线使用的配置项（单位默认为毫米）。"""
 
-    source_dir: Path = Path(r"D:\SaveData\current")
-    output_dir: Path = Path(r"D:\SaveData\current") / "alg_task1"
+    source_dir: Path = APP_CONFIG.SAVE_DATA_CURRENT_DIR
+    output_dir: Path = APP_CONFIG.SAVE_DATA_CURRENT_DIR / "alg_task1"
     grid_step: int = 1
     valid_epsilon: float = 1e-3
     board_residual_threshold: float = 0.35

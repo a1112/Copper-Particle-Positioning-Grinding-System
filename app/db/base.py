@@ -10,17 +10,13 @@ from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+from app import config as APP_CONFIG
+
 LOG = logging.getLogger(__name__)
 
-PRIMARY_DB_URL = os.getenv(
-    "PRIMARY_DB_URL",
-    "mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
-)
-LOCAL_DB_URL = os.getenv(
-    "LOCAL_DB_URL",
-    "mysql+pymysql://remote_user:123456@127.0.0.1/MzPoliShineDB?charset=utf8mb4",
-)
-ENV_DATABASE_URL = os.getenv("DATABASE_URL")
+PRIMARY_DB_URL = APP_CONFIG.PRIMARY_DB_URL
+LOCAL_DB_URL = APP_CONFIG.LOCAL_DB_URL
+ENV_DATABASE_URL = APP_CONFIG.DATABASE_URL
 
 
 def _render_url(url: URL) -> str:

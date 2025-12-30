@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import xml.etree.ElementTree as ET
 
+from app import config as APP_CONFIG
+
 log = logging.getLogger(__name__)
 
 
@@ -32,8 +34,7 @@ class CalibrationSettingsLoader:
     """Build calibration metadata from annotated assets in configs/calibration/."""
 
     def __init__(self, calibration_root: str | Path | None = None) -> None:
-        base = Path(__file__).resolve().parents[4]
-        default_dir = base / "configs" / "calibration"
+        default_dir = APP_CONFIG.CALIBRATION_DIR
         self._calibration_dir = Path(calibration_root) if calibration_root else default_dir
 
     # Public API ----------------------------------------------------------------
