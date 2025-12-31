@@ -34,6 +34,7 @@ App_Base {
   DataEntryDialog { id: dataEntryDialog }
   GlobErrorDialog { id: errorDialog }
   TestImagesDialog { id: testDialog }   //
+  HistoryDrawer { id: historyDrawer }   // 历史记录抽屉
   SettingsDrawer { id: settingsDrawer } // 设置抽屉
   SettingPage{id: settingsPage}         // 配置中心
   StatePage{id:statePage}               // 状态中心

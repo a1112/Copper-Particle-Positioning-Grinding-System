@@ -33,6 +33,17 @@ Item {
       height: 1
       }
       ItemDelegateButtonBase {
+        id: historyDrawerButton
+        height: parent.height
+        width: height
+        tipText: qsTr("历史记录")
+        source: Cores.CoreStyle.getIconSource("arrow-next.png")
+        onClicked: {
+          if (historyDrawer && historyDrawer.open)
+            historyDrawer.open()
+        }
+      }
+      ItemDelegateButtonBase {
         id: mainMenuButton
         height: parent.height
         width: height

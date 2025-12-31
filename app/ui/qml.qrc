@@ -95,6 +95,7 @@
         <file>qml/dialogs/calibration/CalibrationPointsPanel.qml</file>
         <file>qml/main.qml</file>
         <file>qml/menu/SettingsDrawer.qml</file>
+        <file>qml/menu/HistoryDrawer.qml</file>
         <file>qml/minimal.qml</file>
         <file>qml/pages/foot/FootView.qml</file>
         <file>qml/pages/head/DateTimeView.qml</file>

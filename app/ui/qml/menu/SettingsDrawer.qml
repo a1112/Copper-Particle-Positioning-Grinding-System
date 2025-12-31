@@ -225,7 +225,13 @@ Drawer {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: Cores.CoreStyle.applyTheme(modelData.key)
+                onClicked: {
+                  // 应用主题并写入持久化设置
+                  Cores.CoreStyle.applyTheme(modelData.key)
+                  if (Cores.CoreSettings) {
+                    Cores.CoreSettings.themeName = modelData.key
+                  }
+                }
               }
             }
           }

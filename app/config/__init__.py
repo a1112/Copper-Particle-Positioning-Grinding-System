@@ -199,7 +199,13 @@ def build_database_url(settings: Optional[Dict[str, Any]] = None) -> str:
     if charset:
         query["charset"] = charset
     timezone = str(cfg.get("timezone") or "").strip()
-    if timezone:
+    # NOTE:
+    # - For MySQL/PyMySQL, passing `timezone` via the URL causes SQLAlchemy to
+    #   forward it as a DBAPI kwarg, which newer PyMySQL versions do not accept.
+    # - Time zone for MySQL is instead applied via `init_command` in
+    #   `app.db.base._build_engine`. To avoid the TypeError, we only keep
+    #   timezone in the URL for non-MySQL backends.
+    if timezone and not scheme.startswith("mysql"):
         query["timezone"] = timezone
     query_str = "&".join(f"{k}={_quote(v)}" for k, v in query.items())
     suffix = f"?{query_str}" if query_str else ""

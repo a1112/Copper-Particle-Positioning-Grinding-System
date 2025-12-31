@@ -21,4 +21,7 @@ Settings {
   property var parameterAlgorithm: ({})
   property var parameterAuto: ({})
   property var parameterTools: []
+
+  // 当前主题名称（用于持久化 UI 主题）
+  property string themeName: "techBlueLight"
 }

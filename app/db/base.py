@@ -28,7 +28,17 @@ def _build_engine(url: URL) -> Engine:
     backend = url.get_backend_name()
     if backend.startswith("mysql"):
         kwargs["pool_recycle"] = 1800
-        kwargs["connect_args"] = {"connect_timeout": 3}
+        connect_args: Dict[str, Any] = {"connect_timeout": 3}
+        # Apply database timezone for MySQL via an init command instead of a URL
+        # query parameter. Passing `timezone` in the URL results in it being
+        # forwarded as an unsupported DBAPI kwarg to PyMySQL.
+        try:
+            tz = getattr(APP_CONFIG, "DATABASE_SETTINGS", {}).get("timezone")  # type: ignore[assignment]
+        except Exception:
+            tz = None
+        if tz:
+            connect_args["init_command"] = f"SET time_zone = '{tz}'"
+        kwargs["connect_args"] = connect_args
     elif backend == "sqlite":
         kwargs["connect_args"] = {"check_same_thread": False}
     return create_engine(url, **kwargs)

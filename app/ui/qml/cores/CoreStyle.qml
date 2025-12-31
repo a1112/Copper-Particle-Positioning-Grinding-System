@@ -1,8 +1,9 @@
 pragma Singleton
 import QtQuick
+import "CoreSettings.qml" as CoreSingletons
 
 Item {
-    // 当前启用的主题名称
+    // 当前启用的主题名称（由 CoreSettings.themeName 持久化保存）
     property string theme: "techBlueLight"
     // 标题文字默认颜色
     property color titleColor: "#FFF"
@@ -60,7 +61,13 @@ Item {
         try { return this[key]; } catch(e) { return "transparent" }
     }
 
-    Component.onCompleted: applyTheme(theme)
+    Component.onCompleted: {
+        // 优先从持久化设置中恢复主题
+        if (CoreSingletons.CoreSettings && CoreSingletons.CoreSettings.themeName) {
+            theme = CoreSingletons.CoreSettings.themeName
+        }
+        applyTheme(theme)
+    }
 
     // 归一化图标资源路径
     // 传入示例：
