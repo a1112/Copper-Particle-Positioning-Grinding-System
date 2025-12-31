@@ -28,28 +28,41 @@ async def ws_logs(ws: WebSocket):
 
         history: List[Dict[str, Any]] = list(logs.as_list())
         await ws.send_json({"type": "history", "items": history})
-        last_len = len(history)
+        last_seen = history[-1] if history else None
         idle_ticks = 0
 
         while True:
             buf_list = list(logs.as_list())
-            if len(buf_list) < last_len:
-                # Buffer rotated/truncated; resend full snapshot
+            if not buf_list:
+                if last_seen is not None:
+                    await ws.send_json({"type": "history", "items": buf_list})
+                    last_seen = None
+                    idle_ticks = 0
+            elif last_seen is None:
                 await ws.send_json({"type": "history", "items": buf_list})
-                last_len = len(buf_list)
+                last_seen = buf_list[-1]
                 idle_ticks = 0
-            elif len(buf_list) > last_len:
-                # Send newly appended items
-                for item in buf_list[last_len:]:
-                    await ws.send_json({"type": "append", "item": item})
-                idle_ticks = 0
-                last_len = len(buf_list)
             else:
-                # No new logs; emit a lightweight heartbeat periodically
-                idle_ticks += 1
-                if idle_ticks >= 600:  # ~3s at 0.5s interval
-                    hb = {"ts": time.time(), "level": "INFO", "name": "app", "msg": "heartbeat"}
-                    await ws.send_json({"type": "append", "item": hb})
+                if buf_list[-1] is last_seen:
+                    # No new logs; emit a lightweight heartbeat periodically
+                    idle_ticks += 1
+                    if idle_ticks >= 600:  # ~3s at 0.5s interval
+                        hb = {"ts": time.time(), "level": "INFO", "name": "app", "msg": "heartbeat"}
+                        await ws.send_json({"type": "append", "item": hb})
+                        idle_ticks = 0
+                else:
+                    last_index = None
+                    for i, item in enumerate(buf_list):
+                        if item is last_seen:
+                            last_index = i
+                            break
+                    if last_index is None:
+                        # Buffer rotated/truncated; resend full snapshot
+                        await ws.send_json({"type": "history", "items": buf_list})
+                    else:
+                        for item in buf_list[last_index + 1 :]:
+                            await ws.send_json({"type": "append", "item": item})
+                    last_seen = buf_list[-1]
                     idle_ticks = 0
 
             await asyncio.sleep(0.5)
