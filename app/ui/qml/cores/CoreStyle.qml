@@ -1,6 +1,6 @@
 pragma Singleton
 import QtQuick
-import "CoreSettings.qml" as CoreSingletons
+// import "CoreSettings.qml" as CoreSingletons
 
 Item {
     // 当前启用的主题名称（由 CoreSettings.themeName 持久化保存）

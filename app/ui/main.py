@@ -74,15 +74,18 @@ def _run_minimal_ui() -> int:
     """Run a lightweight UI without Python backend bindings."""
     from PySide6.QtGui import QGuiApplication, QIcon
     from PySide6.QtQml import QQmlApplicationEngine
-    from PySide6.QtCore import QCoreApplication, QUrl
+    from PySide6.QtCore import QCoreApplication, QSettings, QUrl
+    from PySide6.QtQuick import QQuickWindow
     from app.ui.src.image_provider import CameraImageProvider
     from app.ui.src.highlighter import HighlighterBridge
     from app.ui.src.localization import LocalizationManager, read_persisted_language
+    from app.ui.src import frameless_helper
 
     app = QGuiApplication(sys.argv)
     QCoreApplication.setOrganizationName("CopperSystem")
     QCoreApplication.setOrganizationDomain("example.local")
     QCoreApplication.setApplicationName("Copper UI")
+    QSettings.setDefaultFormat(QSettings.IniFormat)
 
     engine = QQmlApplicationEngine()
     try:
@@ -125,6 +128,16 @@ def _run_minimal_ui() -> int:
         except Exception:
             pass
         return -1
+
+    # 安装无边框窗口Aero Snap支持（仅Windows平台）
+    if sys.platform == "win32":
+        root_objects = engine.rootObjects()
+        if root_objects:
+            root_window = root_objects[0]
+            if isinstance(root_window, QQuickWindow):
+                frameless_helper.install_frameless_filter(
+                    root_window, title_bar_height=40
+                )
 
     return app.exec()
 

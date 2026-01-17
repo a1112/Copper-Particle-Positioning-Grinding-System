@@ -90,6 +90,7 @@ class Runtime:
         QCoreApplication.setOrganizationName("CopperSystem")
         QCoreApplication.setOrganizationDomain("example.local")
         QCoreApplication.setApplicationName("Copper UI")
+        QSettings.setDefaultFormat(QSettings.IniFormat)
 
         self.engine = QQmlApplicationEngine()
         self.engine.addImageProvider("camera", self.provider)

@@ -12,6 +12,8 @@ Settings {
   // 默认界面语言
   property string language: "zh_CN"
   property real fontScale: 1.0
+  // Frameless window toggle
+  property bool framelessWindow: false
 
   // 参数设置中心缓存页签索引
   property int parameterTabIndex: 0

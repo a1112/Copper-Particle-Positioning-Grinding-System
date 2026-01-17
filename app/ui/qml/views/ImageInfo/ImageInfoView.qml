@@ -28,6 +28,7 @@ BaseCard {
   property real fixtureMarginMm: 6
   property var calibrationFixtures: Cores.CoreDataView.fixtures
   property var imageDataCore: Cores.CoreDataView
+  property bool showRobotArm: false  // 显示机器人模型
   readonly property var algResultData: {
     var gcode = Datas.TaskDatas.gcodeData || {}
     if (gcode && gcode.alg_result !== undefined && gcode.alg_result !== null)
@@ -151,7 +152,10 @@ BaseCard {
     anchors.fill: parent
     anchors.margins: 8
     spacing: 6
-    ViewHead{}
+    ViewHead{
+      showRobotArm: root.showRobotArm
+      onShowRobotArmChanged: root.showRobotArm = showRobotArm
+    }
     StackLayout{
       id: viewStack
       Layout.fillWidth: true
@@ -175,6 +179,7 @@ BaseCard {
       }
       View3D{
         meshSource: root.meshSource3d
+        showRobotArm: root.showRobotArm
       }
     }
   }

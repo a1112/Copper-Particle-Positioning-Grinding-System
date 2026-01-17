@@ -32,6 +32,48 @@ ApplicationWindow {
   // 窗口可见
   visible: true
 
+  readonly property int normalWindowFlags: Qt.Window
+  readonly property int framelessWindowFlags: Qt.Window
+    | Qt.FramelessWindowHint
+    | Qt.WindowSystemMenuHint
+    | Qt.WindowMinimizeButtonHint
+    | Qt.WindowMaximizeButtonHint
+    | Qt.WindowCloseButtonHint
+  property bool framelessEnabled: Cores.CoreSettings ? Cores.CoreSettings.framelessWindow : false
+
+  function applyWindowFlags() {
+    var targetFlags = framelessEnabled ? framelessWindowFlags : normalWindowFlags
+    if (flags === targetFlags)
+      return
+    var wasFullScreen = visibility === Window.FullScreen
+    var wasMaximized = visibility === Window.Maximized
+    flags = targetFlags
+    if (wasFullScreen) {
+      showFullScreen()
+    } else if (wasMaximized) {
+      showMaximized()
+    } else {
+      showNormal()
+    }
+  }
+
+  property int restoreVisibility: Window.Maximized
+  function toggleFullScreen() {
+    if (visibility === Window.FullScreen) {
+      if (restoreVisibility === Window.Maximized) {
+        showMaximized()
+      } else {
+        showNormal()
+      }
+      return
+    }
+    restoreVisibility = visibility
+    showFullScreen()
+  }
+
+  Component.onCompleted: applyWindowFlags()
+  onFramelessEnabledChanged: applyWindowFlags()
+
   // 默认宽度为屏幕 80%
   width: Screen.width*0.8
   // 默认高度为屏幕 80%

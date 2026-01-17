@@ -239,6 +239,28 @@ Drawer {
       }
     }
 
+    Item {
+      Layout.fillWidth: true
+      height: 4
+    }
+
+    GroupBox {
+      title: qsTr("\u7a97\u53e3")
+      Layout.fillWidth: true
+
+      RowLayout {
+        spacing: 10
+        Label {
+          text: qsTr("\u65e0\u8fb9\u6846")
+          Layout.fillWidth: true
+        }
+        Switch {
+          checked: Cores.CoreSettings ? Cores.CoreSettings.framelessWindow : false
+          onToggled: if (Cores.CoreSettings) Cores.CoreSettings.framelessWindow = checked
+        }
+      }
+    }
+
     Item { Layout.fillHeight: true }
 
     RowLayout {

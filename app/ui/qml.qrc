@@ -239,6 +239,21 @@
         <file>qml/cores/CoreDataView.qml</file>
         <file>qml/menu/settings/pages/SettingPage/SettingPageView.qml</file>
         <file>qml/views/ImageInfo/view3d/layer/LabelLayer.qml</file>
+        <file>qml/views/ImageInfo/view3d/RoboticArm.qml</file>
+        <file>qml/views/ImageInfo/view3d/RobotControlPanel.qml</file>
+        <file>qml/views/ImageInfo/view3d/meshes/arm.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/base.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/forearm.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/hand.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/hand_grab_b.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/hand_grab_b_hinge_1.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/hand_grab_b_hinge_2.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/hand_grab_t.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/hand_grab_t_hinge_1.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/hand_grab_t_hinge_2.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/hand_hinge.mesh</file>
+        <file>qml/views/ImageInfo/view3d/meshes/root.mesh</file>
+        <file>qml/views/ImageInfo/view3d/maps/qt.png</file>
         <file>qml/views/ImageInfo/view2d/CameraAxesLayer.qml</file>
         <file>qml/menu/settings/pages/TextFieldBase.qml</file>
         <file>qml/menu/settings/pages/SettingPage/ComboBoxBase.qml</file>
@@ -251,5 +266,6 @@
         <file>qml/cores/CoreButtonState.qml</file>
         <file>qml/dialogs/calibration/PintItem.qml</file>
         <file>qml/dialogs/calibration/PointField.qml</file>
+        <file>qml/components/btns/WindowModelChangeButton.qml</file>
     </qresource>
 </RCC>

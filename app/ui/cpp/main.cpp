@@ -10,6 +10,8 @@
 #include <QSettings>
 #include <QVariantList>
 #include <QVariantMap>
+#include <QQuickWindow>
+#include "frameless_helper.h"
 
 class HighlighterStub : public QObject {
     Q_OBJECT
@@ -82,6 +84,7 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationName(QStringLiteral("CopperSystem"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("example.local"));
     QCoreApplication::setApplicationName(QStringLiteral("Copper UI (C++ Stub)"));
+    QSettings::setDefaultFormat(QSettings::IniFormat);
     QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/resource/app.ico")));
 
     QQmlApplicationEngine engine;
@@ -97,6 +100,14 @@ int main(int argc, char *argv[]) {
         qWarning() << "Failed to load QML entry point:" << url;
         return -1;
     }
+
+    // 安装无边框窗口Aero Snap支持（仅Windows平台）
+#ifdef Q_OS_WIN
+    QObject *rootObject = engine.rootObjects().first();
+    if (QQuickWindow *window = qobject_cast<QQuickWindow *>(rootObject)) {
+        FramelessHelper::install(window, 40);  // 40px 标题栏区域
+    }
+#endif
 
     return app.exec();
 }

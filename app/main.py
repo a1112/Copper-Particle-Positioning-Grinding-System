@@ -10,6 +10,7 @@ from app.config import DATA_MODE, DATA_ENDPOINT
 from app.runtime.environment import bootstrap_environment
 from app.ui.src.highlighter import HighlighterBridge
 from app.ui.src.localization import LocalizationManager, read_persisted_language
+from app.ui.src import frameless_helper
 from app.server.launcher import ApiController
 
 
@@ -23,12 +24,13 @@ def main() -> None:
     cam.open()
 
     app = QGuiApplication(sys.argv)
-    from PySide6.QtCore import QCoreApplication, QUrl, QSettings
+    from PySide6.QtCore import QCoreApplication, QSettings, QUrl
     from app.ui.main import _ensure_qrc_resources
 
     QCoreApplication.setOrganizationName("CopperSystem")
     QCoreApplication.setOrganizationDomain("example.local")
     QCoreApplication.setApplicationName("Copper UI")
+    QSettings.setDefaultFormat(QSettings.IniFormat)
     try:
         _ensure_qrc_resources()
         app.setWindowIcon(QIcon(":/resource/app.ico"))
@@ -58,6 +60,18 @@ def main() -> None:
         cam.stop_stream()
         cam.close()
         sys.exit(-1)
+
+    # 安装无边框窗口Aero Snap支持（仅Windows平台）
+    import sys
+    if sys.platform == "win32":
+        root_objects = engine.rootObjects()
+        if root_objects:
+            from PySide6.QtQuick import QQuickWindow
+            root_window = root_objects[0]
+            if isinstance(root_window, QQuickWindow):
+                frameless_helper.install_frameless_filter(
+                    root_window, title_bar_height=40
+                )
 
     api_ctl = ApiController()
 
