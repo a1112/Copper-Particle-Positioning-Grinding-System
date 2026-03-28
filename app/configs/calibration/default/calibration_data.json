@@ -1,0 +1,9 @@
+{
+  "record_id": null,
+  "points": [],
+  "matrices": {
+    "pixel_to_camera": [],
+    "camera_to_machine": [],
+    "pixel_to_machine": []
+  }
+}
