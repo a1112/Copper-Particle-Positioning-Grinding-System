@@ -1,20 +1,42 @@
-PySide6
-opencv-python
-numpy
-PyYAML
+# ============================================
+# 依赖升级 - 2025-04-24
+# ============================================
+# 主要变更：锁定所有依赖版本
+# ============================================
 
-fastapi
-uvicorn
-pydantic
+# Qt GUI
+PySide6~=6.8.0
 
-websockets
-SQLAlchemy
-pytest
-starlette
-pymysql
-grpcio
-grpcio-tools
-cryptography
-requests
+# Web 框架
+fastapi~=0.115.0
+uvicorn~=0.32.0
+pydantic~=5.0.0
+websockets~=15.0
+starlette~=0.46.0
+
+# 数据库
+SQLAlchemy~=2.0.36
+pymysql~=1.1.1
+
+# 数据处理
+numpy~=1.26.4
+PyYAML~=6.0.1
+
+# 计算机视觉
+opencv-python~=4.10.0
+
+# 测试
+pytest~=8.0.0
+
+# gRPC
+grpcio~=1.68.0
+grpcio-tools~=1.0.0
+
+# 工具库
+requests~=2.32.0
+cryptography~=44.0.0
+
+# 工业相机
 MechEyeAPI
-open3d-python
+# 需要从厂商获取
+open3d-python~=0.19.0
