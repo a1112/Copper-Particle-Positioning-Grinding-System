@@ -115,9 +115,9 @@ class Runtime:
 
     def _resolve_api_port(self) -> int:
         settings = QSettings("CopperSystem", "Copper UI")
-        value = settings.value("apiPort", 8010)
+        value = settings.value("apiPort", 16310)
         try:
             return int(value)
         except Exception:
-            return 8010
+            return 16310
 

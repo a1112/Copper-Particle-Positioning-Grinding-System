@@ -60,7 +60,7 @@ Drawer {
       SpinBox {
         from: 1
         to: 65535
-        value: Cores.CoreSettings ? Cores.CoreSettings.apiPort : 8010
+        value: Cores.CoreSettings ? Cores.CoreSettings.apiPort : 16310
         onValueModified: if (Cores.CoreSettings) Cores.CoreSettings.apiPort = value
       }
     }

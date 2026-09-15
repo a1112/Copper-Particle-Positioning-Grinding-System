@@ -6,7 +6,7 @@ Settings {
   // API 服务主机地址
   property string apiHost: "127.0.0.1"
   // API 服务端口
-  property int apiPort: 8010
+  property int apiPort: 16310
   // UI 自动刷新间隔（毫秒）
   property int refreshMs: 120
   // 默认界面语言

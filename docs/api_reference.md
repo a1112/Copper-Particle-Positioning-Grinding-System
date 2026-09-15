@@ -211,24 +211,24 @@ Content-Type: application/json
 
 ```powershell
 # 健康检查
-curl http://127.0.0.1:8010/api/status/health
+curl http://127.0.0.1:16310/api/status/health
 
 # 查看当前状态覆盖
-curl http://127.0.0.1:8010/api/status/test_payload
+curl http://127.0.0.1:16310/api/status/test_payload
 
 # 注入状态（merge=false 表示覆盖）
-curl -X POST "http://127.0.0.1:8010/api/status/test_payload?merge=false" ^
+curl -X POST "http://127.0.0.1:16310/api/status/test_payload?merge=false" ^
      -H "Content-Type: application/json" ^
      -d '{"state":"RUNNING","spindle_rpm":2200}'
 
 # 获取切削数据
-curl http://127.0.0.1:8010/api/cutting
+curl http://127.0.0.1:16310/api/cutting
 ```
 
 如需实时观察 WebSocket，可使用 `websocat`、`wscat` 或浏览器控制台：
 
 ```bash
-websocat ws://127.0.0.1:8010/ws/status
+websocat ws://127.0.0.1:16310/ws/status
 ```
 
 ---

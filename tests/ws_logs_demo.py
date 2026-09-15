@@ -12,7 +12,7 @@ import websockets
 
 
 HOST = os.getenv("COPPER_API_HOST", "127.0.0.1")
-PORT = int(os.getenv("COPPER_API_PORT", "8010"))
+PORT = int(os.getenv("COPPER_API_PORT", "16310"))
 
 
 async def main() -> int:
