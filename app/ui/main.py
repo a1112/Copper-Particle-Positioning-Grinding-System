@@ -85,6 +85,8 @@ def _run_minimal_ui() -> int:
     QCoreApplication.setApplicationName("Copper UI")
 
     engine = QQmlApplicationEngine()
+    from app.ui.project_resource_monitor import install as install_resource_monitor
+    install_resource_monitor(engine)
     try:
         _ensure_qrc_resources()
     except Exception:

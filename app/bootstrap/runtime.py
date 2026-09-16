@@ -92,6 +92,8 @@ class Runtime:
         QCoreApplication.setApplicationName("Copper UI")
 
         self.engine = QQmlApplicationEngine()
+        from app.ui.project_resource_monitor import install as install_resource_monitor
+        install_resource_monitor(self.engine)
         self.engine.addImageProvider("camera", self.provider)
 
         translations_dir = Path(__file__).resolve().parents[1].joinpath("ui", "i18n")

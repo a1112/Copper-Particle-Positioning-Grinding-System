@@ -40,6 +40,8 @@ def main() -> None:
     i18n = LocalizationManager(translations_dir, initial_language)
 
     engine = QQmlApplicationEngine()
+    from app.ui.project_resource_monitor import install as install_resource_monitor
+    install_resource_monitor(engine)
 
     def on_frame(frame):
         try:

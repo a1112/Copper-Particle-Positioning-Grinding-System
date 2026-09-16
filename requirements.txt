@@ -18,3 +18,4 @@ cryptography
 requests
 MechEyeAPI
 open3d-python
+psutil>=5.9,<8
