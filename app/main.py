@@ -42,6 +42,8 @@ def main() -> None:
     i18n = LocalizationManager(translations_dir, initial_language)
 
     engine = QQmlApplicationEngine()
+    from app.ui.project_resource_monitor import install as install_resource_monitor
+    install_resource_monitor(engine)
 
     def on_frame(frame):
         try:
@@ -76,11 +78,11 @@ def main() -> None:
     api_ctl = ApiController()
 
     settings_store = QSettings()
-    port_value = settings_store.value("apiPort", 8010)
+    port_value = settings_store.value("apiPort", 16310)
     try:
         api_port = int(port_value)
     except Exception:
-        api_port = 8010
+        api_port = 16310
 
 
     ret = app.exec()

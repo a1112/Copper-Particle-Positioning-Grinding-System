@@ -93,6 +93,8 @@ class Runtime:
         QSettings.setDefaultFormat(QSettings.IniFormat)
 
         self.engine = QQmlApplicationEngine()
+        from app.ui.project_resource_monitor import install as install_resource_monitor
+        install_resource_monitor(self.engine)
         self.engine.addImageProvider("camera", self.provider)
 
         translations_dir = Path(__file__).resolve().parents[1].joinpath("ui", "i18n")
@@ -116,9 +118,9 @@ class Runtime:
 
     def _resolve_api_port(self) -> int:
         settings = QSettings("CopperSystem", "Copper UI")
-        value = settings.value("apiPort", 8010)
+        value = settings.value("apiPort", 16310)
         try:
             return int(value)
         except Exception:
-            return 8010
+            return 16310
 

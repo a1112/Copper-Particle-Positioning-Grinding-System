@@ -220,7 +220,7 @@ LOCAL_DB_URL: str = _env_text("LOCAL_DB_URL", DEFAULT_DB_URL) or DEFAULT_DB_URL
 
 # API host/port/log-level used by uvicorn when running the public API.
 APP_HOST: str = _env_text("COPPER_APP_HOST", "127.0.0.1") or "127.0.0.1"
-APP_PORT: int = _env_int("COPPER_APP_PORT", 8010)
+APP_PORT: int = _env_int("COPPER_APP_PORT", 16310)
 LOG_LEVEL: str = _env_text("COPPER_LOG_LEVEL", "debug" if DEBUG else "info") or ("debug" if DEBUG else "info")
 
 # HTTP bridge configuration (used when DATA_MODE == "http").
