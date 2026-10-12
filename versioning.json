@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "units": {},
+  "unmanaged": [
+    {
+      "name": "application",
+      "reason": "Existing industrial runtime has no verified release version. Its PySide project file is an IDE descriptor, not a released distribution. Identify deployments by source commit; do not fabricate an early0.1.0 release.",
+      "paths": [
+        "app",
+        "cpp"
+      ]
+    }
+  ],
+  "notes": [
+    "Existing version authorities and independent release units are preserved. This adoption does not assert that a manifest version has been released."
+  ]
+}
