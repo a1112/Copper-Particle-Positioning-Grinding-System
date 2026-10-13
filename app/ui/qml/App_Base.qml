@@ -50,8 +50,8 @@ ApplicationWindow {
         var ah = Math.max(1, Math.min(target.height, target.desktopAvailableHeight) - 64)
         var left = target.virtualX + (target.width - aw) / 2
         var top = target.virtualY + (target.height - ah) / 2
-        minimumWidth = Math.min(800, aw)
-        minimumHeight = Math.min(520, ah)
+        minimumWidth = Math.min(800, aw, saved && pw >= 320 ? pw : 800)
+        minimumHeight = Math.min(520, ah, saved && ph >= 240 ? ph : 520)
         if (useSaved && !saved) {
             pw = Math.min(1100, Math.floor(aw * 0.82))
             ph = Math.min(720, Math.floor(ah * 0.82))
